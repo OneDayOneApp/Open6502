@@ -14,7 +14,7 @@
 
 ## P1 CPU + bus
 
-- [ ] 6502 RTL core.
+- [~] 6502 RTL core: reset/fetch + LDA#/STA abs/JMP abs/BNE/NOP subset.
 - [ ] 2A03 profile (no decimal).
 - [~] bus address decode/WRAM in RTL; CPU cycle semantics pending.
 - [ ] NMI/IRQ.

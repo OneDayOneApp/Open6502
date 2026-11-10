@@ -10,8 +10,12 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
 - `bus/open6502_bus.sv`: address decode/select
 - `bus/open6502_wram.sv`: 2KB WRAM with mirroring
 - `clocks/open6502_clocks.sv`: reset sync, CPU/PPU enables, 44.1 kHz audio enable
+- `cpu/open6502_cpu.sv`: reset-vector/fetch front end with a directed
+  LDA/STA/JMP/BNE/NOP subset (not the full 6502 yet)
 - `../tb/open6502_tb.sv`: video/top smoke testbench
 - `../tb/open6502_bus_tb.sv`: bus/WRAM testbench
+- `../tb/open6502_clocks_tb.sv`: clock-enable testbench
+- `../tb/open6502_cpu_tb.sv`: CPU subset testbench
 
 Not yet implemented: 6502 CPU, 2C02 PPU, 2A03 APU, bus decoder, cartridge
 mapper, OAM DMA and audio mixer.  The top-level ports and clock/timing scaffold
