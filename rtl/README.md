@@ -12,7 +12,8 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
 - `clocks/open6502_clocks.sv`: reset sync, CPU/PPU enables, 44.1 kHz audio enable
 - `cpu/open6502_cpu.sv`: reset-vector/fetch front end with a directed
   immediate/zero-page/absolute/indexed/indirect load-store, basic ALU,
-  branches, transfers, flags, accumulator shifts (not the full 6502 yet)
+  branches, transfers, flags, accumulator shifts, JSR/RTS (not the full 6502
+  yet)
 - `../tb/open6502_tb.sv`: video/top smoke testbench
 - `../tb/open6502_bus_tb.sv`: bus/WRAM testbench
 - `../tb/open6502_clocks_tb.sv`: clock-enable testbench

@@ -27,7 +27,9 @@ module open6502_cpu (
     ST_ABSY_LO, ST_ABSY_HI, ST_ABS_DATA,
     ST_INDX_PTR, ST_INDX_LO, ST_INDX_HI,
     ST_INDY_PTR, ST_INDY_LO, ST_INDY_HI,
-    ST_BRANCH, ST_BRANCH_EXEC, ST_IMPLIED, ST_NOP
+    ST_BRANCH, ST_BRANCH_EXEC, ST_IMPLIED, ST_NOP,
+    ST_JSR_PUSH_HI, ST_JSR_PUSH_LO, ST_JSR_SET,
+    ST_RTS_PULL_LO, ST_RTS_PULL_HI
   } state_t;
 
   state_t state;
@@ -38,6 +40,7 @@ module open6502_cpu (
   logic [7:0]  tmp_lo;
   logic [7:0]  zp_ptr;
   logic [8:0]  alu9;
+  logic [15:0] ret_addr;
   logic [7:0]  alu8;
   logic        we;
 
@@ -49,8 +52,14 @@ module open6502_cpu (
                      (state == ST_INDX_PTR || state == ST_INDY_PTR) ? pc :
                      (state == ST_INDX_LO || state == ST_INDX_HI ||
                       state == ST_INDY_LO || state == ST_INDY_HI) ? {8'h00, zp_ptr} :
+                     (state == ST_JSR_PUSH_HI || state == ST_JSR_PUSH_LO) ?
+                       {8'h01, sp} :
+                     (state == ST_RTS_PULL_LO) ? {8'h01, sp + 8'd1} :
+                     (state == ST_RTS_PULL_HI) ? {8'h01, sp + 8'd1} :
                      (state == ST_ABS_DATA) ? ea : pc;
-  assign bus_wdata = a;
+  assign ret_addr  = pc - 16'd1;
+  assign bus_wdata = (state == ST_JSR_PUSH_HI) ? ret_addr[15:8] :
+                     (state == ST_JSR_PUSH_LO) ? ret_addr[7:0] : a;
   assign bus_we    = we;
   assign dbg_pc    = pc;
   assign dbg_a     = a;
@@ -65,7 +74,9 @@ module open6502_cpu (
 
   always_comb begin
     we = 1'b0;
-    if (state == ST_ABS_DATA) begin
+    if (state == ST_JSR_PUSH_HI || state == ST_JSR_PUSH_LO) begin
+      we = 1'b1;
+    end else if (state == ST_ABS_DATA) begin
       case (opcode)
         8'h8D, 8'h8E, 8'h8C, 8'h85, 8'h86, 8'h84,
         8'h95, 8'h96, 8'h94, 8'h9D, 8'h99, 8'h81, 8'h91: we = 1'b1;
@@ -121,8 +132,10 @@ module open6502_cpu (
               state <= ST_INDX_PTR;
             8'hB1, 8'h91, 8'h71, 8'hF1, 8'h31, 8'h11, 8'h51, 8'hD1:
               state <= ST_INDY_PTR;
-            8'hAD, 8'hAE, 8'hAC, 8'h8D, 8'h8E, 8'h8C, 8'h4C:
+            8'hAD, 8'hAE, 8'hAC, 8'h8D, 8'h8E, 8'h8C, 8'h4C, 8'h20:
               state <= ST_ABS_LO;
+            8'h60:
+              state <= ST_RTS_PULL_LO;
             8'hD0, 8'hF0, 8'h90, 8'hB0, 8'h10, 8'h30,
             8'h50, 8'h70:
               state <= ST_BRANCH;
@@ -241,6 +254,8 @@ module open6502_cpu (
           if (opcode == 8'h4C) begin
             pc <= {bus_rdata, tmp_lo};
             state <= ST_FETCH;
+          end else if (opcode == 8'h20) begin
+            state <= ST_JSR_PUSH_HI;
           end else begin
             state <= ST_ABS_DATA;
           end
@@ -284,6 +299,28 @@ module open6502_cpu (
             end
             default: ;
           endcase
+          state <= ST_FETCH;
+        end
+        ST_JSR_PUSH_HI: begin
+          sp <= sp - 8'd1;
+          state <= ST_JSR_PUSH_LO;
+        end
+        ST_JSR_PUSH_LO: begin
+          sp <= sp - 8'd1;
+          state <= ST_JSR_SET;
+        end
+        ST_JSR_SET: begin
+          pc <= ea;
+          state <= ST_FETCH;
+        end
+        ST_RTS_PULL_LO: begin
+          sp <= sp + 8'd1;
+          tmp_lo <= bus_rdata;
+          state <= ST_RTS_PULL_HI;
+        end
+        ST_RTS_PULL_HI: begin
+          sp <= sp + 8'd1;
+          pc <= {bus_rdata, tmp_lo} + 16'd1;
           state <= ST_FETCH;
         end
         ST_BRANCH: begin

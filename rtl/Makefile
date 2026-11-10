@@ -15,6 +15,7 @@ BUS_TB := ../tb/open6502_bus_tb.sv
 CLK_TB := ../tb/open6502_clocks_tb.sv
 CPU_TB := ../tb/open6502_cpu_tb.sv
 SOC_TB := ../tb/open6502_soc_tb.sv
+JSR_TB := ../tb/open6502_jsr_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
 	$(IV) -g2012 -o open6502_tb.vvp $(RTL) $(TB)
@@ -28,6 +29,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_cpu_tb.vvp
 	$(IV) -g2012 -o open6502_soc_tb.vvp $(RTL) $(SOC_TB)
 	vvp open6502_soc_tb.vvp
+	$(IV) -g2012 -o open6502_jsr_tb.vvp cpu/open6502_cpu.sv $(JSR_TB)
+	vvp open6502_jsr_tb.vvp
 
 sim-verilator: $(TB) $(RTL)
 	$(VERILATOR) --binary -Wall -Wno-fatal --top-module open6502_tb \
