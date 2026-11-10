@@ -54,14 +54,16 @@ int main(int argc, char **argv) {
   int nmi_trace = 0;
   bool have = false;
   for (long c = 0; c < 150000000; c++) {
-    dut->joy1 = 0x08;
+    dut->joy1 = (frames == 5) ? 0x08 : 0x00;
     tick();
-    if ((dut->dbg_bus_addr == 0x0000 || dut->dbg_bus_addr == 0x0037)) {
-      if (dut->dbg_cpu_we && dut->dbg_bus_addr != last_waddr) {
-        std::printf("WRZP addr=%02x data=%02x pc=%04x frame=%d\n",
-          dut->dbg_bus_addr, dut->dbg_bus_wdata, dut->dbg_cpu_pc, frames);
+    {
+      static unsigned char last_we = 0;
+      if (dut->dbg_cpu_we && !last_we) {
+        if (dut->dbg_bus_addr <= 0x0047)
+          std::printf("WRZP addr=%04x data=%02x pc=%04x frame=%d tick=%ld\n",
+            dut->dbg_bus_addr, dut->dbg_bus_wdata, dut->dbg_cpu_pc, frames, c);
       }
-      last_waddr = dut->dbg_bus_addr;
+      last_we = dut->dbg_cpu_we;
     }
     if (dut->dbg_cpu_pc != prev_pc) {
       prev_pc = dut->dbg_cpu_pc;

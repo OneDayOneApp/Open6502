@@ -60,9 +60,9 @@ module open6502_controller_tb;
     repeat (8) @(posedge clk); rst_n = 1;
     repeat (2000) @(posedge clk);
     $display("controller $0A=%02x pc=%04x", dut.u_ram.mem[11'h00A], dbg_cpu_pc);
-    if (dut.u_ram.mem[11'h00A] !== 8'h08)
-      $fatal(1, "controller START bit wrong: %02x", dut.u_ram.mem[11'h00A]);
-    $display("PASS: Open6502 controller START bit");
+    if (dut.u_ram.mem[11'h00A] !== 8'h10)
+      $fatal(1, "controller START bit wrong (expected bit4): %02x", dut.u_ram.mem[11'h00A]);
+    $display("PASS: Open6502 controller START bit (bit4, reversed bit order)");
     $finish;
   end
 endmodule

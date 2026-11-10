@@ -47,7 +47,9 @@ static void trace_cpu_state(void) {
     fprintf(g_state_trace, "%04x %02x %02x %02x %02x %02x",
         (unsigned)(cpu.pc & 0xFFFF), cpu.a, cpu.x, cpu.y, cpu.sp, cpu.p);
     if (g_trace_mem) {
-      fprintf(g_state_trace, " %02x %02x", paddr_read(0x0D, 1), paddr_read(0x0E, 1));
+      fprintf(g_state_trace, " %02x %02x %02x %02x %02x %02x",
+        paddr_read(0x00, 1), paddr_read(0x0A, 1), paddr_read(0x37, 1),
+        paddr_read(0x38, 1), paddr_read(0x39, 1), paddr_read(0x47, 1));
     }
     fprintf(g_state_trace, "\n");
   }

@@ -76,15 +76,18 @@ title frame hash unchanged
 RTL Klaus passes
 ```
 
-### P1: Bus strobe
+### P1: CPU cycle-accurate decode
 
-Add `tb/open6502_bus_strobe_tb.sv`, then add `bus_valid` to the CPU and
-`bus_strobe` to the SoC. Gate:
+Implemented by decoding in `ST_FETCH` from the fetched opcode byte instead of
+adding a separate `ST_DECODE` cycle. This restores 6502 instruction timing for
+NMI handlers that must finish before the next vblank.
+
+Gate:
 
 ```text
-one peripheral commit per CPU access
-title frame unchanged
-Klaus unchanged
+RTL Klaus PASS
+28 RTL tests PASS
+falling.nes Start enters mode $00=1 without bouncing to $00=2
 ```
 
 ### P2: Controller protocol

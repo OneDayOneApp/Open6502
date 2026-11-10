@@ -22,7 +22,7 @@ module open6502_cpu (
   output logic [5:0]  dbg_state
 );
   typedef enum logic [5:0] {
-    ST_RESET_LO, ST_RESET_HI, ST_FETCH, ST_DECODE,
+    ST_RESET_LO, ST_RESET_HI, ST_FETCH,
     ST_IMM, ST_ZP, ST_ZPX, ST_ZPY,
     ST_ABS_LO, ST_ABS_HI, ST_ABSX_LO, ST_ABSX_HI,
     ST_ABSY_LO, ST_ABSY_HI, ST_ABS_DATA,
@@ -196,11 +196,7 @@ module open6502_cpu (
           end else begin
             opcode <= bus_rdata;
             pc <= pc + 16'd1;
-            state <= ST_DECODE;
-          end
-        end
-        ST_DECODE: begin
-          case (opcode)
+            case (bus_rdata)
             8'hA9, 8'hA2, 8'hA0, 8'h69, 8'hE9, 8'h29,
             8'h09, 8'h49, 8'hC9, 8'hE0, 8'hC0:
               state <= ST_IMM;
@@ -253,6 +249,7 @@ module open6502_cpu (
             default:
               state <= ST_IMPLIED;
           endcase
+          end
         end
         ST_IMM: begin
           case (opcode)
