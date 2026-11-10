@@ -41,6 +41,7 @@ module open6502_ppu (
   logic [1:0]  scolor;
   integer      tx, ty, fine_y, bitpos, i, sbit;
   integer      px, py, ntx, nty, nt;
+  integer      sprite_height, sprite_count, sj;
 
   assign nmi = nmi_level;
 
@@ -48,6 +49,12 @@ module open6502_ppu (
     pixel_index = pal[0];
     sprite0_hit = 1'b0;
     bg_opaque = 1'b0;
+    sprite_count = 0;
+    sprite_height = ctrl[5] ? 16 : 8;
+    for (sj = 0; sj < 64; sj = sj + 1) begin
+      if (y >= (oam[sj*4] + 1) && y < (oam[sj*4] + 1 + sprite_height))
+        sprite_count = sprite_count + 1;
+    end
     if ((mask[3]) && (x < 9'd256) && (y < 9'd240)) begin
       px = x + scroll_x;
       py = y + scroll_y;
@@ -77,11 +84,13 @@ module open6502_ppu (
       for (i = 0; i < 64; i = i + 1) begin
         sy = oam[i*4] + 8'd1;
         sx = oam[i*4 + 3];
-        if (y >= sy && y < (sy + 8) && x >= sx && x < (sx + 8)) begin
+        if (y >= sy && y < (sy + sprite_height) && x >= sx && x < (sx + 8)) begin
           stile = oam[i*4 + 1];
+          if (ctrl[5] && (y - sy) >= 8) stile[0] = 1'b1;
           sattr = oam[i*4 + 2];
           srow = y - sy;
           scol = x - sx;
+          if (ctrl[5] && srow >= 8) srow = srow - 8;
           if (sattr[7]) srow = 7 - srow;
           if (sattr[6]) scol = 7 - scol;
           spat = (ctrl[3] ? 13'h1000 : 13'h0000) + {4'd0, stile, 4'd0} + srow[3:0];
@@ -119,6 +128,7 @@ module open6502_ppu (
       for (int i = 0; i < 32; i++) pal[i] <= 8'h00;
     end else begin
       if (dma_we) oam[dma_addr] <= dma_wdata;
+      if (ppu_en && x == 9'd0 && sprite_count > 8) status[5] <= 1'b1;
       if (ppu_en && y == 9'd241 && x == 9'd1) begin
         status[7] <= 1'b1;
         if (ctrl[7]) nmi_level <= 1'b1;
@@ -160,6 +170,7 @@ module open6502_ppu (
           case (addr)
             3'd2: begin
               status[7] <= 1'b0;
+              status[5] <= 1'b0;
               nmi_level <= 1'b0;
               w_toggle <= 1'b0;
             end

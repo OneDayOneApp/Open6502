@@ -29,7 +29,7 @@
 - [~] 341x262 dot counter (RTL video timing scaffold + smoke test).
 - [~] vblank/NMI register block; pixel pipeline pending.
 - [~] background pixel fetch + coarse/fine scroll; fetch/shift registers pending.
-- [~] simple per-pixel sprite overlay; evaluation/8x16/overflow pending.
+- [~] per-pixel sprite overlay + 8x16 + overflow flag; exact evaluation limits pending.
 - [~] sprite-0 hit flag in simple overlay; exact dot/scroll behavior pending.
 - [ ] overflow.
 - [x] OAM DMA engine + `$4014` CPU stall/top integration.
