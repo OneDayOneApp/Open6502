@@ -47,9 +47,10 @@ int main(int argc, char **argv) {
   dut->chr_load_we = 0;
 
   std::vector<unsigned char> cur(256 * 240, 0xFF), shot;
-  int frames = 0, last_vsync = 1, target = 5;
+  int frames = 0, last_vsync = 1, target = 20;
   bool have = false;
-  for (long c = 0; c < 30000000; c++) {
+  for (long c = 0; c < 40000000; c++) {
+    dut->joy1 = (frames >= 6 && frames <= 10) ? 0x08 : 0x00;
     tick();
     if (dut->vid_de && dut->dbg_ppu_x < 256 && dut->dbg_ppu_y < 240) {
       cur[dut->dbg_ppu_y * 256 + dut->dbg_ppu_x] = dut->dbg_ppu_pixel & 0x3F;
@@ -58,6 +59,7 @@ int main(int argc, char **argv) {
       last_vsync = dut->vid_vsync;
       if (!last_vsync) {
         frames++;
+        std::printf("frame %d pal=%02x %02x %02x ctrl=%02x mask=%02x\n", frames, dut->dbg_pal0, dut->dbg_pal1, dut->dbg_pal2, dut->dbg_ppu_ctrl, dut->dbg_ppu_mask);
         if (frames == target) { shot = cur; have = true; break; }
         std::fill(cur.begin(), cur.end(), 0xFF);
       }

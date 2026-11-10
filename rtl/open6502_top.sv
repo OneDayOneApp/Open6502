@@ -123,6 +123,9 @@ module open6502_top #(
   logic [15:0] cpu_addr;
   logic [7:0]  cpu_wdata;
   logic [7:0]  cpu_rdata;
+  logic [7:0]  cpu_rdata_bus;
+  logic [7:0]  joy1_shreg, joy2_shreg;
+  logic [7:0]  joy_rdata;
   logic        cpu_we;
   logic [7:0]  ram_rdata;
   logic [10:0] ram_addr;
@@ -174,17 +177,22 @@ module open6502_top #(
     .frame_tick(frame_tick)
   );
 
-  open6502_controller u_joy1 (
-    .clk(clk_21m), .rst_n(rst_sync_n),
-    .strobe(1'b0), .shift_en(1'b0),
-    .buttons(joy1), .serial(joy1_serial)
-  );
-
-  open6502_controller u_joy2 (
-    .clk(clk_21m), .rst_n(rst_sync_n),
-    .strobe(1'b0), .shift_en(1'b0),
-    .buttons(joy2), .serial(joy2_serial)
-  );
+  always_ff @(posedge clk_21m or negedge rst_sync_n) begin
+    if (!rst_sync_n) begin
+      joy1_shreg <= 8'h00;
+      joy2_shreg <= 8'h00;
+    end else if (cpu_ce && (cpu_addr == 16'h4016) && cpu_we) begin
+      joy1_shreg <= joy1;
+      joy2_shreg <= joy2;
+    end else if (cpu_ce && !cpu_we && (cpu_addr == 16'h4016)) begin
+      joy1_shreg <= {1'b0, joy1_shreg[7:1]};
+    end else if (cpu_ce && !cpu_we && (cpu_addr == 16'h4017)) begin
+      joy2_shreg <= {1'b0, joy2_shreg[7:1]};
+    end
+  end
+  assign joy_rdata = (cpu_addr == 16'h4017) ? {7'b0, joy2_shreg[0]} :
+                                                   {7'b0, joy1_shreg[0]};
+  assign cpu_rdata = ((cpu_addr == 16'h4016) || (cpu_addr == 16'h4017)) ? joy_rdata : cpu_rdata_bus;
 
   assign cpu_ce = cpu_en && !dma_busy && !dmc_stall;
 
@@ -203,7 +211,7 @@ module open6502_top #(
     .ram_sel(ram_sel), .ppu_sel(ppu_sel), .apu_sel(apu_sel),
     .cart_sel(cart_sel), .ram_we(ram_we), .ppu_we(ppu_we),
     .apu_we(apu_we), .cart_we(cart_we_i), .ram_addr(ram_addr),
-    .cpu_rdata(cpu_rdata)
+    .cpu_rdata(cpu_rdata_bus)
   );
 
   open6502_wram u_ram (
