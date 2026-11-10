@@ -14,6 +14,7 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
   (standalone; no CPU DMA stall yet)
 - `apu/open6502_apu.sv`: pulse 1/2, triangle, noise, length/envelope, frame
   sequencer, frame IRQ, pulse sweep, `$4015` status and 16-bit sample output
+- `fpga/open6502_fpga_top.sv`: FPGA wrapper with VGA and sigma-delta audio
 - `cart/open6502_mapper.sv`: mapper 0/1/2/3/4/7 bank registers and MMC3 IRQ,
   integrated into `open6502_top` via the `MAPPER` parameter
 - `dma/open6502_oam_dma.sv`: 256-byte OAM DMA engine, integrated with `$4014`

@@ -4,7 +4,8 @@ RTL := open6502_pkg.sv open6502_top.sv video/open6502_video_timing.sv \
        input/open6502_controller.sv dbg/open6502_difftest_bridge.sv \
        bus/open6502_bus.sv bus/open6502_wram.sv clocks/open6502_clocks.sv \
        cpu/open6502_cpu.sv ppu/open6502_ppu.sv dma/open6502_oam_dma.sv \
-       apu/open6502_apu.sv apu/open6502_dmc.sv cart/open6502_mapper.sv
+       apu/open6502_apu.sv apu/open6502_dmc.sv cart/open6502_mapper.sv \
+       fpga/open6502_fpga_top.sv
 
 lint:
 	$(VERILATOR) --lint-only -Wall -Wno-fatal --top-module $(TOP) $(RTL)

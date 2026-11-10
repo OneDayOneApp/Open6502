@@ -65,7 +65,7 @@
 - [ ] `open6502_difftest_bridge` RTL.
 - [ ] Verilator DPI bridge.
 - [ ] mismatch report/replay.
-- [ ] FPGA synthesis/timing.
+- [~] FPGA wrapper + VGA/sigma-delta outputs; synthesis/timing/board constraints pending.
 - [ ] VGA/HDMI output.
 - [ ] I2S/sigma-delta audio.
 - [ ] one-hour stability.
