@@ -1,0 +1,22 @@
+*.*
+*
+!*/
+!Makefile
+!*.mk
+!*.[cSh]
+!*.cc
+!.gitignore
+!README.md
+!Kconfig
+include/config
+include/generated
+
+# 6502EMU documentation and example sources
+!*.md
+!*.s
+!*.cfg
+!*.sh
+!basic/msbasic.bin
+!*.in
+!nesgame/game.nes
+!nesgame/screenshot.png
