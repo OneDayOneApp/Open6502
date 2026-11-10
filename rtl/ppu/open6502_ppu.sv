@@ -13,6 +13,9 @@ module open6502_ppu (
   input  logic        we,
   input  logic [2:0]  addr,
   input  logic [7:0]  wdata,
+  input  logic        dma_we,
+  input  logic [7:0]  dma_addr,
+  input  logic [7:0]  dma_wdata,
   output logic [7:0]  rdata,
   output logic [7:0]  pixel_index,
   output logic        sprite0_hit,
@@ -107,6 +110,7 @@ module open6502_ppu (
       for (int i = 0; i < 256; i++) oam[i] <= 8'h00;
       for (int i = 0; i < 32; i++) pal[i] <= 8'h00;
     end else begin
+      if (dma_we) oam[dma_addr] <= dma_wdata;
       if (ppu_en && y == 9'd241 && x == 9'd1) begin
         status[7] <= 1'b1;
         if (ctrl[7]) nmi_level <= 1'b1;

@@ -44,6 +44,13 @@ module open6502_top (
   logic        ppu_nmi;
   logic [7:0]  ppu_pixel;
   logic        ppu_sprite0;
+  logic [15:0] bus_addr;
+  logic        bus_we;
+  logic        dma_busy;
+  logic        dma_start;
+  logic [15:0] dma_mem_addr;
+  logic        dma_oam_we;
+  logic [7:0]  dma_oam_addr, dma_oam_wdata;
   logic        joy1_serial;
   logic        joy2_serial;
   logic        dbg_valid_i;
@@ -75,14 +82,14 @@ module open6502_top (
   );
 
   open6502_cpu u_cpu (
-    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
+    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en && !dma_busy),
     .bus_rdata(cpu_rdata), .irq_n(1'b1), .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
     .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p()
   );
 
   open6502_bus u_bus (
-    .cpu_addr(cpu_addr), .cpu_we(cpu_we), .cpu_wdata(cpu_wdata),
+    .cpu_addr(bus_addr), .cpu_we(bus_we), .cpu_wdata(cpu_wdata),
     .ram_rdata(ram_rdata), .ppu_rdata(ppu_rdata), .apu_rdata(8'h00),
     .cart_rdata(cart_rdata),
     .ram_sel(ram_sel), .ppu_sel(ppu_sel), .apu_sel(apu_sel),
@@ -100,9 +107,21 @@ module open6502_top (
     .clk(clk_21m), .rst_n(rst_sync_n), .ppu_en(ppu_en),
     .x(ppu_x), .y(ppu_y),
     .cs(ppu_sel), .we(ppu_we), .addr(cpu_addr[2:0]),
-    .wdata(cpu_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
+    .wdata(cpu_wdata), .dma_we(dma_oam_we), .dma_addr(dma_oam_addr),
+    .dma_wdata(dma_oam_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
     .sprite0_hit(ppu_sprite0), .nmi(ppu_nmi)
   );
+
+  open6502_oam_dma u_dma (
+    .clk(clk_21m), .rst_n(rst_sync_n), .start(dma_start),
+    .page(cpu_wdata), .mem_rdata(cpu_rdata), .mem_addr(dma_mem_addr),
+    .oam_we(dma_oam_we), .oam_addr(dma_oam_addr),
+    .oam_wdata(dma_oam_wdata), .busy(dma_busy)
+  );
+
+  assign bus_addr = dma_busy ? dma_mem_addr : cpu_addr;
+  assign bus_we   = dma_busy ? 1'b0 : cpu_we;
+  assign dma_start = apu_sel && cpu_we && (cpu_addr == 16'h4014);
 
   open6502_difftest_bridge u_dbg (
     .clk(clk_21m), .rst_n(rst_sync_n),
@@ -115,7 +134,7 @@ module open6502_top (
   assign vid_rgb = {ppu_pixel[3:0], ppu_pixel[3:0], ppu_pixel[3:0]};
   assign aud_valid = aud_en;
   assign aud_sample = 16'sd0;
-  assign cart_addr = cpu_addr;
+  assign cart_addr = bus_addr;
   assign cart_wdata = cpu_wdata;
   assign cart_we = cart_we_i;
   assign dbg_valid = dbg_valid_i;
