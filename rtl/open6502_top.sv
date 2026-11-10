@@ -118,7 +118,8 @@ module open6502_top #(
   output logic [7:0]  dbg_zp0e,
   output logic [7:0]  dbg_zp0f,
   output logic [7:0]  dbg_zp10,
-  output logic [7:0]  dbg_zp11
+  output logic [7:0]  dbg_zp11,
+  output logic [7:0]  dbg_zp0a
 );
 
   logic        rst_sync_n;
@@ -134,6 +135,7 @@ module open6502_top #(
   logic [7:0]  cpu_rdata_bus;
   logic [7:0]  joy1_shreg, joy2_shreg;
   logic [7:0]  joy_rdata;
+  logic        joy_read, joy_write, joy_read_d, joy_write_d;
   logic [15:0] nmi_hits;
   logic        cpu_we;
   logic [7:0]  ram_rdata;
@@ -186,17 +188,25 @@ module open6502_top #(
     .frame_tick(frame_tick)
   );
 
+  assign joy_write = cpu_ce && cpu_we && (cpu_addr == 16'h4016);
+  assign joy_read  = cpu_ce && !cpu_we &&
+                     ((cpu_addr == 16'h4016) || (cpu_addr == 16'h4017));
   always_ff @(posedge clk_21m or negedge rst_sync_n) begin
     if (!rst_sync_n) begin
       joy1_shreg <= 8'h00;
       joy2_shreg <= 8'h00;
-    end else if (cpu_ce && (cpu_addr == 16'h4016) && cpu_we) begin
-      joy1_shreg <= joy1;
-      joy2_shreg <= joy2;
-    end else if (cpu_ce && !cpu_we && (cpu_addr == 16'h4016)) begin
-      joy1_shreg <= {1'b0, joy1_shreg[7:1]};
-    end else if (cpu_ce && !cpu_we && (cpu_addr == 16'h4017)) begin
-      joy2_shreg <= {1'b0, joy2_shreg[7:1]};
+      joy_read_d <= 1'b0;
+      joy_write_d <= 1'b0;
+    end else begin
+      joy_read_d <= joy_read;
+      joy_write_d <= joy_write;
+      if (joy_write && !joy_write_d) begin
+        joy1_shreg <= joy1;
+        joy2_shreg <= joy2;
+      end else if (joy_read && !joy_read_d) begin
+        if (cpu_addr == 16'h4016) joy1_shreg <= {1'b0, joy1_shreg[7:1]};
+        else                       joy2_shreg <= {1'b0, joy2_shreg[7:1]};
+      end
     end
   end
   assign joy_rdata = (cpu_addr == 16'h4017) ? {7'b0, joy2_shreg[0]} :
@@ -323,6 +333,7 @@ module open6502_top #(
   assign dbg_pal2 = u_ppu.pal[2];
   assign dbg_ppu_x = ppu_x;
   assign dbg_ppu_y = ppu_y;
+  assign dbg_zp0a = u_ram.mem[11'h00a];
   assign dbg_zp0e = u_ram.mem[11'h00e];
   assign dbg_zp0f = u_ram.mem[11'h00f];
   assign dbg_zp10 = u_ram.mem[11'h010];

@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
       last_vsync = dut->vid_vsync;
       if (!last_vsync) {
         frames++;
-        std::printf("frame %d pal=%02x %02x %02x ctrl=%02x mask=%02x\n", frames, dut->dbg_pal0, dut->dbg_pal1, dut->dbg_pal2, dut->dbg_ppu_ctrl, dut->dbg_ppu_mask);
+        std::printf("frame %d pal=%02x %02x %02x 0A=%02x ctrl=%02x mask=%02x\n", frames, dut->dbg_pal0, dut->dbg_pal1, dut->dbg_pal2, dut->dbg_zp0a, dut->dbg_ppu_ctrl, dut->dbg_ppu_mask);
         if (frames == target) { shot = cur; have = true; break; }
         std::fill(cur.begin(), cur.end(), 0xFF);
       }
