@@ -42,6 +42,7 @@ module open6502_top (
   logic        ram_we, ppu_we, apu_we, cart_we_i;
   logic [7:0]  ppu_rdata;
   logic        ppu_nmi;
+  logic [7:0]  ppu_pixel;
   logic        joy1_serial;
   logic        joy2_serial;
   logic        dbg_valid_i;
@@ -98,7 +99,8 @@ module open6502_top (
     .clk(clk_21m), .rst_n(rst_sync_n), .ppu_en(ppu_en),
     .x(ppu_x), .y(ppu_y),
     .cs(ppu_sel), .we(ppu_we), .addr(cpu_addr[2:0]),
-    .wdata(cpu_wdata), .rdata(ppu_rdata), .nmi(ppu_nmi)
+    .wdata(cpu_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
+    .nmi(ppu_nmi)
   );
 
   open6502_difftest_bridge u_dbg (
@@ -109,7 +111,7 @@ module open6502_top (
   );
 
   assign vid_pclk = clk_21m;
-  assign vid_rgb = 12'h000;
+  assign vid_rgb = {ppu_pixel[3:0], ppu_pixel[3:0], ppu_pixel[3:0]};
   assign aud_valid = aud_en;
   assign aud_sample = 16'sd0;
   assign cart_addr = cpu_addr;

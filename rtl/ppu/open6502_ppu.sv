@@ -14,9 +14,11 @@ module open6502_ppu (
   input  logic [2:0]  addr,
   input  logic [7:0]  wdata,
   output logic [7:0]  rdata,
+  output logic [7:0]  pixel_index,
   output logic        nmi
 );
   logic [7:0]  ctrl, mask, status, oam_addr;
+  logic [7:0]  chr  [0:8191];
   logic [7:0]  vram [0:2047];
   logic [7:0]  oam  [0:255];
   logic [7:0]  pal  [0:31];
@@ -24,8 +26,31 @@ module open6502_ppu (
   logic [7:0]  read_buf;
   logic        w_toggle;
   logic        nmi_level;
+  logic [7:0]  tile, attr, lo, hi;
+  logic [12:0] pat;
+  logic [1:0]  color, pal_bits;
+  integer      tx, ty, fine_y, bitpos;
 
   assign nmi = nmi_level;
+
+  always_comb begin
+    pixel_index = pal[0];
+    if ((mask[3]) && (x < 9'd256) && (y < 9'd240)) begin
+      tx = x[7:3];
+      ty = y[7:3];
+      fine_y = y[2:0];
+      tile = vram[11'h000 + ty * 32 + tx];
+      attr = vram[11'h3C0 + (ty >> 2) * 8 + (tx >> 2)];
+      pal_bits = (attr >> (((ty & 2) << 1) | (tx & 2))) & 2'b11;
+      pat = {1'b0, ctrl[4], 1'b0} + {5'd0, tile, 4'd0} + fine_y[3:0];
+      lo = chr[pat[12:0]];
+      hi = chr[pat[12:0] + 13'd8];
+      bitpos = 7 - x[2:0];
+      color = {hi[bitpos], lo[bitpos]};
+      if (color != 2'b00) pixel_index = pal[{pal_bits, color}];
+      else pixel_index = pal[0];
+    end
+  end
 
   always_comb begin
     case (addr)
@@ -41,6 +66,7 @@ module open6502_ppu (
       ctrl <= 8'h00; mask <= 8'h00; status <= 8'h00; oam_addr <= 8'h00;
       vaddr <= 15'h0000; read_buf <= 8'h00; w_toggle <= 1'b0;
       nmi_level <= 1'b0;
+      for (int i = 0; i < 8192; i++) chr[i] <= 8'h00;
       for (int i = 0; i < 2048; i++) vram[i] <= 8'h00;
       for (int i = 0; i < 256; i++) oam[i] <= 8'h00;
       for (int i = 0; i < 32; i++) pal[i] <= 8'h00;
@@ -72,6 +98,7 @@ module open6502_ppu (
             end
             3'd7: begin
               if (vaddr[13:8] == 6'h3F) pal[vaddr[4:0]] <= wdata;
+              else if (vaddr < 15'h2000) chr[vaddr[12:0]] <= wdata;
               else vram[vaddr[10:0]] <= wdata;
               vaddr <= vaddr + (ctrl[2] ? 15'd32 : 15'd1);
             end
@@ -87,6 +114,7 @@ module open6502_ppu (
             3'd4: ;
             3'd7: begin
               if (vaddr[13:8] == 6'h3F) read_buf <= pal[vaddr[4:0]];
+              else if (vaddr < 15'h2000) read_buf <= chr[vaddr[12:0]];
               else read_buf <= vram[vaddr[10:0]];
               vaddr <= vaddr + (ctrl[2] ? 15'd32 : 15'd1);
             end

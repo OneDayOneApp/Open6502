@@ -28,13 +28,13 @@
 
 - [~] 341x262 dot counter (RTL video timing scaffold + smoke test).
 - [~] vblank/NMI register block; pixel pipeline pending.
-- [ ] background fetch/shift.
+- [~] simple background pixel fetch; scroll/shift registers pending.
 - [ ] sprite evaluation.
 - [ ] sprite 0 hit.
 - [ ] overflow.
 - [ ] OAM DMA.
 - [~] palette/VRAM/OAM blocks; mirroring/render pending.
-- [~] RGB444/VGA timing (counter only; pixel path missing).
+- [~] RGB444/VGA timing plus PPU palette-index output; real palette encoder pending.
 - [ ] PPU test ROMs.
 - [ ] frame hash DiffTest.
 
