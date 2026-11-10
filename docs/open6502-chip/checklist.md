@@ -52,8 +52,8 @@
 
 ## P4 cartridge/mapper/input
 
-- [ ] cartridge interface.
-- [~] mappers 0/1/2/3/4/7 RTL; MMC3 A12 filter/top integration pending.
+- [~] cartridge/mapper interface integrated for mapper 0; banked top tests pending.
+- [~] mappers 0/1/2/3/4/7 RTL + top hookup; MMC3 A12 filter and banked top tests pending.
 - [ ] PRG RAM/battery.
 - [ ] MMC3 IRQ.
 - [ ] 1P/2P controllers.

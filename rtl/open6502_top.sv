@@ -1,4 +1,6 @@
-module open6502_top (
+module open6502_top #(
+  parameter logic [2:0] MAPPER = 3'd0
+) (
   input  logic        clk_21m,
   input  logic        rst_n,
 
@@ -54,6 +56,9 @@ module open6502_top (
   logic [15:0] dma_mem_addr;
   logic        dma_oam_we;
   logic [7:0]  dma_oam_addr, dma_oam_wdata;
+  logic [14:0] mapper_prg;
+  logic [12:0] mapper_chr;
+  logic        mapper_mirror, mapper_irq;
   logic        joy1_serial;
   logic        joy2_serial;
   logic        dbg_valid_i;
@@ -86,7 +91,7 @@ module open6502_top (
 
   open6502_cpu u_cpu (
     .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en && !dma_busy),
-    .bus_rdata(cpu_rdata), .irq_n(~apu_irq), .nmi_n(~ppu_nmi),
+    .bus_rdata(cpu_rdata), .irq_n(~(apu_irq | mapper_irq)), .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
     .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p()
   );
@@ -113,6 +118,13 @@ module open6502_top (
     .wdata(cpu_wdata), .dma_we(dma_oam_we), .dma_addr(dma_oam_addr),
     .dma_wdata(dma_oam_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
     .sprite0_hit(ppu_sprite0), .nmi(ppu_nmi)
+  );
+
+  open6502_mapper u_mapper (
+    .clk(clk_21m), .rst_n(rst_sync_n), .mapper(MAPPER),
+    .cpu_addr(bus_addr), .cpu_we(bus_we), .cpu_wdata(cpu_wdata),
+    .ppu_a12(ppu_x[8]), .prg_addr(mapper_prg), .chr_addr(mapper_chr),
+    .mirroring(mapper_mirror), .irq(mapper_irq)
   );
 
   open6502_apu u_apu (
@@ -143,7 +155,7 @@ module open6502_top (
   assign vid_rgb = {ppu_pixel[3:0], ppu_pixel[3:0], ppu_pixel[3:0]};
   assign aud_valid = aud_en;
   assign aud_sample = apu_sample;
-  assign cart_addr = bus_addr;
+  assign cart_addr = (MAPPER == 3'd0) ? bus_addr : {1'b0, mapper_prg};
   assign cart_wdata = cpu_wdata;
   assign cart_we = cart_we_i;
   assign dbg_valid = dbg_valid_i;
@@ -154,5 +166,5 @@ module open6502_top (
   logic unused;
   assign unused = ^{joy1_serial, joy2_serial, cart_irq, frame_tick,
                     ppu_x, ppu_y, ram_sel, ppu_sel, apu_sel, cart_sel,
-                    ppu_we, apu_we};
+                    ppu_we, apu_we, mapper_chr, mapper_mirror, mapper_irq};
 endmodule
