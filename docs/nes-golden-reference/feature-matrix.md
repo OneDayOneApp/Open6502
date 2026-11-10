@@ -60,11 +60,11 @@ L1+L2 是硬门槛，L3 按兼容范围决定，L4 是验收手段而非芯片�
 
 | ID | 必须功能点 | 现状 | 证据 / 缺口 |
 | --- | --- | --- | --- |
-| C1 | 341 dot × 262/312 scanline | PARTIAL | 有 dot 循环；背景/精灵不是完整 dot 管线 |
+| C1 | 341 dot × 262/312 scanline | PARTIAL | 有 dot 循环与逐 dot 背景像素；精灵仍按 scanline 合成 |
 | C2 | vblank/NMI 精确位置 | DONE | `tests/nes_ppu` |
 | C3 | `$2002` 读清除/w 锁存 | DONE | `tests/nes_ppu` |
 | C4 | v/t/x/w 与 fine/coarse scroll | PARTIAL | 有状态和基本滚动；缺逐 dot 测试 |
-| C5 | 背景 fetch/shift 管线 | PARTIAL | 当前 scanline 渲染；缺 shift registers |
+| C5 | 背景 fetch/shift 管线 | PARTIAL | 已逐 dot 计算/输出背景像素；缺 fetch/shift registers |
 | C6 | 精灵 evaluation/8x16/flip/priority | PARTIAL | 有 scanline 精灵渲染；缺逐 dot evaluation |
 | C7 | sprite 0 hit 精确 dot | PARTIAL | 新增逐 dot 检查与单测；依赖 scanline 背景 |
 | C8 | sprite overflow | PARTIAL | 有标志；行为未精确验证 |

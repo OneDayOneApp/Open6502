@@ -4,6 +4,7 @@
 
 - Added dot-level sprite 0 hit check and unit test.
 - Added APU DMC core: address/length/rate/loop/IRQ/output, memory callback and tests.
+- Moved background pixel generation into the PPU dot loop; sprites are composited at the end of the scanline.
 - Added `feature-matrix.md` with must-have NES/Famicom chip functions and status.
 - Updated checklist with evidence-based DONE/PARTIAL/MISSING states.
 
