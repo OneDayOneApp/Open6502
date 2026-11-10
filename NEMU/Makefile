@@ -15,6 +15,7 @@
 
 # Allow building from this directory without exporting NEMU_HOME first.
 NEMU_HOME ?= $(CURDIR)
+export NEMU_HOME
 
 # Sanity check
 ifeq ($(wildcard $(NEMU_HOME)/src/nemu-main.c),)
