@@ -32,7 +32,7 @@
 - [~] simple per-pixel sprite overlay; evaluation/8x16/overflow pending.
 - [~] sprite-0 hit flag in simple overlay; exact dot/scroll behavior pending.
 - [ ] overflow.
-- [ ] OAM DMA.
+- [~] OAM DMA engine; CPU stall/top integration pending.
 - [~] palette/VRAM/OAM blocks; mirroring/render pending.
 - [~] RGB444/VGA timing plus PPU palette-index output; real palette encoder pending.
 - [ ] PPU test ROMs.

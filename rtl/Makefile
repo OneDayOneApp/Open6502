@@ -3,7 +3,7 @@ TOP := open6502_top
 RTL := open6502_pkg.sv open6502_top.sv video/open6502_video_timing.sv \
        input/open6502_controller.sv dbg/open6502_difftest_bridge.sv \
        bus/open6502_bus.sv bus/open6502_wram.sv clocks/open6502_clocks.sv \
-       cpu/open6502_cpu.sv ppu/open6502_ppu.sv
+       cpu/open6502_cpu.sv ppu/open6502_ppu.sv dma/open6502_oam_dma.sv
 
 lint:
 	$(VERILATOR) --lint-only -Wall -Wno-fatal --top-module $(TOP) $(RTL)
@@ -24,6 +24,7 @@ INC_TB := ../tb/open6502_inc_tb.sv
 PPU_TB := ../tb/open6502_ppu_tb.sv
 PPU_PIX_TB := ../tb/open6502_ppu_pixel_tb.sv
 PPU_SPR_TB := ../tb/open6502_ppu_sprite_tb.sv
+DMA_TB := ../tb/open6502_oam_dma_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
 	$(IV) -g2012 -o open6502_tb.vvp $(RTL) $(TB)
@@ -55,6 +56,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_ppu_pixel_tb.vvp
 	$(IV) -g2012 -o open6502_ppu_sprite_tb.vvp ppu/open6502_ppu.sv $(PPU_SPR_TB)
 	vvp open6502_ppu_sprite_tb.vvp
+	$(IV) -g2012 -o open6502_oam_dma_tb.vvp dma/open6502_oam_dma.sv $(DMA_TB)
+	vvp open6502_oam_dma_tb.vvp
 
 sim-verilator: $(TB) $(RTL)
 	$(VERILATOR) --binary -Wall -Wno-fatal --top-module open6502_tb \
