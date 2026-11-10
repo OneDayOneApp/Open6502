@@ -50,10 +50,47 @@ module open6502_cpu (
   logic [7:0]  rmw_data;
   logic        nmi_prev, nmi_pending, irq_nmi;
   logic [8:0]  alu9;
+  logic [7:0]  adc_result, sbc_result;
+  logic        adc_c, adc_v, sbc_c, sbc_v;
   logic [15:0] ret_addr;
   logic [15:0] brk_addr;
   logic [7:0]  alu8;
   logic        we;
+
+  always_comb begin
+    logic [8:0] sum;
+    logic [4:0] lo, hi;
+    logic signed [5:0] slo, shi;
+    logic signed [8:0] diff;
+    logic borrow;
+    sum = {1'b0, a} + {1'b0, bus_rdata} + {8'd0, p[0]};
+    adc_v = ~(a[7] ^ bus_rdata[7]) & (a[7] ^ sum[7]);
+    if (p[3]) begin
+      lo = {1'b0, a[3:0]} + {1'b0, bus_rdata[3:0]} + {4'd0, p[0]};
+      hi = {1'b0, a[7:4]} + {1'b0, bus_rdata[7:4]};
+      if (lo > 5'd9) begin lo = lo + 5'd6; hi = hi + 5'd1; end
+      if (hi > 5'd9) hi = hi + 5'd6;
+      adc_result = {hi[3:0], lo[3:0]};
+      adc_c = (hi > 5'd15);
+    end else begin
+      adc_result = sum[7:0];
+      adc_c = sum[8];
+    end
+    borrow = p[0] ? 1'b0 : 1'b1;
+    diff = {1'b0, a} - {1'b0, bus_rdata} - {8'd0, borrow};
+    sbc_c = ~diff[8];
+    if (p[3]) begin
+      slo = $signed({1'b0, a[3:0]}) - $signed({1'b0, bus_rdata[3:0]}) - $signed({5'd0, borrow});
+      shi = $signed({1'b0, a[7:4]}) - $signed({1'b0, bus_rdata[7:4]});
+      if (slo < 0) begin slo = slo - 6; shi = shi - 1; end
+      if (shi < 0) shi = shi - 6;
+      sbc_result = {shi[3:0], slo[3:0]};
+      sbc_c = (shi >= 0);
+    end else begin
+      sbc_result = diff[7:0];
+    end
+    sbc_v = (a[7] ^ bus_rdata[7]) & (a[7] ^ sbc_result[7]);
+  end
 
   assign bus_addr  = (state == ST_RESET_LO) ? 16'hFFFC :
                      (state == ST_RESET_HI) ? 16'hFFFD :
@@ -223,16 +260,12 @@ module open6502_cpu (
             8'hA2: begin x <= bus_rdata; p <= nz(bus_rdata, p); end
             8'hA0: begin y <= bus_rdata; p <= nz(bus_rdata, p); end
             8'h69: begin
-              alu9 = {1'b0, a} + {1'b0, bus_rdata} + {8'd0, p[0]};
-              a <= alu9[7:0];
-              p <= (nz(alu9[7:0], p) & 8'hBE) | (alu9[8] ? 8'h01 : 8'h00) |
-                   ((~(a[7] ^ bus_rdata[7]) & (a[7] ^ alu9[7])) ? 8'h40 : 8'h00);
+              a <= adc_result;
+              p <= (nz(adc_result, p) & 8'hBE) | (adc_c ? 8'h01 : 8'h00) | (adc_v ? 8'h40 : 8'h00);
             end
             8'hE9: begin
-              alu9 = {1'b0, a} + {1'b0, ~bus_rdata} + {8'd0, p[0]};
-              a <= alu9[7:0];
-              p <= (nz(alu9[7:0], p) & 8'hBE) | (alu9[8] ? 8'h01 : 8'h00) |
-                   (((a[7] ^ bus_rdata[7]) & (a[7] ^ alu9[7])) ? 8'h40 : 8'h00);
+              a <= sbc_result;
+              p <= (nz(sbc_result, p) & 8'hBE) | (sbc_c ? 8'h01 : 8'h00) | (sbc_v ? 8'h40 : 8'h00);
             end
             8'h29: begin a <= a & bus_rdata; p <= nz(a & bus_rdata, p); end
             8'h09: begin a <= a | bus_rdata; p <= nz(a | bus_rdata, p); end
@@ -364,16 +397,12 @@ module open6502_cpu (
             8'h8D, 8'h85, 8'h95, 8'h9D, 8'h99, 8'h81, 8'h91,
             8'h8E, 8'h86, 8'h96, 8'h8C, 8'h84, 8'h94: ;
             8'h65, 8'h75, 8'h7D, 8'h79, 8'h61, 8'h71, 8'h6D: begin
-              alu9 = {1'b0, a} + {1'b0, bus_rdata} + {8'd0, p[0]};
-              a <= alu9[7:0];
-              p <= (nz(alu9[7:0], p) & 8'hBE) | (alu9[8] ? 8'h01 : 8'h00) |
-                   ((~(a[7] ^ bus_rdata[7]) & (a[7] ^ alu9[7])) ? 8'h40 : 8'h00);
+              a <= adc_result;
+              p <= (nz(adc_result, p) & 8'hBE) | (adc_c ? 8'h01 : 8'h00) | (adc_v ? 8'h40 : 8'h00);
             end
             8'hE5, 8'hF5, 8'hFD, 8'hF9, 8'hE1, 8'hF1, 8'hED: begin
-              alu9 = {1'b0, a} + {1'b0, ~bus_rdata} + {8'd0, p[0]};
-              a <= alu9[7:0];
-              p <= (nz(alu9[7:0], p) & 8'hBE) | (alu9[8] ? 8'h01 : 8'h00) |
-                   (((a[7] ^ bus_rdata[7]) & (a[7] ^ alu9[7])) ? 8'h40 : 8'h00);
+              a <= sbc_result;
+              p <= (nz(sbc_result, p) & 8'hBE) | (sbc_c ? 8'h01 : 8'h00) | (sbc_v ? 8'h40 : 8'h00);
             end
             8'h25, 8'h35, 8'h3D, 8'h39, 8'h21, 8'h31, 8'h2D: begin a <= a & bus_rdata; p <= nz(a & bus_rdata, p); end
             8'h05, 8'h15, 8'h1D, 8'h19, 8'h01, 8'h11, 8'h0D: begin a <= a | bus_rdata; p <= nz(a | bus_rdata, p); end

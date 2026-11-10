@@ -5,9 +5,7 @@ running the Klaus 6502 functional test against `rtl/cpu/open6502_cpu.sv`.
 
 Expected pass PC: `0x3469`.
 
-Current RTL status: after the ADC/SBC carry-clear fix, Klaus advances from
-`PC=0x35C9` to `PC=0x3478`. The next divergence is in the zero-page ADC test;
-the remaining failure is after `LDA $0D`/`ADC $0E`.
+Current RTL status: **PASS at `PC=0x3469`** with decimal ADC/SBC support.
 
 ## Verilator
 

@@ -107,6 +107,11 @@ static void execute(uint64_t n) {
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
     if (g_stop_pc != (vaddr_t)-1 && cpu.pc == g_stop_pc) {
+      if (getenv("NEMU_DUMP_MEM") != NULL) {
+        Log("mem[0D]=%02x mem[0E]=%02x mem[0F]=%02x mem[10]=%02x",
+            paddr_read(0x0D, 1), paddr_read(0x0E, 1),
+            paddr_read(0x0F, 1), paddr_read(0x10, 1));
+      }
       nemu_state.state = NEMU_STOP;
       break;
     }

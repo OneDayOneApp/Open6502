@@ -54,7 +54,8 @@ int main(int argc, char **argv) {
                    dut->dbg_sp, dut->dbg_p, mem[0x0D], mem[0x0E]);
     }
     if (dut->dbg_pc == stop_pc) {
-      std::printf("STOP PC=%04x\n", dut->dbg_pc);
+      if (stop_pc == 0x3469) std::printf("PASS: Open6502 RTL Klaus PC=%04x cycles=%lld\n", dut->dbg_pc, c);
+      else std::printf("STOP PC=%04x\n", dut->dbg_pc);
       return 0;
     }
     if (dut->dbg_pc == 0x3469) {

@@ -26,7 +26,7 @@
 
 ## Not complete
 
-- RTL Klaus fails at `PC=0x09DC` (BRK/PLP flag/stack interaction).
+- RTL Klaus passes at `PC=0x3469` (including decimal ADC/SBC).
 - No cycle-level online bus/PPU/APU/mapper DiffTest.
 - DMC bus arbitration/cycle alignment incomplete.
 - PPU fetch/shift and sprite evaluation are not cycle-exact.
