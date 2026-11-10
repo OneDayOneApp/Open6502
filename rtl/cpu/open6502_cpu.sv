@@ -30,7 +30,10 @@ module open6502_cpu (
     ST_BRANCH, ST_BRANCH_EXEC, ST_IMPLIED, ST_NOP,
     ST_JSR_PUSH_HI, ST_JSR_PUSH_LO, ST_JSR_SET,
     ST_RTS_PULL_LO, ST_RTS_PULL_HI,
-    ST_PUSH_A, ST_PULL_A, ST_PUSH_P, ST_PULL_P, ST_RMW_WRITE
+    ST_PUSH_A, ST_PULL_A, ST_PUSH_P, ST_PULL_P, ST_RMW_WRITE,
+    ST_BRK_PUSH_HI, ST_BRK_PUSH_LO, ST_BRK_PUSH_P,
+    ST_BRK_VEC_LO, ST_BRK_VEC_HI,
+    ST_RTI_PULL_P, ST_RTI_PULL_LO, ST_RTI_PULL_HI
   } state_t;
 
   state_t state;
@@ -58,13 +61,22 @@ module open6502_cpu (
                        {8'h01, sp} :
                      (state == ST_RTS_PULL_LO) ? {8'h01, sp + 8'd1} :
                      (state == ST_RTS_PULL_HI) ? {8'h01, sp + 8'd1} :
-                     (state == ST_PUSH_A || state == ST_PUSH_P) ? {8'h01, sp} :
-                     (state == ST_PULL_A || state == ST_PULL_P) ? {8'h01, sp + 8'd1} :
+                     (state == ST_PUSH_A || state == ST_PUSH_P ||
+                      state == ST_BRK_PUSH_HI || state == ST_BRK_PUSH_LO ||
+                      state == ST_BRK_PUSH_P) ? {8'h01, sp} :
+                     (state == ST_PULL_A || state == ST_PULL_P ||
+                      state == ST_RTI_PULL_P) ? {8'h01, sp + 8'd1} :
+                     (state == ST_RTI_PULL_LO) ? {8'h01, sp + 8'd1} :
+                     (state == ST_RTI_PULL_HI) ? {8'h01, sp + 8'd1} :
+                     (state == ST_BRK_VEC_LO) ? 16'hFFFE :
+                     (state == ST_BRK_VEC_HI) ? 16'hFFFF :
                      (state == ST_ABS_DATA || state == ST_RMW_WRITE) ? ea : pc;
   assign ret_addr  = pc - 16'd1;
   assign bus_wdata = (state == ST_JSR_PUSH_HI) ? ret_addr[15:8] :
                      (state == ST_JSR_PUSH_LO) ? ret_addr[7:0] :
-                     (state == ST_PUSH_P) ? (p | 8'h30) :
+                     (state == ST_PUSH_P || state == ST_BRK_PUSH_P) ? (p | 8'h30) :
+                     (state == ST_BRK_PUSH_HI) ? pc[15:8] :
+                     (state == ST_BRK_PUSH_LO) ? pc[7:0] :
                      (state == ST_RMW_WRITE) ? rmw_data : a;
   assign bus_we    = we;
   assign dbg_pc    = pc;
@@ -82,7 +94,9 @@ module open6502_cpu (
     we = 1'b0;
     if (state == ST_JSR_PUSH_HI || state == ST_JSR_PUSH_LO ||
         state == ST_PUSH_A || state == ST_PUSH_P ||
-        state == ST_RMW_WRITE) begin
+        state == ST_RMW_WRITE ||
+        state == ST_BRK_PUSH_HI || state == ST_BRK_PUSH_LO ||
+        state == ST_BRK_PUSH_P) begin
       we = 1'b1;
     end else if (state == ST_ABS_DATA) begin
       case (opcode)
@@ -153,6 +167,10 @@ module open6502_cpu (
               state <= ST_PUSH_P;
             8'h28:
               state <= ST_PULL_P;
+            8'h00:
+              state <= ST_BRK_PUSH_HI;
+            8'h40:
+              state <= ST_RTI_PULL_P;
             8'hD0, 8'hF0, 8'h90, 8'hB0, 8'h10, 8'h30,
             8'h50, 8'h70:
               state <= ST_BRANCH;
@@ -337,6 +355,42 @@ module open6502_cpu (
             end
             default: ;
           endcase
+        end
+        ST_BRK_PUSH_HI: begin
+          sp <= sp - 8'd1;
+          state <= ST_BRK_PUSH_LO;
+        end
+        ST_BRK_PUSH_LO: begin
+          sp <= sp - 8'd1;
+          state <= ST_BRK_PUSH_P;
+        end
+        ST_BRK_PUSH_P: begin
+          sp <= sp - 8'd1;
+          p <= p | 8'h04; // I
+          state <= ST_BRK_VEC_LO;
+        end
+        ST_BRK_VEC_LO: begin
+          tmp_lo <= bus_rdata;
+          state <= ST_BRK_VEC_HI;
+        end
+        ST_BRK_VEC_HI: begin
+          pc <= {bus_rdata, tmp_lo};
+          state <= ST_FETCH;
+        end
+        ST_RTI_PULL_P: begin
+          sp <= sp + 8'd1;
+          p <= (bus_rdata & 8'hCF) | 8'h20;
+          state <= ST_RTI_PULL_LO;
+        end
+        ST_RTI_PULL_LO: begin
+          sp <= sp + 8'd1;
+          tmp_lo <= bus_rdata;
+          state <= ST_RTI_PULL_HI;
+        end
+        ST_RTI_PULL_HI: begin
+          sp <= sp + 8'd1;
+          pc <= {bus_rdata, tmp_lo};
+          state <= ST_FETCH;
         end
         ST_JSR_PUSH_HI: begin
           sp <= sp - 8'd1;
