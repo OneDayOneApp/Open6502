@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.3.0 - PPU timing closure
+
+### Added
+
+- PPU timing unit tests:
+  - reset state
+  - vblank/NMI at scanline 241
+  - `$2002` read clearing
+  - pre-render frame boundary
+  - odd-frame skip when rendering is enabled
+  - no skip when rendering is disabled
+- NES state snapshots are covered by the same PPU timing changes.
+
+### Fixed
+
+- Implemented odd-frame skip in the 2C02 state machine.
+- Removed an unused PPU render parameter warning exposed by the unit-test build.
+
+### Verification
+
+- `tests/nes_ppu/run.sh`
+- default regression, `RUN_KLAUS=1`, and CPU-only NEMU DiffTest.
+
+
 ## v0.2.0 - state snapshot closure
 
 ### Added

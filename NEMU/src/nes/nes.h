@@ -61,6 +61,7 @@ typedef struct NES_PPU {
   bool nmi_line;
   bool nmi_trigger;
   bool frame_ready;
+  bool odd_frame;
   uint32_t framebuffer[NES_SCREEN_W * NES_SCREEN_H];
 } NES_PPU;
 

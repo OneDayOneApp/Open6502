@@ -71,6 +71,11 @@ if [ -x "$ROOT/tests/nes_ref/run.sh" ]; then
   fi
 fi
 
+# PPU timing unit tests (vblank/NMI, frame boundary, odd-frame skip)
+if [ -x "$ROOT/tests/nes_ppu/run.sh" ]; then
+  "$ROOT/tests/nes_ppu/run.sh"
+fi
+
 # NES frontend, PPU, input, and APU
 if [ -f "$ROOT/nesgame/game.nes" ]; then
   "$EMU" --headless --no-audio --frames=180 --screenshot="$TMP/nes-a.ppm" \

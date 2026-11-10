@@ -74,6 +74,7 @@ static void inc_v(NES_PPU *p) {
 }
 
 static void render_background(NES_PPU *p, int y, uint8_t *opaque, uint32_t *line) {
+  (void)y;
   uint8_t backdrop = p->palette[0] & 0x3F;
   for (int x = 0; x < NES_SCREEN_W; x++) {
     line[x] = ppu_palette_rgb(backdrop);
@@ -180,6 +181,7 @@ void ppu_step(NES_PPU *p, int ppu_cycles) {
       p->nmi_line = false;
       if (p->mask & 0x18) p->v = p->t;
       p->frame_ready = true;
+      p->odd_frame = !p->odd_frame;
     }
     if (p->scanline == 241 && p->cycle == 1) {
       p->status |= 0x80;
@@ -197,6 +199,15 @@ void ppu_step(NES_PPU *p, int ppu_cycles) {
     }
     if ((p->mask & 0x18) && p->scanline < 240 && p->cycle == 257) {
       p->v = (uint16_t)((p->v & ~0x041F) | (p->t & 0x041F));
+    }
+
+    /* Odd frames skip PPU dot 340 of the pre-render scanline when
+     * rendering is enabled. */
+    if (p->scanline == 261 && p->cycle == 339 && p->odd_frame &&
+        (p->mask & 0x18)) {
+      p->cycle = 0;
+      p->scanline = 0;
+      continue;
     }
 
     p->cycle++;
