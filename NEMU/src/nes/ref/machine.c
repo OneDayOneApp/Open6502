@@ -356,6 +356,18 @@ int nes_ref_machine_nt_index(const nes_ref_machine *m, uint16_t addr) {
   return nt;
 }
 
+void nes_ref_machine_scanline(nes_ref_machine *m) {
+  if (m == NULL || m->rom.mapper != 4 || !m->mapper.irq_enable) return;
+  if (m->mapper.irq_counter <= 0 || m->mapper.irq_reload) {
+    m->mapper.irq_counter = m->mapper.irq_latch;
+    m->mapper.irq_reload = false;
+  } else {
+    m->mapper.irq_counter--;
+  }
+  if (m->mapper.irq_counter == 0) m->mapper.irq = true;
+  m->state.cpu.irq_pending = m->mapper.irq;
+}
+
 uint64_t nes_ref_machine_hash(const nes_ref_machine *m) {
   uint64_t h = nes_ref_state_hash(&m->state);
   h = nes_ref_hash_bytes(h, &m->mapper, sizeof(m->mapper));

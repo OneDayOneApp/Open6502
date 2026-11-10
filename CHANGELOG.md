@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.6.0 - REF MMC3 scanline IRQ
+
+### Added
+
+- REF `nes_ref_machine_scanline()` for mapper 4.
+- MMC3 IRQ latch, reload, enable, acknowledge and IRQ flag.
+- CPU `irq_pending` propagation from the mapper IRQ line.
+- Unit test covering latch/reload/enable/ack.
+
+### Verification
+
+- default regression, `RUN_KLAUS=1`, and CPU-only NEMU DiffTest.
+
+
 ## v0.5.0 - REF mapper state
 
 ### Added

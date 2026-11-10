@@ -535,6 +535,7 @@ static int ref_isa_exec_once(Decode *s) {
 int nes_ref_cpu_step(nes_ref_machine *m) {
   if (m == NULL) return NES_REF_ERR_INVALID;
   if (m->state.cpu.jammed) return NES_REF_ERR_INVALID;
+  m->state.cpu.irq_pending = m->mapper.irq;
   g_machine = m;
   Decode s;
   memset(&s, 0, sizeof(s));

@@ -303,6 +303,30 @@ static void test_ref_axrom(void) {
   nes_ref_machine_free(&m);
 }
 
+static void test_ref_mmc3_irq(void) {
+  uint8_t rom[16 + 4 * 8192];
+  make_ines_rom(rom, sizeof(rom), 2, 0, 4, 0xA0, 0xB0, 0, 0);
+  nes_ref_machine m;
+  assert(nes_ref_machine_init(&m, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom(&m, rom, sizeof(rom)) == NES_REF_OK);
+
+  nes_ref_machine_write(&m, 0xC000, 2); /* IRQ latch */
+  nes_ref_machine_write(&m, 0xC001, 1); /* reload */
+  nes_ref_machine_write(&m, 0xE001, 1); /* enable */
+  nes_ref_machine_scanline(&m);
+  assert(!m.mapper.irq);
+  nes_ref_machine_scanline(&m);
+  assert(!m.mapper.irq);
+  nes_ref_machine_scanline(&m);
+  assert(m.mapper.irq);
+  assert(m.state.cpu.irq_pending);
+
+  nes_ref_machine_write(&m, 0xE000, 0); /* ack/disable */
+  assert(!m.mapper.irq);
+  assert(!m.mapper.irq_enable);
+  nes_ref_machine_free(&m);
+}
+
 int main(void) {
   test_ntsc_clock();
   test_pal_clock();
@@ -320,6 +344,7 @@ int main(void) {
   test_ref_mmc1();
   test_ref_mmc3();
   test_ref_axrom();
+  test_ref_mmc3_irq();
   const char *klaus = getenv("NESREF_KLAUS");
   if (klaus != NULL && *klaus != 0) {
     assert(run_klaus(klaus) == 0);

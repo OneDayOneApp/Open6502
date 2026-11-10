@@ -10,6 +10,7 @@ It currently covers:
 - NROM PRG mapping and reset vector
 - PRG RAM
 - mapper 0/1/2/3/4/7 bank switching and CHR mapping
+- MMC3 scanline IRQ latch/reload/ack
 
 Build and run:
 

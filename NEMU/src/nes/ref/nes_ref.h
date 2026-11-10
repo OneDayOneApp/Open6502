@@ -115,6 +115,7 @@ uint64_t nes_ref_machine_hash(const nes_ref_machine *m);
 uint8_t nes_ref_machine_chr_read(nes_ref_machine *m, uint16_t addr);
 void nes_ref_machine_chr_write(nes_ref_machine *m, uint16_t addr, uint8_t value);
 int nes_ref_machine_nt_index(const nes_ref_machine *m, uint16_t addr);
+void nes_ref_machine_scanline(nes_ref_machine *m);
 int nes_ref_cpu_step(nes_ref_machine *m);
 
 #endif
