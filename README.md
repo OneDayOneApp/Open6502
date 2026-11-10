@@ -49,3 +49,4 @@ RUN_KLAUS=1 ./tests/run.sh
   [verification](docs/open6502-chip/verification.md),
   [checklist](docs/open6502-chip/checklist.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
+- NEMU/RTL DiffTest smoke test: [sim/difftest/README.md](sim/difftest/README.md)

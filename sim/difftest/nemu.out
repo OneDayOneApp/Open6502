@@ -1,0 +1,15 @@
+[1;34m[src/utils/log.c:30 init_log] Log is written to /Users/tongxiaojun/github/Open6502/sim/difftest/nemu.log[0m
+[1;34m[src/memory/paddr.c:51 init_mem] physical memory area [0x00000000, 0x0000ffff][0m
+[1;34m[src/monitor/monitor.c:89 load_img] The image is difftest.bin, size = 11, load address = 0x8000[0m
+[1;34m[src/monitor/monitor.c:29 welcome] Trace: [1;32mON[0m[0m
+[1;34m[src/monitor/monitor.c:32 welcome] If trace is enabled, a log file will be generated to record the trace. This may lead to a large log file. If it is not necessary, you can disable it in menuconfig[0m
+[1;34m[src/monitor/monitor.c:33 welcome] Build time: 10:50:44, Nov 10 2026[0m
+Welcome to [1;33m[1;41m6502EMU[0m!
+A NEMU-based MOS 6502 simulator.  For help, type "help".
+0x00008000: a9 42       LDA #$42
+0x00008002: 8d 00 02    STA $0200
+0x00008005: a2 03       LDX #$03
+0x00008007: e8          INX
+0x00008008: 4c 08 80    JMP $8008
+Execution stopped.
+6502 A:42 X:04 Y:00 SP:FD P:24 [..U..I..] PC:8008 CYC:13
