@@ -38,9 +38,14 @@ module open6502_game_tb;
   always #23.3 clk = ~clk;
 
   int pixels = 0, nonblack = 0, frames = 0, vblank_cycles = 0;
+  int reads2002 = 0, vreads2002 = 0;
   logic vsync_d = 1;
 
   always @(posedge clk) begin
+    if (dut.u_cpu.bus_addr == 16'h2002 && !dut.u_cpu.bus_we) begin
+      reads2002++;
+      if (dut.u_cpu.bus_rdata[7]) vreads2002++;
+    end
     if (dut.u_ppu.status[7]) vblank_cycles++;
     if (vid_de) begin
       pixels++;
@@ -67,6 +72,7 @@ module open6502_game_tb;
     @(posedge clk); chr_load_we = 0;
     repeat (2_000_000) @(posedge clk);
     $display("RTL game: frames=%0d de_pixels=%0d nonblack=%0d", frames, pixels, nonblack);
+    $display("READ2002=%0d VREAD2002=%0d", reads2002, vreads2002);
     $display("VBLANK cycles=%0d cpu_en=%0d dma_busy=%0d dmc_stall=%0d cpu_state=%0d A=%02x P=%02x bus=%02x",
       vblank_cycles, dut.cpu_en, dut.dma_busy, dut.dmc_stall, dut.u_cpu.state,
       dut.u_cpu.a, dut.u_cpu.p, dut.u_cpu.bus_rdata);
