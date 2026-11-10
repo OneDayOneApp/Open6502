@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include <memory/paddr.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,16 +34,22 @@ static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 static FILE *g_state_trace = NULL;
 static bool g_state_trace_init = false;
+static bool g_trace_mem = false;
 
 static void trace_cpu_state(void) {
   if (!g_state_trace_init) {
     const char *path = getenv("NEMU_TRACE_STATE");
     if (path != NULL) g_state_trace = fopen(path, "w");
+    g_trace_mem = getenv("NEMU_TRACE_MEM") != NULL;
     g_state_trace_init = true;
   }
   if (g_state_trace != NULL) {
-    fprintf(g_state_trace, "%04x %02x %02x %02x %02x %02x\n",
+    fprintf(g_state_trace, "%04x %02x %02x %02x %02x %02x",
         (unsigned)(cpu.pc & 0xFFFF), cpu.a, cpu.x, cpu.y, cpu.sp, cpu.p);
+    if (g_trace_mem) {
+      fprintf(g_state_trace, " %02x %02x", paddr_read(0x0D, 1), paddr_read(0x0E, 1));
+    }
+    fprintf(g_state_trace, "\n");
   }
 }
 

@@ -49,9 +49,9 @@ int main(int argc, char **argv) {
   for (long long c = 0; c < 200000000LL; c++) {
     tick();
     if (tf && dut->dbg_state == 2) {
-      std::fprintf(tf, "%04x %02x %02x %02x %02x %02x\n",
+      std::fprintf(tf, "%04x %02x %02x %02x %02x %02x %02x %02x\n",
                    dut->dbg_pc, dut->dbg_a, dut->dbg_x, dut->dbg_y,
-                   dut->dbg_sp, dut->dbg_p);
+                   dut->dbg_sp, dut->dbg_p, mem[0x0D], mem[0x0E]);
     }
     if (dut->dbg_pc == stop_pc) {
       std::printf("STOP PC=%04x\n", dut->dbg_pc);

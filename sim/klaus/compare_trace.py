@@ -14,7 +14,7 @@ def load(path):
     with open(path) as f:
         for line in f:
             p = line.split()
-            if len(p) == 6:
+            if len(p) >= 6:
                 rows.append((p[0].lower(),) + tuple(int(x, 16) for x in p[1:]))
     return rows
 
@@ -24,7 +24,7 @@ def main():
         raise SystemExit(f"usage: {sys.argv[0]} nemu.trace rtl.trace")
     n, r = load(sys.argv[1]), load(sys.argv[2])
     for i, (a, b) in enumerate(zip(n, r)):
-        if a[:5] != b[:5] or (a[5] & MASK) != (b[5] & MASK):
+        if a[:5] != b[:5] or (a[5] & MASK) != (b[5] & MASK) or a[6:] != b[6:]:
             print(f"first divergence at line {i}")
             print(f"NEMU: {a}")
             print(f"RTL : {b}")
