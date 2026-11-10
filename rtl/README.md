@@ -10,6 +10,8 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
 - `bus/open6502_bus.sv`: address decode/select
 - `bus/open6502_wram.sv`: 2KB WRAM with mirroring
 - `clocks/open6502_clocks.sv`: reset sync, CPU/PPU enables, 44.1 kHz audio enable
+- `apu/open6502_dmc.sv`: DMC rate/address/length/loop/IRQ/output core
+  (standalone; no CPU DMA stall yet)
 - `apu/open6502_apu.sv`: pulse 1/2, triangle, noise, length/envelope, frame
   sequencer, frame IRQ, pulse sweep, `$4015` status and 16-bit sample output
 - `cart/open6502_mapper.sv`: mapper 0/1/2/3/4/7 bank registers and MMC3 IRQ,
