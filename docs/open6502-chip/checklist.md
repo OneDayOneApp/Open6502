@@ -27,13 +27,13 @@
 ## P2 PPU
 
 - [~] 341x262 dot counter (RTL video timing scaffold + smoke test).
-- [ ] vblank/NMI.
+- [~] vblank/NMI register block; pixel pipeline pending.
 - [ ] background fetch/shift.
 - [ ] sprite evaluation.
 - [ ] sprite 0 hit.
 - [ ] overflow.
 - [ ] OAM DMA.
-- [ ] palette/mirroring.
+- [~] palette/VRAM/OAM blocks; mirroring/render pending.
 - [~] RGB444/VGA timing (counter only; pixel path missing).
 - [ ] PPU test ROMs.
 - [ ] frame hash DiffTest.

@@ -40,6 +40,8 @@ module open6502_top (
   logic [10:0] ram_addr;
   logic        ram_sel, ppu_sel, apu_sel, cart_sel;
   logic        ram_we, ppu_we, apu_we, cart_we_i;
+  logic [7:0]  ppu_rdata;
+  logic        ppu_nmi;
   logic        joy1_serial;
   logic        joy2_serial;
   logic        dbg_valid_i;
@@ -72,14 +74,14 @@ module open6502_top (
 
   open6502_cpu u_cpu (
     .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
-    .bus_rdata(cpu_rdata), .irq_n(1'b1), .nmi_n(1'b1),
+    .bus_rdata(cpu_rdata), .irq_n(1'b1), .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
     .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p()
   );
 
   open6502_bus u_bus (
     .cpu_addr(cpu_addr), .cpu_we(cpu_we), .cpu_wdata(cpu_wdata),
-    .ram_rdata(ram_rdata), .ppu_rdata(8'h00), .apu_rdata(8'h00),
+    .ram_rdata(ram_rdata), .ppu_rdata(ppu_rdata), .apu_rdata(8'h00),
     .cart_rdata(cart_rdata),
     .ram_sel(ram_sel), .ppu_sel(ppu_sel), .apu_sel(apu_sel),
     .cart_sel(cart_sel), .ram_we(ram_we), .ppu_we(ppu_we),
@@ -90,6 +92,13 @@ module open6502_top (
   open6502_wram u_ram (
     .clk(clk_21m), .rst_n(rst_sync_n), .we(ram_we),
     .addr(ram_addr), .wdata(cpu_wdata), .rdata(ram_rdata)
+  );
+
+  open6502_ppu u_ppu (
+    .clk(clk_21m), .rst_n(rst_sync_n), .ppu_en(ppu_en),
+    .x(ppu_x), .y(ppu_y),
+    .cs(ppu_sel), .we(ppu_we), .addr(cpu_addr[2:0]),
+    .wdata(cpu_wdata), .rdata(ppu_rdata), .nmi(ppu_nmi)
   );
 
   open6502_difftest_bridge u_dbg (
