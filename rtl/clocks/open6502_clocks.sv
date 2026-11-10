@@ -6,7 +6,8 @@ module open6502_clocks (
   output logic ppu_en,
   output logic aud_en
 );
-  import open6502_pkg::*;
+  localparam int CPU_DIV = 12;
+  localparam int PPU_DIV = 4;
 
   localparam logic [31:0] AUD_INC = 32'd44100;
   localparam logic [31:0] MASTER  = 32'd21477272;

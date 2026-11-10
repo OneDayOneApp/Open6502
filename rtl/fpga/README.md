@@ -13,6 +13,11 @@
 Board-specific pin constraints, PLL configuration, cartridge SRAM/flash and
 controller level shifting live outside this directory.
 
+The SoC modules use local timing constants instead of package imports because
+the Yosys frontend rejected `import` inside modules. Full synthesis of the
+current combinational PPU/APU sprite path is still too slow for this host and
+remains a milestone.
+
 Current limitations:
 
 - The VGA timing is the NES 256x240 timing; a scan-doubler/HDMI encoder is

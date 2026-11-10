@@ -9,7 +9,10 @@ module open6502_video_timing (
   output logic       vsync,
   output logic       frame_tick
 );
-  import open6502_pkg::*;
+  localparam int SCREEN_W = 256;
+  localparam int SCREEN_H = 240;
+  localparam int PPU_DOTS = 341;
+  localparam int PPU_LINES = 262;
 
   always_ff @(posedge clk) begin
     if (!rst_n) begin

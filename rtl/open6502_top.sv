@@ -25,7 +25,6 @@ module open6502_top #(
   output logic        dbg_valid,
   output logic [63:0] dbg_payload
 );
-  import open6502_pkg::*;
 
   logic        rst_sync_n;
   logic        cpu_en;
