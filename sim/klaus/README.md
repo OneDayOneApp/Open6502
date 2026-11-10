@@ -25,6 +25,19 @@ make -C obj_dir_klaus -f Vopen6502_cpu.mk \
 On the current macOS toolchain the Verilator-generated link fails to resolve
 the C++ runtime symbols, so this path is not yet part of the regression suite.
 
+## State trace comparison
+
+NEMU supports `NEMU_TRACE_STATE=FILE`; the Verilator harness supports
+`RTL_TRACE_STATE=FILE` and `RTL_STOP_PC=PC`.
+
+```sh
+NEMU_TRACE_STATE=/tmp/nemu.trace ./NEMU/build/6502EMU ...
+RTL_TRACE_STATE=/tmp/rtl.trace RTL_STOP_PC=0x3700 ./Vopen6502_cpu klaus.bin
+./sim/klaus/compare_trace.py /tmp/nemu.trace /tmp/rtl.trace
+```
+
+The comparator masks P with `0xCF` because B/U are not architectural state.
+
 ## Icarus
 
 `tb/open6502_klaus_tb.sv` runs the same test at one CPU cycle per loop
