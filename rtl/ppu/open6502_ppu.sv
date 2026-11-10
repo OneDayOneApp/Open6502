@@ -27,6 +27,7 @@ module open6502_ppu (
   logic [7:0]  oam  [0:255];
   logic [7:0]  pal  [0:31];
   logic [14:0] vaddr;
+  logic [7:0]  scroll_x, scroll_y;
   logic [7:0]  read_buf;
   logic        w_toggle;
   logic        nmi_level;
@@ -39,6 +40,7 @@ module open6502_ppu (
   logic [12:0] spat;
   logic [1:0]  scolor;
   integer      tx, ty, fine_y, bitpos, i, sbit;
+  integer      px, py, ntx, nty, nt;
 
   assign nmi = nmi_level;
 
@@ -47,16 +49,21 @@ module open6502_ppu (
     sprite0_hit = 1'b0;
     bg_opaque = 1'b0;
     if ((mask[3]) && (x < 9'd256) && (y < 9'd240)) begin
-      tx = x[7:3];
-      ty = y[7:3];
-      fine_y = y[2:0];
-      tile = vram[11'h000 + ty * 32 + tx];
-      attr = vram[11'h3C0 + (ty >> 2) * 8 + (tx >> 2)];
+      px = x + scroll_x;
+      py = y + scroll_y;
+      tx = (px >> 3) & 31;
+      ty = (py >> 3) % 30;
+      ntx = (px >> 8) & 1;
+      nty = (py >> 8) & 1;
+      nt = ntx ^ nty;
+      fine_y = py[2:0];
+      tile = vram[nt * 11'h400 + ty * 32 + tx];
+      attr = vram[nt * 11'h400 + 11'h3C0 + (ty >> 2) * 8 + (tx >> 2)];
       pal_bits = (attr >> (((ty & 2) << 1) | (tx & 2))) & 2'b11;
       pat = (ctrl[4] ? 13'h1000 : 13'h0000) + {4'd0, tile, 4'd0} + fine_y[3:0];
       lo = chr[pat[12:0]];
       hi = chr[pat[12:0] + 13'd8];
-      bitpos = 7 - x[2:0];
+      bitpos = 7 - px[2:0];
       color = {hi[bitpos], lo[bitpos]};
       if (color != 2'b00) begin
         pixel_index = pal[{pal_bits, color}];
@@ -103,7 +110,8 @@ module open6502_ppu (
   always_ff @(posedge clk) begin
     if (!rst_n) begin
       ctrl <= 8'h00; mask <= 8'h00; status <= 8'h00; oam_addr <= 8'h00;
-      vaddr <= 15'h0000; read_buf <= 8'h00; w_toggle <= 1'b0;
+      vaddr <= 15'h0000; scroll_x <= 8'h00; scroll_y <= 8'h00;
+      read_buf <= 8'h00; w_toggle <= 1'b0;
       nmi_level <= 1'b0;
       for (int i = 0; i < 8192; i++) chr[i] <= 8'h00;
       for (int i = 0; i < 2048; i++) vram[i] <= 8'h00;
@@ -130,7 +138,11 @@ module open6502_ppu (
               oam[oam_addr] <= wdata;
               oam_addr <= oam_addr + 8'd1;
             end
-            3'd5: w_toggle <= ~w_toggle;
+            3'd5: begin
+              if (!w_toggle) scroll_x <= wdata;
+              else           scroll_y <= wdata;
+              w_toggle <= ~w_toggle;
+            end
             3'd6: begin
               if (!w_toggle) vaddr[14:8] <= wdata[6:0];
               else           vaddr[7:0]  <= wdata;

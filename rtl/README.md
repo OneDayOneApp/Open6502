@@ -14,7 +14,8 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
   and CPU stall
 - `ppu/open6502_ppu.sv`: CPU-visible PPU registers, CHR/VRAM/OAM/palette,
   vblank/NMI, `$2007` auto-increment, background pixel fetch and simple
-  sprite overlay/priority/sprite-0 hit (no scroll/shift registers yet)
+  sprite overlay/priority/sprite-0 hit, and coarse/fine X/Y scroll (shift
+  registers still pending)
 - `cpu/open6502_cpu.sv`: reset-vector/fetch front end with a directed
   immediate/zero-page/absolute/indexed/indirect load-store, basic ALU,
   branches, transfers, flags, accumulator/memory shifts, JSR/RTS,

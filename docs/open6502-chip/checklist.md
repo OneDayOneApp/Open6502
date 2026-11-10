@@ -28,7 +28,7 @@
 
 - [~] 341x262 dot counter (RTL video timing scaffold + smoke test).
 - [~] vblank/NMI register block; pixel pipeline pending.
-- [~] simple background pixel fetch; scroll/shift registers pending.
+- [~] background pixel fetch + coarse/fine scroll; fetch/shift registers pending.
 - [~] simple per-pixel sprite overlay; evaluation/8x16/overflow pending.
 - [~] sprite-0 hit flag in simple overlay; exact dot/scroll behavior pending.
 - [ ] overflow.

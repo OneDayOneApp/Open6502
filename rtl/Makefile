@@ -26,6 +26,7 @@ PPU_PIX_TB := ../tb/open6502_ppu_pixel_tb.sv
 PPU_SPR_TB := ../tb/open6502_ppu_sprite_tb.sv
 DMA_TB := ../tb/open6502_oam_dma_tb.sv
 DMA_SOC_TB := ../tb/open6502_oam_soc_tb.sv
+PPU_SCROLL_TB := ../tb/open6502_ppu_scroll_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
 	$(IV) -g2012 -o open6502_tb.vvp $(RTL) $(TB)
@@ -61,6 +62,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_oam_dma_tb.vvp
 	$(IV) -g2012 -o open6502_oam_soc_tb.vvp $(RTL) $(DMA_SOC_TB)
 	vvp open6502_oam_soc_tb.vvp
+	$(IV) -g2012 -o open6502_ppu_scroll_tb.vvp ppu/open6502_ppu.sv $(PPU_SCROLL_TB)
+	vvp open6502_ppu_scroll_tb.vvp
 
 sim-verilator: $(TB) $(RTL)
 	$(VERILATOR) --binary -Wall -Wno-fatal --top-module open6502_tb \
