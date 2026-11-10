@@ -7,6 +7,12 @@ images:
 python3 sim/game/extract_ines.py roms/falling.nes /tmp/falling falling
 ```
 
+Run the Verilator SoC model:
+
+```sh
+./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm
+```
+
 `tb/open6502_game_tb.sv` preloads the 8 KiB CHR RAM through the PPU loader port,
 feeds PRG from the cartridge bus, and runs the SoC for video frames.
 

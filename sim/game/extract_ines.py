@@ -21,6 +21,8 @@ def main():
     out = Path(sys.argv[2]); out.mkdir(parents=True, exist_ok=True)
     (out / f"{sys.argv[3]}_prg.hex").write_text("\n".join(f"{b:02x}" for b in prg) + "\n")
     (out / f"{sys.argv[3]}_chr.hex").write_text("\n".join(f"{b:02x}" for b in chr) + "\n")
+    (out / f"{sys.argv[3]}_prg.bin").write_bytes(prg)
+    (out / f"{sys.argv[3]}_chr.bin").write_bytes(chr)
     (out / f"{sys.argv[3]}.size").write_text(f"{len(prg)} {len(chr)}\n")
     print(f"PRG={len(prg)} CHR={len(chr)}")
 
