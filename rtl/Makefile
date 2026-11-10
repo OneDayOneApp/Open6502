@@ -39,6 +39,7 @@ PHP_TB := ../tb/open6502_php_tb.sv
 ADC_TB := ../tb/open6502_adc_tb.sv
 DEC_TB := ../tb/open6502_decimal_tb.sv
 CTRL_TB := ../tb/open6502_controller_tb.sv
+ZP37_TB := ../tb/open6502_zp37_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
 	$(IV) -g2012 -o open6502_tb.vvp $(RTL) $(TB)
@@ -96,6 +97,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_decimal_tb.vvp
 	$(IV) -g2012 -o open6502_controller_tb.vvp open6502_top.sv open6502_pkg.sv cpu/open6502_cpu.sv bus/open6502_bus.sv bus/open6502_wram.sv ppu/open6502_ppu.sv apu/open6502_apu.sv apu/open6502_dmc.sv cart/open6502_mapper.sv clocks/open6502_clocks.sv video/open6502_video_timing.sv input/open6502_controller.sv dma/open6502_oam_dma.sv dbg/open6502_difftest_bridge.sv $(CTRL_TB)
 	vvp open6502_controller_tb.vvp
+	$(IV) -g2012 -o open6502_zp37_tb.vvp cpu/open6502_cpu.sv $(ZP37_TB)
+	vvp open6502_zp37_tb.vvp
 
 sim-verilator: $(TB) $(RTL)
 	$(VERILATOR) --binary -Wall -Wno-fatal --top-module open6502_tb \

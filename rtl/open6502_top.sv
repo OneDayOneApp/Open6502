@@ -119,7 +119,16 @@ module open6502_top #(
   output logic [7:0]  dbg_zp0f,
   output logic [7:0]  dbg_zp10,
   output logic [7:0]  dbg_zp11,
-  output logic [7:0]  dbg_zp0a
+  output logic [7:0]  dbg_zp0a,
+  output logic [7:0]  dbg_zp0b,
+  output logic [7:0]  dbg_zp47,
+  output logic [7:0]  dbg_zp00,
+  output logic [7:0]  dbg_zp37,
+  output logic [7:0]  dbg_zp38,
+  output logic [7:0]  dbg_zp39,
+  output logic        dbg_cpu_we,
+  output logic [15:0] dbg_bus_addr,
+  output logic [7:0]  dbg_bus_wdata
 );
 
   logic        rst_sync_n;
@@ -334,6 +343,15 @@ module open6502_top #(
   assign dbg_ppu_x = ppu_x;
   assign dbg_ppu_y = ppu_y;
   assign dbg_zp0a = u_ram.mem[11'h00a];
+  assign dbg_zp0b = u_ram.mem[11'h00b];
+  assign dbg_zp47 = u_ram.mem[11'h047];
+  assign dbg_zp00 = u_ram.mem[11'h000];
+  assign dbg_zp37 = u_ram.mem[11'h037];
+  assign dbg_zp38 = u_ram.mem[11'h038];
+  assign dbg_zp39 = u_ram.mem[11'h039];
+  assign dbg_cpu_we = cpu_we;
+  assign dbg_bus_addr = cpu_addr;
+  assign dbg_bus_wdata = cpu_wdata;
   assign dbg_zp0e = u_ram.mem[11'h00e];
   assign dbg_zp0f = u_ram.mem[11'h00f];
   assign dbg_zp10 = u_ram.mem[11'h010];

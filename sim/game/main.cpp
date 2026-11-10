@@ -49,12 +49,20 @@ int main(int argc, char **argv) {
   std::vector<unsigned char> cur(256 * 240, 0xFF), shot;
   int frames = 0, last_vsync = 1, target = 300;
   unsigned last_pal_writes = 0, last_nmi_hits = 0, prev_pc = 0;
+  unsigned last_waddr = 0xFFFF; unsigned char last_wdata = 0;
   std::vector<unsigned> hist;
   int nmi_trace = 0;
   bool have = false;
   for (long c = 0; c < 150000000; c++) {
     dut->joy1 = 0x08;
     tick();
+    if ((dut->dbg_bus_addr == 0x0000 || dut->dbg_bus_addr == 0x0037)) {
+      if (dut->dbg_cpu_we && dut->dbg_bus_addr != last_waddr) {
+        std::printf("WRZP addr=%02x data=%02x pc=%04x frame=%d\n",
+          dut->dbg_bus_addr, dut->dbg_bus_wdata, dut->dbg_cpu_pc, frames);
+      }
+      last_waddr = dut->dbg_bus_addr;
+    }
     if (dut->dbg_cpu_pc != prev_pc) {
       prev_pc = dut->dbg_cpu_pc;
       hist.push_back(prev_pc);
@@ -84,7 +92,7 @@ int main(int argc, char **argv) {
       last_vsync = dut->vid_vsync;
       if (!last_vsync) {
         frames++;
-        std::printf("frame %d pal=%02x %02x %02x 0A=%02x ctrl=%02x mask=%02x\n", frames, dut->dbg_pal0, dut->dbg_pal1, dut->dbg_pal2, dut->dbg_zp0a, dut->dbg_ppu_ctrl, dut->dbg_ppu_mask);
+        std::printf("frame %d pal=%02x %02x %02x 0A=%02x 00=%02x 37=%02x 38=%02x 39=%02x ctrl=%02x mask=%02x\n", frames, dut->dbg_pal0, dut->dbg_pal1, dut->dbg_pal2, dut->dbg_zp0a, dut->dbg_zp00, dut->dbg_zp37, dut->dbg_zp38, dut->dbg_zp39, dut->dbg_ppu_ctrl, dut->dbg_ppu_mask);
         if (frames == target) { shot = cur; have = true; break; }
         std::fill(cur.begin(), cur.end(), 0xFF);
       }
