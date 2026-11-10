@@ -39,3 +39,13 @@ if ng != rg:
     raise SystemExit(f"mismatch NEMU={ng} RTL={rg}")
 print("PASS: NEMU/RTL final-state DiffTest", *rg)
 PY
+
+python3 - "$HERE/nemu.log" "$HERE/rtl.out" <<'PY'
+import re, sys
+nlog, rlog = sys.argv[1], sys.argv[2]
+npc = [p[-4:].upper() for p in re.findall(r'^0x([0-9a-fA-F]{8}):', open(nlog).read(), re.M)]
+rpc = [p.upper() for p in re.findall(r'^PC ([0-9a-fA-F]{4})$', open(rlog).read(), re.M)]
+if npc != rpc:
+    raise SystemExit(f"PC trace mismatch NEMU={npc} RTL={rpc}")
+print("PASS: NEMU/RTL PC trace", " ".join(rpc))
+PY

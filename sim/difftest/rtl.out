@@ -1,2 +1,7 @@
 RTL A=42 X=04 Y=00 SP=fd P=24 PC=8008
-/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:32: $finish called at 391000 (1ps)
+PC 8000
+PC 8002
+PC 8005
+PC 8007
+PC 8008
+/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:46: $finish called at 471000 (1ps)

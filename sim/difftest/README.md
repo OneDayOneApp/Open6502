@@ -6,6 +6,7 @@ This directory contains a minimal final-state co-simulation check:
 2. Run it in the NEMU `6502EMU` reference.
 3. Run the same program in the SystemVerilog CPU with Icarus Verilog.
 4. Compare final `A`, `X`, `Y`, `SP`, `P` and `PC`.
+5. Compare the instruction PC trace.
 
 Run:
 
@@ -19,6 +20,7 @@ Expected:
 NEMU: 6502 A:42 X:04 Y:00 SP:FD P:24 ... PC:8008 ...
 RTL : RTL A=42 X=04 Y=00 SP=FD P=24 PC=8008
 PASS: NEMU/RTL final-state DiffTest 42 04 00 FD 24 8008
+PASS: NEMU/RTL PC trace 8000 8002 8005 8007 8008
 ```
 
 This is a final-state smoke test, not a cycle-level online DiffTest. It does not
