@@ -5,7 +5,7 @@
 ## P0 specification
 
 - [x] v0 scope: NTSC, mappers 0/1/2/3/4/7, standard controllers.
-- [x] clock/reset strategy.
+- [x] clock/reset strategy and RTL clock/enable generator.
 - [x] address map.
 - [x] top-level ports.
 - [x] DiffTest topology.

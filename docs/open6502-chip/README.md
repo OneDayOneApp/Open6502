@@ -19,7 +19,8 @@ Open6502 is an FPGA-first, NES/Famicom-compatible 8-bit game SoC.
 
 `rtl/` currently contains a lint/simulation-clean SoC top, 341x262 video
 timing, a controller shift register, a DiffTest bridge skeleton, and a
-bus/WRAM decoder with tests. CPU, PPU, APU and mappers are not implemented yet.
+bus/WRAM decoder, and a clock/reset/enable generator with tests. CPU, PPU, APU
+and mappers are not implemented yet.
 
 ```sh
 cd rtl

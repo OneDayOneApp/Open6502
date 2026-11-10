@@ -1,6 +1,7 @@
 module open6502_video_timing (
   input  logic       clk,
   input  logic       rst_n,
+  input  logic       ppu_en,
   output logic [8:0] x,
   output logic [8:0] y,
   output logic       de,
@@ -15,7 +16,7 @@ module open6502_video_timing (
       x <= '0;
       y <= '0;
       frame_tick <= 1'b0;
-    end else begin
+    end else if (ppu_en) begin
       frame_tick <= 1'b0;
       if (x == PPU_DOTS - 1) begin
         x <= '0;

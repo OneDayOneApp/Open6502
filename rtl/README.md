@@ -9,6 +9,7 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
 - `dbg/open6502_difftest_bridge.sv`: event bridge skeleton
 - `bus/open6502_bus.sv`: address decode/select
 - `bus/open6502_wram.sv`: 2KB WRAM with mirroring
+- `clocks/open6502_clocks.sv`: reset sync, CPU/PPU enables, 44.1 kHz audio enable
 - `../tb/open6502_tb.sv`: video/top smoke testbench
 - `../tb/open6502_bus_tb.sv`: bus/WRAM testbench
 
