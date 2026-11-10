@@ -35,7 +35,8 @@ module open6502_cpu (
     ST_BRK_VEC_LO, ST_BRK_VEC_HI,
     ST_RTI_PULL_P, ST_RTI_PULL_LO, ST_RTI_PULL_HI,
     ST_IRQ_PUSH_HI, ST_IRQ_PUSH_LO, ST_IRQ_PUSH_P,
-    ST_IRQ_VEC_LO, ST_IRQ_VEC_HI
+    ST_IRQ_VEC_LO, ST_IRQ_VEC_HI,
+    ST_JMP_IND_LO, ST_JMP_IND_HI, ST_JMP_IND_READ_LO, ST_JMP_IND_READ_HI
   } state_t;
 
   state_t state;
@@ -77,7 +78,9 @@ module open6502_cpu (
                      (state == ST_BRK_VEC_HI) ? 16'hFFFF :
                      (state == ST_IRQ_VEC_LO) ? (irq_nmi ? 16'hFFFA : 16'hFFFE) :
                      (state == ST_IRQ_VEC_HI) ? (irq_nmi ? 16'hFFFB : 16'hFFFF) :
-                     (state == ST_ABS_DATA || state == ST_RMW_WRITE) ? ea : pc;
+                     (state == ST_ABS_DATA || state == ST_RMW_WRITE ||
+                      state == ST_JMP_IND_READ_LO) ? ea :
+                     (state == ST_JMP_IND_READ_HI) ? {ea[15:8], ea[7:0] + 8'd1} : pc;
   assign ret_addr  = pc - 16'd1;
   assign bus_wdata = (state == ST_JSR_PUSH_HI) ? ret_addr[15:8] :
                      (state == ST_JSR_PUSH_LO) ? ret_addr[7:0] :
@@ -184,6 +187,8 @@ module open6502_cpu (
             8'h0E, 8'h4E, 8'h2E, 8'h6E, 8'hEE, 8'hCE,
             8'h2C, 8'hEC, 8'hCC:
               state <= ST_ABS_LO;
+            8'h6C:
+              state <= ST_JMP_IND_LO;
             8'h60:
               state <= ST_RTS_PULL_LO;
             8'h48:
@@ -304,6 +309,24 @@ module open6502_cpu (
         ST_INDY_HI: begin
           ea <= {bus_rdata, tmp_lo} + {8'h00, y};
           state <= ST_ABS_DATA;
+        end
+        ST_JMP_IND_LO: begin
+          tmp_lo <= bus_rdata;
+          pc <= pc + 16'd1;
+          state <= ST_JMP_IND_HI;
+        end
+        ST_JMP_IND_HI: begin
+          ea <= {bus_rdata, tmp_lo};
+          pc <= pc + 16'd1;
+          state <= ST_JMP_IND_READ_LO;
+        end
+        ST_JMP_IND_READ_LO: begin
+          tmp_lo <= bus_rdata;
+          state <= ST_JMP_IND_READ_HI;
+        end
+        ST_JMP_IND_READ_HI: begin
+          pc <= {bus_rdata, tmp_lo};
+          state <= ST_FETCH;
         end
         ST_ABS_LO: begin
           tmp_lo <= bus_rdata;
