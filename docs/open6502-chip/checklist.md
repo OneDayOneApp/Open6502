@@ -14,7 +14,7 @@
 
 ## P1 CPU + bus
 
-- [~] 6502 RTL core: immediate/zero-page/absolute/indexed/indirect load-store, ADC/SBC/AND/ORA/EOR/CMP, branches/transfers/flags, accumulator shifts, JSR/RTS, PHA/PLA/PHP/PLP, integrated in top.
+- [~] 6502 RTL core: immediate/zero-page/absolute/indexed/indirect load-store, ADC/SBC/AND/ORA/EOR/CMP, branches/transfers/flags, accumulator/memory shifts, JSR/RTS, PHA/PLA/PHP/PLP, integrated in top.
 - [ ] 2A03 profile (no decimal).
 - [~] bus address decode/WRAM in RTL; CPU cycle semantics pending.
 - [ ] NMI/IRQ.

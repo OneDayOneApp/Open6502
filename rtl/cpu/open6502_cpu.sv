@@ -30,7 +30,7 @@ module open6502_cpu (
     ST_BRANCH, ST_BRANCH_EXEC, ST_IMPLIED, ST_NOP,
     ST_JSR_PUSH_HI, ST_JSR_PUSH_LO, ST_JSR_SET,
     ST_RTS_PULL_LO, ST_RTS_PULL_HI,
-    ST_PUSH_A, ST_PULL_A, ST_PUSH_P, ST_PULL_P
+    ST_PUSH_A, ST_PULL_A, ST_PUSH_P, ST_PULL_P, ST_RMW_WRITE
   } state_t;
 
   state_t state;
@@ -40,6 +40,7 @@ module open6502_cpu (
   logic [7:0]  opcode;
   logic [7:0]  tmp_lo;
   logic [7:0]  zp_ptr;
+  logic [7:0]  rmw_data;
   logic [8:0]  alu9;
   logic [15:0] ret_addr;
   logic [7:0]  alu8;
@@ -59,11 +60,12 @@ module open6502_cpu (
                      (state == ST_RTS_PULL_HI) ? {8'h01, sp + 8'd1} :
                      (state == ST_PUSH_A || state == ST_PUSH_P) ? {8'h01, sp} :
                      (state == ST_PULL_A || state == ST_PULL_P) ? {8'h01, sp + 8'd1} :
-                     (state == ST_ABS_DATA) ? ea : pc;
+                     (state == ST_ABS_DATA || state == ST_RMW_WRITE) ? ea : pc;
   assign ret_addr  = pc - 16'd1;
   assign bus_wdata = (state == ST_JSR_PUSH_HI) ? ret_addr[15:8] :
                      (state == ST_JSR_PUSH_LO) ? ret_addr[7:0] :
-                     (state == ST_PUSH_P) ? (p | 8'h30) : a;
+                     (state == ST_PUSH_P) ? (p | 8'h30) :
+                     (state == ST_RMW_WRITE) ? rmw_data : a;
   assign bus_we    = we;
   assign dbg_pc    = pc;
   assign dbg_a     = a;
@@ -79,7 +81,8 @@ module open6502_cpu (
   always_comb begin
     we = 1'b0;
     if (state == ST_JSR_PUSH_HI || state == ST_JSR_PUSH_LO ||
-        state == ST_PUSH_A || state == ST_PUSH_P) begin
+        state == ST_PUSH_A || state == ST_PUSH_P ||
+        state == ST_RMW_WRITE) begin
       we = 1'b1;
     end else if (state == ST_ABS_DATA) begin
       case (opcode)
@@ -120,15 +123,15 @@ module open6502_cpu (
               state <= ST_IMM;
             8'hA5, 8'hA6, 8'hA4, 8'h85, 8'h86, 8'h84,
             8'h65, 8'hE5, 8'h25, 8'h05, 8'h45,
-            8'hC5, 8'hE4, 8'hC4:
+            8'hC5, 8'hE4, 8'hC4, 8'h06, 8'h46, 8'h26, 8'h66:
               state <= ST_ZP;
             8'hB5, 8'h95, 8'h75, 8'hF5, 8'h35, 8'h15, 8'h55,
-            8'hD5, 8'hB4, 8'h94:
+            8'hD5, 8'hB4, 8'h94, 8'h16, 8'h56, 8'h36, 8'h76:
               state <= ST_ZPX;
             8'hB6, 8'h96:
               state <= ST_ZPY;
             8'hBD, 8'h9D, 8'h7D, 8'hFD, 8'h3D, 8'h1D, 8'h5D,
-            8'hDD, 8'hBC:
+            8'hDD, 8'hBC, 8'h1E, 8'h5E, 8'h3E, 8'h7E:
               state <= ST_ABSX_LO;
             8'hB9, 8'h99, 8'h79, 8'hF9, 8'h39, 8'h19, 8'h59,
             8'hD9, 8'hBE:
@@ -137,7 +140,8 @@ module open6502_cpu (
               state <= ST_INDX_PTR;
             8'hB1, 8'h91, 8'h71, 8'hF1, 8'h31, 8'h11, 8'h51, 8'hD1:
               state <= ST_INDY_PTR;
-            8'hAD, 8'hAE, 8'hAC, 8'h8D, 8'h8E, 8'h8C, 8'h4C, 8'h20:
+            8'hAD, 8'hAE, 8'hAC, 8'h8D, 8'h8E, 8'h8C, 8'h4C, 8'h20,
+            8'h0E, 8'h4E, 8'h2E, 8'h6E:
               state <= ST_ABS_LO;
             8'h60:
               state <= ST_RTS_PULL_LO;
@@ -274,6 +278,7 @@ module open6502_cpu (
           end
         end
         ST_ABS_DATA: begin
+          state <= ST_FETCH;
           case (opcode)
             8'hAD, 8'hA5, 8'hB5, 8'hBD, 8'hB9, 8'hA1, 8'hB1:
               begin a <= bus_rdata; p <= nz(bus_rdata, p); end
@@ -302,6 +307,26 @@ module open6502_cpu (
               alu9 = {1'b0, a} + {1'b0, ~bus_rdata} + 9'd1;
               p <= (nz(alu9[7:0], p) & 8'hFE) | (a >= bus_rdata ? 8'h01 : 8'h00);
             end
+            8'h06, 8'h16, 8'h0E, 8'h1E: begin
+              rmw_data <= {bus_rdata[6:0], 1'b0};
+              p <= (nz({bus_rdata[6:0],1'b0}, p) & 8'hFE) | (bus_rdata[7] ? 8'h01 : 8'h00);
+              state <= ST_RMW_WRITE;
+            end
+            8'h46, 8'h56, 8'h4E, 8'h5E: begin
+              rmw_data <= {1'b0, bus_rdata[7:1]};
+              p <= (nz({1'b0,bus_rdata[7:1]}, p) & 8'hFE) | (bus_rdata[0] ? 8'h01 : 8'h00);
+              state <= ST_RMW_WRITE;
+            end
+            8'h26, 8'h36, 8'h2E, 8'h3E: begin
+              rmw_data <= {bus_rdata[6:0], p[0]};
+              p <= (nz({bus_rdata[6:0],p[0]}, p) & 8'hFE) | (bus_rdata[7] ? 8'h01 : 8'h00);
+              state <= ST_RMW_WRITE;
+            end
+            8'h66, 8'h76, 8'h6E, 8'h7E: begin
+              rmw_data <= {p[0], bus_rdata[7:1]};
+              p <= (nz({p[0],bus_rdata[7:1]}, p) & 8'hFE) | (bus_rdata[0] ? 8'h01 : 8'h00);
+              state <= ST_RMW_WRITE;
+            end
             8'hE4: begin
               alu9 = {1'b0, x} + {1'b0, ~bus_rdata} + 9'd1;
               p <= (nz(alu9[7:0], p) & 8'hFE) | (x >= bus_rdata ? 8'h01 : 8'h00);
@@ -312,7 +337,6 @@ module open6502_cpu (
             end
             default: ;
           endcase
-          state <= ST_FETCH;
         end
         ST_JSR_PUSH_HI: begin
           sp <= sp - 8'd1;
@@ -355,6 +379,7 @@ module open6502_cpu (
           p <= (bus_rdata & 8'hCF) | 8'h20;
           state <= ST_FETCH;
         end
+        ST_RMW_WRITE: state <= ST_FETCH;
         ST_BRANCH: begin
           state <= ST_BRANCH_EXEC;
         end
