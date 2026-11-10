@@ -5,8 +5,8 @@ running the Klaus 6502 functional test against `rtl/cpu/open6502_cpu.sv`.
 
 Expected pass PC: `0x3469`.
 
-Current RTL status: fails at `PC=0x37E2` after the `CMP #$CD` fix; the
-remaining failure is in the stack/PLA test area (`A=$D0`, expected `$D1`).
+Current RTL status: fails at `PC=0x09DC` after fixing the BRK pushed return
+address. The remaining failure is in the BRK/PLP test sequence.
 
 ## Verilator
 

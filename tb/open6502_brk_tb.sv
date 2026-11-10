@@ -25,9 +25,10 @@ module open6502_brk_tb;
     mem[16'hFFFC] = 8'h00; mem[16'hFFFD] = 8'h80;
     mem[16'hFFFE] = 8'h20; mem[16'hFFFF] = 8'h80;
     mem[16'h8000] = 8'h00;                         // BRK
-    mem[16'h8001] = 8'hA9; mem[16'h8002] = 8'h42; // LDA #$42
-    mem[16'h8003] = 8'h8D; mem[16'h8004] = 8'h00; mem[16'h8005] = 8'h02;
-    mem[16'h8006] = 8'h4C; mem[16'h8007] = 8'h06; mem[16'h8008] = 8'h80;
+    mem[16'h8001] = 8'hEA;                         // padding
+    mem[16'h8002] = 8'hA9; mem[16'h8003] = 8'h42; // LDA #$42
+    mem[16'h8004] = 8'h8D; mem[16'h8005] = 8'h00; mem[16'h8006] = 8'h02;
+    mem[16'h8007] = 8'h4C; mem[16'h8008] = 8'h07; mem[16'h8009] = 8'h80;
     mem[16'h8020] = 8'hA9; mem[16'h8021] = 8'h55; // handler LDA #$55
     mem[16'h8022] = 8'h40;                         // RTI
     repeat (4) @(posedge clk);

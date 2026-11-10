@@ -50,6 +50,7 @@ module open6502_cpu (
   logic        nmi_prev, nmi_pending, irq_nmi;
   logic [8:0]  alu9;
   logic [15:0] ret_addr;
+  logic [15:0] brk_addr;
   logic [7:0]  alu8;
   logic        we;
 
@@ -82,11 +83,12 @@ module open6502_cpu (
                       state == ST_JMP_IND_READ_LO) ? ea :
                      (state == ST_JMP_IND_READ_HI) ? {ea[15:8], ea[7:0] + 8'd1} : pc;
   assign ret_addr  = pc - 16'd1;
+  assign brk_addr  = pc + 16'd1;
   assign bus_wdata = (state == ST_JSR_PUSH_HI) ? ret_addr[15:8] :
                      (state == ST_JSR_PUSH_LO) ? ret_addr[7:0] :
                      (state == ST_PUSH_P || state == ST_BRK_PUSH_P) ? (p | 8'h30) :
-                     (state == ST_BRK_PUSH_HI) ? pc[15:8] :
-                     (state == ST_BRK_PUSH_LO) ? pc[7:0] :
+                     (state == ST_BRK_PUSH_HI) ? brk_addr[15:8] :
+                     (state == ST_BRK_PUSH_LO) ? brk_addr[7:0] :
                      (state == ST_IRQ_PUSH_HI) ? pc[15:8] :
                      (state == ST_IRQ_PUSH_LO) ? pc[7:0] :
                      (state == ST_IRQ_PUSH_P) ? ((p & 8'hEF) | 8'h20) :

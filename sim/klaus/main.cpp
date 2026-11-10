@@ -15,7 +15,11 @@ static void tick() {
   dut->eval();
   dut->clk = 1;
   dut->eval();
-  if (dut->bus_we) mem[dut->bus_addr] = dut->bus_wdata;
+  if (dut->bus_we) {
+    if (dut->bus_addr == 0x01FE)
+      std::printf("WR01FE=%02x PC=%04x SP=%02x\n", dut->bus_wdata, dut->dbg_pc, dut->dbg_sp);
+    mem[dut->bus_addr] = dut->bus_wdata;
+  }
   dut->clk = 0;
   dut->cpu_en = 0;
   dut->eval();
