@@ -9,9 +9,11 @@ module open6502_mapper (
   input  logic [15:0] cpu_addr,
   input  logic        cpu_we,
   input  logic [7:0]  cpu_wdata,
+  input  logic        ppu_a12,
   output logic [14:0] prg_addr,
   output logic [12:0] chr_addr,
-  output logic        mirroring
+  output logic        mirroring,
+  output logic        irq
 );
   logic [2:0] prg_bank;
   logic [1:0] chr_bank;
@@ -19,6 +21,12 @@ module open6502_mapper (
   logic [4:0] mmc1_shift;
   logic [2:0] mmc1_count;
   logic [3:0] mmc1_ctrl, mmc1_chr0, mmc1_chr1, mmc1_prg;
+  logic [7:0] mmc3_regs [0:7];
+  logic [2:0] mmc3_sel;
+  logic       mmc3_prg_mode, mmc3_chr_mode;
+  logic [7:0] mmc3_latch, mmc3_counter;
+  logic       mmc3_reload, mmc3_enable, mmc3_irq;
+  logic       a12_prev;
 
   always_ff @(posedge clk) begin
     if (!rst_n) begin
@@ -28,8 +36,35 @@ module open6502_mapper (
       mmc1_shift <= 5'd0; mmc1_count <= 3'd0;
       mmc1_ctrl <= 4'h0; mmc1_chr0 <= 4'h0;
       mmc1_chr1 <= 4'h0; mmc1_prg <= 4'h0;
+      for (int i = 0; i < 8; i++) mmc3_regs[i] <= 8'h00;
+      mmc3_sel <= 3'd0; mmc3_prg_mode <= 1'b0; mmc3_chr_mode <= 1'b0;
+      mmc3_latch <= 8'h00; mmc3_counter <= 8'h00;
+      mmc3_reload <= 1'b0; mmc3_enable <= 1'b0; mmc3_irq <= 1'b0;
+      a12_prev <= 1'b0;
     end else if (cpu_we && cpu_addr >= 16'h8000) begin
       case (mapper)
+        3'd4: begin
+          case (cpu_addr[14:13])
+            2'b00: begin
+              if (cpu_addr[0] == 1'b0) begin
+                mmc3_sel <= cpu_wdata[2:0];
+                mmc3_prg_mode <= cpu_wdata[6];
+                mmc3_chr_mode <= cpu_wdata[7];
+              end else mmc3_regs[mmc3_sel] <= cpu_wdata;
+            end
+            2'b01: mirror <= cpu_wdata[0];
+            2'b10: begin
+              if (cpu_addr[0] == 1'b0) mmc3_latch <= cpu_wdata;
+              else mmc3_reload <= 1'b1;
+            end
+            2'b11: begin
+              if (cpu_addr[0] == 1'b0) begin
+                mmc3_enable <= 1'b0;
+                mmc3_irq <= 1'b0;
+              end else mmc3_enable <= 1'b1;
+            end
+          endcase
+        end
         3'd1: begin
           if (cpu_wdata[7]) begin
             mmc1_shift <= 5'd0;
@@ -57,7 +92,20 @@ module open6502_mapper (
         default: ;
       endcase
     end
+
+    if (mapper == 3'd4) begin
+      a12_prev <= ppu_a12;
+      if (ppu_a12 && !a12_prev) begin
+        if (mmc3_counter == 8'd0 || mmc3_reload) begin
+          mmc3_counter <= mmc3_latch;
+          mmc3_reload <= 1'b0;
+        end else mmc3_counter <= mmc3_counter - 8'd1;
+        if (mmc3_counter == 8'd0 && mmc3_enable) mmc3_irq <= 1'b1;
+      end
+    end
   end
+
+  assign irq = mmc3_irq;
 
   always_comb begin
     prg_addr = cpu_addr[14:0];
@@ -94,6 +142,30 @@ module open6502_mapper (
       3'd7: begin
         prg_addr = {prg_bank, 12'd0} + cpu_addr[14:0];
         mirroring = mirror;
+      end
+      3'd4: begin
+        prg_addr = cpu_addr[14:0];
+        chr_addr = cpu_addr[12:0];
+        if (cpu_addr < 16'h2000) begin
+          case (cpu_addr[12:10])
+            3'd0: chr_addr = {mmc3_regs[0][2:0], 10'd0} + cpu_addr[9:0];
+            3'd1: chr_addr = {mmc3_regs[0][2:0], 10'd0} + 13'h0400 + cpu_addr[9:0];
+            3'd2: chr_addr = {mmc3_regs[1][2:0], 10'd0} + cpu_addr[9:0];
+            3'd3: chr_addr = {mmc3_regs[1][2:0], 10'd0} + 13'h0400 + cpu_addr[9:0];
+            3'd4: chr_addr = {mmc3_regs[2][2:0], 10'd0} + cpu_addr[9:0];
+            3'd5: chr_addr = {mmc3_regs[3][2:0], 10'd0} + cpu_addr[9:0];
+            3'd6: chr_addr = {mmc3_regs[4][2:0], 10'd0} + cpu_addr[9:0];
+            default: chr_addr = {mmc3_regs[5][2:0], 10'd0} + cpu_addr[9:0];
+          endcase
+        end
+        case (cpu_addr[14:13])
+          2'b00: prg_addr = mmc3_prg_mode ? 15'h4000 + cpu_addr[12:0] :
+                             {mmc3_regs[6][1:0], 13'd0} + cpu_addr[12:0];
+          2'b01: prg_addr = {mmc3_regs[7][1:0], 13'd0} + cpu_addr[12:0];
+          2'b10: prg_addr = mmc3_prg_mode ? {mmc3_regs[6][1:0], 13'd0} + cpu_addr[12:0] :
+                             15'h4000 + cpu_addr[12:0];
+          default: prg_addr = 15'h4000 + cpu_addr[12:0];
+        endcase
       end
       default: begin
         prg_addr = cpu_addr[14:0];

@@ -12,7 +12,7 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
 - `clocks/open6502_clocks.sv`: reset sync, CPU/PPU enables, 44.1 kHz audio enable
 - `apu/open6502_apu.sv`: pulse 1/2, triangle, noise, length/envelope, frame
   sequencer, frame IRQ, `$4015` status and 16-bit sample output
-- `cart/open6502_mapper.sv`: mapper 0/1/2/3/7 bank registers
+- `cart/open6502_mapper.sv`: mapper 0/1/2/3/4/7 bank registers and MMC3 IRQ
 - `dma/open6502_oam_dma.sv`: 256-byte OAM DMA engine, integrated with `$4014`
   and CPU stall
 - `ppu/open6502_ppu.sv`: CPU-visible PPU registers, CHR/VRAM/OAM/palette,

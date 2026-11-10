@@ -8,11 +8,13 @@ module open6502_mapper_tb;
   logic [14:0] prg;
   logic [12:0] chr;
   logic mirror;
+  logic irq;
+  logic a12 = 0;
 
   open6502_mapper dut (
     .clk(clk), .rst_n(rst_n), .mapper(mapper), .cpu_addr(addr),
     .cpu_we(we), .cpu_wdata(wdata), .prg_addr(prg),
-    .chr_addr(chr), .mirroring(mirror)
+    .ppu_a12(a12), .chr_addr(chr), .mirroring(mirror), .irq(irq)
   );
 
   always #10 clk = ~clk;
@@ -44,7 +46,17 @@ module open6502_mapper_tb;
     for (int b = 0; b < 5; b++) wr(16'h8000, (8'h0C >> b) & 1);
     addr = 16'h8000; #1;
     if (prg !== 15'h0000) $fatal(1, "MMC1 prg");
-    $display("PASS: Open6502 mapper 0/1/2/3/7");
+    // MMC3 PRG bank 1 and IRQ
+    mapper = 4;
+    wr(16'h8000, 8'h06); wr(16'h8001, 8'h01);
+    addr = 16'h8000; #1;
+    if (prg !== 15'h2000) $fatal(1, "MMC3 prg %04x", prg);
+    wr(16'hC000, 8'h01); // latch
+    wr(16'hC001, 8'h00); // reload
+    wr(16'hE001, 8'h00); // enable
+    a12 = 1; @(posedge clk); #1; a12 = 0;
+    if (!irq) $fatal(1, "MMC3 IRQ not asserted");
+    $display("PASS: Open6502 mapper 0/1/2/3/4/7");
     $finish;
   end
 endmodule
