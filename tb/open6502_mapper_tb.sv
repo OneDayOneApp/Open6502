@@ -37,7 +37,14 @@ module open6502_mapper_tb;
     // AxROM bank 1 + one-screen
     mapper = 7; wr(16'h8000, 8'h11); addr = 16'h8000; #1;
     if (prg !== 15'h1000 || !mirror) $fatal(1, "AxROM prg/mirror");
-    $display("PASS: Open6502 mapper 0/2/3/7");
+    // MMC1: write 5 bits, register select via A14:A13
+    mapper = 1;
+    for (int b = 0; b < 5; b++) wr(16'h8000, 8'h00); // PRG bank 0
+    // control = 0x0C (PRG 32K, mirroring 0)
+    for (int b = 0; b < 5; b++) wr(16'h8000, (8'h0C >> b) & 1);
+    addr = 16'h8000; #1;
+    if (prg !== 15'h0000) $fatal(1, "MMC1 prg");
+    $display("PASS: Open6502 mapper 0/1/2/3/7");
     $finish;
   end
 endmodule
