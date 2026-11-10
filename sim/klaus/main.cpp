@@ -2,7 +2,6 @@
 #include "verilated.h"
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <vector>
 
 static Vopen6502_cpu *dut;
@@ -21,6 +20,8 @@ static void tick() {
   dut->cpu_en = 0;
   dut->eval();
 }
+
+double sc_time_stamp() { return 0.0; }
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);

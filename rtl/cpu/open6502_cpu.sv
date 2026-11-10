@@ -185,7 +185,7 @@ module open6502_cpu (
               state <= ST_INDY_PTR;
             8'hAD, 8'hAE, 8'hAC, 8'h8D, 8'h8E, 8'h8C, 8'h4C, 8'h20,
             8'h0E, 8'h4E, 8'h2E, 8'h6E, 8'hEE, 8'hCE,
-            8'h2C, 8'hEC, 8'hCC:
+            8'h2C, 8'hEC, 8'hCC, 8'hCD:
               state <= ST_ABS_LO;
             8'h6C:
               state <= ST_JMP_IND_LO;
@@ -371,7 +371,7 @@ module open6502_cpu (
             8'h25, 8'h35, 8'h3D, 8'h39, 8'h21, 8'h31: begin a <= a & bus_rdata; p <= nz(a & bus_rdata, p); end
             8'h05, 8'h15, 8'h1D, 8'h19, 8'h01, 8'h11: begin a <= a | bus_rdata; p <= nz(a | bus_rdata, p); end
             8'h45, 8'h55, 8'h5D, 8'h59, 8'h41, 8'h51: begin a <= a ^ bus_rdata; p <= nz(a ^ bus_rdata, p); end
-            8'hC5, 8'hD5, 8'hDD, 8'hD9, 8'hC1, 8'hD1: begin
+            8'hC5, 8'hD5, 8'hDD, 8'hD9, 8'hC1, 8'hD1, 8'hCD: begin
               alu9 = {1'b0, a} + {1'b0, ~bus_rdata} + 9'd1;
               p <= (nz(alu9[7:0], p) & 8'hFE) | (a >= bus_rdata ? 8'h01 : 8'h00);
             end
