@@ -39,7 +39,9 @@ module open6502_top #(
   output logic [7:0]  dbg_pal0,
   output logic [7:0]  dbg_chr0,
   output logic [7:0]  dbg_pal1,
-  output logic [7:0]  dbg_pal2
+  output logic [7:0]  dbg_pal2,
+  output logic [8:0]  dbg_ppu_x,
+  output logic [8:0]  dbg_ppu_y
 );
 
   logic        rst_sync_n;
@@ -77,6 +79,7 @@ module open6502_top #(
   logic        dma_start;
   logic        dma_req_d;
   logic        dma_lock;
+  logic        cpu_ce;
   logic [15:0] dma_mem_addr;
   logic        dma_oam_we;
   logic [7:0]  dma_oam_addr, dma_oam_wdata;
@@ -114,8 +117,10 @@ module open6502_top #(
     .buttons(joy2), .serial(joy2_serial)
   );
 
+  assign cpu_ce = cpu_en && !dma_busy && !dmc_stall;
+
   open6502_cpu u_cpu (
-    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en && !dma_busy && !dmc_stall),
+    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_ce),
     .bus_rdata(cpu_rdata), .irq_n(~(apu_irq | dmc_irq | mapper_irq)),
     .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
@@ -140,7 +145,7 @@ module open6502_top #(
   open6502_ppu u_ppu (
     .clk(clk_21m), .rst_n(rst_sync_n), .ppu_en(ppu_en),
     .x(ppu_x), .y(ppu_y),
-    .cs(ppu_sel), .we(ppu_we), .addr(cpu_addr[2:0]),
+    .cs(ppu_sel && cpu_ce), .we(ppu_we), .addr(cpu_addr[2:0]),
     .wdata(cpu_wdata), .dma_we(dma_oam_we), .dma_addr(dma_oam_addr),
     .dma_wdata(dma_oam_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
     .chr_load_we(chr_load_we), .chr_load_addr(chr_load_addr),
@@ -228,6 +233,8 @@ module open6502_top #(
   assign dbg_chr0 = u_ppu.chr[0];
   assign dbg_pal1 = u_ppu.pal[1];
   assign dbg_pal2 = u_ppu.pal[2];
+  assign dbg_ppu_x = ppu_x;
+  assign dbg_ppu_y = ppu_y;
 
   // Keep controller/cart/joy signals observable while the CPU/PPU/APU
   // implementations are brought up in later phases.

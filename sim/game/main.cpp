@@ -41,7 +41,8 @@ int main(int argc, char **argv) {
   for (long c = 0; c < 20000000; c++) {
     tick();
     if (dut->vid_de) {
-      if (de_count < 256 * 240) fb[de_count] = dut->vid_rgb;
+      if (dut->dbg_ppu_x < 256 && dut->dbg_ppu_y < 240)
+        fb[dut->dbg_ppu_y * 256 + dut->dbg_ppu_x] = dut->vid_rgb;
       de_count++;
       if (dut->vid_rgb) nonblack++;
     }
@@ -61,6 +62,16 @@ int main(int argc, char **argv) {
         }
       }
     }
+  }
+  {
+    FILE *f = std::fopen(argv[3], "wb");
+    std::fprintf(f, "P6\n256 240\n255\n");
+    for (int y = 0; y < 240; y++) for (int x = 0; x < 256; x++) {
+      unsigned char p = fb[y*256+x];
+      unsigned char rgb[3] = {(unsigned char)((p & 0xf) * 17), (unsigned char)(((p >> 4) & 0xf) * 17), 0};
+      std::fwrite(rgb, 1, 3, f);
+    }
+    std::fclose(f);
   }
   std::printf("frames=%d de=%d nonblack=%d pc=%04x ctrl=%02x mask=%02x status=%02x\n",
       frames, de_count, nonblack, dut->dbg_cpu_pc, dut->dbg_ppu_ctrl,
