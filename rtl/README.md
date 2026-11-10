@@ -16,6 +16,7 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
 - `../tb/open6502_bus_tb.sv`: bus/WRAM testbench
 - `../tb/open6502_clocks_tb.sv`: clock-enable testbench
 - `../tb/open6502_cpu_tb.sv`: CPU subset testbench
+- `../tb/open6502_soc_tb.sv`: CPU + bus + WRAM SoC integration testbench
 
 Not yet implemented: 6502 CPU, 2C02 PPU, 2A03 APU, bus decoder, cartridge
 mapper, OAM DMA and audio mixer.  The top-level ports and clock/timing scaffold

@@ -32,6 +32,14 @@ module open6502_top (
   logic [8:0]  ppu_x;
   logic [8:0]  ppu_y;
   logic        frame_tick;
+  logic [15:0] cpu_addr;
+  logic [7:0]  cpu_wdata;
+  logic [7:0]  cpu_rdata;
+  logic        cpu_we;
+  logic [7:0]  ram_rdata;
+  logic [10:0] ram_addr;
+  logic        ram_sel, ppu_sel, apu_sel, cart_sel;
+  logic        ram_we, ppu_we, apu_we, cart_we_i;
   logic        joy1_serial;
   logic        joy2_serial;
   logic        dbg_valid_i;
@@ -62,6 +70,28 @@ module open6502_top (
     .buttons(joy2), .serial(joy2_serial)
   );
 
+  open6502_cpu u_cpu (
+    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
+    .bus_rdata(cpu_rdata), .irq_n(1'b1), .nmi_n(1'b1),
+    .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
+    .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p()
+  );
+
+  open6502_bus u_bus (
+    .cpu_addr(cpu_addr), .cpu_we(cpu_we), .cpu_wdata(cpu_wdata),
+    .ram_rdata(ram_rdata), .ppu_rdata(8'h00), .apu_rdata(8'h00),
+    .cart_rdata(cart_rdata),
+    .ram_sel(ram_sel), .ppu_sel(ppu_sel), .apu_sel(apu_sel),
+    .cart_sel(cart_sel), .ram_we(ram_we), .ppu_we(ppu_we),
+    .apu_we(apu_we), .cart_we(cart_we_i), .ram_addr(ram_addr),
+    .cpu_rdata(cpu_rdata)
+  );
+
+  open6502_wram u_ram (
+    .clk(clk_21m), .rst_n(rst_sync_n), .we(ram_we),
+    .addr(ram_addr), .wdata(cpu_wdata), .rdata(ram_rdata)
+  );
+
   open6502_difftest_bridge u_dbg (
     .clk(clk_21m), .rst_n(rst_sync_n),
     .valid(1'b0), .kind(2'd0), .tick(64'd0),
@@ -73,15 +103,16 @@ module open6502_top (
   assign vid_rgb = 12'h000;
   assign aud_valid = aud_en;
   assign aud_sample = 16'sd0;
-  assign cart_addr = 16'd0;
-  assign cart_wdata = 8'd0;
-  assign cart_we = 1'b0;
+  assign cart_addr = cpu_addr;
+  assign cart_wdata = cpu_wdata;
+  assign cart_we = cart_we_i;
   assign dbg_valid = dbg_valid_i;
   assign dbg_payload = dbg_payload_i;
 
   // Keep controller/cart/joy signals observable while the CPU/PPU/APU
   // implementations are brought up in later phases.
   logic unused;
-  assign unused = ^{joy1_serial, joy2_serial, cart_rdata, cart_irq,
-                    frame_tick, ppu_x, ppu_y, cpu_en};
+  assign unused = ^{joy1_serial, joy2_serial, cart_irq, frame_tick,
+                    ppu_x, ppu_y, ram_sel, ppu_sel, apu_sel, cart_sel,
+                    ppu_we, apu_we};
 endmodule
