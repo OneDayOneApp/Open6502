@@ -160,15 +160,18 @@ module open6502_cpu (
               state <= ST_IMM;
             8'hA5, 8'hA6, 8'hA4, 8'h85, 8'h86, 8'h84,
             8'h65, 8'hE5, 8'h25, 8'h05, 8'h45,
-            8'hC5, 8'hE4, 8'hC4, 8'h06, 8'h46, 8'h26, 8'h66:
+            8'hC5, 8'hE4, 8'hC4, 8'h06, 8'h46, 8'h26, 8'h66,
+            8'hE6, 8'hC6, 8'h24:
               state <= ST_ZP;
             8'hB5, 8'h95, 8'h75, 8'hF5, 8'h35, 8'h15, 8'h55,
-            8'hD5, 8'hB4, 8'h94, 8'h16, 8'h56, 8'h36, 8'h76:
+            8'hD5, 8'hB4, 8'h94, 8'h16, 8'h56, 8'h36, 8'h76,
+            8'hF6, 8'hD6:
               state <= ST_ZPX;
             8'hB6, 8'h96:
               state <= ST_ZPY;
             8'hBD, 8'h9D, 8'h7D, 8'hFD, 8'h3D, 8'h1D, 8'h5D,
-            8'hDD, 8'hBC, 8'h1E, 8'h5E, 8'h3E, 8'h7E:
+            8'hDD, 8'hBC, 8'h1E, 8'h5E, 8'h3E, 8'h7E,
+            8'hFE, 8'hDE:
               state <= ST_ABSX_LO;
             8'hB9, 8'h99, 8'h79, 8'hF9, 8'h39, 8'h19, 8'h59,
             8'hD9, 8'hBE:
@@ -178,7 +181,8 @@ module open6502_cpu (
             8'hB1, 8'h91, 8'h71, 8'hF1, 8'h31, 8'h11, 8'h51, 8'hD1:
               state <= ST_INDY_PTR;
             8'hAD, 8'hAE, 8'hAC, 8'h8D, 8'h8E, 8'h8C, 8'h4C, 8'h20,
-            8'h0E, 8'h4E, 8'h2E, 8'h6E:
+            8'h0E, 8'h4E, 8'h2E, 8'h6E, 8'hEE, 8'hCE,
+            8'h2C, 8'hEC, 8'hCC:
               state <= ST_ABS_LO;
             8'h60:
               state <= ST_RTS_PULL_LO;
@@ -347,6 +351,29 @@ module open6502_cpu (
             8'hC5, 8'hD5, 8'hDD, 8'hD9, 8'hC1, 8'hD1: begin
               alu9 = {1'b0, a} + {1'b0, ~bus_rdata} + 9'd1;
               p <= (nz(alu9[7:0], p) & 8'hFE) | (a >= bus_rdata ? 8'h01 : 8'h00);
+            end
+            8'hE6, 8'hF6, 8'hEE, 8'hFE: begin
+              rmw_data <= bus_rdata + 8'd1;
+              p <= nz(bus_rdata + 8'd1, p);
+              state <= ST_RMW_WRITE;
+            end
+            8'hC6, 8'hD6, 8'hCE, 8'hDE: begin
+              rmw_data <= bus_rdata - 8'd1;
+              p <= nz(bus_rdata - 8'd1, p);
+              state <= ST_RMW_WRITE;
+            end
+            8'h24, 8'h2C: begin
+              p[7] <= bus_rdata[7];
+              p[6] <= bus_rdata[6];
+              p[1] <= ((a & bus_rdata) == 8'h00);
+            end
+            8'hEC: begin
+              alu9 = {1'b0, x} + {1'b0, ~bus_rdata} + 9'd1;
+              p <= (nz(alu9[7:0], p) & 8'hFE) | (x >= bus_rdata ? 8'h01 : 8'h00);
+            end
+            8'hCC: begin
+              alu9 = {1'b0, y} + {1'b0, ~bus_rdata} + 9'd1;
+              p <= (nz(alu9[7:0], p) & 8'hFE) | (y >= bus_rdata ? 8'h01 : 8'h00);
             end
             8'h06, 8'h16, 8'h0E, 8'h1E: begin
               rmw_data <= {bus_rdata[6:0], 1'b0};

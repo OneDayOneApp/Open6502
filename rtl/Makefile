@@ -20,6 +20,7 @@ STACK_TB := ../tb/open6502_stack_tb.sv
 RMW_TB := ../tb/open6502_rmw_tb.sv
 BRK_TB := ../tb/open6502_brk_tb.sv
 IRQ_TB := ../tb/open6502_irq_tb.sv
+INC_TB := ../tb/open6502_inc_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
 	$(IV) -g2012 -o open6502_tb.vvp $(RTL) $(TB)
@@ -43,6 +44,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_brk_tb.vvp
 	$(IV) -g2012 -o open6502_irq_tb.vvp cpu/open6502_cpu.sv $(IRQ_TB)
 	vvp open6502_irq_tb.vvp
+	$(IV) -g2012 -o open6502_inc_tb.vvp cpu/open6502_cpu.sv $(INC_TB)
+	vvp open6502_inc_tb.vvp
 
 sim-verilator: $(TB) $(RTL)
 	$(VERILATOR) --binary -Wall -Wno-fatal --top-module open6502_tb \
