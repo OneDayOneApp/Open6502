@@ -29,11 +29,13 @@ echo "RTL : $rtl_line"
 python3 - "$nemu_line" "$rtl_line" <<'PY'
 import re, sys
 n, r = sys.argv[1], sys.argv[2]
-nm = re.search(r'A:([0-9A-F]{2}) X:([0-9A-F]{2}).*PC:([0-9A-F]{4})', n)
-rm = re.search(r'A=([0-9A-F]{2}) X=([0-9A-F]{2}) PC=([0-9A-F]{4})', r)
+nm = re.search(r'A:([0-9A-F]{2}) X:([0-9A-F]{2}) Y:([0-9A-F]{2}) SP:([0-9A-F]{2}) .*P:([0-9A-F]{2}).*PC:([0-9A-F]{4})', n, re.I)
+rm = re.search(r'A=([0-9A-F]{2}) X=([0-9A-F]{2}) Y=([0-9A-F]{2}) SP=([0-9A-F]{2}) P=([0-9A-F]{2}) PC=([0-9A-F]{4})', r, re.I)
 if not nm or not rm:
     raise SystemExit("parse failure")
-if nm.groups() != rm.groups():
-    raise SystemExit(f"mismatch NEMU={nm.groups()} RTL={rm.groups()}")
-print("PASS: NEMU/RTL final-state DiffTest", *rm.groups())
+ng = tuple(v.upper() for v in nm.groups())
+rg = tuple(v.upper() for v in rm.groups())
+if ng != rg:
+    raise SystemExit(f"mismatch NEMU={ng} RTL={rg}")
+print("PASS: NEMU/RTL final-state DiffTest", *rg)
 PY

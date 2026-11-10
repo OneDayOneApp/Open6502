@@ -22,7 +22,7 @@
 - [x] 2KB WRAM + mirrors (RTL bus test).
 - [ ] UART trace.
 - [ ] Klaus/nestest RTL simulation.
-- [ ] CPU-only NEMU DiffTest.
+- [~] final-state NEMU/RTL DiffTest smoke test; bus/PPU/APU online diff pending.
 
 ## P2 PPU
 
