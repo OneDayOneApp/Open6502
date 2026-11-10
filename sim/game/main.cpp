@@ -47,12 +47,12 @@ int main(int argc, char **argv) {
   dut->chr_load_we = 0;
 
   std::vector<unsigned char> cur(256 * 240, 0xFF), shot;
-  int frames = 0, last_vsync = 1, target = 20;
+  int frames = 0, last_vsync = 1, target = 300;
   unsigned last_pal_writes = 0, last_nmi_hits = 0, prev_pc = 0;
   std::vector<unsigned> hist;
   int nmi_trace = 0;
   bool have = false;
-  for (long c = 0; c < 40000000; c++) {
+  for (long c = 0; c < 150000000; c++) {
     dut->joy1 = 0x08;
     tick();
     if (dut->dbg_cpu_pc != prev_pc) {
