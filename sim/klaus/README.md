@@ -5,10 +5,9 @@ running the Klaus 6502 functional test against `rtl/cpu/open6502_cpu.sv`.
 
 Expected pass PC: `0x3469`.
 
-Current RTL status: after STX/STY, shift-carry, and absolute ALU fixes, the
-state trace matches NEMU through `PC=0x36B5`. The Klaus run still ends in a
-failure loop near `PC=0x35C9`; the next step is to extend the comparison
-beyond this point.
+Current RTL status: after the ADC/SBC carry-clear fix, Klaus advances from
+`PC=0x35C9` to `PC=0x3478`. The next divergence is in the zero-page ADC test;
+the remaining failure is after `LDA $0D`/`ADC $0E`.
 
 ## Verilator
 
