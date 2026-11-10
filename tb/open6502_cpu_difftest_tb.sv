@@ -10,6 +10,7 @@ module open6502_cpu_difftest_tb;
   logic [7:0] a, x, y, sp, p;
   logic [15:0] trace_pc [0:31];
   int trace_count = 0;
+  logic [15:0] stop_pc = 16'h8008;
 
   open6502_cpu dut (
     .clk(clk), .rst_n(rst_n), .cpu_en(cpu_en),
@@ -31,11 +32,12 @@ module open6502_cpu_difftest_tb;
 
   initial begin
     $readmemh("difftest.hex", mem);
+    void'($value$plusargs("STOP=%h", stop_pc));
     repeat (4) @(posedge clk);
     rst_n = 1;
     for (int i = 0; i < 2000; i++) begin
       @(posedge clk); cpu_en = 1; @(posedge clk); #1; cpu_en = 0;
-      if (pc == 16'h8008 && x == 8'h04) begin
+      if (pc == stop_pc) begin
         repeat (2) begin
           @(posedge clk); cpu_en = 1; @(posedge clk); #1; cpu_en = 0;
         end
