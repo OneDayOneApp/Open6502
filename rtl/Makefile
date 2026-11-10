@@ -23,6 +23,7 @@ IRQ_TB := ../tb/open6502_irq_tb.sv
 INC_TB := ../tb/open6502_inc_tb.sv
 PPU_TB := ../tb/open6502_ppu_tb.sv
 PPU_PIX_TB := ../tb/open6502_ppu_pixel_tb.sv
+PPU_SPR_TB := ../tb/open6502_ppu_sprite_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
 	$(IV) -g2012 -o open6502_tb.vvp $(RTL) $(TB)
@@ -52,6 +53,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_ppu_tb.vvp
 	$(IV) -g2012 -o open6502_ppu_pixel_tb.vvp ppu/open6502_ppu.sv $(PPU_PIX_TB)
 	vvp open6502_ppu_pixel_tb.vvp
+	$(IV) -g2012 -o open6502_ppu_sprite_tb.vvp ppu/open6502_ppu.sv $(PPU_SPR_TB)
+	vvp open6502_ppu_sprite_tb.vvp
 
 sim-verilator: $(TB) $(RTL)
 	$(VERILATOR) --binary -Wall -Wno-fatal --top-module open6502_tb \

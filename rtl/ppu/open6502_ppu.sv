@@ -15,6 +15,7 @@ module open6502_ppu (
   input  logic [7:0]  wdata,
   output logic [7:0]  rdata,
   output logic [7:0]  pixel_index,
+  output logic        sprite0_hit,
   output logic        nmi
 );
   logic [7:0]  ctrl, mask, status, oam_addr;
@@ -29,12 +30,19 @@ module open6502_ppu (
   logic [7:0]  tile, attr, lo, hi;
   logic [12:0] pat;
   logic [1:0]  color, pal_bits;
-  integer      tx, ty, fine_y, bitpos;
+  logic        bg_opaque;
+  logic [7:0]  sprite_data;
+  logic [7:0]  sy, sx, stile, sattr, srow, scol;
+  logic [12:0] spat;
+  logic [1:0]  scolor;
+  integer      tx, ty, fine_y, bitpos, i, sbit;
 
   assign nmi = nmi_level;
 
   always_comb begin
     pixel_index = pal[0];
+    sprite0_hit = 1'b0;
+    bg_opaque = 1'b0;
     if ((mask[3]) && (x < 9'd256) && (y < 9'd240)) begin
       tx = x[7:3];
       ty = y[7:3];
@@ -42,13 +50,41 @@ module open6502_ppu (
       tile = vram[11'h000 + ty * 32 + tx];
       attr = vram[11'h3C0 + (ty >> 2) * 8 + (tx >> 2)];
       pal_bits = (attr >> (((ty & 2) << 1) | (tx & 2))) & 2'b11;
-      pat = {1'b0, ctrl[4], 1'b0} + {5'd0, tile, 4'd0} + fine_y[3:0];
+      pat = (ctrl[4] ? 13'h1000 : 13'h0000) + {4'd0, tile, 4'd0} + fine_y[3:0];
       lo = chr[pat[12:0]];
       hi = chr[pat[12:0] + 13'd8];
       bitpos = 7 - x[2:0];
       color = {hi[bitpos], lo[bitpos]};
-      if (color != 2'b00) pixel_index = pal[{pal_bits, color}];
-      else pixel_index = pal[0];
+      if (color != 2'b00) begin
+        pixel_index = pal[{pal_bits, color}];
+        bg_opaque = 1'b1;
+      end else begin
+        pixel_index = pal[0];
+      end
+    end
+
+    if ((mask[4]) && (x < 9'd256) && (y < 9'd240)) begin
+      for (i = 0; i < 64; i = i + 1) begin
+        sy = oam[i*4] + 8'd1;
+        sx = oam[i*4 + 3];
+        if (y >= sy && y < (sy + 8) && x >= sx && x < (sx + 8)) begin
+          stile = oam[i*4 + 1];
+          sattr = oam[i*4 + 2];
+          srow = y - sy;
+          scol = x - sx;
+          if (sattr[7]) srow = 7 - srow;
+          if (sattr[6]) scol = 7 - scol;
+          spat = (ctrl[3] ? 13'h1000 : 13'h0000) + {4'd0, stile, 4'd0} + srow[3:0];
+          sbit = 7 - scol[2:0];
+          scolor = {chr[spat[12:0] + 13'd8][sbit], chr[spat[12:0]][sbit]};
+          if (scolor != 2'b00) begin
+            sprite_data = pal[8'h10 + ((sattr & 2'b11) << 2) + scolor];
+            if (i == 0 && bg_opaque) sprite0_hit = 1'b1;
+            if (!sattr[5] || !bg_opaque) pixel_index = sprite_data;
+            i = 64;
+          end
+        end
+      end
     end
   end
 

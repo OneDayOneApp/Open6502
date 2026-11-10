@@ -43,6 +43,7 @@ module open6502_top (
   logic [7:0]  ppu_rdata;
   logic        ppu_nmi;
   logic [7:0]  ppu_pixel;
+  logic        ppu_sprite0;
   logic        joy1_serial;
   logic        joy2_serial;
   logic        dbg_valid_i;
@@ -100,7 +101,7 @@ module open6502_top (
     .x(ppu_x), .y(ppu_y),
     .cs(ppu_sel), .we(ppu_we), .addr(cpu_addr[2:0]),
     .wdata(cpu_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
-    .nmi(ppu_nmi)
+    .sprite0_hit(ppu_sprite0), .nmi(ppu_nmi)
   );
 
   open6502_difftest_bridge u_dbg (

@@ -11,8 +11,8 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
 - `bus/open6502_wram.sv`: 2KB WRAM with mirroring
 - `clocks/open6502_clocks.sv`: reset sync, CPU/PPU enables, 44.1 kHz audio enable
 - `ppu/open6502_ppu.sv`: CPU-visible PPU registers, CHR/VRAM/OAM/palette,
-  vblank/NMI, `$2007` auto-increment and background pixel fetch (no scroll or
-  sprites yet)
+  vblank/NMI, `$2007` auto-increment, background pixel fetch and simple
+  sprite overlay/priority/sprite-0 hit (no scroll/shift registers yet)
 - `cpu/open6502_cpu.sv`: reset-vector/fetch front end with a directed
   immediate/zero-page/absolute/indexed/indirect load-store, basic ALU,
   branches, transfers, flags, accumulator/memory shifts, JSR/RTS,
