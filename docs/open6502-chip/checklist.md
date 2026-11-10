@@ -40,13 +40,13 @@
 
 ## P3 APU
 
-- [ ] pulse x2.
+- [~] pulse x2 RTL + status test; sweep/noise/triangle/DMC pending.
 - [ ] triangle.
 - [ ] noise.
 - [ ] DMC.
 - [ ] frame sequencer.
 - [ ] mixer.
-- [ ] 44.1kHz output.
+- [~] 16-bit sample output wired to `aud_sample`; audio-rate strobe exists.
 - [ ] apu_test/DMC.
 - [ ] audio hash DiffTest.
 

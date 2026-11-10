@@ -41,6 +41,8 @@ module open6502_top (
   logic        ram_sel, ppu_sel, apu_sel, cart_sel;
   logic        ram_we, ppu_we, apu_we, cart_we_i;
   logic [7:0]  ppu_rdata;
+  logic [7:0]  apu_rdata;
+  logic signed [15:0] apu_sample;
   logic        ppu_nmi;
   logic [7:0]  ppu_pixel;
   logic        ppu_sprite0;
@@ -90,7 +92,7 @@ module open6502_top (
 
   open6502_bus u_bus (
     .cpu_addr(bus_addr), .cpu_we(bus_we), .cpu_wdata(cpu_wdata),
-    .ram_rdata(ram_rdata), .ppu_rdata(ppu_rdata), .apu_rdata(8'h00),
+    .ram_rdata(ram_rdata), .ppu_rdata(ppu_rdata), .apu_rdata(apu_rdata),
     .cart_rdata(cart_rdata),
     .ram_sel(ram_sel), .ppu_sel(ppu_sel), .apu_sel(apu_sel),
     .cart_sel(cart_sel), .ram_we(ram_we), .ppu_we(ppu_we),
@@ -110,6 +112,12 @@ module open6502_top (
     .wdata(cpu_wdata), .dma_we(dma_oam_we), .dma_addr(dma_oam_addr),
     .dma_wdata(dma_oam_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
     .sprite0_hit(ppu_sprite0), .nmi(ppu_nmi)
+  );
+
+  open6502_apu u_apu (
+    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
+    .cs(apu_sel), .we(apu_we), .addr(cpu_addr[4:0]),
+    .wdata(cpu_wdata), .rdata(apu_rdata), .sample(apu_sample)
   );
 
   open6502_oam_dma u_dma (
@@ -133,7 +141,7 @@ module open6502_top (
   assign vid_pclk = clk_21m;
   assign vid_rgb = {ppu_pixel[3:0], ppu_pixel[3:0], ppu_pixel[3:0]};
   assign aud_valid = aud_en;
-  assign aud_sample = 16'sd0;
+  assign aud_sample = apu_sample;
   assign cart_addr = bus_addr;
   assign cart_wdata = cpu_wdata;
   assign cart_we = cart_we_i;
