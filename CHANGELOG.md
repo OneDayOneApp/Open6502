@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased v1.5 (in progress)
+
+- Added dot-level sprite 0 hit check and unit test.
+- Added `feature-matrix.md` with must-have NES/Famicom chip functions and status.
+- Updated checklist with evidence-based DONE/PARTIAL/MISSING states.
+
+Remaining v1.5 blockers:
+
+- full dot-level background/sprite pipeline
+- APU DMC
+- NES extended DiffTest
+- hardware capture alignment
+- T2/T3 mapper/accessories/PAL
+
+
 ## v1.0.0 - functional NES/Famicom golden reference baseline
 
 ### Added

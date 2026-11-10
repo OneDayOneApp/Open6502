@@ -6,6 +6,7 @@
 - [设计方案](design.md)
 - [测试方案](test-plan.md)
 - [CheckList](checklist.md)
+- [必须功能点与现状](feature-matrix.md)
 
 ## 一句话定义
 

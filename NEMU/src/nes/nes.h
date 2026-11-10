@@ -68,6 +68,7 @@ typedef struct NES_PPU {
   bool frame_ready;
   bool odd_frame;
   uint32_t framebuffer[NES_SCREEN_W * NES_SCREEN_H];
+  uint8_t bg_opaque[NES_SCREEN_W];
 } NES_PPU;
 
 typedef struct NES_Pulse {

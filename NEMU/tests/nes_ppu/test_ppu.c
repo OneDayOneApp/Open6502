@@ -99,11 +99,44 @@ static void test_odd_frame_skip(void) {
   assert(x == 341 * 262);
 }
 
+static uint8_t all_chr_opaque(void *bus, uint16_t addr) {
+  (void)bus; (void)addr;
+  return 0xFF;
+}
+
+static void test_sprite0_hit_dot(void) {
+  NES_PPU p;
+  NES_Cart c;
+  memset(&c, 0, sizeof(c));
+  ppu_reset(&p, &c);
+  p.mask = 0x1E;
+  p.ctrl = 0;
+  p.chr_read = all_chr_opaque;
+  p.bus = NULL;
+
+  p.scanline = 1;
+  p.cycle = 10; /* x = 9 */
+  p.bg_opaque[9] = 1;
+  p.oam[0] = 0;   /* sprite y => 1 */
+  p.oam[1] = 0;   /* tile */
+  p.oam[2] = 0;   /* palette/priority */
+  p.oam[3] = 9;   /* sprite x */
+  assert(!(p.status & 0x40));
+  ppu_step(&p, 1);
+  assert(p.status & 0x40);
+
+  p.status = 0;
+  p.cycle = 9; /* x = 8, outside sprite */
+  ppu_step(&p, 1);
+  assert(!(p.status & 0x40));
+}
+
 int main(void) {
   test_reset();
   test_vblank_nmi();
   test_frame_boundary();
   test_odd_frame_skip();
+  test_sprite0_hit_dot();
   puts("PASS: PPU timing");
   return 0;
 }

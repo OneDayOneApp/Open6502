@@ -9,7 +9,7 @@
 - 回归测试：`NEMU/tests/run.sh`
 - Microsoft BASIC 1.1：[NEMU/basic/README.md](NEMU/basic/README.md)
 - NES 游戏前端与演示：[NEMU/nesgame/README.md](NEMU/nesgame/README.md)
-- NES/Famicom Golden Reference：[设计方案](docs/nes-golden-reference/design.md) · [测试方案](docs/nes-golden-reference/test-plan.md) · [CheckList](docs/nes-golden-reference/checklist.md)
+- NES/Famicom Golden Reference：[设计方案](docs/nes-golden-reference/design.md) · [测试方案](docs/nes-golden-reference/test-plan.md) · [CheckList](docs/nes-golden-reference/checklist.md) · [必须功能点](docs/nes-golden-reference/feature-matrix.md)
 
 ```sh
 cd NEMU

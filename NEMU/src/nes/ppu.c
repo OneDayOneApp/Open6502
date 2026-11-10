@@ -146,9 +146,6 @@ static void render_sprites(NES_PPU *p, int y, const uint8_t *bg_opaque, uint32_t
       int bit = (attr & 0x40) ? col : 7 - col;
       int color = ((lo >> bit) & 1) | (((hi >> bit) & 1) << 1);
       if (color == 0) continue;
-      if (i == 0 && bg_opaque[px] && (p->mask & 0x08) && (p->mask & 0x10)) {
-        p->status |= 0x40;
-      }
       if ((attr & 0x20) && bg_opaque[px]) continue;
       uint8_t idx = p->palette[16 + (attr & 3) * 4 + color] & 0x3F;
       line[px] = ppu_palette_rgb(idx);
@@ -158,10 +155,34 @@ static void render_sprites(NES_PPU *p, int y, const uint8_t *bg_opaque, uint32_t
 }
 
 static void render_scanline(NES_PPU *p, int y) {
-  uint8_t opaque[NES_SCREEN_W];
   uint32_t *line = &p->framebuffer[y * NES_SCREEN_W];
-  render_background(p, y, opaque, line);
-  render_sprites(p, y, opaque, line);
+  render_background(p, y, p->bg_opaque, line);
+  render_sprites(p, y, p->bg_opaque, line);
+}
+
+static bool sprite0_opaque(NES_PPU *p, int x, int y) {
+  if (!(p->mask & 0x10)) return false;
+  int height = (p->ctrl & 0x20) ? 16 : 8;
+  int sx = p->oam[3];
+  int sy = p->oam[0] + 1;
+  if (x < sx || x >= sx + 8 || y < sy || y >= sy + height) return false;
+  if (x < 8 && !(p->mask & 0x04)) return false;
+  int tile = p->oam[1];
+  int attr = p->oam[2];
+  int row = y - sy;
+  if (attr & 0x80) row = height - 1 - row;
+  int table = (p->ctrl & 0x08) ? 0x1000 : 0x0000;
+  if (height == 16) {
+    table = (tile & 1) ? 0x1000 : 0x0000;
+    tile &= 0xFE;
+    if (row >= 8) { row -= 8; tile++; }
+  }
+  uint16_t pat = (uint16_t)(table | (tile << 4) | (row & 7));
+  uint8_t lo = ppu_chr(p, pat);
+  uint8_t hi = ppu_chr(p, (uint16_t)(pat + 8));
+  int col = x - sx;
+  int bit = (attr & 0x40) ? col : 7 - col;
+  return (((lo >> bit) & 1) | (((hi >> bit) & 1) << 1)) != 0;
 }
 
 void ppu_set_bus(NES_PPU *p, void *bus,
@@ -211,6 +232,14 @@ void ppu_step(NES_PPU *p, int ppu_cycles) {
     }
     if ((p->mask & 0x18) && p->scanline < 240 && p->cycle == 257) {
       p->v = (uint16_t)((p->v & ~0x041F) | (p->t & 0x041F));
+    }
+
+    if (p->scanline < 240 && p->cycle >= 1 && p->cycle <= 256 &&
+        (p->mask & 0x18) == 0x18) {
+      int x = p->cycle - 1;
+      if (p->bg_opaque[x] && sprite0_opaque(p, x, p->scanline)) {
+        p->status |= 0x40;
+      }
     }
 
     /* Odd frames skip PPU dot 340 of the pre-render scanline when
