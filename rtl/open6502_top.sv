@@ -43,6 +43,7 @@ module open6502_top (
   logic [7:0]  ppu_rdata;
   logic [7:0]  apu_rdata;
   logic signed [15:0] apu_sample;
+  logic        apu_irq;
   logic        ppu_nmi;
   logic [7:0]  ppu_pixel;
   logic        ppu_sprite0;
@@ -85,7 +86,7 @@ module open6502_top (
 
   open6502_cpu u_cpu (
     .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en && !dma_busy),
-    .bus_rdata(cpu_rdata), .irq_n(1'b1), .nmi_n(~ppu_nmi),
+    .bus_rdata(cpu_rdata), .irq_n(~apu_irq), .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
     .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p()
   );
@@ -117,7 +118,7 @@ module open6502_top (
   open6502_apu u_apu (
     .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
     .cs(apu_sel), .we(apu_we), .addr(cpu_addr[4:0]),
-    .wdata(cpu_wdata), .rdata(apu_rdata), .sample(apu_sample)
+    .wdata(cpu_wdata), .rdata(apu_rdata), .sample(apu_sample), .irq(apu_irq)
   );
 
   open6502_oam_dma u_dma (

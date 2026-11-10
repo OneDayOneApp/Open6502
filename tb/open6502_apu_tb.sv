@@ -4,11 +4,12 @@ module open6502_apu_tb;
   logic [4:0] addr = 0;
   logic [7:0] wdata = 0, rdata;
   logic signed [15:0] sample;
+  logic irq;
 
   open6502_apu dut (
     .clk(clk), .rst_n(rst_n), .cpu_en(cpu_en),
     .cs(cs), .we(we), .addr(addr), .wdata(wdata),
-    .rdata(rdata), .sample(sample)
+    .rdata(rdata), .sample(sample), .irq(irq)
   );
 
   always #10 clk = ~clk;
@@ -39,7 +40,15 @@ module open6502_apu_tb;
     if (!rdata[2] || !rdata[3]) $fatal(1, "triangle/noise status missing");
     cs = 0;
     if (sample == 0) $fatal(1, "triangle/noise sample silent");
-    $display("PASS: Open6502 APU pulse/triangle/noise");
+    // frame IRQ: 4-step mode, IRQ enabled
+    wr(5'h17, 8'h00);
+    repeat (30000) begin @(posedge clk); cpu_en = 1; @(posedge clk); #1; cpu_en = 0; end
+    if (!irq) $fatal(1, "APU frame IRQ not asserted");
+    addr = 5'h15; cs = 1; #1;
+    if (!rdata[6]) $fatal(1, "APU frame IRQ status missing");
+    @(posedge clk); #1; cs = 0;
+    if (irq) $fatal(1, "APU frame IRQ not cleared by $4015");
+    $display("PASS: Open6502 APU pulse/triangle/noise/frame IRQ");
     $finish;
   end
 endmodule

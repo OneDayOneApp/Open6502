@@ -9,7 +9,8 @@ module open6502_apu (
   input  logic [4:0]  addr,
   input  logic [7:0]  wdata,
   output logic [7:0]  rdata,
-  output logic signed [15:0] sample
+  output logic signed [15:0] sample,
+  output logic        irq
 );
   logic [7:0] p1_duty, p1_vol, p1_env, p1_period_lo, p1_period_hi;
   logic [7:0] p2_duty, p2_vol, p2_env, p2_period_lo, p2_period_hi;
@@ -30,6 +31,7 @@ module open6502_apu (
   logic [3:0]  noise_vol;
   logic [14:0] noise_lfsr;
   logic [3:0]  noise_out;
+  logic        frame_inhibit, frame_mode;
 
   function automatic [3:0] tri_step(input [4:0] pos);
     if (pos < 5'd16) tri_step = 4'd15 - pos[3:0];
@@ -69,6 +71,7 @@ module open6502_apu (
   always_comb begin
     rdata = 8'h00;
     if (addr == 5'h15) begin
+      rdata[6] = irq;
       rdata[0] = p1_len != 0;
       rdata[1] = p2_len != 0;
       rdata[2] = tri_len != 0;
@@ -94,8 +97,10 @@ module open6502_apu (
       noise_en <= 0; noise_mode <= 0; noise_vol <= 0; noise_len <= 0;
       noise_period_lo <= 0; noise_period_hi <= 0; noise_timer <= 0;
       noise_lfsr <= 15'h0001;
-      sample <= 0;
+      sample <= 0; irq <= 1'b0;
+      frame_inhibit <= 1'b0; frame_mode <= 1'b0;
     end else begin
+      if (cs && !we && addr == 5'h15) irq <= 1'b0;
       if (cs && we) begin
         case (addr)
           5'h00: begin p1_duty <= wdata[7:6]; p1_halt <= wdata[5];
@@ -114,11 +119,18 @@ module open6502_apu (
           5'h0C: begin noise_vol <= wdata[3:0]; noise_mode <= wdata[7]; end
           5'h0E: begin noise_period_lo <= wdata; end
           5'h0F: begin noise_period_hi <= wdata[2:0]; noise_len <= length_table(wdata); end
+          5'h17: begin
+            frame_mode <= wdata[7];
+            frame_inhibit <= wdata[6];
+            frame_div <= 16'd0;
+            if (wdata[6]) irq <= 1'b0;
+          end
           5'h15: begin
             p1_en <= wdata[0]; p2_en <= wdata[1];
             tri_en <= wdata[2]; noise_en <= wdata[3];
             if (!wdata[2]) tri_len <= 0;
             if (!wdata[3]) noise_len <= 0;
+            irq <= 1'b0;
             if (!wdata[0]) p1_len <= 0;
             if (!wdata[1]) p2_len <= 0;
           end
@@ -127,8 +139,12 @@ module open6502_apu (
       end
 
       if (cpu_en) begin
-        if (frame_div == 16'd7457) begin
+        if (frame_div == 16'd29829) begin
           frame_div <= 0;
+          if (!frame_inhibit && !frame_mode) irq <= 1'b1;
+        end else if (frame_div == 16'd7457 || frame_div == 16'd14914 ||
+                     frame_div == 16'd22371) begin
+          frame_div <= frame_div + 16'd1;
           frame_step <= frame_step + 2'd1;
           if (!p1_halt && p1_len != 0) p1_len <= p1_len - 8'd1;
           if (!p2_halt && p2_len != 0) p2_len <= p2_len - 8'd1;
