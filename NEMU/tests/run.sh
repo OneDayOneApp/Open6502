@@ -97,6 +97,15 @@ if [ -f "$ROOT/nesgame/game.nes" ]; then
   resumed=$("$EMU" --headless --no-audio --frames=60 --hash --load-state="$state"     "$ROOT/nesgame/game.nes" 2>&1 | grep '^6502EMU NES hash:' | sed 's/ frames=.*//')
   uninterrupted=$("$EMU" --headless --no-audio --frames=120 --hash     "$ROOT/nesgame/game.nes" 2>&1 | grep '^6502EMU NES hash:' | sed 's/ frames=.*//')
   test "$resumed" = "$uninterrupted"
+  # Record 60 frames with a held button, replay them, and compare hashes.
+  input="$TMP/nes.input"
+  recorded=$("$EMU" --headless --no-audio --frames=60 --hold=right \
+    --record-input="$input" --hash "$ROOT/nesgame/game.nes" 2>&1 | \
+    grep '^6502EMU NES hash:')
+  test -s "$input"
+  replayed=$("$EMU" --headless --no-audio --frames=60 --replay-input="$input" \
+    --hash "$ROOT/nesgame/game.nes" 2>&1 | grep '^6502EMU NES hash:')
+  test "$recorded" = "$replayed"
   python3 - "$TMP/nes.wav" <<'PYWAV'
 import struct, sys, wave
 with wave.open(sys.argv[1], "rb") as w:

@@ -57,3 +57,14 @@ State snapshot smoke test:
 `game.nes` is built from the checked-in source and is included for
 convenience.  Only mapper 0 is used by this game; the emulator itself also
 implements common mappers 1, 2, 3, 4 and 7.
+
+Input replay:
+
+```sh
+./build/6502EMU --headless --no-audio --frames=60 --hold=right \
+  --record-input=/tmp/game.input --hash nesgame/game.nes
+./build/6502EMU --headless --no-audio --frames=60 \
+  --replay-input=/tmp/game.input --hash nesgame/game.nes
+```
+
+The replay file starts with `NESINP01` and stores two controller bytes per frame.

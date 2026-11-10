@@ -34,6 +34,12 @@ static const char *screenshot_path;
 static const char *wav_path;
 static const char *save_state_path;
 static const char *load_state_path;
+static const char *record_input_path;
+static const char *replay_input_path;
+static FILE *record_input_fp;
+static uint8_t *replay_input_data;
+static size_t replay_input_size;
+static size_t replay_input_pos;
 static int16_t *wav_samples;
 static size_t wav_len;
 static size_t wav_cap;
@@ -246,6 +252,51 @@ void nes_cpu_write(uint16_t addr, uint8_t value) {
   cart_cpu_write(&cart, addr, value);
 }
 
+#define NES_INPUT_MAGIC "NESINP01"
+
+static bool open_record_input(void) {
+  if (record_input_path == NULL) return true;
+  record_input_fp = fopen(record_input_path, "wb");
+  if (record_input_fp == NULL) return false;
+  return fwrite(NES_INPUT_MAGIC, 1, 8, record_input_fp) == 8;
+}
+
+static bool load_replay_input(void) {
+  if (replay_input_path == NULL) return true;
+  FILE *fp = fopen(replay_input_path, "rb");
+  if (fp == NULL) return false;
+  fseek(fp, 0, SEEK_END);
+  long len = ftell(fp);
+  rewind(fp);
+  if (len < 10) { fclose(fp); return false; }
+  uint8_t *buf = malloc((size_t)len);
+  if (buf == NULL) { fclose(fp); return false; }
+  if (fread(buf, 1, (size_t)len, fp) != (size_t)len ||
+      memcmp(buf, NES_INPUT_MAGIC, 8) != 0) {
+    free(buf); fclose(fp); return false;
+  }
+  replay_input_data = buf;
+  replay_input_size = (size_t)len;
+  replay_input_pos = 8;
+  return true;
+}
+
+static void apply_replay_input(void) {
+  uint8_t p1 = 0, p2 = 0;
+  if (replay_input_data != NULL && replay_input_pos + 1 < replay_input_size) {
+    p1 = replay_input_data[replay_input_pos++];
+    p2 = replay_input_data[replay_input_pos++];
+  }
+  controller_state[0] = p1 | forced_buttons;
+  controller_state[1] = p2;
+}
+
+static void record_input_frame(void) {
+  if (record_input_fp == NULL) return;
+  fputc(controller_state[0], record_input_fp);
+  fputc(controller_state[1], record_input_fp);
+}
+
 static void update_input(void) {
   const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -417,6 +468,8 @@ static void cpu_step(void) {
 static bool run_frame(void) {
   ppu.frame_ready = false;
   if (!headless) poll_events();
+  if (replay_input_data != NULL) apply_replay_input();
+  record_input_frame();
   while (!ppu.frame_ready && !g_quit) {
     cpu_step();
     if (nemu_state.state != NEMU_RUNNING) break;
@@ -451,6 +504,8 @@ static void usage(const char *prog) {
   printf("  --hash           print deterministic frame/audio hashes\n");
   printf("  --save-state=F   save NES state after the run\n");
   printf("  --load-state=F   load NES state before the run\n");
+  printf("  --record-input=F record per-frame controller state\n");
+  printf("  --replay-input=F replay per-frame controller state\n");
   printf("  --help           show this help\n\n");
   printf("Controls: 1P WASD + Z/X/C/V; 2P arrows + comma/period/slash/apostrophe\n");
 }
@@ -490,6 +545,8 @@ int nes_main(int argc, char **argv) {
     if (strcmp(argv[i], "--hash") == 0) { print_hash = true; continue; }
     if (strncmp(argv[i], "--save-state=", 13) == 0) { save_state_path = argv[i] + 13; continue; }
     if (strncmp(argv[i], "--load-state=", 13) == 0) { load_state_path = argv[i] + 13; continue; }
+    if (strncmp(argv[i], "--record-input=", 15) == 0) { record_input_path = argv[i] + 15; continue; }
+    if (strncmp(argv[i], "--replay-input=", 15) == 0) { replay_input_path = argv[i] + 15; continue; }
     if (strncmp(argv[i], "--log=", 6) == 0) continue;
     if (ends_with_nes(argv[i])) { rom_path = argv[i]; continue; }
   }
@@ -540,6 +597,13 @@ int nes_main(int argc, char **argv) {
     cart_free(&cart);
     return 1;
   }
+  if (!open_record_input() || !load_replay_input()) {
+    fprintf(stderr, "failed to initialize input record/replay\n");
+    if (record_input_fp != NULL) fclose(record_input_fp);
+    free(replay_input_data);
+    cart_free(&cart);
+    return 1;
+  }
   audio_enabled = !no_audio && !headless;
   if (!headless) {
     video_init();
@@ -584,6 +648,9 @@ int nes_main(int argc, char **argv) {
     if (window != NULL) SDL_DestroyWindow(window);
     SDL_Quit();
   }
+  if (record_input_fp != NULL) fclose(record_input_fp);
+  free(replay_input_data);
+  replay_input_data = NULL;
   free(wav_samples);
   wav_samples = NULL;
   cart_free(&cart);

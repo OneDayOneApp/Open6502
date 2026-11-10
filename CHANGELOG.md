@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.4.0 - deterministic input replay
+
+### Added
+
+- NES input recording:
+  - `--record-input=FILE`
+  - binary format: `NESINP01` + 2 bytes per frame (1P, 2P)
+- NES input replay:
+  - `--replay-input=FILE`
+  - replay drives both controller ports deterministically
+- Regression:
+  - record 60 frames with `--hold=right`
+  - replay the file
+  - compare frame/audio hashes with the original run
+
+### Fixed
+
+- Corrected `--record-input` / `--replay-input` option prefix parsing.
+
+### Verification
+
+- default regression, `RUN_KLAUS=1`, and CPU-only NEMU DiffTest.
+
+
 ## v0.3.0 - PPU timing closure
 
 ### Added
