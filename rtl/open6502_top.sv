@@ -113,7 +113,8 @@ module open6502_top #(
   output logic [8:0]  dbg_ppu_y,
   output logic [15:0] dbg_nmi_hits,
   output logic [15:0] dbg_pal_writes,
-  output logic [7:0]  dbg_pal_last
+  output logic [7:0]  dbg_pal_last,
+  output logic [4:0]  dbg_pal_addr
 );
 
   logic        rst_sync_n;
@@ -232,6 +233,7 @@ module open6502_top #(
     .chr_load_we(chr_load_we), .chr_load_addr(chr_load_addr),
     .chr_load_data(chr_load_data),
     .dbg_pal_writes(dbg_pal_writes), .dbg_pal_last(dbg_pal_last),
+    .dbg_pal_addr(dbg_pal_addr),
     .sprite0_hit(ppu_sprite0), .nmi(ppu_nmi)
   );
 

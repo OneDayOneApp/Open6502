@@ -48,10 +48,20 @@ int main(int argc, char **argv) {
 
   std::vector<unsigned char> cur(256 * 240, 0xFF), shot;
   int frames = 0, last_vsync = 1, target = 20;
+  unsigned last_pal_writes = 0, last_nmi_hits = 0;
   bool have = false;
   for (long c = 0; c < 40000000; c++) {
-    dut->joy1 = (frames >= 6 && frames <= 10) ? 0x08 : 0x00;
+    dut->joy1 = 0x08;
     tick();
+    if (dut->dbg_nmi_hits != last_nmi_hits) {
+      last_nmi_hits = dut->dbg_nmi_hits;
+      std::printf("NMI frame=%d pc=%04x\n", frames, dut->dbg_cpu_pc);
+    }
+    if (frames >= 7 && dut->dbg_pal_writes != last_pal_writes) {
+      last_pal_writes = dut->dbg_pal_writes;
+      std::printf("PALWR frame=%d pc=%04x addr=%02x data=%02x\n",
+                  frames, dut->dbg_cpu_pc, dut->dbg_pal_addr, dut->dbg_pal_last);
+    }
     if (dut->vid_de && dut->dbg_ppu_x < 256 && dut->dbg_ppu_y < 240) {
       cur[dut->dbg_ppu_y * 256 + dut->dbg_ppu_x] = dut->dbg_ppu_pixel & 0x3F;
     }
