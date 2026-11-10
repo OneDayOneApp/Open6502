@@ -28,7 +28,8 @@ This is the SystemVerilog scaffold for the Open6502 SoC.  It currently contains:
   immediate/zero-page/absolute/indexed/indirect load-store, basic ALU,
   branches, transfers, flags, accumulator/memory shifts, JSR/RTS,
   PHA/PLA/PHP/PLP, BRK/RTI, NMI/IRQ vectoring, INC/DEC/BIT, JMP indirect,
-  CMP absolute, corrected BRK return address, STX/STY store data
+  CMP absolute, corrected BRK return address, STX/STY store data, shift carry
+  flags, absolute AND/ORA/EOR/ADC/SBC
 - `../tb/open6502_tb.sv`: video/top smoke testbench
 - `../tb/open6502_bus_tb.sv`: bus/WRAM testbench
 - `../tb/open6502_clocks_tb.sv`: clock-enable testbench

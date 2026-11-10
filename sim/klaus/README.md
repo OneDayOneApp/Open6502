@@ -5,8 +5,10 @@ running the Klaus 6502 functional test against `rtl/cpu/open6502_cpu.sv`.
 
 Expected pass PC: `0x3469`.
 
-Current RTL status: fails at `PC=0x22D9` after fixing STX/STY store data and the
-BRK pushed return address. The remaining failure is in the indexed CMP test.
+Current RTL status: after STX/STY, shift-carry, and absolute ALU fixes, the
+state trace matches NEMU through `PC=0x36B5`. The Klaus run still ends in a
+failure loop near `PC=0x35C9`; the next step is to extend the comparison
+beyond this point.
 
 ## Verilator
 
