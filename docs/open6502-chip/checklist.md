@@ -53,7 +53,7 @@
 ## P4 cartridge/mapper/input
 
 - [ ] cartridge interface.
-- [ ] mappers 0/1/2/3/4/7.
+- [~] mappers 0/2/3/7 RTL; MMC1/MMC3 pending.
 - [ ] PRG RAM/battery.
 - [ ] MMC3 IRQ.
 - [ ] 1P/2P controllers.
