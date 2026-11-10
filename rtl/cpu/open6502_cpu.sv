@@ -33,7 +33,9 @@ module open6502_cpu (
     ST_PUSH_A, ST_PULL_A, ST_PUSH_P, ST_PULL_P, ST_RMW_WRITE,
     ST_BRK_PUSH_HI, ST_BRK_PUSH_LO, ST_BRK_PUSH_P,
     ST_BRK_VEC_LO, ST_BRK_VEC_HI,
-    ST_RTI_PULL_P, ST_RTI_PULL_LO, ST_RTI_PULL_HI
+    ST_RTI_PULL_P, ST_RTI_PULL_LO, ST_RTI_PULL_HI,
+    ST_IRQ_PUSH_HI, ST_IRQ_PUSH_LO, ST_IRQ_PUSH_P,
+    ST_IRQ_VEC_LO, ST_IRQ_VEC_HI
   } state_t;
 
   state_t state;
@@ -44,6 +46,7 @@ module open6502_cpu (
   logic [7:0]  tmp_lo;
   logic [7:0]  zp_ptr;
   logic [7:0]  rmw_data;
+  logic        nmi_prev, nmi_pending, irq_nmi;
   logic [8:0]  alu9;
   logic [15:0] ret_addr;
   logic [7:0]  alu8;
@@ -63,13 +66,17 @@ module open6502_cpu (
                      (state == ST_RTS_PULL_HI) ? {8'h01, sp + 8'd1} :
                      (state == ST_PUSH_A || state == ST_PUSH_P ||
                       state == ST_BRK_PUSH_HI || state == ST_BRK_PUSH_LO ||
-                      state == ST_BRK_PUSH_P) ? {8'h01, sp} :
+                      state == ST_BRK_PUSH_P || state == ST_IRQ_PUSH_HI ||
+                      state == ST_IRQ_PUSH_LO || state == ST_IRQ_PUSH_P) ?
+                       {8'h01, sp} :
                      (state == ST_PULL_A || state == ST_PULL_P ||
                       state == ST_RTI_PULL_P) ? {8'h01, sp + 8'd1} :
                      (state == ST_RTI_PULL_LO) ? {8'h01, sp + 8'd1} :
                      (state == ST_RTI_PULL_HI) ? {8'h01, sp + 8'd1} :
                      (state == ST_BRK_VEC_LO) ? 16'hFFFE :
                      (state == ST_BRK_VEC_HI) ? 16'hFFFF :
+                     (state == ST_IRQ_VEC_LO) ? (irq_nmi ? 16'hFFFA : 16'hFFFE) :
+                     (state == ST_IRQ_VEC_HI) ? (irq_nmi ? 16'hFFFB : 16'hFFFF) :
                      (state == ST_ABS_DATA || state == ST_RMW_WRITE) ? ea : pc;
   assign ret_addr  = pc - 16'd1;
   assign bus_wdata = (state == ST_JSR_PUSH_HI) ? ret_addr[15:8] :
@@ -77,6 +84,9 @@ module open6502_cpu (
                      (state == ST_PUSH_P || state == ST_BRK_PUSH_P) ? (p | 8'h30) :
                      (state == ST_BRK_PUSH_HI) ? pc[15:8] :
                      (state == ST_BRK_PUSH_LO) ? pc[7:0] :
+                     (state == ST_IRQ_PUSH_HI) ? pc[15:8] :
+                     (state == ST_IRQ_PUSH_LO) ? pc[7:0] :
+                     (state == ST_IRQ_PUSH_P) ? ((p & 8'hEF) | 8'h20) :
                      (state == ST_RMW_WRITE) ? rmw_data : a;
   assign bus_we    = we;
   assign dbg_pc    = pc;
@@ -96,7 +106,9 @@ module open6502_cpu (
         state == ST_PUSH_A || state == ST_PUSH_P ||
         state == ST_RMW_WRITE ||
         state == ST_BRK_PUSH_HI || state == ST_BRK_PUSH_LO ||
-        state == ST_BRK_PUSH_P) begin
+        state == ST_BRK_PUSH_P ||
+        state == ST_IRQ_PUSH_HI || state == ST_IRQ_PUSH_LO ||
+        state == ST_IRQ_PUSH_P) begin
       we = 1'b1;
     end else if (state == ST_ABS_DATA) begin
       case (opcode)
@@ -115,7 +127,10 @@ module open6502_cpu (
       a <= 8'h00; x <= 8'h00; y <= 8'h00;
       sp <= 8'hFD; p <= 8'h24;
       opcode <= 8'h00; tmp_lo <= 8'h00;
+      nmi_prev <= 1'b1; nmi_pending <= 1'b0; irq_nmi <= 1'b0;
     end else if (cpu_en) begin
+      nmi_prev <= nmi_n;
+      if (!nmi_n && nmi_prev) nmi_pending <= 1'b1;
       case (state)
         ST_RESET_LO: begin
           tmp_lo <= bus_rdata;
@@ -126,9 +141,17 @@ module open6502_cpu (
           state <= ST_FETCH;
         end
         ST_FETCH: begin
-          opcode <= bus_rdata;
-          pc <= pc + 16'd1;
-          state <= ST_DECODE;
+          if (nmi_pending) begin
+            irq_nmi <= 1'b1;
+            state <= ST_IRQ_PUSH_HI;
+          end else if (!irq_n && !p[2]) begin
+            irq_nmi <= 1'b0;
+            state <= ST_IRQ_PUSH_HI;
+          end else begin
+            opcode <= bus_rdata;
+            pc <= pc + 16'd1;
+            state <= ST_DECODE;
+          end
         end
         ST_DECODE: begin
           case (opcode)
@@ -355,6 +378,28 @@ module open6502_cpu (
             end
             default: ;
           endcase
+        end
+        ST_IRQ_PUSH_HI: begin
+          sp <= sp - 8'd1;
+          state <= ST_IRQ_PUSH_LO;
+        end
+        ST_IRQ_PUSH_LO: begin
+          sp <= sp - 8'd1;
+          state <= ST_IRQ_PUSH_P;
+        end
+        ST_IRQ_PUSH_P: begin
+          sp <= sp - 8'd1;
+          p <= p | 8'h04;
+          state <= ST_IRQ_VEC_LO;
+        end
+        ST_IRQ_VEC_LO: begin
+          tmp_lo <= bus_rdata;
+          state <= ST_IRQ_VEC_HI;
+        end
+        ST_IRQ_VEC_HI: begin
+          pc <= {bus_rdata, tmp_lo};
+          nmi_pending <= 1'b0;
+          state <= ST_FETCH;
         end
         ST_BRK_PUSH_HI: begin
           sp <= sp - 8'd1;
