@@ -35,6 +35,7 @@ APU_SWEEP_TB := ../tb/open6502_apu_sweep_tb.sv
 DMC_TB := ../tb/open6502_dmc_tb.sv
 MAP_TB := ../tb/open6502_mapper_tb.sv
 JMPI_TB := ../tb/open6502_jmp_ind_tb.sv
+PHP_TB := ../tb/open6502_php_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
 	$(IV) -g2012 -o open6502_tb.vvp $(RTL) $(TB)
@@ -84,6 +85,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_mapper_tb.vvp
 	$(IV) -g2012 -o open6502_jmp_ind_tb.vvp cpu/open6502_cpu.sv $(JMPI_TB)
 	vvp open6502_jmp_ind_tb.vvp
+	$(IV) -g2012 -o open6502_php_tb.vvp cpu/open6502_cpu.sv $(PHP_TB)
+	vvp open6502_php_tb.vvp
 
 sim-verilator: $(TB) $(RTL)
 	$(VERILATOR) --binary -Wall -Wno-fatal --top-module open6502_tb \
