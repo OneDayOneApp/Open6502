@@ -349,9 +349,9 @@ static void update_input(void) {
   if (keys[SDL_SCANCODE_LEFT]) p2 |= 0x40;
   if (keys[SDL_SCANCODE_RIGHT]) p2 |= 0x80;
 
-  /* Player 1 buttons: Z/X = A/B, C/V = Select/Start.
+  /* Player 1 buttons: Space/Z = A (jump), X = B, C/V = Select/Start.
    * Right Shift and Return remain aliases for Select/Start. */
-  if (keys[SDL_SCANCODE_Z]) p1 |= 0x01;
+  if (keys[SDL_SCANCODE_SPACE] || keys[SDL_SCANCODE_Z]) p1 |= 0x01;
   if (keys[SDL_SCANCODE_X]) p1 |= 0x02;
   if (keys[SDL_SCANCODE_C] || keys[SDL_SCANCODE_RSHIFT]) p1 |= 0x04;
   if (keys[SDL_SCANCODE_V] || keys[SDL_SCANCODE_RETURN]) p1 |= 0x08;
@@ -542,7 +542,7 @@ static void usage(const char *prog) {
   printf("  --record-input=F record per-frame controller state\n");
   printf("  --replay-input=F replay per-frame controller state\n");
   printf("  --help           show this help\n\n");
-  printf("Controls: 1P WASD + Z/X/C/V; 2P arrows + comma/period/slash/apostrophe\n");
+  printf("Controls: 1P WASD + Space/Z/X/C/V; 2P arrows + comma/period/slash/apostrophe\n");
 }
 
 static int parse_int(const char *s, int fallback) {

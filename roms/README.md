@@ -36,7 +36,8 @@ Or use the launcher:
 | Key | Controller |
 | --- | --- |
 | W/A/S/D | 1P D-pad |
-| Z/X | 1P A/B |
+| Space/Z | 1P A（跳跃） |
+| X | 1P B |
 | C/V | 1P Select/Start |
 | Arrow keys | 2P D-pad |
 | `,` `.` | 2P A/B |

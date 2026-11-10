@@ -24,7 +24,8 @@ make -j8
 Controls:
 
 - W/A/S/D: player 1 D-pad
-- Z/X: player 1 A/B
+- Space/Z: player 1 A (jump)
+- X: player 1 B
 - C/V: player 1 Select/Start
 - Arrow keys: player 2 D-pad
 - `,` / `.`: player 2 A/B

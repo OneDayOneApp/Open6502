@@ -2,6 +2,7 @@
 
 ## Unreleased v1.5 (in progress)
 
+- Added Space as a 1P A/jump alias (Z remains an alias).
 - Added dot-level sprite 0 hit check and unit test.
 - Added APU DMC core: address/length/rate/loop/IRQ/output, memory callback and tests.
 - Moved background pixel generation into the PPU dot loop; sprites are composited at the end of the scanline.
