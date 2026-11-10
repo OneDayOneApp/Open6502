@@ -71,8 +71,30 @@ uint64_t nes_ref_hash_bytes(uint64_t seed, const void *data, size_t size);
 uint64_t nes_ref_state_hash(const nes_ref_state *state);
 
 typedef struct {
+  uint8_t shift;
+  uint8_t mmc1_control;
+  uint8_t mmc1_chr0;
+  uint8_t mmc1_chr1;
+  uint8_t mmc1_prg;
+  uint8_t prg_bank;
+  uint8_t chr_bank;
+  uint8_t bank_select;
+  uint8_t bank_regs[8];
+  uint8_t prg_mode;
+  uint8_t chr_mode;
+  bool prg_ram_enable;
+  bool irq_enable;
+  bool irq_reload;
+  bool irq;
+  int irq_counter;
+  int irq_latch;
+  int mirroring;
+} nes_ref_mapper_state;
+
+typedef struct {
   nes_ref_state state;
   nes_ref_rom rom;
+  nes_ref_mapper_state mapper;
   uint8_t prg_ram[8192];
   uint8_t open_bus;
   bool loaded;
@@ -90,6 +112,9 @@ void nes_ref_machine_free(nes_ref_machine *m);
 uint8_t nes_ref_machine_read(nes_ref_machine *m, uint16_t addr);
 void nes_ref_machine_write(nes_ref_machine *m, uint16_t addr, uint8_t value);
 uint64_t nes_ref_machine_hash(const nes_ref_machine *m);
+uint8_t nes_ref_machine_chr_read(nes_ref_machine *m, uint16_t addr);
+void nes_ref_machine_chr_write(nes_ref_machine *m, uint16_t addr, uint8_t value);
+int nes_ref_machine_nt_index(const nes_ref_machine *m, uint16_t addr);
 int nes_ref_cpu_step(nes_ref_machine *m);
 
 #endif

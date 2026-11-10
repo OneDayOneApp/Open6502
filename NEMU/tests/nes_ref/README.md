@@ -9,6 +9,7 @@ It currently covers:
 - 2 KB RAM mirroring
 - NROM PRG mapping and reset vector
 - PRG RAM
+- mapper 0/1/2/3/4/7 bank switching and CHR mapping
 
 Build and run:
 

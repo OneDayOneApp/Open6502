@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.5.0 - REF mapper state
+
+### Added
+
+- NEMU REF iNES mapper support for:
+  - NROM (0)
+  - MMC1 (1)
+  - UxROM (2)
+  - CNROM (3)
+  - MMC3 (4)
+  - AxROM (7)
+- PRG/CHR bank switching, mirroring state, PRG RAM and mapper state hash.
+- REF unit tests for UxROM, CNROM, MMC1, MMC3 and AxROM bank selection.
+
+### Verification
+
+- default regression, `RUN_KLAUS=1`, and CPU-only NEMU DiffTest.
+
+
 ## v0.4.0 - deterministic input replay
 
 ### Added

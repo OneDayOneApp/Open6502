@@ -215,6 +215,94 @@ static int run_klaus(const char *path) {
   return ok ? 0 : -1;
 }
 
+static void make_ines_rom(uint8_t *rom, size_t size, int prg_16k, int chr_8k,
+                          int mapper, uint8_t prg0, uint8_t prg1,
+                          uint8_t chr0, uint8_t chr1) {
+  memset(rom, 0, size);
+  memcpy(rom, "NES\x1A", 4);
+  rom[4] = (uint8_t)prg_16k;
+  rom[5] = (uint8_t)chr_8k;
+  rom[6] = (uint8_t)((mapper & 0x0F) << 4);
+  rom[7] = (uint8_t)(mapper & 0xF0);
+  for (int i = 0; i < prg_16k * 16384; i++) {
+    rom[16 + i] = (i < 16384) ? prg0 : prg1;
+  }
+  if (chr_8k > 0) {
+    for (int i = 0; i < chr_8k * 8192; i++) {
+      rom[16 + prg_16k * 16384 + i] = (i < 8192) ? chr0 : chr1;
+    }
+  }
+}
+
+static void test_ref_uxrom(void) {
+  uint8_t rom[16 + 2 * 16384];
+  make_ines_rom(rom, sizeof(rom), 2, 0, 2, 0xA0, 0xB0, 0, 0);
+  nes_ref_machine m;
+  assert(nes_ref_machine_init(&m, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom(&m, rom, sizeof(rom)) == NES_REF_OK);
+  assert(nes_ref_machine_read(&m, 0x8000) == 0xA0);
+  nes_ref_machine_write(&m, 0x8000, 1);
+  assert(nes_ref_machine_read(&m, 0x8000) == 0xB0);
+  assert(nes_ref_machine_read(&m, 0xC000) == 0xB0); /* fixed last bank */
+  nes_ref_machine_write(&m, 0x8000, 0);
+  assert(nes_ref_machine_read(&m, 0x8000) == 0xA0);
+  nes_ref_machine_free(&m);
+}
+
+static void test_ref_cnrom(void) {
+  uint8_t rom[16 + 2 * 16384 + 2 * 8192];
+  make_ines_rom(rom, sizeof(rom), 2, 2, 3, 0xEA, 0xEA, 0x11, 0x22);
+  nes_ref_machine m;
+  assert(nes_ref_machine_init(&m, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom(&m, rom, sizeof(rom)) == NES_REF_OK);
+  assert(nes_ref_machine_chr_read(&m, 0x0000) == 0x11);
+  nes_ref_machine_write(&m, 0x8000, 1);
+  assert(nes_ref_machine_chr_read(&m, 0x0000) == 0x22);
+  nes_ref_machine_free(&m);
+}
+
+static void test_ref_mmc1(void) {
+  uint8_t rom[16 + 2 * 16384];
+  make_ines_rom(rom, sizeof(rom), 2, 0, 1, 0xA0, 0xB0, 0, 0);
+  nes_ref_machine m;
+  assert(nes_ref_machine_init(&m, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom(&m, rom, sizeof(rom)) == NES_REF_OK);
+  /* MMC1 serial: 5 writes to $E000, bit 0 first, value 1. */
+  for (int i = 0; i < 5; i++) {
+    nes_ref_machine_write(&m, 0xE000, (i == 0) ? 1 : 0);
+  }
+  assert(nes_ref_machine_read(&m, 0x8000) == 0xB0);
+  nes_ref_machine_free(&m);
+}
+
+static void test_ref_mmc3(void) {
+  uint8_t rom[16 + 4 * 8192];
+  make_ines_rom(rom, sizeof(rom), 2, 0, 4, 0xA0, 0xB0, 0, 0);
+  /* make_ines_rom only fills two 16K halves; split into 8K patterns. */
+  memset(rom + 16, 0xA0, 4 * 8192);
+  for (int i = 0; i < 8192; i++) rom[16 + 8192 + i] = 0xB1;
+  for (int i = 0; i < 8192; i++) rom[16 + 2 * 8192 + i] = 0xB2;
+  for (int i = 0; i < 8192; i++) rom[16 + 3 * 8192 + i] = 0xB3;
+  nes_ref_machine m;
+  assert(nes_ref_machine_init(&m, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom(&m, rom, sizeof(rom)) == NES_REF_OK);
+  nes_ref_machine_write(&m, 0x8000, 6); /* select R6 */
+  nes_ref_machine_write(&m, 0x8001, 1); /* bank 1 */
+  assert(nes_ref_machine_read(&m, 0x8000) == 0xB1);
+  nes_ref_machine_free(&m);
+}
+
+static void test_ref_axrom(void) {
+  uint8_t rom[16 + 4 * 16384];
+  make_ines_rom(rom, sizeof(rom), 4, 0, 7, 0xA0, 0xB0, 0, 0);
+  nes_ref_machine m;
+  assert(nes_ref_machine_init(&m, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom(&m, rom, sizeof(rom)) == NES_REF_OK);
+  nes_ref_machine_write(&m, 0x8000, 1);
+  assert(nes_ref_machine_read(&m, 0x8000) == 0xB0);
+  nes_ref_machine_free(&m);
+}
+
 int main(void) {
   test_ntsc_clock();
   test_pal_clock();
@@ -227,10 +315,15 @@ int main(void) {
   test_state_hash();
   test_machine_nrom_bus();
   test_cpu_basic_program();
+  test_ref_uxrom();
+  test_ref_cnrom();
+  test_ref_mmc1();
+  test_ref_mmc3();
+  test_ref_axrom();
   const char *klaus = getenv("NESREF_KLAUS");
   if (klaus != NULL && *klaus != 0) {
     assert(run_klaus(klaus) == 0);
   }
-  puts("PASS: nes_ref clock/rom/hash");
+  puts("PASS: nes_ref clock/rom/state/mapper");
   return 0;
 }
