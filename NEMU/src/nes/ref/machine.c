@@ -1,7 +1,24 @@
 #include "nes/ref/nes_ref.h"
+#include "nes/nes.h"
 
 #include <stdlib.h>
 #include <string.h>
+
+static uint8_t ref_bus_chr_read(void *bus, uint16_t addr) {
+  return nes_ref_machine_chr_read((nes_ref_machine *)bus, addr);
+}
+static void ref_bus_chr_write(void *bus, uint16_t addr, uint8_t value) {
+  nes_ref_machine_chr_write((nes_ref_machine *)bus, addr, value);
+}
+static int ref_bus_nt_index(void *bus, uint16_t addr) {
+  return nes_ref_machine_nt_index((nes_ref_machine *)bus, addr);
+}
+static void ref_bus_scanline(void *bus) {
+  nes_ref_machine_scanline((nes_ref_machine *)bus);
+}
+static uint64_t ref_hash(const void *data, size_t n) {
+  return nes_ref_hash_bytes(NES_REF_HASH_SEED, data, n);
+}
 
 static size_t prg_16k_banks(const nes_ref_machine *m) {
   return m->rom.prg_size / 0x4000;
@@ -166,6 +183,15 @@ int nes_ref_machine_init(nes_ref_machine *m, nes_ref_region region) {
   if (m == NULL) return NES_REF_ERR_INVALID;
   memset(m, 0, sizeof(*m));
   nes_ref_clock_init(&m->state.clock, region);
+  m->ppu = calloc(1, sizeof(NES_PPU));
+  m->apu = calloc(1, sizeof(NES_APU));
+  if (m->ppu == NULL || m->apu == NULL) {
+    free(m->ppu);
+    free(m->apu);
+    m->ppu = NULL;
+    m->apu = NULL;
+    return NES_REF_ERR_NOMEM;
+  }
   return NES_REF_OK;
 }
 
@@ -230,6 +256,17 @@ void nes_ref_machine_reset(nes_ref_machine *m) {
   m->open_bus = 0;
   m->state.cpu.sp = 0xFD;
   m->state.cpu.p = 0x24;
+  m->controller_state[0] = m->controller_state[1] = 0;
+  m->controller_shift[0] = m->controller_shift[1] = 0;
+  m->controller_strobe = 0;
+  m->frame_hash = 0;
+  m->audio_hash = NES_REF_HASH_SEED;
+  if (m->ppu != NULL) {
+    ppu_reset((NES_PPU *)m->ppu, NULL);
+    ppu_set_bus((NES_PPU *)m->ppu, m, ref_bus_chr_read, ref_bus_chr_write,
+        ref_bus_nt_index, ref_bus_scanline);
+  }
+  if (m->apu != NULL) apu_reset((NES_APU *)m->apu);
   if (m->loaded && !m->flat_mode) {
     m->state.cpu.pc = (uint16_t)(mapper_prg_read(m, 0xFFFC) |
         (mapper_prg_read(m, 0xFFFD) << 8));
@@ -239,6 +276,8 @@ void nes_ref_machine_reset(nes_ref_machine *m) {
 void nes_ref_machine_free(nes_ref_machine *m) {
   if (m == NULL) return;
   nes_ref_rom_free(&m->rom);
+  free(m->ppu);
+  free(m->apu);
   free(m->flat_ram);
   memset(m, 0, sizeof(*m));
 }
@@ -247,7 +286,18 @@ uint8_t nes_ref_machine_read(nes_ref_machine *m, uint16_t addr) {
   uint8_t v;
   if (m->flat_mode) return m->flat_ram[addr];
   if (addr < 0x2000) v = m->state.ram[addr & 0x7FF];
-  else if (addr < 0x4000) v = 0;
+  else if (addr < 0x4000) {
+    v = ppu_read_reg((NES_PPU *)m->ppu, (uint16_t)(0x2000 | (addr & 7)));
+  }
+  else if (addr == 0x4015) v = apu_read((NES_APU *)m->apu, addr);
+  else if (addr == 0x4016) {
+    if (m->controller_strobe) v = m->controller_state[0] & 1;
+    else { v = m->controller_shift[0] & 1; m->controller_shift[0] >>= 1; }
+  }
+  else if (addr == 0x4017) {
+    if (m->controller_strobe) v = m->controller_state[1] & 1;
+    else { v = m->controller_shift[1] & 1; m->controller_shift[1] >>= 1; }
+  }
   else if (addr < 0x6000) v = m->open_bus;
   else if (addr < 0x8000) v = m->prg_ram[(addr - 0x6000) & 0x1FFF];
   else v = mapper_prg_read(m, addr);
@@ -261,7 +311,26 @@ void nes_ref_machine_write(nes_ref_machine *m, uint16_t addr, uint8_t value) {
     return;
   }
   if (addr < 0x2000) m->state.ram[addr & 0x7FF] = value;
-  else if (addr < 0x6000) { /* PPU/APU/IO: not modeled yet */ }
+  else if (addr < 0x4000) {
+    ppu_write_reg((NES_PPU *)m->ppu, (uint16_t)(0x2000 | (addr & 7)), value);
+  }
+  else if (addr == 0x4014) {
+    uint8_t page[256];
+    for (int i = 0; i < 256; i++) page[i] = nes_ref_machine_read(m, (uint16_t)((value << 8) | i));
+    ppu_oam_dma((NES_PPU *)m->ppu, page);
+    m->state.cpu.cycles += 513;
+  }
+  else if (addr == 0x4016) {
+    m->controller_strobe = value & 1;
+    if (m->controller_strobe) {
+      m->controller_shift[0] = m->controller_state[0];
+      m->controller_shift[1] = m->controller_state[1];
+    }
+  }
+  else if ((addr >= 0x4000 && addr <= 0x4013) || addr == 0x4015 || addr == 0x4017) {
+    apu_write((NES_APU *)m->apu, addr, value);
+  }
+  else if (addr < 0x6000) { /* expansion/open bus */ }
   else if (addr < 0x8000) m->prg_ram[(addr - 0x6000) & 0x1FFF] = value;
   else mapper_write(m, addr, value);
   m->open_bus = value;
@@ -368,6 +437,47 @@ void nes_ref_machine_scanline(nes_ref_machine *m) {
   m->state.cpu.irq_pending = m->mapper.irq;
 }
 
+int nes_ref_machine_run_frame(nes_ref_machine *m) {
+  if (m == NULL || m->ppu == NULL || m->apu == NULL) return NES_REF_ERR_INVALID;
+  NES_PPU *ppu = (NES_PPU *)m->ppu;
+  NES_APU *apu = (NES_APU *)m->apu;
+  ppu->frame_ready = false;
+  int guard = 0;
+  while (!ppu->frame_ready && !m->state.cpu.jammed) {
+    uint64_t before = m->state.cpu.cycles;
+    int ret = nes_ref_cpu_step(m);
+    if (ret != NES_REF_OK) return ret;
+    int delta = (int)(m->state.cpu.cycles - before);
+    if (delta <= 0) delta = 1;
+    ppu_step(ppu, delta * 3);
+    apu_step(apu, delta, true);
+    if (ppu->nmi_trigger) {
+      ppu->nmi_trigger = false;
+      m->state.cpu.nmi_pending = true;
+    }
+    if (m->mapper.irq || apu->frame_irq) m->state.cpu.irq_pending = true;
+    if (++guard > 200000) return NES_REF_ERR_INVALID;
+  }
+  int16_t samples[4096];
+  int n = apu_take_samples(apu, samples, (int)(sizeof(samples) / sizeof(samples[0])));
+  if (n > 0) m->audio_hash = nes_ref_hash_bytes(m->audio_hash, samples,
+      (size_t)n * sizeof(int16_t));
+  m->frame_hash = ref_hash(ppu->framebuffer, sizeof(ppu->framebuffer));
+  return NES_REF_OK;
+}
+
+void nes_ref_machine_set_input(nes_ref_machine *m, int port, uint8_t buttons) {
+  if (m != NULL && port >= 0 && port < 2) m->controller_state[port] = buttons;
+}
+
+uint64_t nes_ref_machine_frame_hash(const nes_ref_machine *m) {
+  return m == NULL ? 0 : m->frame_hash;
+}
+
+uint64_t nes_ref_machine_audio_hash(const nes_ref_machine *m) {
+  return m == NULL ? 0 : m->audio_hash;
+}
+
 uint64_t nes_ref_machine_hash(const nes_ref_machine *m) {
   uint64_t h = nes_ref_state_hash(&m->state);
   h = nes_ref_hash_bytes(h, &m->mapper, sizeof(m->mapper));
@@ -376,5 +486,24 @@ uint64_t nes_ref_machine_hash(const nes_ref_machine *m) {
     h = nes_ref_hash_bytes(h, m->flat_ram, 65536);
   }
   h = nes_ref_hash_bytes(h, &m->open_bus, sizeof(m->open_bus));
+  if (m->ppu != NULL) {
+    NES_PPU *p = (NES_PPU *)m->ppu;
+    h = nes_ref_hash_bytes(h, p->ciram, sizeof(p->ciram));
+    h = nes_ref_hash_bytes(h, p->palette, sizeof(p->palette));
+    h = nes_ref_hash_bytes(h, p->oam, sizeof(p->oam));
+    h = nes_ref_hash_bytes(h, p->framebuffer, sizeof(p->framebuffer));
+    h = nes_ref_hash_bytes(h, &p->v, sizeof(p->v));
+    h = nes_ref_hash_bytes(h, &p->t, sizeof(p->t));
+    h = nes_ref_hash_bytes(h, &p->status, sizeof(p->status));
+  }
+  if (m->apu != NULL) {
+    NES_APU *a = (NES_APU *)m->apu;
+    h = nes_ref_hash_bytes(h, a->regs, sizeof(a->regs));
+    h = nes_ref_hash_bytes(h, a->samples, sizeof(a->samples));
+    h = nes_ref_hash_bytes(h, &a->cycles, sizeof(a->cycles));
+    h = nes_ref_hash_bytes(h, &a->frame_cycle, sizeof(a->frame_cycle));
+  }
+  h = nes_ref_hash_bytes(h, &m->frame_hash, sizeof(m->frame_hash));
+  h = nes_ref_hash_bytes(h, &m->audio_hash, sizeof(m->audio_hash));
   return h;
 }

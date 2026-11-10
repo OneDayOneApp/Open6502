@@ -58,6 +58,24 @@ static uint64_t hash_bytes(uint64_t h, const void *data, size_t n) {
   return h;
 }
 
+static uint8_t ppu_bus_chr_read(void *bus, uint16_t addr) {
+  return cart_chr_read((NES_Cart *)bus, addr);
+}
+static void ppu_bus_chr_write(void *bus, uint16_t addr, uint8_t value) {
+  cart_chr_write((NES_Cart *)bus, addr, value);
+}
+static int ppu_bus_nt_index(void *bus, uint16_t addr) {
+  return cart_nt_index((NES_Cart *)bus, addr);
+}
+static void ppu_bus_scanline(void *bus) {
+  cart_scanline((NES_Cart *)bus);
+}
+
+static void ppu_attach_cart(void) {
+  ppu_set_bus(&ppu, &cart, ppu_bus_chr_read, ppu_bus_chr_write,
+      ppu_bus_nt_index, ppu_bus_scanline);
+}
+
 #define NES_STATE_MAGIC "NESST001"
 #define NES_STATE_VERSION 1u
 
@@ -95,6 +113,11 @@ static bool save_state(const char *path) {
   memcpy(s.cpu_ram, cpu_ram, sizeof(s.cpu_ram));
   s.ppu = ppu;
   s.ppu.cart = NULL;
+  s.ppu.bus = NULL;
+  s.ppu.chr_read = NULL;
+  s.ppu.chr_write = NULL;
+  s.ppu.nt_index = NULL;
+  s.ppu.on_scanline = NULL;
   s.apu = apu;
   s.cart = cart;
   s.cart.prg = NULL;
@@ -155,6 +178,7 @@ static bool load_state(const char *path) {
   memcpy(cpu_ram, s.cpu_ram, sizeof(cpu_ram));
   ppu = s.ppu;
   ppu.cart = &cart;
+  ppu_attach_cart();
   apu = s.apu;
   memcpy(controller_state, s.controller_state, sizeof(controller_state));
   memcpy(controller_shift, s.controller_shift, sizeof(controller_shift));
@@ -568,6 +592,7 @@ int nes_main(int argc, char **argv) {
 
   memset(cpu_ram, 0, sizeof(cpu_ram));
   ppu_reset(&ppu, &cart);
+  ppu_attach_cart();
   apu_reset(&apu);
   memset(controller_state, 0, sizeof(controller_state));
   controller_state[0] = forced_buttons;

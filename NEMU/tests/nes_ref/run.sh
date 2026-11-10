@@ -6,6 +6,8 @@ mkdir -p "$TMP"
 make -C "$HERE" clean >/dev/null
 make -C "$HERE"
 
+cd "$HERE"
+
 if [ "${RUN_KLAUS:-0}" = "1" ]; then
   KLAUS=${KLAUS_BIN:-$TMP/6502_functional_test.bin}
   if [ ! -f "$KLAUS" ]; then

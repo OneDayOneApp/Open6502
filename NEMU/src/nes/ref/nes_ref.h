@@ -100,6 +100,13 @@ typedef struct {
   bool loaded;
   bool flat_mode;
   uint8_t *flat_ram;
+  void *ppu;
+  void *apu;
+  uint8_t controller_state[2];
+  uint8_t controller_shift[2];
+  uint8_t controller_strobe;
+  uint64_t frame_hash;
+  uint64_t audio_hash;
 } nes_ref_machine;
 
 int nes_ref_machine_init(nes_ref_machine *m, nes_ref_region region);
@@ -116,6 +123,10 @@ uint8_t nes_ref_machine_chr_read(nes_ref_machine *m, uint16_t addr);
 void nes_ref_machine_chr_write(nes_ref_machine *m, uint16_t addr, uint8_t value);
 int nes_ref_machine_nt_index(const nes_ref_machine *m, uint16_t addr);
 void nes_ref_machine_scanline(nes_ref_machine *m);
+int nes_ref_machine_run_frame(nes_ref_machine *m);
+void nes_ref_machine_set_input(nes_ref_machine *m, int port, uint8_t buttons);
+uint64_t nes_ref_machine_frame_hash(const nes_ref_machine *m);
+uint64_t nes_ref_machine_audio_hash(const nes_ref_machine *m);
 int nes_ref_cpu_step(nes_ref_machine *m);
 
 #endif

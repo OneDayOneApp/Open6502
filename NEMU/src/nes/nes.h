@@ -44,6 +44,11 @@ typedef struct NES_Cart {
 
 typedef struct NES_PPU {
   NES_Cart *cart;
+  void *bus;
+  uint8_t (*chr_read)(void *bus, uint16_t addr);
+  void (*chr_write)(void *bus, uint16_t addr, uint8_t value);
+  int (*nt_index)(void *bus, uint16_t addr);
+  void (*on_scanline)(void *bus);
   uint8_t ciram[4][1024];
   uint8_t palette[32];
   uint8_t oam[256];
@@ -151,6 +156,11 @@ void cart_scanline(NES_Cart *c);
 
 /* src/nes/ppu.c */
 void ppu_reset(NES_PPU *p, NES_Cart *c);
+void ppu_set_bus(NES_PPU *p, void *bus,
+    uint8_t (*chr_read)(void *, uint16_t),
+    void (*chr_write)(void *, uint16_t, uint8_t),
+    int (*nt_index)(void *, uint16_t),
+    void (*on_scanline)(void *));
 void ppu_step(NES_PPU *p, int ppu_cycles);
 uint8_t ppu_read_reg(NES_PPU *p, uint16_t addr);
 void ppu_write_reg(NES_PPU *p, uint16_t addr, uint8_t value);

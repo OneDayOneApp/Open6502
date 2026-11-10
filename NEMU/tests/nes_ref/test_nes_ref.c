@@ -327,6 +327,41 @@ static void test_ref_mmc3_irq(void) {
   nes_ref_machine_free(&m);
 }
 
+static void test_ref_frame_loop(void) {
+  nes_ref_machine m;
+  assert(nes_ref_machine_init(&m, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom_file(&m, "../../nesgame/game.nes") == NES_REF_OK);
+  for (int i = 0; i < 60; i++) {
+    assert(nes_ref_machine_run_frame(&m) == NES_REF_OK);
+  }
+  uint64_t h1 = nes_ref_machine_frame_hash(&m);
+  assert(h1 != 0);
+
+  nes_ref_machine reset;
+  assert(nes_ref_machine_init(&reset, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom_file(&reset, "../../nesgame/game.nes") == NES_REF_OK);
+  for (int i = 0; i < 60; i++) {
+    assert(nes_ref_machine_run_frame(&reset) == NES_REF_OK);
+  }
+  assert(nes_ref_machine_frame_hash(&reset) == h1);
+
+  nes_ref_machine moving;
+  assert(nes_ref_machine_init(&moving, NES_REF_NTSC) == NES_REF_OK);
+  assert(nes_ref_machine_load_rom_file(&moving, "../../nesgame/game.nes") == NES_REF_OK);
+  nes_ref_machine_set_input(&moving, 0, 0x80); /* right */
+  for (int i = 0; i < 60; i++) {
+    assert(nes_ref_machine_run_frame(&moving) == NES_REF_OK);
+  }
+  assert(nes_ref_machine_frame_hash(&moving) != h1);
+
+  printf("REF frame audio hashes after 60 frames: %016llx %016llx\n",
+      (unsigned long long)h1,
+      (unsigned long long)nes_ref_machine_audio_hash(&m));
+  nes_ref_machine_free(&m);
+  nes_ref_machine_free(&reset);
+  nes_ref_machine_free(&moving);
+}
+
 int main(void) {
   test_ntsc_clock();
   test_pal_clock();
@@ -345,6 +380,7 @@ int main(void) {
   test_ref_mmc3();
   test_ref_axrom();
   test_ref_mmc3_irq();
+  test_ref_frame_loop();
   const char *klaus = getenv("NESREF_KLAUS");
   if (klaus != NULL && *klaus != 0) {
     assert(run_klaus(klaus) == 0);

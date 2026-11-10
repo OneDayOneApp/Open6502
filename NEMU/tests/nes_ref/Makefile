@@ -1,7 +1,7 @@
 CC ?= cc
 CFLAGS ?= -std=c99 -O2 -Wall -Wextra -Werror
 ROOT := ../..
-CPPFLAGS += -I$(ROOT)/src
+CPPFLAGS += -I$(ROOT)/src -I$(ROOT)/include -I$(ROOT)/src/nes
 
 SRCS := test_nes_ref.c \
         $(ROOT)/src/nes/ref/clock.c \
@@ -9,7 +9,9 @@ SRCS := test_nes_ref.c \
         $(ROOT)/src/nes/ref/state.c \
         $(ROOT)/src/nes/ref/machine.c \
         $(ROOT)/src/nes/ref/cpu.c \
-        $(ROOT)/src/nes/ref/m6502_table.c
+        $(ROOT)/src/nes/ref/m6502_table.c \
+        $(ROOT)/src/nes/ppu.c \
+        $(ROOT)/src/nes/apu.c
 
 test_nes_ref: $(SRCS) $(ROOT)/src/nes/ref/nes_ref.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $(SRCS)

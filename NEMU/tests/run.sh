@@ -65,10 +65,14 @@ echo "PASS: 65C02 extensions"
 # NES golden-reference primitives (clock, ROM, state, NROM bus)
 if [ -x "$ROOT/tests/nes_ref/run.sh" ]; then
   if [ "${RUN_KLAUS:-0}" = "1" ]; then
-    RUN_KLAUS=1 KLAUS_BIN="${KLAUS_BIN:-}" "$ROOT/tests/nes_ref/run.sh"
+    ref_out=$(RUN_KLAUS=1 KLAUS_BIN="${KLAUS_BIN:-}" "$ROOT/tests/nes_ref/run.sh")
   else
-    "$ROOT/tests/nes_ref/run.sh"
+    ref_out=$("$ROOT/tests/nes_ref/run.sh")
   fi
+  printf '%s
+' "$ref_out" | grep '^PASS: nes_ref'
+  ref_hashes=$(printf '%s
+' "$ref_out" | sed -n 's/^REF frame audio hashes after 60 frames: //p')
 fi
 
 # PPU timing unit tests (vblank/NMI, frame boundary, odd-frame skip)
@@ -90,6 +94,13 @@ if [ -f "$ROOT/nesgame/game.nes" ]; then
   test -n "$h1"
   test "$h1" = "$h2"
   test "$h1" != "$h3"
+  # The NEMU REF runs the same PPU/APU/CPU loop headlessly; its 60-frame
+  # frame/audio hashes must match the frontend.
+  front_hashes=$("$EMU" --headless --no-audio --frames=60 --hash \
+    "$ROOT/nesgame/game.nes" 2>&1 | grep '^6502EMU NES hash:' | \
+    sed 's/^6502EMU NES hash: //; s/ frames=.*//; s/frame=//; s/ audio=/ /')
+  test -n "$ref_hashes"
+  test "$front_hashes" = "$ref_hashes"
   # save at frame 60, resume for 60 more frames, compare with an
   # uninterrupted 120-frame run (ignore the frames= counter).
   state="$TMP/nes.state"

@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.7.0 - REF PPU/APU frame loop
+
+### Added
+
+- PPU bus callbacks, so the same 2C02 core can be driven by the frontend cart or
+  the REF mapper.
+- REF PPU/APU instances and CPU bus routing for:
+  - PPU registers
+  - APU registers
+  - OAM DMA
+  - controller ports
+- `nes_ref_machine_run_frame()`, frame hash and audio hash.
+- REF frame test against `nesgame/game.nes`.
+- Frontend/REF 60-frame hash comparison in regression.
+
+### Verified
+
+- REF and frontend produce identical 60-frame frame/audio hashes for the bundled
+  NROM game:
+  - frame `67667b1cbc4c1cf3`
+  - audio `e78422afbcb92ac3`
+
+### Verification
+
+- default regression, `RUN_KLAUS=1`, and CPU-only NEMU DiffTest.
+
+
 ## v0.6.0 - REF MMC3 scanline IRQ
 
 ### Added

@@ -18,7 +18,7 @@ uint32_t ppu_palette_rgb(uint8_t idx) {
 }
 
 static uint8_t ppu_chr(NES_PPU *p, uint16_t addr) {
-  return cart_chr_read(p->cart, addr);
+  return p->chr_read ? p->chr_read(p->bus, addr) : 0;
 }
 
 static uint16_t palette_addr(uint16_t addr) {
@@ -28,12 +28,12 @@ static uint16_t palette_addr(uint16_t addr) {
 }
 
 static uint8_t ppu_ciram_read(NES_PPU *p, uint16_t addr) {
-  int nt = cart_nt_index(p->cart, addr);
+  int nt = p->nt_index ? p->nt_index(p->bus, addr) : 0;
   return p->ciram[nt & 3][addr & 0x3FF];
 }
 
 static void ppu_ciram_write(NES_PPU *p, uint16_t addr, uint8_t value) {
-  int nt = cart_nt_index(p->cart, addr);
+  int nt = p->nt_index ? p->nt_index(p->bus, addr) : 0;
   p->ciram[nt & 3][addr & 0x3FF] = value;
 }
 
@@ -47,7 +47,7 @@ static uint8_t ppu_vram_read(NES_PPU *p, uint16_t addr) {
 static void ppu_vram_write(NES_PPU *p, uint16_t addr, uint8_t value) {
   addr &= 0x3FFF;
   if (addr < 0x2000) {
-    cart_chr_write(p->cart, addr, value);
+    if (p->chr_write) p->chr_write(p->bus, addr, value);
   } else if (addr < 0x3F00) {
     ppu_ciram_write(p, addr, value);
   } else {
@@ -164,6 +164,18 @@ static void render_scanline(NES_PPU *p, int y) {
   render_sprites(p, y, opaque, line);
 }
 
+void ppu_set_bus(NES_PPU *p, void *bus,
+    uint8_t (*chr_read)(void *, uint16_t),
+    void (*chr_write)(void *, uint16_t, uint8_t),
+    int (*nt_index)(void *, uint16_t),
+    void (*on_scanline)(void *)) {
+  p->bus = bus;
+  p->chr_read = chr_read;
+  p->chr_write = chr_write;
+  p->nt_index = nt_index;
+  p->on_scanline = on_scanline;
+}
+
 void ppu_reset(NES_PPU *p, NES_Cart *c) {
   memset(p, 0, sizeof(*p));
   p->cart = c;
@@ -192,7 +204,7 @@ void ppu_step(NES_PPU *p, int ppu_cycles) {
     }
     if (p->scanline < 240 && p->cycle == 0) {
       if (p->mask & 0x18) render_scanline(p, p->scanline);
-      cart_scanline(p->cart);
+      if (p->on_scanline) p->on_scanline(p->bus);
     }
     if ((p->mask & 0x18) && p->scanline < 240 && p->cycle == 256) {
       inc_v(p);
