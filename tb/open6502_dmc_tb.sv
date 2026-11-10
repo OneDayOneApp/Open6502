@@ -2,12 +2,13 @@
 module open6502_dmc_tb;
   logic clk=0,rst_n=0,cpu_en=0,enable=0,cs=0,we=0;
   logic [1:0] addr=0; logic [7:0] wdata=0, sample_data=8'hAA;
-  logic [15:0] sample_addr; logic [6:0] sample_out; logic irq, active;
+  logic [15:0] sample_addr; logic [6:0] sample_out; logic irq, active, dma_req;
   logic saw_level = 0;
 
   open6502_dmc dut(.clk(clk),.rst_n(rst_n),.cpu_en(cpu_en),.enable(enable),
     .cs(cs),.we(we),.addr(addr),.wdata(wdata),.sample_data(sample_data),
-    .sample_addr(sample_addr),.sample_out(sample_out),.irq(irq),.active(active));
+    .sample_addr(sample_addr),.sample_out(sample_out),.irq(irq),.active(active),
+    .dma_req(dma_req));
 
   always #10 clk=~clk;
   task automatic wr(input [1:0] a,input [7:0] d);
@@ -25,6 +26,7 @@ module open6502_dmc_tb;
       if (dut.level != 7'd64) saw_level = 1;
     end
     if (dut.bits == 0) $fatal(1,"DMC did not load sample bits");
+    if (!dma_req && !saw_level) $fatal(1,"DMC DMA request not observed");
     if (!saw_level) $fatal(1,"DMC output level never changed");
     $display("PASS: Open6502 DMC sample fetch/output");
     $finish;

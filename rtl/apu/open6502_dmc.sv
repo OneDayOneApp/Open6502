@@ -13,7 +13,8 @@ module open6502_dmc (
   output logic [15:0] sample_addr,
   output logic [6:0]  sample_out,
   output logic        irq,
-  output logic        active
+  output logic        active,
+  output logic        dma_req
 );
   logic        irq_enable, loop;
   logic [3:0]  rate_index;
@@ -41,6 +42,8 @@ module open6502_dmc (
   assign sample_addr = current_addr;
   assign sample_out = level;
   assign active = enable && (bytes_left != 0);
+  assign dma_req = enable && cpu_en && (timer == 0) && (bits == 0) &&
+                   !buffer_full && (bytes_left != 0);
 
   always_ff @(posedge clk) begin
     if (!rst_n) begin

@@ -46,7 +46,8 @@ module open6502_top #(
   logic signed [15:0] apu_sample;
   logic        apu_irq;
   logic        apu_dmc_enable;
-  logic        dmc_cs, dmc_irq;
+  logic        dmc_cs, dmc_irq, dmc_dma_req;
+  logic [2:0]  dmc_stall;
   logic [15:0] dmc_addr;
   logic [7:0]  dmc_data;
   logic [6:0]  dmc_out;
@@ -95,7 +96,7 @@ module open6502_top #(
   );
 
   open6502_cpu u_cpu (
-    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en && !dma_busy),
+    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en && !dma_busy && !dmc_stall),
     .bus_rdata(cpu_rdata), .irq_n(~(apu_irq | dmc_irq | mapper_irq)),
     .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
@@ -147,7 +148,8 @@ module open6502_top #(
     .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
     .enable(apu_dmc_enable), .cs(dmc_cs), .we(apu_we),
     .addr(cpu_addr[1:0]), .wdata(cpu_wdata), .sample_data(dmc_data),
-    .sample_addr(dmc_addr), .sample_out(dmc_out), .irq(dmc_irq), .active()
+    .sample_addr(dmc_addr), .sample_out(dmc_out), .irq(dmc_irq), .active(),
+    .dma_req(dmc_dma_req)
   );
 
   open6502_oam_dma u_dma (
@@ -160,6 +162,12 @@ module open6502_top #(
   assign bus_addr = dma_busy ? dma_mem_addr : cpu_addr;
   assign bus_we   = dma_busy ? 1'b0 : cpu_we;
   assign dma_start = apu_sel && cpu_we && (cpu_addr == 16'h4014);
+
+  always_ff @(posedge clk_21m) begin
+    if (!rst_sync_n) dmc_stall <= 3'd0;
+    else if (dmc_dma_req) dmc_stall <= 3'd4;
+    else if (dmc_stall != 0) dmc_stall <= dmc_stall - 3'd1;
+  end
 
   open6502_difftest_bridge u_dbg (
     .clk(clk_21m), .rst_n(rst_sync_n),
