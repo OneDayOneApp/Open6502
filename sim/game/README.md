@@ -10,7 +10,7 @@ python3 sim/game/extract_ines.py roms/falling.nes /tmp/falling falling
 `tb/open6502_game_tb.sv` preloads the 8 KiB CHR RAM through the PPU loader port,
 feeds PRG from the cartridge bus, and runs the SoC for video frames.
 
-Current status: the harness runs and produces five frames, but the framebuffer
-is still blank. CPU PC is in the `$2002` vblank-poll routine and PPU
-`ctrl/mask` remain zero; the next step is debugging the PPU status read and game
-initialization path.
+Current status: the Verilator harness runs 56 frames. CPU reaches the main loop
+at `PC=0xC0CA`; PPU `ctrl=$90`, `mask=$1E`, but palette RAM is still zero and
+the framebuffer is blank. The OAM DMA restart bug was fixed; the next step is
+the palette/PPU rendering path.

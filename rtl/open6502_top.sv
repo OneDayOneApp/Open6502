@@ -27,7 +27,19 @@ module open6502_top #(
   input  logic        cart_irq,
 
   output logic        dbg_valid,
-  output logic [63:0] dbg_payload
+  output logic [63:0] dbg_payload,
+  output logic [15:0] dbg_cpu_pc,
+  output logic [7:0]  dbg_ppu_ctrl,
+  output logic [7:0]  dbg_ppu_mask,
+  output logic [7:0]  dbg_ppu_status,
+  output logic        dbg_dma_busy,
+  output logic [1:0]  dbg_dma_state,
+  output logic [7:0]  dbg_dma_count,
+  output logic [7:0]  dbg_ppu_pixel,
+  output logic [7:0]  dbg_pal0,
+  output logic [7:0]  dbg_chr0,
+  output logic [7:0]  dbg_pal1,
+  output logic [7:0]  dbg_pal2
 );
 
   logic        rst_sync_n;
@@ -63,6 +75,8 @@ module open6502_top #(
   logic        bus_we;
   logic        dma_busy;
   logic        dma_start;
+  logic        dma_req_d;
+  logic        dma_lock;
   logic [15:0] dma_mem_addr;
   logic        dma_oam_we;
   logic [7:0]  dma_oam_addr, dma_oam_wdata;
@@ -73,6 +87,7 @@ module open6502_top #(
   logic        joy2_serial;
   logic        dbg_valid_i;
   logic [63:0] dbg_payload_i;
+  logic [7:0]  dbg_a_i;
 
   open6502_clocks u_clocks (
     .clk_21m(clk_21m), .rst_n(rst_n),
@@ -104,7 +119,7 @@ module open6502_top #(
     .bus_rdata(cpu_rdata), .irq_n(~(apu_irq | dmc_irq | mapper_irq)),
     .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
-    .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p(), .dbg_state()
+    .dbg_pc(dbg_cpu_pc), .dbg_a(dbg_a_i), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p(), .dbg_state()
   );
 
   open6502_bus u_bus (
@@ -162,12 +177,24 @@ module open6502_top #(
     .clk(clk_21m), .rst_n(rst_sync_n), .start(dma_start),
     .page(cpu_wdata), .mem_rdata(cpu_rdata), .mem_addr(dma_mem_addr),
     .oam_we(dma_oam_we), .oam_addr(dma_oam_addr),
-    .oam_wdata(dma_oam_wdata), .busy(dma_busy)
+    .oam_wdata(dma_oam_wdata), .busy(dma_busy),
+    .dbg_state(dbg_dma_state), .dbg_count(dbg_dma_count)
   );
 
   assign bus_addr = dma_busy ? dma_mem_addr : cpu_addr;
   assign bus_we   = dma_busy ? 1'b0 : cpu_we;
-  assign dma_start = apu_sel && cpu_we && (cpu_addr == 16'h4014);
+  always_ff @(posedge clk_21m or negedge rst_sync_n) begin
+    if (!rst_sync_n) begin
+      dma_req_d <= 1'b0;
+      dma_lock <= 1'b0;
+    end else begin
+      dma_req_d <= apu_sel && cpu_we && (cpu_addr == 16'h4014);
+      if (dma_busy) dma_lock <= 1'b1;
+      else if (!(apu_sel && cpu_we && (cpu_addr == 16'h4014))) dma_lock <= 1'b0;
+    end
+  end
+  assign dma_start = apu_sel && cpu_we && (cpu_addr == 16'h4014) &&
+                     !dma_req_d && !dma_lock;
 
   always_ff @(posedge clk_21m) begin
     if (!rst_sync_n) dmc_stall <= 3'd0;
@@ -192,6 +219,15 @@ module open6502_top #(
   assign cart_we = cart_we_i;
   assign dbg_valid = dbg_valid_i;
   assign dbg_payload = dbg_payload_i;
+  assign dbg_ppu_ctrl = u_ppu.ctrl;
+  assign dbg_ppu_mask = u_ppu.mask;
+  assign dbg_ppu_status = u_ppu.status;
+  assign dbg_dma_busy = dma_busy;
+  assign dbg_ppu_pixel = ppu_pixel;
+  assign dbg_pal0 = u_ppu.pal[0];
+  assign dbg_chr0 = u_ppu.chr[0];
+  assign dbg_pal1 = u_ppu.pal[1];
+  assign dbg_pal2 = u_ppu.pal[2];
 
   // Keep controller/cart/joy signals observable while the CPU/PPU/APU
   // implementations are brought up in later phases.

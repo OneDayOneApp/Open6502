@@ -70,7 +70,7 @@ module open6502_game_tb;
       chr_load_we = 1;
     end
     @(posedge clk); chr_load_we = 0;
-    repeat (2_000_000) @(posedge clk);
+    repeat (10_000_000) @(posedge clk);
     $display("RTL game: frames=%0d de_pixels=%0d nonblack=%0d", frames, pixels, nonblack);
     $display("READ2002=%0d VREAD2002=%0d", reads2002, vreads2002);
     $display("VBLANK cycles=%0d cpu_en=%0d dma_busy=%0d dmc_stall=%0d cpu_state=%0d A=%02x P=%02x bus=%02x",

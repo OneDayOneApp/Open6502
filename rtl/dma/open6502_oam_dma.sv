@@ -8,7 +8,9 @@ module open6502_oam_dma (
   output logic        oam_we,
   output logic [7:0]  oam_addr,
   output logic [7:0]  oam_wdata,
-  output logic        busy
+  output logic        busy,
+  output logic [1:0]  dbg_state,
+  output logic [7:0]  dbg_count
 );
   typedef enum logic [1:0] {DMA_IDLE, DMA_READ, DMA_DONE} state_t;
   state_t state;
@@ -50,4 +52,6 @@ module open6502_oam_dma (
       endcase
     end
   end
+  assign dbg_state = state;
+  assign dbg_count = count;
 endmodule
