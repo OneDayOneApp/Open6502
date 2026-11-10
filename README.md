@@ -21,3 +21,5 @@ make -j8
 ```
 
 - 版本与变更：[CHANGELOG.md](CHANGELOG.md)
+
+- Open6502 芯片设计：[架构](docs/open6502-chip/architecture.md) · [DiffTest](docs/open6502-chip/difftest.md) · [验证](docs/open6502-chip/verification.md)
