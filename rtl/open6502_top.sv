@@ -100,7 +100,7 @@ module open6502_top #(
     .bus_rdata(cpu_rdata), .irq_n(~(apu_irq | dmc_irq | mapper_irq)),
     .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
-    .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p()
+    .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p(), .dbg_state()
   );
 
   open6502_bus u_bus (

@@ -15,11 +15,7 @@ static void tick() {
   dut->eval();
   dut->clk = 1;
   dut->eval();
-  if (dut->bus_we) {
-    if (dut->bus_addr == 0x01FE)
-      std::printf("WR01FE=%02x PC=%04x SP=%02x\n", dut->bus_wdata, dut->dbg_pc, dut->dbg_sp);
-    mem[dut->bus_addr] = dut->bus_wdata;
-  }
+  if (dut->bus_we) mem[dut->bus_addr] = dut->bus_wdata;
   dut->clk = 0;
   dut->cpu_en = 0;
   dut->eval();
@@ -44,8 +40,23 @@ int main(int argc, char **argv) {
   dut->nmi_n = 1;
   for (int i = 0; i < 8; i++) tick();
   dut->rst_n = 1;
+  FILE *tf = NULL;
+  const char *tpath = std::getenv("RTL_TRACE_STATE");
+  if (tpath) tf = std::fopen(tpath, "w");
+  unsigned stop_pc = 0x3469;
+  const char *sp = std::getenv("RTL_STOP_PC");
+  if (sp) stop_pc = (unsigned)std::strtoul(sp, NULL, 0);
   for (long long c = 0; c < 200000000LL; c++) {
     tick();
+    if (tf && dut->dbg_state == 2) {
+      std::fprintf(tf, "%04x %02x %02x %02x %02x %02x\n",
+                   dut->dbg_pc, dut->dbg_a, dut->dbg_x, dut->dbg_y,
+                   dut->dbg_sp, dut->dbg_p);
+    }
+    if (dut->dbg_pc == stop_pc) {
+      std::printf("STOP PC=%04x\n", dut->dbg_pc);
+      return 0;
+    }
     if (dut->dbg_pc == 0x3469) {
       std::printf("PASS: Open6502 RTL Klaus PC=%04x cycles=%lld\n", dut->dbg_pc, c);
       return 0;

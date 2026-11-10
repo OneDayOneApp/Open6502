@@ -18,7 +18,8 @@ module open6502_cpu (
   output logic [7:0]  dbg_x,
   output logic [7:0]  dbg_y,
   output logic [7:0]  dbg_sp,
-  output logic [7:0]  dbg_p
+  output logic [7:0]  dbg_p,
+  output logic [5:0]  dbg_state
 );
   typedef enum logic [5:0] {
     ST_RESET_LO, ST_RESET_HI, ST_FETCH, ST_DECODE,
@@ -92,7 +93,9 @@ module open6502_cpu (
                      (state == ST_IRQ_PUSH_HI) ? pc[15:8] :
                      (state == ST_IRQ_PUSH_LO) ? pc[7:0] :
                      (state == ST_IRQ_PUSH_P) ? ((p & 8'hEF) | 8'h20) :
-                     (state == ST_RMW_WRITE) ? rmw_data : a;
+                     (state == ST_RMW_WRITE) ? rmw_data :
+                     ((opcode == 8'h86) || (opcode == 8'h96) || (opcode == 8'h8E)) ? x :
+                     ((opcode == 8'h84) || (opcode == 8'h94) || (opcode == 8'h8C)) ? y : a;
   assign bus_we    = we;
   assign dbg_pc    = pc;
   assign dbg_a     = a;
@@ -100,6 +103,7 @@ module open6502_cpu (
   assign dbg_y     = y;
   assign dbg_sp    = sp;
   assign dbg_p     = p;
+  assign dbg_state = state;
 
   function automatic [7:0] nz(input [7:0] v, input [7:0] old);
     nz = (old & 8'h7D) | (v == 8'h00 ? 8'h02 : 8'h00) | (v[7] ? 8'h80 : 8'h00);

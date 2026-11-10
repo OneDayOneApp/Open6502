@@ -17,6 +17,8 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -29,6 +31,20 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
+static FILE *g_state_trace = NULL;
+static bool g_state_trace_init = false;
+
+static void trace_cpu_state(void) {
+  if (!g_state_trace_init) {
+    const char *path = getenv("NEMU_TRACE_STATE");
+    if (path != NULL) g_state_trace = fopen(path, "w");
+    g_state_trace_init = true;
+  }
+  if (g_state_trace != NULL) {
+    fprintf(g_state_trace, "%04x %02x %02x %02x %02x %02x\n",
+        (unsigned)(cpu.pc & 0xFFFF), cpu.a, cpu.x, cpu.y, cpu.sp, cpu.p);
+  }
+}
 
 void device_update();
 
@@ -38,6 +54,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
+  trace_cpu_state();
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
