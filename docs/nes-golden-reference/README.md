@@ -36,7 +36,7 @@ Golden reference 是 **NEMU 的一个专用 REF 构建**：
 5. 先让 CPU-only DiffTest 跑通 Klaus/nestest，再逐级加入 PPU/APU/mapper。
 6. 最后用实机采集和自由 ROM 回归验收。
 
-## 当前进度（TDD）
+## 当前进度（v1.0 functional baseline）
 
 已落地并纳入 `NEMU/tests/run.sh`：
 
@@ -57,5 +57,8 @@ PASS: REF CPU Klaus at PC=3469 (cycles=96241364)
 PASS: NEMU CPU-only DiffTest
 ```
 
-尚未完成：NEMU REF/DUT 专用配置、`isa_difftest_checkregs`、逐 dot PPU、
-完整 APU、NES 扩展 DiffTest、实机对齐。当前进度是 M0/CPU 基座，不是完整 REF。
+v1.0 已达到“功能闭合”的 REF 基线：REF 的 CPU+PPU+APU+mapper 帧循环可运行
+自带 NROM 游戏，60 帧 frame/audio hash 与前端完全一致，并提供完整 state hash。
+
+仍未达到硬件级完整 REF 的部分：逐 dot 背景/精灵管线、sprite 0 精确时序、
+APU DMC、NES 扩展 DiffTest、实机采集对齐、T2/T3 mapper/附件。

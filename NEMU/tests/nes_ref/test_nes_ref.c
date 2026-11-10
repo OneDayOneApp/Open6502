@@ -335,6 +335,7 @@ static void test_ref_frame_loop(void) {
     assert(nes_ref_machine_run_frame(&m) == NES_REF_OK);
   }
   uint64_t h1 = nes_ref_machine_frame_hash(&m);
+  uint64_t s1 = nes_ref_machine_hash(&m);
   assert(h1 != 0);
 
   nes_ref_machine reset;
@@ -344,6 +345,7 @@ static void test_ref_frame_loop(void) {
     assert(nes_ref_machine_run_frame(&reset) == NES_REF_OK);
   }
   assert(nes_ref_machine_frame_hash(&reset) == h1);
+  assert(nes_ref_machine_hash(&reset) == s1);
 
   nes_ref_machine moving;
   assert(nes_ref_machine_init(&moving, NES_REF_NTSC) == NES_REF_OK);
@@ -353,10 +355,12 @@ static void test_ref_frame_loop(void) {
     assert(nes_ref_machine_run_frame(&moving) == NES_REF_OK);
   }
   assert(nes_ref_machine_frame_hash(&moving) != h1);
+  assert(nes_ref_machine_hash(&moving) != s1);
 
-  printf("REF frame audio hashes after 60 frames: %016llx %016llx\n",
+  printf("REF frame audio state hashes after 60 frames: %016llx %016llx %016llx\n",
       (unsigned long long)h1,
-      (unsigned long long)nes_ref_machine_audio_hash(&m));
+      (unsigned long long)nes_ref_machine_audio_hash(&m),
+      (unsigned long long)s1);
   nes_ref_machine_free(&m);
   nes_ref_machine_free(&reset);
   nes_ref_machine_free(&moving);

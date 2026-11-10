@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.0.0 - functional NES/Famicom golden reference baseline
+
+### Added
+
+- REF PPU bus callbacks so the frontend and REF share one 2C02 core.
+- REF C API:
+  - `nes_ref_machine_run_frame()`
+  - frame hash / audio hash / full state hash
+  - controller input
+  - PPU/APU register routing and OAM DMA
+- REF CPU + PPU + APU + mapper frame loop.
+- REF/frontend parity test for the bundled NROM game after 60 frames:
+  - frame hash `67667b1cbc4c1cf3`
+  - audio hash `e78422afbcb92ac3`
+- REF state hash determinism and input-sensitivity tests.
+
+### Scope of v1.0
+
+The v1.0 reference is a **functional** NEMU-based golden-reference baseline:
+- iNES/NROM through mapper 0/1/2/3/4/7
+- 2A03 CPU, 2C02 PPU scanline renderer, 2A03 APU
+- deterministic frame/audio/state hashes
+- frontend parity for the bundled game
+- CPU/PPU/APU/mapper/state/input replay tests
+
+It is not a cycle-exact or dot-exact full-chip model. Known gaps are listed in
+`docs/nes-golden-reference/checklist.md`.
+
+### Verification
+
+- default regression
+- `RUN_KLAUS=1`
+- CPU-only NEMU DiffTest
+
+
 ## v0.7.0 - REF PPU/APU frame loop
 
 ### Added

@@ -72,7 +72,7 @@ if [ -x "$ROOT/tests/nes_ref/run.sh" ]; then
   printf '%s
 ' "$ref_out" | grep '^PASS: nes_ref'
   ref_hashes=$(printf '%s
-' "$ref_out" | sed -n 's/^REF frame audio hashes after 60 frames: //p')
+' "$ref_out" | sed -n 's/^REF frame audio state hashes after 60 frames: //p' | awk '{print $1, $2}')
 fi
 
 # PPU timing unit tests (vblank/NMI, frame boundary, odd-frame skip)
