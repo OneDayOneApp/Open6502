@@ -85,6 +85,6 @@ int main(int argc, char **argv) {
       frames, nonblack, dut->dbg_cpu_pc, dut->dbg_ppu_ctrl,
       dut->dbg_ppu_mask, dut->dbg_ppu_status);
   std::printf("pixel=%02x pal0=%02x pal1=%02x pal2=%02x chr0=%02x\n", dut->dbg_ppu_pixel, dut->dbg_pal0, dut->dbg_pal1, dut->dbg_pal2, dut->dbg_chr0);
-  std::printf("dma_busy=%d dma_state=%d dma_count=%02x\n", dut->dbg_dma_busy, dut->dbg_dma_state, dut->dbg_dma_count);
+  std::printf("dma_busy=%d dma_state=%d dma_count=%02x nmi_hits=%d pal_writes=%d pal_last=%02x\n", dut->dbg_dma_busy, dut->dbg_dma_state, dut->dbg_dma_count, dut->dbg_nmi_hits, dut->dbg_pal_writes, dut->dbg_pal_last);
   return have && nonblack ? 0 : 1;
 }

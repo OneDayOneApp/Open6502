@@ -22,7 +22,9 @@ module open6502_ppu (
   output logic [7:0]  rdata,
   output logic [7:0]  pixel_index,
   output logic        sprite0_hit,
-  output logic        nmi
+  output logic        nmi,
+  output logic [15:0] dbg_pal_writes,
+  output logic [7:0]  dbg_pal_last
 );
   logic [7:0]  ctrl, mask, status, oam_addr;
   logic [7:0]  chr  [0:8191];
@@ -34,6 +36,8 @@ module open6502_ppu (
   logic [7:0]  read_buf;
   logic        w_toggle;
   logic        nmi_level;
+  logic [15:0] pal_writes;
+  logic [7:0]  pal_last;
   logic [7:0]  tile, attr, lo, hi;
   logic [12:0] pat;
   logic [1:0]  color, pal_bits;
@@ -125,6 +129,8 @@ module open6502_ppu (
       vaddr <= 15'h0000; scroll_x <= 8'h00; scroll_y <= 8'h00;
       read_buf <= 8'h00; w_toggle <= 1'b0;
       nmi_level <= 1'b0;
+      pal_writes <= 16'd0;
+      pal_last <= 8'h00;
       for (int i = 0; i < 8192; i++) chr[i] <= 8'h00;
       for (int i = 0; i < 2048; i++) vram[i] <= 8'h00;
       for (int i = 0; i < 256; i++) oam[i] <= 8'h00;
@@ -163,7 +169,11 @@ module open6502_ppu (
               w_toggle <= ~w_toggle;
             end
             3'd7: begin
-              if (vaddr[13:8] == 6'h3F) pal[vaddr[4:0]] <= wdata;
+              if (vaddr[13:8] == 6'h3F) begin
+                pal[vaddr[4:0]] <= wdata;
+                pal_writes <= pal_writes + 16'd1;
+                pal_last <= wdata;
+              end
               else if (vaddr < 15'h2000) chr[vaddr[12:0]] <= wdata;
               else vram[vaddr[10:0]] <= wdata;
               vaddr <= vaddr + (ctrl[2] ? 15'd32 : 15'd1);
@@ -191,4 +201,6 @@ module open6502_ppu (
       end
     end
   end
+  assign dbg_pal_writes = pal_writes;
+  assign dbg_pal_last = pal_last;
 endmodule

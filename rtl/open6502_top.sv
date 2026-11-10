@@ -110,7 +110,10 @@ module open6502_top #(
   output logic [7:0]  dbg_pal1,
   output logic [7:0]  dbg_pal2,
   output logic [8:0]  dbg_ppu_x,
-  output logic [8:0]  dbg_ppu_y
+  output logic [8:0]  dbg_ppu_y,
+  output logic [15:0] dbg_nmi_hits,
+  output logic [15:0] dbg_pal_writes,
+  output logic [7:0]  dbg_pal_last
 );
 
   logic        rst_sync_n;
@@ -126,6 +129,7 @@ module open6502_top #(
   logic [7:0]  cpu_rdata_bus;
   logic [7:0]  joy1_shreg, joy2_shreg;
   logic [7:0]  joy_rdata;
+  logic [15:0] nmi_hits;
   logic        cpu_we;
   logic [7:0]  ram_rdata;
   logic [10:0] ram_addr;
@@ -227,6 +231,7 @@ module open6502_top #(
     .dma_wdata(dma_oam_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
     .chr_load_we(chr_load_we), .chr_load_addr(chr_load_addr),
     .chr_load_data(chr_load_data),
+    .dbg_pal_writes(dbg_pal_writes), .dbg_pal_last(dbg_pal_last),
     .sprite0_hit(ppu_sprite0), .nmi(ppu_nmi)
   );
 
@@ -312,6 +317,11 @@ module open6502_top #(
   assign dbg_pal2 = u_ppu.pal[2];
   assign dbg_ppu_x = ppu_x;
   assign dbg_ppu_y = ppu_y;
+  always_ff @(posedge clk_21m or negedge rst_sync_n) begin
+    if (!rst_sync_n) nmi_hits <= 16'd0;
+    else if (cpu_ce && (dbg_cpu_pc == 16'hC0CD)) nmi_hits <= nmi_hits + 16'd1;
+  end
+  assign dbg_nmi_hits = nmi_hits;
 
   // Keep controller/cart/joy signals observable while the CPU/PPU/APU
   // implementations are brought up in later phases.
