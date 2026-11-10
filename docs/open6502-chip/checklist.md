@@ -40,7 +40,7 @@
 
 ## P3 APU
 
-- [~] pulse x2 RTL + status test; sweep/noise/triangle/DMC pending.
+- [~] pulse x2/triangle/noise RTL + status test; sweep and DMC pending.
 - [ ] triangle.
 - [ ] noise.
 - [ ] DMC.
