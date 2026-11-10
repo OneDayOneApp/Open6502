@@ -10,7 +10,8 @@ module open6502_apu (
   input  logic [7:0]  wdata,
   output logic [7:0]  rdata,
   output logic signed [15:0] sample,
-  output logic        irq
+  output logic        irq,
+  output logic        dmc_enable
 );
   logic [7:0] p1_duty, p1_vol, p1_env, p1_period_lo, p1_period_hi;
   logic [7:0] p2_duty, p2_vol, p2_env, p2_period_lo, p2_period_hi;
@@ -81,6 +82,7 @@ module open6502_apu (
       rdata[1] = p2_len != 0;
       rdata[2] = tri_len != 0;
       rdata[3] = noise_len != 0;
+      rdata[4] = dmc_enable;
     end
   end
 
@@ -110,6 +112,7 @@ module open6502_apu (
       noise_lfsr <= 15'h0001;
       sample <= 0; irq <= 1'b0;
       frame_inhibit <= 1'b0; frame_mode <= 1'b0;
+      dmc_enable <= 1'b0;
       sweep_req <= 1'b0;
     end else begin
       if (cs && !we && addr == 5'h15) irq <= 1'b0;
@@ -142,6 +145,7 @@ module open6502_apu (
           5'h15: begin
             p1_en <= wdata[0]; p2_en <= wdata[1];
             tri_en <= wdata[2]; noise_en <= wdata[3];
+            dmc_enable <= wdata[4];
             if (!wdata[2]) tri_len <= 0;
             if (!wdata[3]) noise_len <= 0;
             irq <= 1'b0;

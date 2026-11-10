@@ -43,7 +43,7 @@
 - [~] pulse x2/triangle/noise + sweep (tested); DMC pending.
 - [ ] triangle.
 - [ ] noise.
-- [~] DMC core + sample/output test; CPU DMA stall and APU mixer integration pending.
+- [~] DMC core + sample/output test + SoC mixer/IRQ; CPU DMA stall pending.
 - [ ] frame sequencer.
 - [ ] mixer.
 - [~] 16-bit sample output wired to `aud_sample`; audio-rate strobe exists.

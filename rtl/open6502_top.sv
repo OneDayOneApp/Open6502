@@ -45,6 +45,12 @@ module open6502_top #(
   logic [7:0]  apu_rdata;
   logic signed [15:0] apu_sample;
   logic        apu_irq;
+  logic        apu_dmc_enable;
+  logic        dmc_cs, dmc_irq;
+  logic [15:0] dmc_addr;
+  logic [7:0]  dmc_data;
+  logic [6:0]  dmc_out;
+  logic signed [16:0] audio_mix;
   logic        ppu_nmi;
   logic [7:0]  ppu_pixel;
   logic        ppu_sprite0;
@@ -90,7 +96,8 @@ module open6502_top #(
 
   open6502_cpu u_cpu (
     .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en && !dma_busy),
-    .bus_rdata(cpu_rdata), .irq_n(~(apu_irq | mapper_irq)), .nmi_n(~ppu_nmi),
+    .bus_rdata(cpu_rdata), .irq_n(~(apu_irq | dmc_irq | mapper_irq)),
+    .nmi_n(~ppu_nmi),
     .bus_addr(cpu_addr), .bus_wdata(cpu_wdata), .bus_we(cpu_we),
     .dbg_pc(), .dbg_a(), .dbg_x(), .dbg_y(), .dbg_sp(), .dbg_p()
   );
@@ -129,7 +136,18 @@ module open6502_top #(
   open6502_apu u_apu (
     .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
     .cs(apu_sel), .we(apu_we), .addr(cpu_addr[4:0]),
-    .wdata(cpu_wdata), .rdata(apu_rdata), .sample(apu_sample), .irq(apu_irq)
+    .wdata(cpu_wdata), .rdata(apu_rdata), .sample(apu_sample), .irq(apu_irq),
+    .dmc_enable(apu_dmc_enable)
+  );
+
+  assign dmc_cs = apu_sel && (cpu_addr >= 16'h4010) && (cpu_addr <= 16'h4013);
+  assign dmc_data = (dmc_addr >= 16'h8000) ? cart_rdata : 8'h00;
+
+  open6502_dmc u_dmc (
+    .clk(clk_21m), .rst_n(rst_sync_n), .cpu_en(cpu_en),
+    .enable(apu_dmc_enable), .cs(dmc_cs), .we(apu_we),
+    .addr(cpu_addr[1:0]), .wdata(cpu_wdata), .sample_data(dmc_data),
+    .sample_addr(dmc_addr), .sample_out(dmc_out), .irq(dmc_irq), .active()
   );
 
   open6502_oam_dma u_dma (
@@ -153,7 +171,8 @@ module open6502_top #(
   assign vid_pclk = clk_21m;
   assign vid_rgb = {ppu_pixel[3:0], ppu_pixel[3:0], ppu_pixel[3:0]};
   assign aud_valid = aud_en;
-  assign aud_sample = apu_sample;
+  assign audio_mix = apu_sample + ((dmc_out - 7'd64) * 16'sd256);
+  assign aud_sample = audio_mix[15:0];
   assign cart_addr = (MAPPER == 3'd0) ? bus_addr : {1'b0, mapper_prg};
   assign cart_wdata = cpu_wdata;
   assign cart_we = cart_we_i;
