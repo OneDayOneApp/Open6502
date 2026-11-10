@@ -14,6 +14,7 @@ module open6502_apu (
 );
   logic [7:0] p1_duty, p1_vol, p1_env, p1_period_lo, p1_period_hi;
   logic [7:0] p2_duty, p2_vol, p2_env, p2_period_lo, p2_period_hi;
+  logic [7:0] p1_sweep, p2_sweep;
   logic [7:0] p1_len, p2_len;
   logic [7:0] p1_timer, p2_timer;
   logic [2:0] p1_pos, p2_pos;
@@ -31,6 +32,9 @@ module open6502_apu (
   logic [3:0]  noise_vol;
   logic [14:0] noise_lfsr;
   logic [3:0]  noise_out;
+  logic [10:0] p1_period, p2_period;
+  logic [10:0] p1_target, p2_target;
+  logic [3:0]  p1_shift, p2_shift;
   logic        frame_inhibit, frame_mode;
 
   function automatic [3:0] tri_step(input [4:0] pos);
@@ -79,6 +83,11 @@ module open6502_apu (
     end
   end
 
+  assign p1_period = {p1_period_hi[2:0], p1_period_lo};
+  assign p2_period = {p2_period_hi[2:0], p2_period_lo};
+  assign p1_shift = p1_sweep[2:0];
+  assign p2_shift = p2_sweep[2:0];
+
   wire p1_out = (p1_en && p1_len != 0 && duty_bit(p1_duty[1:0], p1_pos)) ? p1_vol : 8'd0;
   wire p2_out = (p2_en && p2_len != 0 && duty_bit(p2_duty[1:0], p2_pos)) ? p2_vol : 8'd0;
   wire [3:0] tri_out = (tri_en && tri_len != 0 && tri_linear != 0) ? tri_step(tri_pos) : 4'd0;
@@ -88,6 +97,7 @@ module open6502_apu (
     if (!rst_n) begin
       p1_duty <= 0; p2_duty <= 0; p1_vol <= 0; p2_vol <= 0;
       p1_env <= 0; p2_env <= 0; p1_period_lo <= 0; p2_period_lo <= 0;
+      p1_sweep <= 0; p2_sweep <= 0;
       p1_period_hi <= 0; p2_period_hi <= 0; p1_len <= 0; p2_len <= 0;
       p1_timer <= 0; p2_timer <= 0; p1_pos <= 0; p2_pos <= 0;
       p1_halt <= 0; p2_halt <= 0; p1_const <= 0; p2_const <= 0;
@@ -105,11 +115,13 @@ module open6502_apu (
         case (addr)
           5'h00: begin p1_duty <= wdata[7:6]; p1_halt <= wdata[5];
                        p1_const <= wdata[4]; p1_vol <= wdata[3:0]; end
+          5'h01: p1_sweep <= wdata;
           5'h02: p1_period_lo <= wdata;
           5'h03: begin p1_period_hi <= wdata[2:0]; p1_len <= length_table(wdata);
                        p1_env <= 8'd15; end
           5'h04: begin p2_duty <= wdata[7:6]; p2_halt <= wdata[5];
                        p2_const <= wdata[4]; p2_vol <= wdata[3:0]; end
+          5'h05: p2_sweep <= wdata;
           5'h06: p2_period_lo <= wdata;
           5'h07: begin p2_period_hi <= wdata[2:0]; p2_len <= length_table(wdata);
                        p2_env <= 8'd15; end
@@ -152,6 +164,22 @@ module open6502_apu (
           if (noise_len != 0) noise_len <= noise_len - 8'd1;
           if (p1_const == 0 && p1_env != 0) p1_env <= p1_env - 8'd1;
           if (p2_const == 0 && p2_env != 0) p2_env <= p2_env - 8'd1;
+          if (p1_sweep[7] && p1_shift != 0 && p1_period >= 11'd8) begin
+            p1_target = p1_sweep[3] ? p1_period - (p1_period >> p1_shift) :
+                                      p1_period + (p1_period >> p1_shift);
+            if (p1_target < 11'h800) begin
+              p1_period_hi <= p1_target[10:8];
+              p1_period_lo <= p1_target[7:0];
+            end
+          end
+          if (p2_sweep[7] && p2_shift != 0 && p2_period >= 11'd8) begin
+            p2_target = p2_sweep[3] ? p2_period - (p2_period >> p2_shift) :
+                                      p2_period + (p2_period >> p2_shift);
+            if (p2_target < 11'h800) begin
+              p2_period_hi <= p2_target[10:8];
+              p2_period_lo <= p2_target[7:0];
+            end
+          end
         end else frame_div <= frame_div + 16'd1;
 
         if (p1_timer == 0) begin
