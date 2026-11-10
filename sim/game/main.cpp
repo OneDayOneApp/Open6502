@@ -48,13 +48,28 @@ int main(int argc, char **argv) {
 
   std::vector<unsigned char> cur(256 * 240, 0xFF), shot;
   int frames = 0, last_vsync = 1, target = 20;
-  unsigned last_pal_writes = 0, last_nmi_hits = 0;
+  unsigned last_pal_writes = 0, last_nmi_hits = 0, prev_pc = 0;
+  std::vector<unsigned> hist;
+  int nmi_trace = 0;
   bool have = false;
   for (long c = 0; c < 40000000; c++) {
     dut->joy1 = 0x08;
     tick();
+    if (dut->dbg_cpu_pc != prev_pc) {
+      prev_pc = dut->dbg_cpu_pc;
+      hist.push_back(prev_pc);
+      if (hist.size() > 64) hist.erase(hist.begin());
+      if (nmi_trace > 0) { std::printf("NMIPC %04x\n", prev_pc); nmi_trace--; }
+      if (prev_pc == 0xCCB0) {
+        std::printf("CCB0 state 0E=%02x 0F=%02x 10=%02x 11=%02x\n",
+          dut->dbg_zp0e, dut->dbg_zp0f, dut->dbg_zp10, dut->dbg_zp11);
+        for (size_t i = hist.size() > 40 ? hist.size()-40 : 0; i < hist.size(); i++)
+          std::printf("HIST %04x\n", hist[i]);
+      }
+    }
     if (dut->dbg_nmi_hits != last_nmi_hits) {
       last_nmi_hits = dut->dbg_nmi_hits;
+      nmi_trace = 32;
       std::printf("NMI frame=%d pc=%04x\n", frames, dut->dbg_cpu_pc);
     }
     if (frames >= 7 && dut->dbg_pal_writes != last_pal_writes) {

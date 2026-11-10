@@ -114,7 +114,11 @@ module open6502_top #(
   output logic [15:0] dbg_nmi_hits,
   output logic [15:0] dbg_pal_writes,
   output logic [7:0]  dbg_pal_last,
-  output logic [4:0]  dbg_pal_addr
+  output logic [4:0]  dbg_pal_addr,
+  output logic [7:0]  dbg_zp0e,
+  output logic [7:0]  dbg_zp0f,
+  output logic [7:0]  dbg_zp10,
+  output logic [7:0]  dbg_zp11
 );
 
   logic        rst_sync_n;
@@ -319,6 +323,10 @@ module open6502_top #(
   assign dbg_pal2 = u_ppu.pal[2];
   assign dbg_ppu_x = ppu_x;
   assign dbg_ppu_y = ppu_y;
+  assign dbg_zp0e = u_ram.mem[11'h00e];
+  assign dbg_zp0f = u_ram.mem[11'h00f];
+  assign dbg_zp10 = u_ram.mem[11'h010];
+  assign dbg_zp11 = u_ram.mem[11'h011];
   always_ff @(posedge clk_21m or negedge rst_sync_n) begin
     if (!rst_sync_n) nmi_hits <= 16'd0;
     else if (cpu_ce && (dbg_cpu_pc == 16'hC0CD)) nmi_hits <= nmi_hits + 16'd1;
