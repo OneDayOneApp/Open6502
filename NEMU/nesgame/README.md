@@ -42,7 +42,7 @@ Headless regression:
 ```sh
 ./build/6502EMU --headless --no-audio --frames=180 \
   --screenshot=/tmp/6502emu-nes.ppm --wav=/tmp/6502emu-nes.wav \
-  nesgame/game.nes
+  --hash nesgame/game.nes
 ```
 
 `game.nes` is built from the checked-in source and is included for

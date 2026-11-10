@@ -79,6 +79,12 @@ if [ -f "$ROOT/nesgame/game.nes" ]; then
     --screenshot="$TMP/nes-b.ppm" "$ROOT/nesgame/game.nes" >/dev/null 2>&1
   test -s "$TMP/nes-a.ppm"
   test -s "$TMP/nes.wav"
+  h1=$("$EMU" --headless --no-audio --frames=180 --hash "$ROOT/nesgame/game.nes" 2>&1 | grep '^6502EMU NES hash:')
+  h2=$("$EMU" --headless --no-audio --frames=180 --hash "$ROOT/nesgame/game.nes" 2>&1 | grep '^6502EMU NES hash:')
+  h3=$("$EMU" --headless --no-audio --frames=180 --hash --hold=right "$ROOT/nesgame/game.nes" 2>&1 | grep '^6502EMU NES hash:')
+  test -n "$h1"
+  test "$h1" = "$h2"
+  test "$h1" != "$h3"
   python3 - "$TMP/nes.wav" <<'PYWAV'
 import struct, sys, wave
 with wave.open(sys.argv[1], "rb") as w:

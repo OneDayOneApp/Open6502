@@ -35,6 +35,20 @@ static const char *wav_path;
 static int16_t *wav_samples;
 static size_t wav_len;
 static size_t wav_cap;
+static bool print_hash;
+static uint64_t frame_hash_state;
+static uint64_t audio_hash_state;
+
+#define HASH_SEED UINT64_C(1469598103934665603)
+
+static uint64_t hash_bytes(uint64_t h, const void *data, size_t n) {
+  const uint8_t *p = data;
+  for (size_t i = 0; i < n; i++) {
+    h ^= p[i];
+    h *= UINT64_C(1099511628211);
+  }
+  return h;
+}
 
 static bool has_token(const char *list, const char *token) {
   size_t n = strlen(token);
@@ -237,6 +251,7 @@ static void queue_audio(void) {
   int16_t buf[2048];
   int n = apu_take_samples(&apu, buf, (int)(sizeof(buf) / sizeof(buf[0])));
   record_samples(buf, n);
+  if (n > 0) audio_hash_state = hash_bytes(audio_hash_state, buf, (size_t)n * sizeof(int16_t));
   if (!audio_enabled || n <= 0) return;
   if (SDL_GetQueuedAudioSize(audio_dev) < (Uint32)(NES_AUDIO_HZ / 4 * 2)) {
     SDL_QueueAudio(audio_dev, buf, (Uint32)(n * sizeof(int16_t)));
@@ -290,12 +305,12 @@ static void cpu_step(void) {
 
 static bool run_frame(void) {
   ppu.frame_ready = false;
-  poll_events();
+  if (!headless) poll_events();
   while (!ppu.frame_ready && !g_quit) {
     cpu_step();
     if (nemu_state.state != NEMU_RUNNING) break;
   }
-  present_frame();
+  if (!headless) present_frame();
   queue_audio();
   return !g_quit && nemu_state.state == NEMU_RUNNING;
 }
@@ -322,6 +337,7 @@ static void usage(const char *prog) {
   printf("  --screenshot=F   write the last frame as a PPM image\n");
   printf("  --wav=F          write APU output as a mono 16-bit WAV file\n");
   printf("  --hold=BUTTONS   hold comma-separated buttons (testing aid)\n");
+  printf("  --hash           print deterministic frame/audio hashes\n");
   printf("  --help           show this help\n\n");
   printf("Controls: 1P WASD + Z/X/C/V; 2P arrows + comma/period/slash/apostrophe\n");
 }
@@ -358,6 +374,7 @@ int nes_main(int argc, char **argv) {
     if (strcmp(argv[i], "--no-audio") == 0) { no_audio = true; continue; }
     if (strcmp(argv[i], "--headless") == 0) { headless = true; continue; }
     if (strcmp(argv[i], "--fast") == 0) { fast_mode = true; continue; }
+    if (strcmp(argv[i], "--hash") == 0) { print_hash = true; continue; }
     if (strncmp(argv[i], "--log=", 6) == 0) continue;
     if (ends_with_nes(argv[i])) { rom_path = argv[i]; continue; }
   }
@@ -381,6 +398,7 @@ int nes_main(int argc, char **argv) {
   ppu_reset(&ppu, &cart);
   apu_reset(&apu);
   memset(controller_state, 0, sizeof(controller_state));
+  controller_state[0] = forced_buttons;
   controller_shift[0] = controller_shift[1] = 0;
   controller_strobe = 0;
   g_quit = false;
@@ -400,11 +418,15 @@ int nes_main(int argc, char **argv) {
   cpu.pc = (vaddr_t)(nes_cpu_read(0xFFFC) | (nes_cpu_read(0xFFFD) << 8));
 
   nes_active = true;
-  audio_enabled = !no_audio;
-  video_init();
-  audio_init();
+  audio_enabled = !no_audio && !headless;
+  if (!headless) {
+    video_init();
+    audio_init();
+  }
 
-  uint32_t next_tick = SDL_GetTicks();
+  frame_hash_state = HASH_SEED;
+  audio_hash_state = HASH_SEED;
+  uint32_t next_tick = headless ? 0 : SDL_GetTicks();
   int frames = 0;
   while (!g_quit) {
     if (!run_frame()) break;
@@ -423,14 +445,22 @@ int nes_main(int argc, char **argv) {
     printf("screenshot written to %s\n", screenshot_path);
   }
   write_wav(wav_path);
+  frame_hash_state = hash_bytes(frame_hash_state, ppu.framebuffer,
+      sizeof(ppu.framebuffer));
+  if (print_hash) {
+    printf("6502EMU NES hash: frame=%016" PRIx64 " audio=%016" PRIx64
+        " frames=%d\n", frame_hash_state, audio_hash_state, frames);
+  }
   printf("6502EMU NES: %d frames, PC=%04X, cycles=%" PRIu64 "\n",
       frames, (unsigned)(cpu.pc & 0xFFFF), cpu.cycles);
 
-  if (audio_dev != 0) SDL_CloseAudioDevice(audio_dev);
-  if (texture != NULL) SDL_DestroyTexture(texture);
-  if (renderer != NULL) SDL_DestroyRenderer(renderer);
-  if (window != NULL) SDL_DestroyWindow(window);
-  SDL_Quit();
+  if (!headless) {
+    if (audio_dev != 0) SDL_CloseAudioDevice(audio_dev);
+    if (texture != NULL) SDL_DestroyTexture(texture);
+    if (renderer != NULL) SDL_DestroyRenderer(renderer);
+    if (window != NULL) SDL_DestroyWindow(window);
+    SDL_Quit();
+  }
   free(wav_samples);
   wav_samples = NULL;
   cart_free(&cart);

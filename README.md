@@ -19,3 +19,5 @@ make -j8
 ./basic/run-demo.sh
 ./nesgame/build.sh && ./nesgame/run.sh
 ```
+
+- 版本与变更：[CHANGELOG.md](CHANGELOG.md)
