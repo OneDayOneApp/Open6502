@@ -50,7 +50,7 @@
 - [~] NMI 边沿/IRQ 电平采样：字段/采样存在；缺 cpu_interrupts_v2。
 - [~] BRK/RTI/PHP/PLP 状态位：Klaus 覆盖部分。
 - [~] OAM DMA halt/steal/对齐：有 513 cycle 近似；缺精确测试。
-- [ ] DMC DMA steal/halt。
+- [~] DMC DMA steal/halt：DMC 核心有，CPU stall 未实现。
 - [x] 复位状态与 NES 复位向量。
 - [x] `isa_difftest_checkregs` 实现 m6502 对比。
 - [x] CPU 状态/cycles/pending 纳入前端 snapshot 和 REF hash。
@@ -86,14 +86,14 @@
 - [~] Pulse 1/2：有实现；缺 apu_test。
 - [~] Triangle：有实现；缺 linear counter 边界测试。
 - [~] Noise：有 LFSR；缺模式/周期测试。
-- [ ] DMC：address/length/rate/loop/IRQ/DMA/output。
+- [~] DMC：address/length/rate/loop/IRQ/output 有；CPU DMA stall/精确总线时序待补。
 - [~] Frame sequencer 4/5-step：有序列；缺精确周期对照。
 - [~] Frame IRQ + `$4015` 清除：有实现；缺测试。
 - [~] 非线性 mixer：近似混合。
 - [x] 44.1kHz 输出/采样器：WAV。
 - [x] 采样 hash/容差：REF/前端 audio hash parity。
 - [ ] apu_test/apu_reset。
-- [ ] DMC 专项测试。
+- [~] DMC 自建单测；缺 apu_test/DMC ROM。
 - [~] 通道状态导出：只有 hash；无逐通道导出。
 - [ ] 长时间运行无爆音/漂移。
 

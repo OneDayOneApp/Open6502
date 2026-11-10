@@ -118,10 +118,32 @@ typedef struct NES_Noise {
   bool mode;
 } NES_Noise;
 
+typedef struct NES_DMC {
+  bool enabled;
+  bool irq_enable;
+  bool loop;
+  bool irq;
+  uint8_t rate_index;
+  uint16_t timer;
+  uint16_t period;
+  uint16_t sample_addr;
+  uint16_t sample_len;
+  uint16_t current_addr;
+  uint16_t bytes_remaining;
+  uint8_t sample_buffer;
+  bool buffer_full;
+  uint8_t shift;
+  uint8_t bits;
+  uint8_t output;
+} NES_DMC;
+
 typedef struct NES_APU {
   NES_Pulse pulse[2];
   NES_Triangle triangle;
   NES_Noise noise;
+  NES_DMC dmc;
+  uint8_t (*dmc_read)(void *bus, uint16_t addr);
+  void *dmc_bus;
   uint8_t regs[0x18];
   uint8_t status;
   uint8_t frame_mode;

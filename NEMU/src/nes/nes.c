@@ -71,6 +71,16 @@ static void ppu_bus_scanline(void *bus) {
   cart_scanline((NES_Cart *)bus);
 }
 
+static uint8_t apu_dmc_read(void *bus, uint16_t addr) {
+  (void)bus;
+  return nes_cpu_read(addr);
+}
+
+static void apu_attach_bus(void) {
+  apu.dmc_read = apu_dmc_read;
+  apu.dmc_bus = NULL;
+}
+
 static void ppu_attach_cart(void) {
   ppu_set_bus(&ppu, &cart, ppu_bus_chr_read, ppu_bus_chr_write,
       ppu_bus_nt_index, ppu_bus_scanline);
@@ -180,6 +190,7 @@ static bool load_state(const char *path) {
   ppu.cart = &cart;
   ppu_attach_cart();
   apu = s.apu;
+  apu_attach_bus();
   memcpy(controller_state, s.controller_state, sizeof(controller_state));
   memcpy(controller_shift, s.controller_shift, sizeof(controller_shift));
   controller_strobe = s.controller_strobe;
@@ -486,7 +497,7 @@ static void cpu_step(void) {
     cpu.nmi_pending = true;
   }
   if (cart.irq) cpu.irq_pending = true;
-  if (apu.frame_irq) cpu.irq_pending = true;
+  if (apu.frame_irq || apu.dmc.irq) cpu.irq_pending = true;
 }
 
 static bool run_frame(void) {
@@ -594,6 +605,7 @@ int nes_main(int argc, char **argv) {
   ppu_reset(&ppu, &cart);
   ppu_attach_cart();
   apu_reset(&apu);
+  apu_attach_bus();
   memset(controller_state, 0, sizeof(controller_state));
   controller_state[0] = forced_buttons;
   controller_shift[0] = controller_shift[1] = 0;

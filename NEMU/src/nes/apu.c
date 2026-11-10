@@ -6,6 +6,11 @@ static const uint8_t length_table[32] = {
   12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30,
 };
 
+static const uint16_t dmc_rate_table[16] = {
+  428, 380, 340, 320, 286, 254, 226, 214,
+  190, 160, 142, 128, 106, 84, 72, 54,
+};
+
 static const uint8_t duty_table[4][8] = {
   {0, 1, 0, 0, 0, 0, 0, 0},
   {0, 1, 1, 0, 0, 0, 0, 0},
@@ -148,12 +153,57 @@ static void quarter_frame(NES_APU *a) {
   if (!a->triangle.control) a->triangle.linear_reload_flag = false;
 }
 
+static void dmc_restart(NES_APU *a) {
+  NES_DMC *d = &a->dmc;
+  d->current_addr = d->sample_addr;
+  d->bytes_remaining = d->sample_len;
+  d->buffer_full = false;
+  d->bits = 0;
+}
+
+static void dmc_fetch(NES_APU *a) {
+  NES_DMC *d = &a->dmc;
+  if (!d->enabled || d->buffer_full || d->bytes_remaining == 0) return;
+  d->sample_buffer = a->dmc_read ? a->dmc_read(a->dmc_bus, d->current_addr) : 0;
+  d->current_addr++;
+  d->bytes_remaining--;
+  d->buffer_full = true;
+  if (d->bytes_remaining == 0) {
+    if (d->loop) dmc_restart(a);
+    else if (d->irq_enable) d->irq = true;
+  }
+}
+
+static void dmc_clock(NES_APU *a) {
+  NES_DMC *d = &a->dmc;
+  if (!d->enabled) return;
+  if (d->timer > 0) {
+    d->timer--;
+    return;
+  }
+  d->timer = d->period;
+  dmc_fetch(a);
+  if (d->bits == 0) {
+    if (!d->buffer_full) return;
+    d->shift = d->sample_buffer;
+    d->buffer_full = false;
+    d->bits = 8;
+  }
+  if (d->shift & 1) {
+    if (d->output <= 125) d->output += 2;
+  } else {
+    if (d->output >= 2) d->output -= 2;
+  }
+  d->shift >>= 1;
+  d->bits--;
+}
+
 static void emit_sample(NES_APU *a) {
   int p1 = pulse_output(&a->pulse[0]);
   int p2 = pulse_output(&a->pulse[1]);
   int tri = triangle_output(&a->triangle);
   int noi = noise_output(&a->noise);
-  int mix = (p1 + p2) * 3 + tri * 2 + noi;
+  int mix = (p1 + p2) * 3 + tri * 2 + noi + (int)a->dmc.output - 64;
   int sample = mix == 0 ? 0 : mix * 180;
   if (sample > 32767) sample = 32767;
   if (sample < -32768) sample = -32768;
@@ -171,6 +221,8 @@ void apu_reset(NES_APU *a) {
   }
   a->noise.shift = 1;
   a->triangle.period = 0;
+  a->dmc.period = dmc_rate_table[0];
+  a->dmc.output = 64;
 }
 
 void apu_write(NES_APU *a, uint16_t addr, uint8_t value) {
@@ -182,6 +234,26 @@ void apu_write(NES_APU *a, uint16_t addr, uint8_t value) {
     triangle_write(&a->triangle, (uint8_t)(addr - 0x4008), value);
   } else if (addr >= 0x400C && addr <= 0x400F) {
     noise_write(&a->noise, (uint8_t)(addr - 0x400C), value);
+  } else if (addr >= 0x4010 && addr <= 0x4013) {
+    NES_DMC *d = &a->dmc;
+    switch (addr & 3) {
+      case 0:
+        d->irq_enable = (value & 0x80) != 0;
+        d->loop = (value & 0x40) != 0;
+        d->rate_index = value & 0x0F;
+        d->period = dmc_rate_table[d->rate_index];
+        if (!d->irq_enable) d->irq = false;
+        break;
+      case 1:
+        d->output = value & 0x7F;
+        break;
+      case 2:
+        d->sample_addr = (uint16_t)(0xC000 | ((uint16_t)value << 6));
+        break;
+      case 3:
+        d->sample_len = (uint16_t)(((uint16_t)value << 4) + 1);
+        break;
+    }
   } else if (addr == 0x4015) {
     a->pulse[0].enabled = (value & 0x01) != 0;
     a->pulse[1].enabled = (value & 0x02) != 0;
@@ -191,6 +263,14 @@ void apu_write(NES_APU *a, uint16_t addr, uint8_t value) {
     if (!a->pulse[1].enabled) a->pulse[1].length = 0;
     if (!a->triangle.enabled) a->triangle.length = 0;
     if (!a->noise.enabled) a->noise.length = 0;
+    a->dmc.enabled = (value & 0x10) != 0;
+    if (a->dmc.enabled) {
+      if (a->dmc.bytes_remaining == 0) dmc_restart(a);
+    } else {
+      a->dmc.bytes_remaining = 0;
+      a->dmc.buffer_full = false;
+    }
+    a->dmc.irq = false;
   } else if (addr == 0x4017) {
     a->frame_mode = (value & 0x80) ? 1 : 0;
     a->frame_irq_inhibit = (value & 0x40) != 0;
@@ -207,7 +287,10 @@ uint8_t apu_read(NES_APU *a, uint16_t addr) {
   if (a->triangle.length > 0) v |= 0x04;
   if (a->noise.length > 0) v |= 0x08;
   if (a->frame_irq) v |= 0x40;
+  if (a->dmc.bytes_remaining > 0) v |= 0x10;
+  if (a->dmc.irq) v |= 0x80;
   a->frame_irq = false;
+  a->dmc.irq = false;
   return v;
 }
 
@@ -242,6 +325,7 @@ void apu_step(NES_APU *a, int cpu_cycles, bool irq_enabled) {
       }
     }
 
+    dmc_clock(a);
     a->frame_cycle++;
     if (a->frame_cycle == 7457 || a->frame_cycle == 22371) {
       quarter_frame(a);

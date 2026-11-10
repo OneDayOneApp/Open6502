@@ -16,6 +16,9 @@ static int ref_bus_nt_index(void *bus, uint16_t addr) {
 static void ref_bus_scanline(void *bus) {
   nes_ref_machine_scanline((nes_ref_machine *)bus);
 }
+static uint8_t ref_bus_dmc_read(void *bus, uint16_t addr) {
+  return nes_ref_machine_read((nes_ref_machine *)bus, addr);
+}
 static uint64_t ref_hash(const void *data, size_t n) {
   return nes_ref_hash_bytes(NES_REF_HASH_SEED, data, n);
 }
@@ -266,7 +269,12 @@ void nes_ref_machine_reset(nes_ref_machine *m) {
     ppu_set_bus((NES_PPU *)m->ppu, m, ref_bus_chr_read, ref_bus_chr_write,
         ref_bus_nt_index, ref_bus_scanline);
   }
-  if (m->apu != NULL) apu_reset((NES_APU *)m->apu);
+  if (m->apu != NULL) {
+    NES_APU *apu = (NES_APU *)m->apu;
+    apu_reset(apu);
+    apu->dmc_read = ref_bus_dmc_read;
+    apu->dmc_bus = m;
+  }
   if (m->loaded && !m->flat_mode) {
     m->state.cpu.pc = (uint16_t)(mapper_prg_read(m, 0xFFFC) |
         (mapper_prg_read(m, 0xFFFD) << 8));
@@ -455,7 +463,9 @@ int nes_ref_machine_run_frame(nes_ref_machine *m) {
       ppu->nmi_trigger = false;
       m->state.cpu.nmi_pending = true;
     }
-    if (m->mapper.irq || apu->frame_irq) m->state.cpu.irq_pending = true;
+    if (m->mapper.irq || apu->frame_irq || apu->dmc.irq) {
+      m->state.cpu.irq_pending = true;
+    }
     if (++guard > 200000) return NES_REF_ERR_INVALID;
   }
   int16_t samples[4096];

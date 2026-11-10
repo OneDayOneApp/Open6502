@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "nes/ref/nes_ref.h"
+#include "nes/nes.h"
 
 static void test_ntsc_clock(void) {
   nes_ref_clock c;
@@ -366,6 +367,43 @@ static void test_ref_frame_loop(void) {
   nes_ref_machine_free(&moving);
 }
 
+static uint8_t dmc_pattern(void *bus, uint16_t addr) {
+  (void)bus;
+  (void)addr;
+  return 0xAA;
+}
+
+static void test_apu_dmc(void) {
+  NES_APU a;
+  apu_reset(&a);
+  a.dmc_read = dmc_pattern;
+  apu_write(&a, 0x4010, 0x80); /* IRQ enable, rate 0 */
+  apu_write(&a, 0x4012, 0x00); /* $C000 */
+  apu_write(&a, 0x4013, 0x00); /* one byte */
+  apu_write(&a, 0x4015, 0x10); /* enable DMC */
+  apu_step(&a, 100, true);
+  assert(a.dmc.enabled);
+  assert(a.dmc.irq);
+  assert(a.dmc.output != 64);
+  uint8_t status = apu_read(&a, 0x4015);
+  assert(status & 0x80);
+  assert(!a.dmc.irq);
+
+  /* Loop mode reloads the sample instead of leaving it stopped. */
+  apu_reset(&a);
+  a.dmc_read = dmc_pattern;
+  apu_write(&a, 0x4010, 0x40); /* loop, rate 0 */
+  apu_write(&a, 0x4012, 0x00);
+  apu_write(&a, 0x4013, 0x01); /* two bytes */
+  apu_write(&a, 0x4015, 0x10);
+  apu_step(&a, 1200, true);
+  assert(a.dmc.enabled);
+  assert(!a.dmc.irq);
+
+  apu_write(&a, 0x4015, 0x00);
+  assert(!a.dmc.enabled);
+}
+
 int main(void) {
   test_ntsc_clock();
   test_pal_clock();
@@ -385,6 +423,7 @@ int main(void) {
   test_ref_axrom();
   test_ref_mmc3_irq();
   test_ref_frame_loop();
+  test_apu_dmc();
   const char *klaus = getenv("NESREF_KLAUS");
   if (klaus != NULL && *klaus != 0) {
     assert(run_klaus(klaus) == 0);

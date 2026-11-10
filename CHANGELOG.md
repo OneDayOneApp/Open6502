@@ -3,13 +3,14 @@
 ## Unreleased v1.5 (in progress)
 
 - Added dot-level sprite 0 hit check and unit test.
+- Added APU DMC core: address/length/rate/loop/IRQ/output, memory callback and tests.
 - Added `feature-matrix.md` with must-have NES/Famicom chip functions and status.
 - Updated checklist with evidence-based DONE/PARTIAL/MISSING states.
 
 Remaining v1.5 blockers:
 
 - full dot-level background/sprite pipeline
-- APU DMC
+- APU DMC CPU DMA stall / exact bus timing
 - NES extended DiffTest
 - hardware capture alignment
 - T2/T3 mapper/accessories/PAL

@@ -37,7 +37,7 @@ L1+L2 是硬门槛，L3 按兼容范围决定，L4 是验收手段而非芯片�
 | A5 | NMI/IRQ 采样与延迟 | PARTIAL | 有 pending 字段；缺少 cpu_interrupts_v2 |
 | A6 | BRK/RTI/PHP/PLP 状态位 | PARTIAL | Klaus 覆盖一部分；需专项测试 |
 | A7 | OAM DMA halt/steal/对齐 | PARTIAL | 前端/REF 加 513 cycles；缺精确测试 |
-| A8 | DMC DMA halt/steal | MISSING | 依赖 DMC 实现 |
+| A8 | DMC DMA halt/steal | PARTIAL | DMC 核心有；CPU stall/对齐未实现 |
 | A9 | 复位向量与初始状态 | DONE | REF 从 `$FFFC/$FFFD` 启动 |
 | A10 | 目标稳定非法指令 | PARTIAL | 部分 NOP/未文档化项；未冻结 profile |
 
@@ -85,14 +85,14 @@ L1+L2 是硬门槛，L3 按兼容范围决定，L4 是验收手段而非芯片�
 | D1 | Pulse 1/2 | PARTIAL | 有实现；缺 app_test 专项 |
 | D2 | Triangle | PARTIAL | 有实现；缺线性计数器边界测试 |
 | D3 | Noise | PARTIAL | 有 LFSR；缺模式/周期测试 |
-| D4 | DMC | MISSING | 无 sample DMA、IRQ、output |
+| D4 | DMC | PARTIAL | 有 address/length/rate/loop/IRQ/output 与单测；缺 CPU DMA stall/精确总线时序 |
 | D5 | Frame sequencer 4/5-step | PARTIAL | 有序列；缺精确周期对照 |
 | D6 | Frame IRQ / `$4015` 清除 | PARTIAL | 有实现；缺测试 |
 | D7 | 非线性 mixer | PARTIAL | 当前为近似混合 |
 | D8 | 44.1kHz 输出 | DONE | WAV/hash |
 | D9 | 采样 hash/容差 | DONE | REF/前端 audio hash parity |
 | D10 | APU 状态导出 | PARTIAL | REF 有 APU hash；未导出逐通道状态 |
-| D11 | apu_test/apu_reset/DMC tests | MISSING | 未接入 |
+| D11 | apu_test/apu_reset/DMC tests | PARTIAL | 有自建 DMC 单测；未接 apu_test ROM |
 
 ## E. 卡带、mapper 与扩展
 
