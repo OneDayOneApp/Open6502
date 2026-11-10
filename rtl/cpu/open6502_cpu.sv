@@ -25,6 +25,8 @@ module open6502_cpu (
     ST_IMM, ST_ZP, ST_ZPX, ST_ZPY,
     ST_ABS_LO, ST_ABS_HI, ST_ABSX_LO, ST_ABSX_HI,
     ST_ABSY_LO, ST_ABSY_HI, ST_ABS_DATA,
+    ST_INDX_PTR, ST_INDX_LO, ST_INDX_HI,
+    ST_INDY_PTR, ST_INDY_LO, ST_INDY_HI,
     ST_BRANCH, ST_BRANCH_EXEC, ST_IMPLIED, ST_NOP
   } state_t;
 
@@ -34,6 +36,7 @@ module open6502_cpu (
   logic [7:0]  a, x, y, sp, p;
   logic [7:0]  opcode;
   logic [7:0]  tmp_lo;
+  logic [7:0]  zp_ptr;
   logic [8:0]  alu9;
   logic [7:0]  alu8;
   logic        we;
@@ -43,6 +46,9 @@ module open6502_cpu (
                      (state == ST_ZP || state == ST_ZPX || state == ST_ZPY ||
                       state == ST_ABSX_LO || state == ST_ABSX_HI ||
                       state == ST_ABSY_LO || state == ST_ABSY_HI) ? pc :
+                     (state == ST_INDX_PTR || state == ST_INDY_PTR) ? pc :
+                     (state == ST_INDX_LO || state == ST_INDX_HI ||
+                      state == ST_INDY_LO || state == ST_INDY_HI) ? {8'h00, zp_ptr} :
                      (state == ST_ABS_DATA) ? ea : pc;
   assign bus_wdata = a;
   assign bus_we    = we;
@@ -62,7 +68,7 @@ module open6502_cpu (
     if (state == ST_ABS_DATA) begin
       case (opcode)
         8'h8D, 8'h8E, 8'h8C, 8'h85, 8'h86, 8'h84,
-        8'h95, 8'h96, 8'h94, 8'h9D, 8'h99: we = 1'b1;
+        8'h95, 8'h96, 8'h94, 8'h9D, 8'h99, 8'h81, 8'h91: we = 1'b1;
         default: we = 1'b0;
       endcase
     end
@@ -111,6 +117,10 @@ module open6502_cpu (
             8'hB9, 8'h99, 8'h79, 8'hF9, 8'h39, 8'h19, 8'h59,
             8'hD9, 8'hBE:
               state <= ST_ABSY_LO;
+            8'hA1, 8'h81, 8'h61, 8'hE1, 8'h21, 8'h01, 8'h41, 8'hC1:
+              state <= ST_INDX_PTR;
+            8'hB1, 8'h91, 8'h71, 8'hF1, 8'h31, 8'h11, 8'h51, 8'hD1:
+              state <= ST_INDY_PTR;
             8'hAD, 8'hAE, 8'hAC, 8'h8D, 8'h8E, 8'h8C, 8'h4C:
               state <= ST_ABS_LO;
             8'hD0, 8'hF0, 8'h90, 8'hB0, 8'h10, 8'h30,
@@ -192,6 +202,34 @@ module open6502_cpu (
           pc <= pc + 16'd1;
           state <= ST_ABS_DATA;
         end
+        ST_INDX_PTR: begin
+          zp_ptr <= bus_rdata + x;
+          pc <= pc + 16'd1;
+          state <= ST_INDX_LO;
+        end
+        ST_INDX_LO: begin
+          tmp_lo <= bus_rdata;
+          zp_ptr <= zp_ptr + 8'd1;
+          state <= ST_INDX_HI;
+        end
+        ST_INDX_HI: begin
+          ea <= {bus_rdata, tmp_lo};
+          state <= ST_ABS_DATA;
+        end
+        ST_INDY_PTR: begin
+          zp_ptr <= bus_rdata;
+          pc <= pc + 16'd1;
+          state <= ST_INDY_LO;
+        end
+        ST_INDY_LO: begin
+          tmp_lo <= bus_rdata;
+          zp_ptr <= zp_ptr + 8'd1;
+          state <= ST_INDY_HI;
+        end
+        ST_INDY_HI: begin
+          ea <= {bus_rdata, tmp_lo} + {8'h00, y};
+          state <= ST_ABS_DATA;
+        end
         ST_ABS_LO: begin
           tmp_lo <= bus_rdata;
           pc <= pc + 16'd1;
@@ -209,30 +247,30 @@ module open6502_cpu (
         end
         ST_ABS_DATA: begin
           case (opcode)
-            8'hAD, 8'hA5, 8'hB5, 8'hBD, 8'hB9:
+            8'hAD, 8'hA5, 8'hB5, 8'hBD, 8'hB9, 8'hA1, 8'hB1:
               begin a <= bus_rdata; p <= nz(bus_rdata, p); end
             8'hAE, 8'hA6, 8'hB6, 8'hBE:
               begin x <= bus_rdata; p <= nz(bus_rdata, p); end
             8'hAC, 8'hA4, 8'hB4, 8'hBC:
               begin y <= bus_rdata; p <= nz(bus_rdata, p); end
-            8'h8D, 8'h85, 8'h95, 8'h9D, 8'h99,
+            8'h8D, 8'h85, 8'h95, 8'h9D, 8'h99, 8'h81, 8'h91,
             8'h8E, 8'h86, 8'h96, 8'h8C, 8'h84, 8'h94: ;
-            8'h65, 8'h75, 8'h7D, 8'h79: begin
+            8'h65, 8'h75, 8'h7D, 8'h79, 8'h61, 8'h71: begin
               alu9 = {1'b0, a} + {1'b0, bus_rdata} + {8'd0, p[0]};
               a <= alu9[7:0];
               p <= (nz(alu9[7:0], p) & 8'hBF) | (alu9[8] ? 8'h01 : 8'h00) |
                    ((~(a[7] ^ bus_rdata[7]) & (a[7] ^ alu9[7])) ? 8'h40 : 8'h00);
             end
-            8'hE5, 8'hF5, 8'hFD, 8'hF9: begin
+            8'hE5, 8'hF5, 8'hFD, 8'hF9, 8'hE1, 8'hF1: begin
               alu9 = {1'b0, a} + {1'b0, ~bus_rdata} + {8'd0, p[0]};
               a <= alu9[7:0];
               p <= (nz(alu9[7:0], p) & 8'hBF) | (alu9[8] ? 8'h01 : 8'h00) |
                    (((a[7] ^ bus_rdata[7]) & (a[7] ^ alu9[7])) ? 8'h40 : 8'h00);
             end
-            8'h25, 8'h35, 8'h3D, 8'h39: begin a <= a & bus_rdata; p <= nz(a & bus_rdata, p); end
-            8'h05, 8'h15, 8'h1D, 8'h19: begin a <= a | bus_rdata; p <= nz(a | bus_rdata, p); end
-            8'h45, 8'h55, 8'h5D, 8'h59: begin a <= a ^ bus_rdata; p <= nz(a ^ bus_rdata, p); end
-            8'hC5, 8'hD5, 8'hDD, 8'hD9: begin
+            8'h25, 8'h35, 8'h3D, 8'h39, 8'h21, 8'h31: begin a <= a & bus_rdata; p <= nz(a & bus_rdata, p); end
+            8'h05, 8'h15, 8'h1D, 8'h19, 8'h01, 8'h11: begin a <= a | bus_rdata; p <= nz(a | bus_rdata, p); end
+            8'h45, 8'h55, 8'h5D, 8'h59, 8'h41, 8'h51: begin a <= a ^ bus_rdata; p <= nz(a ^ bus_rdata, p); end
+            8'hC5, 8'hD5, 8'hDD, 8'hD9, 8'hC1, 8'hD1: begin
               alu9 = {1'b0, a} + {1'b0, ~bus_rdata} + 9'd1;
               p <= (nz(alu9[7:0], p) & 8'hFE) | (a >= bus_rdata ? 8'h01 : 8'h00);
             end
