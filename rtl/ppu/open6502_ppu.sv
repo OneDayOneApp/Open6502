@@ -16,6 +16,9 @@ module open6502_ppu (
   input  logic        dma_we,
   input  logic [7:0]  dma_addr,
   input  logic [7:0]  dma_wdata,
+  input  logic        chr_load_we,
+  input  logic [12:0] chr_load_addr,
+  input  logic [7:0]  chr_load_data,
   output logic [7:0]  rdata,
   output logic [7:0]  pixel_index,
   output logic        sprite0_hit,
@@ -127,6 +130,7 @@ module open6502_ppu (
       for (int i = 0; i < 256; i++) oam[i] <= 8'h00;
       for (int i = 0; i < 32; i++) pal[i] <= 8'h00;
     end else begin
+      if (chr_load_we) chr[chr_load_addr] <= chr_load_data;
       if (dma_we) oam[dma_addr] <= dma_wdata;
       if (ppu_en && x == 9'd0 && sprite_count > 8) status[5] <= 1'b1;
       if (ppu_en && y == 9'd241 && x == 9'd1) begin

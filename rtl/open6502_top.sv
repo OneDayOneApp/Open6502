@@ -13,6 +13,10 @@ module open6502_top #(
   output logic        aud_valid,
   output logic signed [15:0] aud_sample,
 
+  input  logic [12:0] chr_load_addr,
+  input  logic [7:0]  chr_load_data,
+  input  logic        chr_load_we,
+
   input  logic [7:0]  joy1,
   input  logic [7:0]  joy2,
 
@@ -124,6 +128,8 @@ module open6502_top #(
     .cs(ppu_sel), .we(ppu_we), .addr(cpu_addr[2:0]),
     .wdata(cpu_wdata), .dma_we(dma_oam_we), .dma_addr(dma_oam_addr),
     .dma_wdata(dma_oam_wdata), .rdata(ppu_rdata), .pixel_index(ppu_pixel),
+    .chr_load_we(chr_load_we), .chr_load_addr(chr_load_addr),
+    .chr_load_data(chr_load_data),
     .sprite0_hit(ppu_sprite0), .nmi(ppu_nmi)
   );
 

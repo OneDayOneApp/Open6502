@@ -8,6 +8,10 @@ module open6502_fpga_top (
   input  logic        clk_21m,
   input  logic        rst_n,
 
+  input  logic [12:0] chr_load_addr,
+  input  logic [7:0]  chr_load_data,
+  input  logic        chr_load_we,
+
   input  logic [7:0]  joy1,
   input  logic [7:0]  joy2,
 
