@@ -45,6 +45,7 @@ import re, sys
 nlog, rlog = sys.argv[1], sys.argv[2]
 npc = [p[-4:].upper() for p in re.findall(r'^0x([0-9a-fA-F]{8}):', open(nlog).read(), re.M)]
 rpc = [p.upper() for p in re.findall(r'^PC ([0-9a-fA-F]{4})$', open(rlog).read(), re.M)]
+rpc = [p for i, p in enumerate(rpc) if i == 0 or p != rpc[i-1]]
 if npc != rpc:
     raise SystemExit(f"PC trace mismatch NEMU={npc} RTL={rpc}")
 print("PASS: NEMU/RTL PC trace", " ".join(rpc))

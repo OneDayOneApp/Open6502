@@ -12,4 +12,5 @@ PC 800f
 PC 800e
 PC 800f
 PC 8011
-/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:48: $finish called at 991000 (1ps)
+PC 8011
+/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:48: $finish called at 1071000 (1ps)
