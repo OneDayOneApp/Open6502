@@ -10,9 +10,17 @@ python3 sim/game/extract_ines.py roms/falling.nes /tmp/falling falling
 `tb/open6502_game_tb.sv` preloads the 8 KiB CHR RAM through the PPU loader port,
 feeds PRG from the cartridge bus, and runs the SoC for video frames.
 
-Current status: the Verilator harness runs 56 frames of `falling.nes` and emits
-a non-blank 256x240 frame. CPU reaches `PC=0xC0CA`; PPU `ctrl=$90`, `mask=$1E`,
-palette `0F 21 31 11`, and the framebuffer has non-black pixels.
+Current status: the Verilator harness renders frame 5 of `falling.nes` and the
+PPM is byte-identical to the NEMU screenshot:
+
+```text
+RTL  SHA-256 41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33
+NEMU SHA-256 41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33
+```
+
+The capture samples the raw PPU color index (`dbg_ppu_pixel`) and converts it
+through the NES 64-color table; the top-level `vid_rgb` uses an RGB444 palette
+LUT.
 
 Key fix: the PPU chip select is qualified with the CPU clock enable
 (`cpu_ce`). Before this, one CPU store was committed on all 12 21 MHz clocks,

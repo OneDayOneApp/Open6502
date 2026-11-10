@@ -1,3 +1,72 @@
+  function automatic logic [11:0] pal444(input logic [5:0] idx);
+    case (idx)
+      6'h00: pal444 = 12'h666;
+      6'h01: pal444 = 12'h028;
+      6'h02: pal444 = 12'h11A;
+      6'h03: pal444 = 12'h30A;
+      6'h04: pal444 = 12'h507;
+      6'h05: pal444 = 12'h604;
+      6'h06: pal444 = 12'h600;
+      6'h07: pal444 = 12'h510;
+      6'h08: pal444 = 12'h330;
+      6'h09: pal444 = 12'h040;
+      6'h0A: pal444 = 12'h050;
+      6'h0B: pal444 = 12'h040;
+      6'h0C: pal444 = 12'h044;
+      6'h0D: pal444 = 12'h000;
+      6'h0E: pal444 = 12'h000;
+      6'h0F: pal444 = 12'h000;
+      6'h10: pal444 = 12'hAAA;
+      6'h11: pal444 = 12'h15D;
+      6'h12: pal444 = 12'h44F;
+      6'h13: pal444 = 12'h72F;
+      6'h14: pal444 = 12'hA1C;
+      6'h15: pal444 = 12'hB17;
+      6'h16: pal444 = 12'hB32;
+      6'h17: pal444 = 12'h940;
+      6'h18: pal444 = 12'h660;
+      6'h19: pal444 = 12'h380;
+      6'h1A: pal444 = 12'h090;
+      6'h1B: pal444 = 12'h083;
+      6'h1C: pal444 = 12'h078;
+      6'h1D: pal444 = 12'h000;
+      6'h1E: pal444 = 12'h000;
+      6'h1F: pal444 = 12'h000;
+      6'h20: pal444 = 12'hFFF;
+      6'h21: pal444 = 12'h6BF;
+      6'h22: pal444 = 12'h99F;
+      6'h23: pal444 = 12'hC7F;
+      6'h24: pal444 = 12'hF6F;
+      6'h25: pal444 = 12'hF6C;
+      6'h26: pal444 = 12'hF87;
+      6'h27: pal444 = 12'hE92;
+      6'h28: pal444 = 12'hBB0;
+      6'h29: pal444 = 12'h8D0;
+      6'h2A: pal444 = 12'h5E3;
+      6'h2B: pal444 = 12'h4E8;
+      6'h2C: pal444 = 12'h4CD;
+      6'h2D: pal444 = 12'h444;
+      6'h2E: pal444 = 12'h000;
+      6'h2F: pal444 = 12'h000;
+      6'h30: pal444 = 12'hFFF;
+      6'h31: pal444 = 12'hCEF;
+      6'h32: pal444 = 12'hDDF;
+      6'h33: pal444 = 12'hECF;
+      6'h34: pal444 = 12'hFCF;
+      6'h35: pal444 = 12'hFCE;
+      6'h36: pal444 = 12'hFCC;
+      6'h37: pal444 = 12'hFDA;
+      6'h38: pal444 = 12'hEE9;
+      6'h39: pal444 = 12'hCE9;
+      6'h3A: pal444 = 12'hBFA;
+      6'h3B: pal444 = 12'hBFC;
+      6'h3C: pal444 = 12'hBEF;
+      6'h3D: pal444 = 12'hBBB;
+      6'h3E: pal444 = 12'h000;
+      6'h3F: pal444 = 12'h000;
+      default: pal444 = 12'h000;
+    endcase
+  endfunction
 module open6502_top #(
   parameter logic [2:0] MAPPER = 3'd0
 ) (
@@ -215,7 +284,7 @@ module open6502_top #(
   );
 
   assign vid_pclk = clk_21m;
-  assign vid_rgb = {ppu_pixel[3:0], ppu_pixel[3:0], ppu_pixel[3:0]};
+  assign vid_rgb = pal444(ppu_pixel[5:0]);
   assign aud_valid = aud_en;
   assign audio_mix = apu_sample + ((dmc_out - 7'd64) * 16'sd256);
   assign aud_sample = audio_mix[15:0];
