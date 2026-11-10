@@ -32,6 +32,8 @@ static int max_frames;
 static uint8_t forced_buttons;
 static const char *screenshot_path;
 static const char *wav_path;
+static const char *save_state_path;
+static const char *load_state_path;
 static int16_t *wav_samples;
 static size_t wav_len;
 static size_t wav_cap;
@@ -48,6 +50,115 @@ static uint64_t hash_bytes(uint64_t h, const void *data, size_t n) {
     h *= UINT64_C(1099511628211);
   }
   return h;
+}
+
+#define NES_STATE_MAGIC "NESST001"
+#define NES_STATE_VERSION 1u
+
+typedef struct {
+  CPU_state cpu;
+  uint8_t cpu_ram[2048];
+  NES_PPU ppu;
+  NES_APU apu;
+  NES_Cart cart;
+  uint8_t controller_state[2];
+  uint8_t controller_shift[2];
+  uint8_t controller_strobe;
+  uint64_t audio_hash_state;
+} NESState;
+
+typedef struct {
+  char magic[8];
+  uint32_t version;
+  uint32_t reserved;
+  uint64_t rom_hash;
+} NESStateHeader;
+
+static uint64_t cart_rom_hash(void) {
+  uint64_t h = HASH_SEED;
+  h = hash_bytes(h, cart.prg, cart.prg_size);
+  if (!cart.chr_ram) h = hash_bytes(h, cart.chr, cart.chr_size);
+  return h;
+}
+
+static bool save_state(const char *path) {
+  if (path == NULL) return false;
+  NESState s;
+  memset(&s, 0, sizeof(s));
+  s.cpu = cpu;
+  memcpy(s.cpu_ram, cpu_ram, sizeof(s.cpu_ram));
+  s.ppu = ppu;
+  s.ppu.cart = NULL;
+  s.apu = apu;
+  s.cart = cart;
+  s.cart.prg = NULL;
+  s.cart.chr = NULL;
+  memcpy(s.controller_state, controller_state, sizeof(controller_state));
+  memcpy(s.controller_shift, controller_shift, sizeof(controller_shift));
+  s.controller_strobe = controller_strobe;
+  s.audio_hash_state = audio_hash_state;
+
+  NESStateHeader h;
+  memset(&h, 0, sizeof(h));
+  memcpy(h.magic, NES_STATE_MAGIC, 8);
+  h.version = NES_STATE_VERSION;
+  h.rom_hash = cart_rom_hash();
+
+  FILE *fp = fopen(path, "wb");
+  if (fp == NULL) return false;
+  bool ok = fwrite(&h, sizeof(h), 1, fp) == 1 &&
+            fwrite(&s, sizeof(s), 1, fp) == 1;
+  if (ok && s.cart.chr_ram) {
+    ok = fwrite(cart.chr, 1, cart.chr_size, fp) == cart.chr_size;
+  }
+  fclose(fp);
+  return ok;
+}
+
+static bool load_state(const char *path) {
+  if (path == NULL) return false;
+  FILE *fp = fopen(path, "rb");
+  if (fp == NULL) return false;
+  NESStateHeader h;
+  NESState s;
+  bool ok = fread(&h, sizeof(h), 1, fp) == 1 &&
+            fread(&s, sizeof(s), 1, fp) == 1;
+  if (!ok || memcmp(h.magic, NES_STATE_MAGIC, 8) != 0 ||
+      h.version != NES_STATE_VERSION || h.rom_hash != cart_rom_hash()) {
+    fclose(fp);
+    return false;
+  }
+  if (s.cart.prg_size != cart.prg_size || s.cart.chr_size != cart.chr_size ||
+      s.cart.mapper != cart.mapper) {
+    fclose(fp);
+    return false;
+  }
+
+  uint8_t *prg = cart.prg;
+  uint8_t *chr = cart.chr;
+  cart = s.cart;
+  cart.prg = prg;
+  cart.chr = chr;
+  if (cart.chr_ram) {
+    ok = fread(cart.chr, 1, cart.chr_size, fp) == cart.chr_size;
+  }
+  fclose(fp);
+  if (!ok) return false;
+
+  cpu = s.cpu;
+  memcpy(cpu_ram, s.cpu_ram, sizeof(cpu_ram));
+  ppu = s.ppu;
+  ppu.cart = &cart;
+  apu = s.apu;
+  memcpy(controller_state, s.controller_state, sizeof(controller_state));
+  memcpy(controller_shift, s.controller_shift, sizeof(controller_shift));
+  controller_strobe = s.controller_strobe;
+  audio_hash_state = s.audio_hash_state;
+  nemu_state.state = NEMU_RUNNING;
+  nemu_state.halt_pc = 0;
+  nemu_state.halt_ret = 0;
+  g_quit = false;
+  return true;
 }
 
 static bool has_token(const char *list, const char *token) {
@@ -338,6 +449,8 @@ static void usage(const char *prog) {
   printf("  --wav=F          write APU output as a mono 16-bit WAV file\n");
   printf("  --hold=BUTTONS   hold comma-separated buttons (testing aid)\n");
   printf("  --hash           print deterministic frame/audio hashes\n");
+  printf("  --save-state=F   save NES state after the run\n");
+  printf("  --load-state=F   load NES state before the run\n");
   printf("  --help           show this help\n\n");
   printf("Controls: 1P WASD + Z/X/C/V; 2P arrows + comma/period/slash/apostrophe\n");
 }
@@ -375,6 +488,8 @@ int nes_main(int argc, char **argv) {
     if (strcmp(argv[i], "--headless") == 0) { headless = true; continue; }
     if (strcmp(argv[i], "--fast") == 0) { fast_mode = true; continue; }
     if (strcmp(argv[i], "--hash") == 0) { print_hash = true; continue; }
+    if (strncmp(argv[i], "--save-state=", 13) == 0) { save_state_path = argv[i] + 13; continue; }
+    if (strncmp(argv[i], "--load-state=", 13) == 0) { load_state_path = argv[i] + 13; continue; }
     if (strncmp(argv[i], "--log=", 6) == 0) continue;
     if (ends_with_nes(argv[i])) { rom_path = argv[i]; continue; }
   }
@@ -418,14 +533,19 @@ int nes_main(int argc, char **argv) {
   cpu.pc = (vaddr_t)(nes_cpu_read(0xFFFC) | (nes_cpu_read(0xFFFD) << 8));
 
   nes_active = true;
+  frame_hash_state = HASH_SEED;
+  audio_hash_state = HASH_SEED;
+  if (load_state_path != NULL && !load_state(load_state_path)) {
+    fprintf(stderr, "failed to load NES state: %s\n", load_state_path);
+    cart_free(&cart);
+    return 1;
+  }
   audio_enabled = !no_audio && !headless;
   if (!headless) {
     video_init();
     audio_init();
   }
 
-  frame_hash_state = HASH_SEED;
-  audio_hash_state = HASH_SEED;
   uint32_t next_tick = headless ? 0 : SDL_GetTicks();
   int frames = 0;
   while (!g_quit) {
@@ -445,6 +565,9 @@ int nes_main(int argc, char **argv) {
     printf("screenshot written to %s\n", screenshot_path);
   }
   write_wav(wav_path);
+  if (save_state_path != NULL && !save_state(save_state_path)) {
+    fprintf(stderr, "failed to save NES state: %s\n", save_state_path);
+  }
   frame_hash_state = hash_bytes(frame_hash_state, ppu.framebuffer,
       sizeof(ppu.framebuffer));
   if (print_hash) {

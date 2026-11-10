@@ -45,6 +45,15 @@ Headless regression:
   --hash nesgame/game.nes
 ```
 
+State snapshot smoke test:
+
+```sh
+./build/6502EMU --headless --no-audio --frames=60 \
+  --save-state=/tmp/nes.state nesgame/game.nes
+./build/6502EMU --headless --no-audio --frames=60 \
+  --load-state=/tmp/nes.state nesgame/game.nes
+```
+
 `game.nes` is built from the checked-in source and is included for
 convenience.  Only mapper 0 is used by this game; the emulator itself also
 implements common mappers 1, 2, 3, 4 and 7.

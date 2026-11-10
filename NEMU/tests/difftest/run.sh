@@ -7,11 +7,13 @@ TMP=${TMPDIR:-/tmp}/6502emu-difftest
 mkdir -p "$TMP"
 cd "$ROOT"
 
+make distclean >/dev/null 2>&1 || true
 make m6502-nesref-so_defconfig >/dev/null
 make -j8 >/dev/null
 test -f build/6502EMU-so
 cp build/6502EMU-so "$TMP/6502EMU-ref.so"
 
+make distclean >/dev/null 2>&1 || true
 make m6502-nes-dut_defconfig >/dev/null
 make -j8 >/dev/null
 test -x build/6502EMU

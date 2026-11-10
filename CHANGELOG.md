@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.2.0 - state snapshot closure
+
+### Added
+
+- NES state snapshot save/load:
+  - CPU registers and cycles
+  - 2 KB CPU RAM
+  - PPU state and framebuffer
+  - APU channels, frame sequencer and sample buffer
+  - mapper registers, PRG RAM and CHR RAM
+  - controller state and hash accumulator
+- `--save-state=FILE` and `--load-state=FILE` for NES mode.
+- Regression test: save at frame 60, resume 60 frames, compare frame/audio
+  hashes with an uninterrupted 120-frame run.
+- Headless mode no longer initializes SDL video/audio.
+
+### Fixed
+
+- Headless `--hold` now affects controller state.
+- Clean-clone builds export `NEMU_HOME` for Kconfig sub-makes.
+
+### Verification
+
+- Default regression, `RUN_KLAUS=1`, and CPU-only NEMU DiffTest pass.
+
 ## v0.1.0 - first functional closure
 
 ### Emulator
