@@ -40,7 +40,7 @@
 
 ## P3 APU
 
-- [~] pulse x2/triangle/noise + sweep logic; sweep test and DMC pending.
+- [~] pulse x2/triangle/noise + sweep (tested); DMC pending.
 - [ ] triangle.
 - [ ] noise.
 - [ ] DMC.

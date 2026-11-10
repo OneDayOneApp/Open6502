@@ -30,6 +30,7 @@ DMA_SOC_TB := ../tb/open6502_oam_soc_tb.sv
 PPU_SCROLL_TB := ../tb/open6502_ppu_scroll_tb.sv
 PPU_OVF_TB := ../tb/open6502_ppu_overflow_tb.sv
 APU_TB := ../tb/open6502_apu_tb.sv
+APU_SWEEP_TB := ../tb/open6502_apu_sweep_tb.sv
 MAP_TB := ../tb/open6502_mapper_tb.sv
 
 sim: $(TB) $(BUS_TB) $(RTL)
@@ -72,6 +73,8 @@ sim: $(TB) $(BUS_TB) $(RTL)
 	vvp open6502_ppu_overflow_tb.vvp
 	$(IV) -g2012 -o open6502_apu_tb.vvp apu/open6502_apu.sv $(APU_TB)
 	vvp open6502_apu_tb.vvp
+	$(IV) -g2012 -o open6502_apu_sweep_tb.vvp apu/open6502_apu.sv $(APU_SWEEP_TB)
+	vvp open6502_apu_sweep_tb.vvp
 	$(IV) -g2012 -o open6502_mapper_tb.vvp cart/open6502_mapper.sv $(MAP_TB)
 	vvp open6502_mapper_tb.vvp
 

@@ -36,6 +36,7 @@ module open6502_apu (
   logic [10:0] p1_target, p2_target;
   logic [3:0]  p1_shift, p2_shift;
   logic        frame_inhibit, frame_mode;
+  logic        sweep_req;
 
   function automatic [3:0] tri_step(input [4:0] pos);
     if (pos < 5'd16) tri_step = 4'd15 - pos[3:0];
@@ -109,6 +110,7 @@ module open6502_apu (
       noise_lfsr <= 15'h0001;
       sample <= 0; irq <= 1'b0;
       frame_inhibit <= 1'b0; frame_mode <= 1'b0;
+      sweep_req <= 1'b0;
     end else begin
       if (cs && !we && addr == 5'h15) irq <= 1'b0;
       if (cs && we) begin
@@ -164,10 +166,17 @@ module open6502_apu (
           if (noise_len != 0) noise_len <= noise_len - 8'd1;
           if (p1_const == 0 && p1_env != 0) p1_env <= p1_env - 8'd1;
           if (p2_const == 0 && p2_env != 0) p2_env <= p2_env - 8'd1;
+          if ((p1_sweep[7] && p1_shift != 0 && p1_period >= 11'd8) ||
+              (p2_sweep[7] && p2_shift != 0 && p2_period >= 11'd8))
+            sweep_req <= 1'b1;
+        end else frame_div <= frame_div + 16'd1;
+
+        if (sweep_req) begin
+          sweep_req <= 1'b0;
           if (p1_sweep[7] && p1_shift != 0 && p1_period >= 11'd8) begin
             p1_target = p1_sweep[3] ? p1_period - (p1_period >> p1_shift) :
                                       p1_period + (p1_period >> p1_shift);
-            if (p1_target < 11'h800) begin
+            if (p1_target < 11'h7FF) begin
               p1_period_hi <= p1_target[10:8];
               p1_period_lo <= p1_target[7:0];
             end
@@ -175,12 +184,12 @@ module open6502_apu (
           if (p2_sweep[7] && p2_shift != 0 && p2_period >= 11'd8) begin
             p2_target = p2_sweep[3] ? p2_period - (p2_period >> p2_shift) :
                                       p2_period + (p2_period >> p2_shift);
-            if (p2_target < 11'h800) begin
+            if (p2_target < 11'h7FF) begin
               p2_period_hi <= p2_target[10:8];
               p2_period_lo <= p2_target[7:0];
             end
           end
-        end else frame_div <= frame_div + 16'd1;
+        end
 
         if (p1_timer == 0) begin
           p1_timer <= {p1_period_hi[2:0], p1_period_lo};
