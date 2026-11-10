@@ -1,35 +1,32 @@
-# Open6502 DiffTest 协议
+# Open6502 DiffTest Protocol
 
-## 1. 目标
+## 1. Goal
 
-RTL DUT 与 NEMU REF 在受控输入下逐步运行，比较：
+Compare RTL DUT and NEMU REF under identical inputs:
 
-- CPU 架构状态与总线事务
-- PPU 寄存器/扫描线/帧缓冲
-- APU 通道/采样
-- mapper bank/IRQ/PRG RAM
-- 最终 frame/audio/state hash
+- CPU state and bus transactions
+- PPU registers/scanlines/framebuffer
+- APU channels/samples
+- mapper banks/IRQ/PRG RAM
+- final frame/audio/state hashes
 
-## 2. 拓扑
+## 2. Topology
 
 ```text
-+-------------------+     DPI/共享内存     +-------------------+
-| Verilator RTL DUT | <------------------> | NEMU NES REF      |
-| open6502_top      |                      | nes_ref_machine   |
-+---------+---------+                      +---------+---------+
-          |                                          |
-          +------------ DiffTest runner -------------+
-                          |
-                    mismatch report
++-------------------+    DPI/shared memory   +-------------------+
+| Verilator RTL DUT | <--------------------> | NEMU NES REF      |
+| open6502_top      |                        | nes_ref_machine   |
++---------+---------+                        +---------+---------+
+          |                                            |
+          +-------------- DiffTest runner -------------+
+                              |
+                        mismatch report
 ```
 
-- DUT：`open6502_top` + `open6502_difftest_bridge`
-- REF：`src/nes/ref` API，运行在同一进程或独立进程
-- 同步：主时钟 tick / CPU 指令 / scanline / frame 四层
+The DUT is `open6502_top` plus `open6502_difftest_bridge`. The REF is the
+`src/nes/ref` API, in-process or in a separate process.
 
-## 3. RTL 观测接口
-
-`open6502_difftest_bridge` 输出固定宽度记录：
+## 3. RTL observation record
 
 ```systemverilog
 typedef struct packed {
@@ -43,20 +40,21 @@ typedef struct packed {
 } open6502_dbg_event;
 ```
 
-PPU/APU 高频事件不应全部通过 UART；仿真时走 DPI/共享内存，FPGA 时只输出摘要/hash。
+High-frequency PPU/APU events use DPI/shared memory in simulation; FPGA exports
+only summaries/hashes.
 
-## 4. 同步点
+## 4. Sync points
 
-| 粒度 | RTL | REF | 比较 |
+| Granularity | RTL | REF | Compare |
 | --- | --- | --- | --- |
-| 指令 | `cpu_retire` | `cpu_step` | PC/A/X/Y/SP/P/cycles |
-| 总线 | `bus_event` | bus trace | addr/data/we/tick |
+| instruction | `cpu_retire` | `cpu_step` | PC/A/X/Y/SP/P/cycles |
+| bus | `bus_event` | bus trace | addr/data/we/tick |
 | scanline | `ppu_scanline_end` | PPU state | v/t/x/w/OAM/status |
 | frame | `frame_end` | framebuffer | frame hash |
-| audio | `aud_valid` | APU samples | sample hash/容差 |
+| audio | `aud_valid` | APU samples | sample hash/tolerance |
 | mapper | `cart_event` | mapper state | bank/IRQ/PRG RAM |
 
-## 5. 失配报告
+## 5. Mismatch report
 
 ```text
 sync_point:
@@ -74,25 +72,25 @@ state_hash_ref:
 replay:
 ```
 
-## 6. REF 独立性
+## 6. REF independence
 
-- REF 与 DUT 不能共享同一 RTL 实现。
-- REF 必须由 Klaus、外部测试 ROM、实机采集校准。
-- 当前 NEMU REF 与前端共享 PPU/APU 代码，只能作为 provisional REF。
-- 每次 DiffTest 记录 REF commit/config/state version/ROM hash。
+- REF and DUT must not share the same implementation.
+- REF must be calibrated with Klaus, external test ROMs and hardware captures.
+- The current NEMU REF and frontend share PPU/APU code; it is provisional.
+- Every run records REF commit/config/state version/ROM hash.
 
-## 7. 运行模式
+## 7. Modes
 
 ```text
-cpu-only      先跑 Klaus/hello
-frame-only    只比较每帧 hash
-scanline      逐 scanline 状态
-audio         逐采样
+cpu-only      Klaus/hello first
+frame-only    per-frame hash
+scanline      per-scanline state
+audio         per-sample
 full          bus + PPU + APU + mapper
 ```
 
-## 8. 性能预算
+## 8. Performance budget
 
-- Verilator + REF 目标 ≥ 10^6 cycles/s。
-- 失败时暂停并导出窗口，不继续跑。
-- FPGA 上只做 frame/hash 级对比，逐 dot 对比留在仿真。
+- Verilator + REF >= 10^6 cycles/s.
+- Stop at the first mismatch and dump a window.
+- FPGA uses frame/hash-level comparison only; dot-level stays in simulation.

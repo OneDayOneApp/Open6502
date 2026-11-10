@@ -1,65 +1,55 @@
-# NES/Famicom Golden Reference（基于 NEMU）
+# NES/Famicom Golden Reference (NEMU-based)
 
-本目录定义以 NEMU 为基础的完整 NES/Famicom 芯片级 golden reference 设计方案、
-测试方案和验收 CheckList。
+This directory defines the NEMU-based golden-reference design, test plan and
+acceptance checklist for a complete NES/Famicom implementation.
 
-- [设计方案](design.md)
-- [测试方案](test-plan.md)
-- [CheckList](checklist.md)
-- [必须功能点与现状](feature-matrix.md)
+- [Design](design.md)
+- [Test plan](test-plan.md)
+- [Checklist](checklist.md)
+- [Must-have feature matrix](feature-matrix.md)
 
-## 一句话定义
+## Definition
 
-Golden reference 是 **NEMU 的一个专用 REF 构建**：
+A golden reference is a dedicated NEMU build that:
 
-- 复用 NEMU 的 CPU 执行引擎、ISA 框架、内存、监视器、trace 和 DiffTest 基础设施；
-- 在 NEMU 内增加 2A03/2C02/APU/总线/mapper 的 NES 平台；
-- 生成可执行 REF 和 `TARGET_SHARE` REF `.so`；
-- DUT（RTL、另一 NEMU 构建或其他模拟器）通过 NEMU DiffTest 及其 NES 扩展协议
-  与 REF 对比；
-- 当前 `6502EMU` 前端是原型/smoke test 平台，不是 golden reference。
+- reuses NEMU's CPU execution, ISA, memory, monitor, trace and DiffTest
+  infrastructure;
+- adds the NES platform: 2A03/2C02/APU, bus and mappers;
+- produces a REF executable and a `TARGET_SHARE` REF `.so`;
+- lets a DUT (RTL, another NEMU build or an external emulator) compare against
+  it through NEMU DiffTest and a NES extension protocol;
+- is not the current `6502EMU` demo frontend. That frontend is a prototype and
+  smoke-test target.
 
-## 关键原则
+## Principles
 
-1. **NEMU 是底座**：不在 NEMU 之外另起一套独立模拟器。
-2. **REF/DUT 分离**：REF 与 DUT 不能是同一构建配置。
-3. **先 CPU，后 PPU/APU**：CPU 复用 NEMU DiffTest；PPU/APU/mapper 用扩展协议。
-4. **确定性**：master tick、状态快照、hash、trace 全部纳入 NEMU REF。
-5. **实机优先**：参考模拟器只做交叉检查，不能替代硬件采集和规范。
-6. **边界清晰**：T0+T1 是默认“完整”，T2/T3 单独验收。
+1. NEMU is the base; do not build a second independent emulator.
+2. REF and DUT must be separate builds.
+3. CPU DiffTest comes first; PPU/APU/mapper need an extended protocol.
+4. Master tick, snapshots, hashes and traces are part of the REF.
+5. Hardware captures and specifications outrank emulator-to-emulator
+   comparisons.
+6. The default "complete" scope is T0+T1; T2/T3 are separate acceptance levels.
 
-## 最快落地路径
+## Current status
 
-1. 新增 `m6502-nesref_defconfig` 和 `m6502-nesref-so_defconfig`。
-2. 在 `src/nes` 内把总线、PPU、APU、mapper 拆成可被 NEMU monitor/REF 调用的模块。
-3. 给 `src/isa/m6502` 增加 2A03 profile、总线周期和 CPU DiffTest。
-4. 扩展 `difftest-def.h` 和 REF 导出接口。
-5. 先让 CPU-only DiffTest 跑通 Klaus/nestest，再逐级加入 PPU/APU/mapper。
-6. 最后用实机采集和自由 ROM 回归验收。
+v1.0.0 is a functional parity baseline:
 
-## 当前进度（v1.0 functional baseline）
+- REF CPU + PPU + APU + mapper frame loop
+- bundled NROM game frame/audio hashes match the frontend
+- deterministic state hash, snapshots and input replay
+- CPU-only NEMU DiffTest
 
-已落地并纳入 `NEMU/tests/run.sh`：
+The v1.5 work in progress adds:
 
-- `src/nes/ref/clock.c`：NTSC/PAL master tick、CPU/PPU 分频、帧边界。
-- `src/nes/ref/rom.c`：iNES/NROM 头解析、PRG/CHR/CHR RAM。
-- `src/nes/ref/state.c`：确定性 hash。
-- `src/nes/ref/machine.c`：2KB RAM 镜像、PRG RAM、NROM 总线、flat test bus。
-- `src/nes/ref/cpu.c`：从 NEMU m6502 核移植的 REF CPU 后端。
-- `tests/nes_ref/`：单元测试、基础 CPU 程序、可选 Klaus。
-- `tests/difftest/`：REF `.so` + DUT 的 CPU-only DiffTest。
-- `configs/m6502-nesref-so_defconfig` / `m6502-nes-dut_defconfig`。
+- dot-loop background pixels and sprite 0 dot checks
+- APU DMC core
+- Open6502 RTL chip scaffold
 
-验证结果：
+Still missing:
 
-```text
-PASS: nes_ref clock/rom/hash
-PASS: REF CPU Klaus at PC=3469 (cycles=96241364)
-PASS: NEMU CPU-only DiffTest
-```
-
-v1.0 已达到“功能闭合”的 REF 基线：REF 的 CPU+PPU+APU+mapper 帧循环可运行
-自带 NROM 游戏，60 帧 frame/audio hash 与前端完全一致，并提供完整 state hash。
-
-仍未达到硬件级完整 REF 的部分：逐 dot 背景/精灵管线、sprite 0 精确时序、
-APU DMC、NES 扩展 DiffTest、实机采集对齐、T2/T3 mapper/附件。
+- full dot-level background fetch/shift and sprite evaluation
+- DMC CPU DMA stall
+- NES extended DiffTest
+- hardware capture alignment
+- T2/T3 mappers, accessories and PAL
