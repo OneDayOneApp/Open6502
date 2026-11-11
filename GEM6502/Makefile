@@ -47,7 +47,7 @@ tests/test_audio: $(CORE) tests/test_audio.c include/audio.h include/gem6502.h
 	$(CC) $(CFLAGS) -o $@ $(CORE) tests/test_audio.c $(LDFLAGS)
 
 clean:
-	rm -f gem6502 tests/test_gem6502 tests/test_ines tests/test_render tests/test_frontend tests/test_audio
+	rm -f gem6502 tests/test_gem6502 tests/test_ines tests/test_render tests/test_frontend tests/test_audio tests/test_kernel
 
 .PHONY: all test difftest games mmc3 clean
 
@@ -62,3 +62,12 @@ test-ui:
 	@echo "SDL2 is required for test-ui" >&2; exit 1
 endif
 .PHONY: test-ui
+
+# Experimental timing kernel; independent of the legacy execution path.
+test-kernel: tests/test_kernel
+	./tests/test_kernel
+
+tests/test_kernel: src/sim/kernel.c tests/test_kernel.c include/gem/kernel.h
+	$(CC) $(CFLAGS) -Werror -o $@ src/sim/kernel.c tests/test_kernel.c $(LDFLAGS)
+
+.PHONY: test-kernel

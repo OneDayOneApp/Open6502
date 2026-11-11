@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "audio.h"
 
-#define GEM6502_VERSION "0.1.0"
+#define GEM6502_VERSION "0.2.0-dev"
 #define GEM_RAM_SIZE   0x0800u
 #define GEM_PRG_SIZE   0x8000u
 #define GEM_CHR_SIZE   0x2000u

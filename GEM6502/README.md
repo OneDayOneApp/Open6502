@@ -1,6 +1,7 @@
 # GEM6502
 
-Current legacy baseline: **v0.1.0**, tag `gem6502-v0.1.0`.
+Development version: **v0.2.0-dev**. Preserved legacy baseline: **v0.1.0**,
+tag `gem6502-v0.1.0`.
 See [release notes](releases/0.1.0.md).
 
 GEM6502 is being redesigned as a gem5-style, event-driven architecture and
@@ -23,6 +24,13 @@ run the current legacy model; proposed timing APIs and build targets in the
 design documents are not implemented yet. The target is architecture and
 microarchitecture timing simulation, not RTL/netlist execution or silicon
 signoff. GEM6502 is not a gem5 fork or a gem5 API-compatible implementation.
+
+## Experimental timing development
+
+The new kernel is independent of the legacy player and interpreter. Run
+`make test-kernel` for deterministic scheduling and clock-boundary tests.
+G0/G1 remain partial; no timing CPU or calibrated chip profile is available.
+See [development status and initial decisions](spec/development-status.md).
 
 ## Build
 
