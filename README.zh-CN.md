@@ -93,6 +93,7 @@ Yosys generic cells： 1,021,421
 | RTL CPU 通过 Klaus | **通过** |
 | RTL 渲染 `falling.nes` 标题 | **可以**，与 NEMU 一致 |
 | RTL 按 START 进入游戏 | **可以** |
+| GEM6502 快速模型运行 `falling.nes` | **可以** |
 | RTL 音频链路 | 部分 |
 | RTL FPGA bitstream | 尚未 |
 | 完整 NES 游戏兼容 | 部分 |

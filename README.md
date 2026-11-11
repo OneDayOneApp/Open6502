@@ -97,6 +97,7 @@ See [55nm tapeout roadmap](docs/55nm-tapeout-roadmap.md) for the full gate list.
 | RTL CPU passes Klaus | **Yes** |
 | RTL renders `falling.nes` title | **Yes**, NEMU-identical |
 | RTL enters gameplay after START | **Yes** |
+| GEM6502 fast model runs `falling.nes` | **Yes** |
 | RTL chiptune audio path | Partial |
 | RTL FPGA bitstream | Not yet |
 | Full NES game compatibility | Partial |

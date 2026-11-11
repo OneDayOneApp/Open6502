@@ -53,6 +53,29 @@ cycles=101 inst=49 reads=57 writes=1 frames=0 nmi=0 illegal=0
 stop=cycle limit
 ```
 
+## Run a game
+
+GEM6502 can load an iNES mapper-0 ROM, run the CPU/PPU and render a PPM frame:
+
+```sh
+./gem6502 game ../roms/falling.nes 60 /tmp/gem-title.ppm
+./gem6502 game ../roms/falling.nes 120 /tmp/gem-game.ppm --start
+```
+
+Title screen:
+
+![GEM6502 falling title](docs/title.png)
+
+Gameplay after START:
+
+![GEM6502 falling gameplay](docs/gameplay.png)
+
+Convert PPM to PNG:
+
+```sh
+python3 -c 'from PIL import Image; Image.open("/tmp/gem-game.ppm").save("/tmp/gem-game.png")'
+```
+
 ## GEM5 mapping
 
 | GEM5 concept | GEM6502 implementation |
@@ -104,9 +127,10 @@ extensions are intentionally illegal.
 ## Current limitations
 
 - No IRQ model; NMI from PPU vblank only.
-- No full PPU background/sprite renderer, no framebuffer output.
+- PPU renderer is a compact background/sprite rasterizer, not a dot-exact PPU.
+- No per-dot PPU/CPU interleaving.
 - No APU audio synthesis; register file only.
-- No mapper banking; NROM only in v0.1.
+- Mapper 0 only in the game loader; no MMC1/MMC3 banking yet.
 - No cycle-exact bus stalls for every PPU register access.
 - No checkpoint/restore.
 - No C++/Python bindings.
@@ -126,6 +150,15 @@ PASS: GEM6502 ALU/branch/cycle count
 PASS: GEM6502 JSR/RTS stack
 PASS: GEM6502 PPU vblank/NMI
 ALL GEM6502 TESTS PASS
+```
+
+### Module tests
+
+`make test` also builds and runs:
+
+```text
+PASS: all iNES tests
+ALL GEM6502 RENDER TESTS PASS
 ```
 
 ### NEMU golden-state diff
@@ -153,8 +186,8 @@ Each case currently matches for 25-35 instructions.
 ## Roadmap
 
 1. Add IRQ and NMI/IRQ priority tests.
-2. Add mapper 0/1/2/3/4/7 banking.
-3. Add PPU background/sprite rasterizer and frame hash.
+2. Add mapper 1/2/3/4/7 banking.
+3. Add frame hash comparison against NEMU for multiple games.
 4. Add APU frame sequencer and audio sample output.
 5. Add checkpoint/restore.
 6. Add cocotb/C API bindings.

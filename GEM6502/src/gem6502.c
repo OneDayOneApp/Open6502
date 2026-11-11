@@ -539,7 +539,13 @@ void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
   if (addr < 0x2000) { g->bus.ram[addr & 0x07FF] = value; return; }
   if (addr < 0x4000) { ppu_register_write(g, (uint8_t)(addr & 7), value); return; }
   if (addr < 0x4020) {
-    if (addr == 0x4014) { g->cpu.dma_stall = 513; g->stats.bus_writes++; return; }
+    if (addr == 0x4014) {
+      uint16_t page = (uint16_t)(value << 8);
+      for (int i = 0; i < 256; i++)
+        g->ppu.oam[i] = gem_bus_read(g, (uint16_t)(page + i), false);
+      g->cpu.dma_stall = 513;
+      return;
+    }
     if (addr == 0x4016) {
       g->apu.joy1_shift = g->apu.joy1;
       g->apu.joy2_shift = g->apu.joy2;
