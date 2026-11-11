@@ -1,5 +1,7 @@
 # Open6502
 
+**English** | [简体中文](README.zh-CN.md)
+
 **A 6502/NES-compatible SoC that runs games in software today, and a
 SystemVerilog chip design that renders the same game in RTL.**
 
