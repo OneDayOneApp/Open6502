@@ -259,7 +259,7 @@ static int cpu_step(Gem *g) {
     c->cycles += 7;
     return 7;
   }
-  if (g->apu.irq && !getf(g, F_I)) {
+  if ((g->apu.irq || g->bus.cart_irq) && !getf(g, F_I)) {
     push8(g, (uint8_t)(c->pc >> 8)); push8(g, (uint8_t)c->pc);
     push8(g, (uint8_t)(c->p | F_U));
     setf(g, F_I, true);
@@ -271,6 +271,7 @@ static int cpu_step(Gem *g) {
   uint8_t opcode = fetch8(g);
   const OpInfo *info = &optab[opcode];
   if (info->op == O_ILL) {
+    if (getenv("GEM_DEBUG_ILL")) fprintf(stderr, "ILL opcode=%02x pc=%04x\n", opcode, op_pc);
     g->stats.illegal_opcodes++;
     c->halted = true;
     c->stop_reason = "illegal opcode";
@@ -544,6 +545,15 @@ static size_t cart_prg_offset(Gem *g, uint16_t addr) {
       size_t bank = g->bus.m7_bank & 0x07u;
       return (bank * 0x8000u + (addr & 0x7FFFu)) % size;
     }
+    case 4: {
+      size_t bank;
+      int slot = (addr >> 13) & 3;
+      if (slot == 0) bank = g->bus.m4_prg_mode ? (size / 0x2000u - 2u) : (g->bus.m4_regs[6] & 0x3Fu);
+      else if (slot == 1) bank = g->bus.m4_regs[7] & 0x3Fu;
+      else if (slot == 2) bank = g->bus.m4_prg_mode ? (g->bus.m4_regs[6] & 0x3Fu) : (size / 0x2000u - 2u);
+      else bank = size / 0x2000u - 1u;
+      return (bank * 0x2000u + (addr & 0x1FFFu)) % size;
+    }
     default:
       return (size_t)(addr - 0x8000) & (size - 1u);
   }
@@ -569,6 +579,33 @@ static void cart_write(Gem *g, uint16_t addr, uint8_t value) {
     case 2: g->bus.m2_bank = value & 0x0Fu; break;
     case 3: g->bus.m3_bank = value & 0x03u; break;
     case 7: g->bus.m7_bank = value & 0x07u; break;
+    case 4:
+      if ((addr & 1u) == 0) {
+        if (addr < 0xA000) {
+          g->bus.m4_select = value & 0x07u;
+          g->bus.m4_prg_mode = (value >> 6) & 1u;
+          g->bus.m4_chr_mode = (value >> 7) & 1u;
+        } else if (addr < 0xC000) {
+          /* mirroring: not modelled in this fast model */
+        } else if (addr < 0xE000) {
+          g->bus.m4_irq_latch = value;
+        } else {
+          g->bus.m4_irq_enable = false;
+          g->bus.cart_irq = false;
+        }
+      } else {
+        if (addr < 0xA000) {
+          g->bus.m4_regs[g->bus.m4_select & 7u] = value;
+        } else if (addr < 0xC000) {
+          /* PRG RAM protect */
+        } else if (addr < 0xE000) {
+          g->bus.m4_irq_counter = 0;
+          g->bus.m4_irq_reload = 1;
+        } else {
+          g->bus.m4_irq_enable = true;
+        }
+      }
+      break;
     default: break;
   }
 }
@@ -635,6 +672,23 @@ void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
   }
   if (addr >= 0x6000 && addr < 0x8000) { g->bus.ram[addr & 0x07FF] = value; return; }
   if (addr >= 0x8000) { cart_write(g, addr, value); return; }
+}
+
+void gem_cart_a12(Gem *g, int level) {
+  static int prev = 0;
+  if (g->bus.mapper != 4) return;
+  if (level && !prev) {
+    if (g->bus.m4_irq_counter == 0 || g->bus.m4_irq_reload) {
+      g->bus.m4_irq_counter = g->bus.m4_irq_latch;
+      g->bus.m4_irq_reload = 0;
+    } else {
+      g->bus.m4_irq_counter--;
+    }
+    if (g->bus.m4_irq_counter == 0 && g->bus.m4_irq_enable) {
+      g->bus.cart_irq = true;
+    }
+  }
+  prev = level;
 }
 
 void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {

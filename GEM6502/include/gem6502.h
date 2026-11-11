@@ -82,6 +82,10 @@ typedef struct GemBus {
   uint8_t mapper;
   uint8_t m1_shift, m1_count, m1_ctrl, m1_chr0, m1_chr1, m1_prg;
   uint8_t m2_bank, m3_bank, m7_bank;
+  uint8_t m4_select, m4_regs[8], m4_prg_mode, m4_chr_mode;
+  uint8_t m4_irq_latch, m4_irq_counter, m4_irq_reload;
+  bool m4_irq_enable, m4_irq_pending;
+  bool cart_irq;
   uint64_t reads;
   uint64_t writes;
 } GemBus;
@@ -117,6 +121,7 @@ int gem_step(Gem *gem);
 uint8_t gem_bus_read(Gem *gem, uint16_t addr, bool side_effect);
 void gem_bus_write(Gem *gem, uint16_t addr, uint8_t value);
 void gem_ppu_advance(Gem *gem, uint32_t cpu_cycles);
+void gem_cart_a12(Gem *gem, int level);
 void gem_apu_advance(Gem *gem, uint32_t cpu_cycles);
 void gem_print_stats(const Gem *gem);
 

@@ -37,7 +37,7 @@ static int run_game(Gem *g, const char *rom, int frames, const char *out, bool p
     return 2;
   }
   if (ines.mapper != 0 && ines.mapper != 1 && ines.mapper != 2 &&
-      ines.mapper != 3 && ines.mapper != 7) {
+      ines.mapper != 3 && ines.mapper != 4 && ines.mapper != 7) {
     fprintf(stderr, "gem6502: mapper %d not implemented yet\n", ines.mapper);
     gem_ines_free(&ines);
     return 2;
@@ -54,6 +54,7 @@ static int run_game(Gem *g, const char *rom, int frames, const char *out, bool p
   memset(g->bus.prg, 0xEA, sizeof(g->bus.prg));
   memcpy(g->bus.prg, ines.prg, ines.prg_size < GEM_PRG_SIZE ? ines.prg_size : GEM_PRG_SIZE);
   gem_reset(g);
+  g->apu.frame_inhibit = true;
   /* gem_reset clears PPU state, so load CHR afterwards. */
   memset(g->ppu.chr, 0, sizeof(g->ppu.chr));
   if (ines.chr && ines.chr_size <= GEM_CHR_SIZE) {

@@ -130,7 +130,8 @@ extensions are intentionally illegal.
 - PPU renderer is a compact background/sprite rasterizer, not a dot-exact PPU.
 - No per-dot PPU/CPU interleaving.
 - No APU audio synthesis; register file only.
-- Mapper 0/1/2/3/7 bus mapping is present; MMC3 (mapper 4) banking/IRQ is not yet implemented.
+- Mapper 0/1/2/3/7 bus mapping is present.
+- MMC3 (mapper 4) PRG banking and A12 IRQ have unit coverage, but MMC3 game boot still hits an illegal-opcode path.
 - No cycle-exact bus stalls for every PPU register access.
 - No checkpoint/restore.
 - No C++/Python bindings.
@@ -149,6 +150,7 @@ Current unit tests:
 PASS: GEM6502 ALU/branch/cycle count
 PASS: GEM6502 JSR/RTS stack
 PASS: GEM6502 IRQ/RTI
+PASS: GEM6502 MMC3 banks/A12 IRQ
 PASS: GEM6502 PPU vblank/NMI
 ALL GEM6502 TESTS PASS
 ```

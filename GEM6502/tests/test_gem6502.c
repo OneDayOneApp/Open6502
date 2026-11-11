@@ -91,6 +91,31 @@ static void test_irq_rti(void) {
   gem_destroy(g);
 }
 
+static void test_mmc3_banks_irq(void) {
+  Gem *g = gem_create();
+  assert(g);
+  g->bus.mapper = 4;
+  g->bus.cart_prg_size = 0x10000;
+  for (size_t i = 0; i < g->bus.cart_prg_size; i++) g->bus.cart_prg[i] = (uint8_t)(i >> 13);
+  /* bank select 6, bank 3 -> $8000; $C000 second-last; $E000 last */
+  gem_bus_write(g, 0x8000, 6);
+  gem_bus_write(g, 0x8001, 3);
+  assert(gem_bus_read(g, 0x8000, false) == 3);
+  assert(gem_bus_read(g, 0xC000, false) == 6);
+  assert(gem_bus_read(g, 0xE000, false) == 7);
+  /* A12 IRQ: latch=1, reload, enable, one rising edge */
+  gem_bus_write(g, 0xC000, 1);
+  gem_bus_write(g, 0xC001, 0);
+  gem_bus_write(g, 0xE001, 0);
+  gem_cart_a12(g, 0);
+  gem_cart_a12(g, 1);
+  gem_cart_a12(g, 0);
+  gem_cart_a12(g, 1);
+  assert(g->bus.cart_irq);
+  puts("PASS: GEM6502 MMC3 banks/A12 IRQ");
+  gem_destroy(g);
+}
+
 static void test_ppu_vblank(void) {
   Gem *g = gem_create();
   assert(g);
@@ -108,6 +133,7 @@ int main(void) {
   test_alu_program();
   test_stack_and_jsr();
   test_irq_rti();
+  test_mmc3_banks_irq();
   test_ppu_vblank();
   puts("ALL GEM6502 TESTS PASS");
   return 0;
