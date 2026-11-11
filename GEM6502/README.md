@@ -132,7 +132,7 @@ extensions are intentionally illegal.
 - No APU audio synthesis; register file only.
 - Mapper 0/1/2/3/7 bus mapping is present.
 - MMC3 (mapper 4) PRG banking and A12 IRQ have unit coverage.
-- MMC3 games still hit an illegal-opcode path after ~6 frames; the current trace shows `RTI` at `$F56B` returning to `$003B`, so the IRQ/handler stack frame is the next debug target.
+- MMC3 games still fail after ~6 frames: trace shows `RTS` at `$FBA0` returning to `$0001`, then `BRK`/handler stack corruption and an illegal opcode. The next target is MMC3 bank select versus the game's JSR/RTS bank switching.
 - No cycle-exact bus stalls for every PPU register access.
 - No checkpoint/restore.
 - No C++/Python bindings.

@@ -260,6 +260,9 @@ static int cpu_step(Gem *g) {
     return 7;
   }
   if ((g->apu.irq || g->bus.cart_irq) && !getf(g, F_I)) {
+    if (getenv("GEM_DEBUG_IRQ"))
+      fprintf(stderr, "IRQ entry pc=%04x sp=%02x p=%02x cart=%d apu=%d\n",
+              c->pc, c->sp, c->p, g->bus.cart_irq, g->apu.irq);
     push8(g, (uint8_t)(c->pc >> 8)); push8(g, (uint8_t)c->pc);
     push8(g, (uint8_t)(c->p | F_U));
     setf(g, F_I, true);
@@ -268,6 +271,11 @@ static int cpu_step(Gem *g) {
     return 7;
   }
   uint16_t op_pc = c->pc;
+  if (getenv("GEM_DEBUG_IRQ") && (op_pc == 0xF55B || op_pc == 0xF56B)) {
+    fprintf(stderr, "PC=%04x sp=%02x p=%02x stack=", op_pc, c->sp, c->p);
+    for (int i = 1; i <= 6; i++) fprintf(stderr, "%02x ", read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + i))));
+    fprintf(stderr, "\n");
+  }
   uint8_t opcode = fetch8(g);
   const OpInfo *info = &optab[opcode];
   if (info->op == O_ILL) {
