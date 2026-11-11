@@ -17,8 +17,13 @@ title frame is byte-identical to the NEMU title frame.
 ## Project goal: 55nm tapeout
 
 The long-term goal is a **55nm tapeout** of an open, verifiable 6502/NES-compatible
-SoC. The repository is currently a functional prototype, not a tapeout-ready
-chip.
+SoC. The project follows a staged gate model:
+
+```text
+NEMU reference -> RTL SoC -> FPGA prototype -> 55nm ASIC tapeout
+```
+
+The repository is currently a functional prototype, not a tapeout-ready chip.
 
 We are looking for technical contributors:
 

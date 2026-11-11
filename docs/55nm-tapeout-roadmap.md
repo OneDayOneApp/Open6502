@@ -1,104 +1,152 @@
-# Open6502 55nm Tapeout Roadmap
+# Open6502 Roadmap: NEMU -> RTL -> FPGA -> ASIC
 
-## Goal
-
-Build an open, verifiable 6502/NES-compatible SoC and take it through a 55nm
-tapeout.
-
-This is a long-running engineering goal. The current repository is a
-**functional prototype**, not a tapeout-ready design.
-
-## Current baseline
-
-| Item | Status |
-|---|---|
-| RTL CPU | Klaus PASS |
-| RTL SoC | Title and in-game frame in Verilator |
-| NEMU reference | Playable NES frontend |
-| RTL tests | 28 PASS |
-| DiffTest | Final-state, PC trace, ALU/stack smoke tests |
-| Synthesis | Per-module Yosys area report |
-| FPGA | Wrapper only, no bitstream |
-| ASIC | No PDK integration, no DFT, no timing closure |
-
-## Readiness levels
-
-### M0 — Functional prototype (current)
-
-- CPU, PPU, APU, bus, WRAM, mapper, DMA, controller present.
-- Game title and START gameplay frame rendered.
-- NEMU/RTL comparison exists.
-
-Exit criteria:
+## One-line roadmap
 
 ```text
-RTL Klaus PASS
-RTL frame parity on selected games
-Regression green
+NEMU reference  ->  RTL SoC  ->  FPGA prototype  ->  55nm ASIC tapeout
 ```
 
-### M1 — Reference parity
+Each stage is a gate. A later stage is not allowed to hide failures in an
+earlier stage.
 
-- Lockstep NEMU/RTL comparison for CPU, PPU, APU and mapper state.
-- Golden frames for multiple games and mapper types.
-- Deterministic frame-index tests.
+## Stage overview
 
-Exit criteria:
+| Stage | Purpose | Current status | Exit gate |
+|---|---|---|---|
+| 1. NEMU | Playable reference model | **Working** | Games playable; CPU Klaus PASS; reference frames stable |
+| 2. RTL | SystemVerilog SoC | **Functional prototype** | RTL games match NEMU; CPU/PPU/APU/mapper verified |
+| 3. FPGA | Real hardware prototype | **Not started** | Bitstream runs a game on a board |
+| 4. ASIC | 55nm tapeout | **Planning** | Timing/DFT/DRC/LVS clean; shuttle secured |
+
+## Stage 1: NEMU reference
+
+The NEMU-based `6502EMU` is the golden reference and the fastest way for users
+to play games today.
+
+Done:
+
+- 6502 CPU with Klaus PASS
+- NES PPU/APU/cartridge frontend
+- SDL window, keyboard and audio
+- open-source ROM bundle
+
+Gate:
 
 ```text
-multiple NROM/MMC1/MMC3 games match NEMU frames
-no unexplained state divergence
+games are playable
+CPU Klaus PASS
+reference screenshots are reproducible
 ```
 
-### M2 — FPGA prototype
+## Stage 2: RTL SoC
 
-- Yosys synthesis completes for the full SoC.
-- BRAM inference for CHR/VRAM/OAM/palette.
-- Timing constraints and Fmax report.
-- Board with VGA/HDMI, audio, controller, ROM storage.
+The RTL is the chip design under test. It must match the NEMU reference before
+FPGA or ASIC work is meaningful.
 
-Exit criteria:
+Current state:
+
+- CPU Klaus PASS at `PC=0x3469`
+- 28 RTL tests PASS
+- RTL title frame is byte-identical to NEMU
+- RTL enters the FALLING gameplay frame after START
+- NEMU/RTL DiffTest smoke tests exist
+
+Still required:
+
+- cycle-accurate CPU timing
+- PPU fetch/shift and exact sprite evaluation
+- DMC bus arbitration and DMA alignment
+- full NEMU/RTL lockstep state comparison
+- golden frames for NROM/MMC1/MMC3 games
+- bus transaction uniqueness for every peripheral
+
+Gate:
+
+```text
+multiple games match NEMU frames
+no unexplained CPU/PPU/APU/mapper state divergence
+regression is deterministic and green
+```
+
+## Stage 3: FPGA prototype
+
+FPGA is the first real-hardware proof. It validates timing, video, audio,
+controller and cartridge loading before committing to silicon.
+
+Required:
+
+- full Yosys synthesis
+- BRAM inference for CHR/VRAM/OAM/palette
+- timing constraints and Fmax report
+- PLL and reset strategy
+- VGA/HDMI output
+- audio DAC or sigma-delta output
+- controller input
+- ROM/Flash/SD cartridge loading
+- board bring-up
+
+Gate:
 
 ```text
 bitstream runs a game on a real board
-stable video and input
+video, audio, controller stable
+no RTL simulation-only assumptions
 ```
 
-### M3 — ASIC feasibility
+## Stage 4: ASIC / 55nm tapeout
 
-- 55nm standard-cell library and SRAM macros.
-- SRAM replacement for CHR/VRAM/OAM/palette.
-- Sequential sprite scan and PPU pipeline.
-- Synthesis, area, timing and power reports.
-- DFT/scan insertion and coverage targets.
-- Clock/reset/power intent.
-- DRC/LVS clean.
+ASIC work starts only after FPGA proves the architecture.
 
-Exit criteria:
+Required:
+
+- 55nm standard-cell library and SRAM macros
+- SRAM replacement for CHR/VRAM/OAM/palette
+- sequential sprite scan and PPU pipeline
+- synthesis, area, timing and power reports
+- DFT/scan insertion and coverage targets
+- clock/reset/power intent
+- DRC/LVS clean
+- pad ring, ESD, package plan
+- foundry shuttle and funding
+
+Gate:
 
 ```text
+timing/DFT/DRC/LVS clean
 tapeout checklist reviewed
-timing/DRC/LVS clean
-test coverage and DFT signed off
-foundry shuttle secured
+shuttle and funding secured
 ```
 
-### M4 — Tapeout
+## Current position
 
-- Mask generation and foundry shuttle.
-- Silicon bring-up and validation.
-- Errata and respin plan.
+```text
+NEMU  [##########] working
+RTL   [######----] functional prototype
+FPGA  [----------] not started
+ASIC  [----------] planning
+```
 
-## Architecture work required before 55nm
+## Work required before moving from RTL to FPGA
 
-1. Replace PPU storage flip-flops with SRAM macros.
-2. Rewrite sprite selection as a sequential scan.
-3. Rewrite background rendering as fetch/shift pipeline.
-4. Add bus transaction strobe (`bus_strobe`) for all peripherals.
-5. Make CPU cycle timing accurate for NMI/DMA-sensitive games.
+1. Complete bus transaction strobe for all peripherals.
+2. Make CPU cycle timing accurate for NMI/DMA-sensitive games.
+3. Replace PPU flip-flop memories with BRAM-friendly arrays.
+4. Rewrite sprite selection as a sequential scan.
+5. Rewrite background rendering as a fetch/shift pipeline.
 6. Complete DMC bus arbitration.
-7. Add DFT-friendly clock/reset and scan structure.
-8. Add pad ring, ESD, power grid and package plan.
+7. Add deterministic frame-index DiffTest.
+8. Add full-SoC synthesis and timing constraints.
+
+## Work required before moving from FPGA to ASIC
+
+1. Replace BRAM with 55nm SRAM macros.
+2. Add DFT/scan and test coverage.
+3. Add clock/reset/power intent.
+4. Run synthesis with the 55nm library.
+5. Run place-and-route and timing closure.
+6. Run DRC/LVS.
+7. Define package, pad ring and ESD.
+8. Secure a foundry shuttle.
 
 ## Area and cost planning
 
@@ -123,29 +171,16 @@ See:
 - [synthesis-area.md](open6502-chip/synthesis-area.md)
 - [synthesis-and-cost.md](synthesis-and-cost.md)
 
-## What contributors can do now
+## Contributing
 
-| Area | Help wanted |
-|---|---|
-| PPU | fetch/shift pipeline, sprite evaluation, sprite-0 |
-| CPU | cycle accuracy, NMI/DMA corner cases |
-| APU | DMC arbitration, frame sequencer |
-| Mappers | MMC3 A12, CHR banking |
-| Verification | lockstep DiffTest, frame hashes |
-| FPGA | synthesis, BRAM, constraints, board |
-| ASIC | 55nm flow, SRAM, DFT, timing |
-| Docs | reproducible guides and test reports |
+See [CONTRIBUTING.md](../CONTRIBUTING.md) and the workstreams:
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md).
-
-## What is needed from the community
-
-- Reviewers with NES/6502 hardware knowledge.
-- Verification engineers with cocotb/Verilator/formal experience.
-- FPGA engineers with board bring-up experience.
-- ASIC engineers with 55nm synthesis/DFT/PDK experience.
-- Test ROMs and hardware captures with clear licenses.
-- Funding or shuttle access for tapeout.
+```text
+NEMU reference  -> verification, game compatibility, frame goldens
+RTL             -> CPU/PPU/APU/mapper RTL and DiffTest
+FPGA            -> synthesis, BRAM, timing, board
+ASIC            -> 55nm flow, SRAM, DFT, physical design
+```
 
 ## Non-negotiable rules
 

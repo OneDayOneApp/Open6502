@@ -7,6 +7,14 @@ tapeout-ready chip.
 We welcome contributors who can help with RTL, verification, FPGA bring-up,
 ASIC flow, documentation and testing.
 
+The project roadmap is:
+
+```text
+NEMU reference -> RTL SoC -> FPGA prototype -> 55nm ASIC tapeout
+```
+
+See [docs/55nm-tapeout-roadmap.md](docs/55nm-tapeout-roadmap.md).
+
 ## Before you start
 
 - Read [README.md](README.md) and [docs/55nm-tapeout-roadmap.md](docs/55nm-tapeout-roadmap.md).
