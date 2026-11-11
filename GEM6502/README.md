@@ -53,6 +53,60 @@ cycles=101 inst=49 reads=57 writes=1 frames=0 nmi=0 illegal=0
 stop=cycle limit
 ```
 
+## Interactive player
+
+With SDL2 installed (`sdl2-config` on PATH), `make` includes the desktop player.
+On macOS, install the dependency with `brew install sdl2` if needed, then run
+`make -B` to rebuild. Without SDL2, the command-line simulation still builds;
+`play` reports the missing dependency.
+
+```sh
+./gem6502 play ../roms/file-fixers.nes
+./gem6502 play ../roms/stallar.nes
+```
+
+The resizable window has a game view and clickable START, PAUSE/RESUME, RESET,
+HELP, MUTE, and QUIT buttons. START is held while the mouse button is down. The
+simulation runs at approximately 60 NTSC frames per second, pauses when the
+window loses focus, and clears held keys to prevent stuck input. Click RESUME
+or press P to resume. HELP also freezes the game while showing the controls.
+
+| Key | Action |
+|---|---|
+| Arrows or W/A/S/D | Move |
+| Space or Z / X | NES A (jump) / B |
+| Enter / Backspace | START / SELECT |
+| P | Pause / resume |
+| R | Restart ROM from power-on state |
+| F1 | Toggle controls help |
+| M | Mute / unmute |
+| Esc | Quit |
+
+The player controls port 1 with the keyboard and plays 44.1 kHz mono audio
+through SDL2. Pulse, triangle, noise, and DMC synthesis are adapted from the
+NEMU APU model. There is no gamepad support yet. Reset clears volatile cartridge RAM as well
+as CPU/PPU state. Rendering captures the register and CHR bank state at each visible PPU dot,
+while CPU/PPU advancement remains instruction-granular.
+
+The title bar reports `Sound on`, `Muted`, or `Audio unavailable`. Press Enter
+to start gameplay; some title screens are silent. If opening the output device
+fails, the player reports SDL's error and continues without audio. Pause/help,
+focus loss, mute, and reset clear queued samples; the queue is bounded to avoid
+long sound delays. Output uses the system's default audio device.
+
+`make test` checks silence, sample count, pulse pitch, triangle/noise output,
+and nonconstant PCM from both bundled MMC3 games. `make test-ui` additionally
+checks SDL queue submission and mute clearing with the dummy audio driver.
+
+```sh
+make test-ui
+```
+
+This uses SDL's dummy video driver to exercise the real event handler, input
+serialization, mouse buttons, focus loss, pause/help/reset/quit, texture upload,
+and rendering. Both MMC3 games receive START press/release events and run for
+240 frames. `make test difftest games mmc3` covers the headless regressions.
+
 ## Run a game
 
 GEM6502 can load an iNES mapper-0 ROM, run the CPU/PPU and render a PPM frame:
@@ -60,6 +114,7 @@ GEM6502 can load an iNES mapper-0 ROM, run the CPU/PPU and render a PPM frame:
 ```sh
 ./gem6502 game ../roms/falling.nes 60 /tmp/gem-title.ppm
 ./gem6502 game ../roms/falling.nes 120 /tmp/gem-game.ppm --start
+./gem6502 game ../roms/stallar.nes 600 /tmp/replay.ppm --replay-input=/tmp/input.bin
 ```
 
 Title screen:
@@ -76,6 +131,46 @@ Convert PPM to PNG:
 python3 -c 'from PIL import Image; Image.open("/tmp/gem-game.ppm").save("/tmp/gem-game.png")'
 ```
 
+## MMC3 games and timing regression
+
+The bundled mapper-4 games now run past the former frame-6 crash:
+
+```sh
+./gem6502 game ../roms/file-fixers.nes 600 /tmp/file-fixers.ppm --start
+./gem6502 game ../roms/stallar.nes 600 /tmp/stallar.ppm --start
+make mmc3
+```
+
+`make mmc3` requires the built `../NEMU/build/6502EMU`. It compares every CPU
+register, CPU cycle count, and PPU scanline/dot boundary for 60 title frames in
+each ROM, then runs each for 600 frames with START and checks completion,
+illegal-opcode count, and nonblank image output. Trace files are temporary. The regression also replays 1,200 frames of Stallar
+movement and repeated jumps, comparing the full CPU/clock trace and final
+framebuffer byte-for-byte against NEMU at frames 240, 360, 480, 600 and 1,200;
+full traces are compared at frames 600 and 1,200.
+NEMU traces PPU phase before advancement and GEM traces after advancement;
+the comparator aligns these boundaries explicitly.
+
+The fix separates 8 KiB cartridge PRG RAM from internal CPU RAM (the previous
+alias overwrote zero page and stack), accounts for all 513 OAM DMA cycles in
+CPU/PPU/APU/global clocks, and retains the rendering-dependent odd-frame dot
+skip. MMC3 CHR bank inversion and nametable mirroring are shared by PPU reads,
+sprite-hit sampling, and frame rendering. This remains a fast instruction-level
+model rather than a hardware dot-exact implementation. Frame output now preserves scan-time register/bank/palette state rather than
+repainting the whole frame with its final state. Scroll writes use separate
+current/temporary PPU addresses and fine X; visible-line Y increments and
+horizontal reloads follow the NEMU reference. Pending mapper IRQs are latched
+at instruction boundaries so mapper acknowledgement cannot discard an
+already-pending CPU interrupt.
+
+File Fixers after START:
+
+![File Fixers gameplay](docs/file-fixers-gameplay.png)
+
+Stallar after START:
+
+![Stallar gameplay](docs/stallar-gameplay.png)
+
 ## GEM5 mapping
 
 | GEM5 concept | GEM6502 implementation |
@@ -91,21 +186,33 @@ python3 -c 'from PIL import Image; Image.open("/tmp/gem-game.ppm").save("/tmp/ge
 ## Architecture
 
 ```text
-main.c
-  gem_create / gem_load_prg / gem_run
+main.c / frontend.c
+  command-line simulation / SDL2 interactive player
+
+cartridge.c
+  shared iNES loader for headless and interactive modes
 
 gem6502.c
   cpu_step       6502 instruction + cycle count
   gem_bus_read   RAM / PPU / APU / cartridge decode
   gem_bus_write  PPU/APU/$4014/OAM DMA/controller
   gem_ppu_advance  CPU cycles -> PPU dots -> vblank/NMI
-  gem_apu_advance  APU cycle counter
+  gem_apu_advance  APU cycle counter and PCM synthesis
   gem_run_events  event queue dispatch
 ```
 
 The PPU is advanced lazily by `cpu_cycles * 3`, not by one event per dot. This
 is the key speed tradeoff: the model is fast, but it does not model per-dot
 PPU/CPU interleaving exactly.
+
+## Bus inspection
+
+`gem_bus_read(gem, address, false)` peeks at a register without clearing PPU
+status/APU IRQ, advancing the PPU data buffer/address, shifting controllers,
+or increasing the read counter. CPU and OAM DMA reads pass `true` to perform
+normal bus reads. PPUDATA palette reads return palette data immediately,
+refill the delayed buffer from the underlying nametable, and advance the
+address using PPUCTRL's increment setting.
 
 ## Instruction coverage
 
@@ -129,10 +236,13 @@ extensions are intentionally illegal.
 - IRQ is a simple level model with the 240 Hz APU frame sequencer; no mapper IRQ yet.
 - PPU renderer is a compact background/sprite rasterizer, not a dot-exact PPU.
 - No per-dot PPU/CPU interleaving.
-- No APU audio synthesis; register file only.
+- Audio synthesis is approximate; DMC bus stalls and audio IRQ delivery are
+  not yet integrated with the CPU timing model.
 - Mapper 0/1/2/3/7 bus mapping is present.
 - MMC3 (mapper 4) PRG banking and A12 IRQ have unit coverage.
-- MMC3 games still fail after ~6 frames. NEMU/GEM PPU tracing now shows the next divergence is PPU phase: at `$F3D5`, NEMU is on scanline 240 cycle 339, GEM is on scanline 241 cycle 10, and the `$2002` vblank flag differs. Exact PPU phase/odd-frame dot skipping remains the blocker.
+- Bundled MMC3 games pass 60-frame CPU/cycle/PPU-phase comparison against NEMU
+  and 600-frame START gameplay smoke. MMC3 IRQ uses NEMU-compatible visible
+  scanline callbacks; hardware A12 filtering is still approximate.
 - No cycle-exact bus stalls for every PPU register access.
 - No checkpoint/restore.
 - No C++/Python bindings.
@@ -175,11 +285,15 @@ Current NROM results:
 
 ```text
 falling        colors=4  black=880
-galaxypatrol   colors=8  black=59335
+galaxypatrol   colors=7  black=61264
 hanoi          colors=3  black=0
-table_tennis   colors=3  black=56842
+table_tennis   colors=4  black=53563
 PASS: GEM6502 NROM game smoke
 ```
+
+Input replay uses NEMU's `NESINP01` format: an 8-byte magic followed by two
+controller bytes per frame (port 1, port 2). Missing frames release all buttons.
+This allows both emulators to reproduce the same movement sequence.
 
 ### NEMU golden-state diff
 
@@ -207,8 +321,8 @@ Each case currently matches for 25-35 instructions.
 
 1. Add NMI/IRQ priority and mapper IRQ tests.
 2. Add MMC3 (mapper 4) banking and A12 IRQ.
-3. Add frame hash comparison against NEMU for multiple games.
-4. Add APU frame sequencer and audio sample output.
+3. Extend movement replay/framebuffer comparison to more games.
+4. Refine APU frame sequencer, sweep/envelope timing and DMC bus stalls.
 5. Add checkpoint/restore.
 6. Add cocotb/C API bindings.
 7. Add NEMU/RTL/GEM6502 three-way trace comparison.

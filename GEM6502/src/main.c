@@ -1,6 +1,7 @@
 #include "gem6502.h"
 #include "ines.h"
 #include "render.h"
+#include "frontend.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,11 +13,12 @@ static void usage(const char *argv0) {
     "usage:\n"
     "  %s run <prg.bin> [max_cycles] [--trace]\n"
     "  %s stats <prg.bin>\n"
-    "  %s game <rom.nes> [frames] [out.ppm] [--start]\n"
+    "  %s game <rom.nes> [frames] [out.ppm] [--start] [--replay-input=F]\n"
+    "  %s play <rom.nes>\n"
     "\n"
     "run: raw PRG at $8000, reset vector from $FFFC/$FFFD.\n"
-    "game: iNES mapper-0 ROM, renders a 256x240 PPM frame.\n",
-    GEM6502_VERSION, argv0, argv0, argv0);
+    "game: iNES mapper 0/1/2/3/4/7 ROM, renders a 256x240 PPM frame.\n",
+    GEM6502_VERSION, argv0, argv0, argv0, argv0);
 }
 
 static int write_ppm(const char *path, const uint8_t *rgb) {
@@ -28,51 +30,39 @@ static int write_ppm(const char *path, const uint8_t *rgb) {
   return 0;
 }
 
-static int run_game(Gem *g, const char *rom, int frames, const char *out, bool press_start) {
-  GemInes ines;
-  memset(&ines, 0, sizeof(ines));
-  if (gem_ines_load(rom, &ines) != 0) {
-    fprintf(stderr, "gem6502: %s\n", ines.error);
-    gem_ines_free(&ines);
-    return 2;
-  }
-  if (ines.mapper != 0 && ines.mapper != 1 && ines.mapper != 2 &&
-      ines.mapper != 3 && ines.mapper != 4 && ines.mapper != 7) {
-    fprintf(stderr, "gem6502: mapper %d not implemented yet\n", ines.mapper);
-    gem_ines_free(&ines);
-    return 2;
-  }
-  if (ines.prg_size > GEM_CART_PRG_MAX) {
-    fprintf(stderr, "gem6502: PRG too large\n");
-    gem_ines_free(&ines);
-    return 2;
-  }
-  memset(g->bus.cart_prg, 0xEA, sizeof(g->bus.cart_prg));
-  memcpy(g->bus.cart_prg, ines.prg, ines.prg_size);
-  g->bus.cart_prg_size = ines.prg_size;
-  g->bus.mapper = (uint8_t)ines.mapper;
-  memset(g->bus.prg, 0xEA, sizeof(g->bus.prg));
-  memcpy(g->bus.prg, ines.prg, ines.prg_size < GEM_PRG_SIZE ? ines.prg_size : GEM_PRG_SIZE);
-  gem_reset(g);
-  g->apu.frame_inhibit = true;
-  /* gem_reset clears PPU state, so load CHR afterwards. */
-  memset(g->ppu.chr, 0, sizeof(g->ppu.chr));
-  if (ines.chr && ines.chr_size <= GEM_CHR_SIZE) {
-    memcpy(g->ppu.chr, ines.chr, ines.chr_size);
-  }
+static int run_game(Gem *g, const char *rom, int frames, const char *out, bool press_start, const char *replay) {
+  if (gem_load_game(g, rom) != 0) return 2;
 
   uint8_t *rgb = (uint8_t *)malloc(256u * 240u * 3u);
-  if (!rgb) { gem_ines_free(&ines); return 2; }
+  if (!rgb) return 2;
+  FILE *input = NULL;
+  if (replay) {
+    input = fopen(replay, "rb");
+    char magic[8];
+    if (!input || fread(magic, 1, 8, input) != 8 || memcmp(magic, "NESINP01", 8)) {
+      fprintf(stderr, "gem6502: invalid input replay\n");
+      if (input) fclose(input);
+      free(rgb); return 2;
+    }
+  }
+  uint64_t input_frame = UINT64_MAX;
   uint64_t start_cycles = g->cpu.cycles;
   int target = frames > 0 ? frames : 60;
   while (!g->cpu.halted && g->stats.ppu_frames < (uint64_t)target) {
+    if (input && input_frame != g->stats.ppu_frames) {
+      int p1 = fgetc(input), p2 = fgetc(input);
+      g->apu.joy1 = p1 == EOF ? 0 : (uint8_t)p1;
+      g->apu.joy2 = p2 == EOF ? 0 : (uint8_t)p2;
+      input_frame = g->stats.ppu_frames;
+    }
     if (press_start && g->stats.ppu_frames == 5) g->apu.joy1 = 0x08;
     gem_step(g);
   }
+  if (input) fclose(input);
   gem_render_frame(g, rgb, 256, 240);
   if (out) {
     if (write_ppm(out, rgb) != 0) {
-      free(rgb); gem_ines_free(&ines); return 2;
+      free(rgb); return 2;
     }
   }
   gem_print_stats(g);
@@ -83,7 +73,6 @@ static int run_game(Gem *g, const char *rom, int frames, const char *out, bool p
          (unsigned long long)g->stats.ppu_frames,
          (unsigned long long)(g->cpu.cycles - start_cycles), out ? out : "(none)");
   free(rgb);
-  gem_ines_free(&ines);
   return g->cpu.halted ? 1 : 0;
 }
 
@@ -91,16 +80,19 @@ int main(int argc, char **argv) {
   if (argc < 3) { usage(argv[0]); return 2; }
   const char *cmd = argv[1];
   const char *path = argv[2];
+  if (strcmp(cmd, "play") == 0) return gem_play(path);
   uint64_t max_cycles = 1000000;
   bool trace = false;
   const char *trace_state = NULL;
   bool press_start = false;
   int frames = 60;
   const char *out = NULL;
+  const char *replay = NULL;
 
   if (strcmp(cmd, "game") == 0) {
     for (int i = 3; i < argc; i++) {
-      if (strcmp(argv[i], "--start") == 0) press_start = true;
+      if (strncmp(argv[i], "--replay-input=", 15) == 0) replay = argv[i] + 15;
+      else if (strcmp(argv[i], "--start") == 0) press_start = true;
       else if (strncmp(argv[i], "--trace-state=", 14) == 0) trace_state = argv[i] + 14;
       else if (argv[i][0] == '-' && argv[i][1] == '-') { usage(argv[0]); return 2; }
       else if (frames == 60 && atoi(argv[i]) > 0) frames = atoi(argv[i]);
@@ -109,7 +101,7 @@ int main(int argc, char **argv) {
     Gem *g = gem_create();
     if (!g) return 2;
     if (trace_state) g->trace_state = fopen(trace_state, "w");
-    int rc = run_game(g, path, frames, out, press_start);
+    int rc = run_game(g, path, frames, out, press_start, replay);
     if (g->trace_state) fclose(g->trace_state);
     gem_destroy(g);
     return rc;

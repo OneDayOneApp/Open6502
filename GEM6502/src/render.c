@@ -75,6 +75,15 @@ void gem_render_frame(const Gem *gem, uint8_t *rgb, int width, int height) {
   const int draw_h = (height < GEM_RENDER_HEIGHT) ? height : GEM_RENDER_HEIGHT;
   const size_t stride = (size_t)width * 3u;
 
+  if (ppu->framebuffer_valid) {
+    for (int y = 0; y < height; y++) for (int x = 0; x < width; x++) {
+      uint32_t color = x < draw_w && y < draw_h ? ppu->framebuffer[y * 256 + x] : 0;
+      uint8_t *out = rgb + (size_t)y * stride + (size_t)x * 3;
+      out[0] = color >> 16; out[1] = color >> 8; out[2] = color;
+    }
+    return;
+  }
+
   const bool bg_enabled = (ppu->mask & 0x08u) != 0;
   const bool sprites_enabled = (ppu->mask & 0x10u) != 0;
   const int bg_pattern = (ppu->ctrl & 0x10u) ? 0x1000 : 0x0000;
@@ -127,8 +136,8 @@ void gem_render_frame(const Gem *gem, uint8_t *rgb, int width, int height) {
         GemSpriteLine *dst = &sprites[sprite_count++];
         dst->x = s[3];
         dst->attr = (uint8_t)attr;
-        dst->lo = ppu->chr[addr];
-        dst->hi = ppu->chr[addr + 8];
+        dst->lo = gem_chr_read(gem, addr);
+        dst->hi = gem_chr_read(gem, addr + 8);
       }
     }
 
@@ -143,14 +152,15 @@ void gem_render_frame(const Gem *gem, uint8_t *rgb, int width, int height) {
         const int tx = (px >> 3) & 31;
         const int fine_x = px & 7;
 
+        const int nt = (ppu->ctrl & 3) ^ ((px / 256) & 1) ^ (((py / 240) & 1) << 1);
         if (tx != cached_tx) {
-          const uint8_t tile = ppu->vram[(tile_y << 5) + tx];
-          const uint8_t attr = ppu->vram[attr_row + (tx >> 2)];
+          const uint8_t tile = ppu->vram[gem_nt_offset(gem, 0x2000 | (nt << 10) | (tile_y << 5) | tx)];
+          const uint8_t attr = ppu->vram[gem_nt_offset(gem, 0x2000 | (nt << 10) | (attr_row + (tx >> 2)))];
           const int shift = shift_y | (tx & 2);
           const int pat_addr = bg_pattern + (tile << 4) + fine_y;
           tile_pal = (attr >> shift) & 3;
-          tile_lo = ppu->chr[pat_addr];
-          tile_hi = ppu->chr[pat_addr + 8];
+          tile_lo = gem_chr_read(gem, pat_addr);
+          tile_hi = gem_chr_read(gem, pat_addr + 8);
           cached_tx = tx;
         }
 
@@ -206,4 +216,127 @@ void gem_render_frame(const Gem *gem, uint8_t *rgb, int width, int height) {
   for (int y = draw_h; y < height; ++y) {
     memset(rgb + (size_t)y * stride, 0, stride);
   }
+}
+
+/* Rasterize with the register and mapper state at the current PPU dot.
+ * Raster helpers follow NEMU/src/nes/ppu.c at instruction-level timing. */
+static uint32_t raster_rgb(uint8_t index) {
+  const uint8_t *c = k_nes_palette[index & 63];
+  return ((uint32_t)c[0] << 16) | ((uint32_t)c[1] << 8) | c[2];
+}
+static void background_pixel(Gem *g, int x, int y, uint32_t *out, bool *opaque) {
+  GemPpu *p = &g->ppu;
+  (void)y;
+  *out = raster_rgb(p->pal[0]);
+  *opaque = false;
+  if (!(p->mask & 0x08)) return;
+  if (x < 8 && !(p->mask & 0x02)) return;
+
+  int fine_y = (p->vaddr >> 12) & 7;
+  int coarse_y = (p->vaddr >> 5) & 0x1F;
+  int nt_base = (p->vaddr >> 10) & 3;
+  int coarse_x = p->vaddr & 0x1F;
+  if (coarse_y >= 30) coarse_y %= 30;
+  int pattern = (p->ctrl & 0x10) ? 0x1000 : 0x0000;
+
+  int scrolled = x + p->fine_x;
+  int tx = coarse_x + (scrolled >> 3);
+  int nt = (nt_base ^ ((tx >> 5) & 1)) & 3;
+  int tile_x = tx & 31;
+  uint16_t nt_addr = (uint16_t)(0x2000 | (nt << 10) | (coarse_y << 5) | tile_x);
+  uint8_t tile = g->ppu.vram[gem_nt_offset(g, nt_addr)];
+  uint16_t attr_addr = (uint16_t)(0x23C0 | (nt << 10) | ((coarse_y >> 2) << 3) | (tile_x >> 2));
+  uint8_t attr = g->ppu.vram[gem_nt_offset(g, attr_addr)];
+  int shift = ((coarse_y & 2) << 1) | (tile_x & 2);
+  int pal = (attr >> shift) & 3;
+  uint16_t pat = (uint16_t)(pattern | (tile << 4) | fine_y);
+  uint8_t lo = gem_chr_read(g, pat);
+  uint8_t hi = gem_chr_read(g, (uint16_t)(pat + 8));
+  int bit = 7 - (scrolled & 7);
+  int color = ((lo >> bit) & 1) | (((hi >> bit) & 1) << 1);
+  if (color != 0) {
+    *out = raster_rgb(p->pal[pal * 4 + color] & 0x3F);
+    *opaque = true;
+  }
+}
+
+static void render_sprites(Gem *g, int y, const uint8_t *bg_opaque, uint32_t *line) {
+  GemPpu *p = &g->ppu;
+  if (!(p->mask & 0x10)) return;
+  int height = (p->ctrl & 0x20) ? 16 : 8;
+  int sprite_table = (p->ctrl & 0x08) ? 0x1000 : 0x0000;
+  int sprite_count = 0;
+
+  /* Lower OAM indices have priority, so iterate backwards while drawing. */
+  for (int i = 63; i >= 0; i--) {
+    int sy = p->oam[i * 4 + 0] + 1;
+    int tile = p->oam[i * 4 + 1];
+    int attr = p->oam[i * 4 + 2];
+    int sx = p->oam[i * 4 + 3];
+    if (y < sy || y >= sy + height) continue;
+    sprite_count++;
+    int row = y - sy;
+    if (attr & 0x80) row = height - 1 - row;
+    int table = sprite_table;
+    if (height == 16) {
+      table = (tile & 1) ? 0x1000 : 0x0000;
+      tile &= 0xFE;
+      if (row >= 8) { row -= 8; tile++; }
+    }
+    uint16_t pat = (uint16_t)(table | (tile << 4) | (row & 7));
+    uint8_t lo = gem_chr_read(g, pat);
+    uint8_t hi = gem_chr_read(g, (uint16_t)(pat + 8));
+    for (int col = 0; col < 8; col++) {
+      int px = sx + col;
+      if (px < 0 || px >= 256) continue;
+      if (px < 8 && !(p->mask & 0x04)) continue;
+      int bit = (attr & 0x40) ? col : 7 - col;
+      int color = ((lo >> bit) & 1) | (((hi >> bit) & 1) << 1);
+      if (color == 0) continue;
+      if ((attr & 0x20) && bg_opaque[px]) continue;
+      uint8_t idx = p->pal[16 + (attr & 3) * 4 + color] & 0x3F;
+      line[px] = raster_rgb(idx);
+    }
+  }
+  if (sprite_count > 8) p->status |= 0x20;
+}
+
+static bool sprite0_opaque(Gem *g, int x, int y) {
+  GemPpu *p = &g->ppu;
+  if (!(p->mask & 0x10)) return false;
+  int height = (p->ctrl & 0x20) ? 16 : 8;
+  int sx = p->oam[3];
+  int sy = p->oam[0] + 1;
+  if (x < sx || x >= sx + 8 || y < sy || y >= sy + height) return false;
+  if (x < 8 && !(p->mask & 0x04)) return false;
+  int tile = p->oam[1];
+  int attr = p->oam[2];
+  int row = y - sy;
+  if (attr & 0x80) row = height - 1 - row;
+  int table = (p->ctrl & 0x08) ? 0x1000 : 0x0000;
+  if (height == 16) {
+    table = (tile & 1) ? 0x1000 : 0x0000;
+    tile &= 0xFE;
+    if (row >= 8) { row -= 8; tile++; }
+  }
+  uint16_t pat = (uint16_t)(table | (tile << 4) | (row & 7));
+  uint8_t lo = gem_chr_read(g, pat);
+  uint8_t hi = gem_chr_read(g, (uint16_t)(pat + 8));
+  int col = x - sx;
+  int bit = (attr & 0x40) ? col : 7 - col;
+  return (((lo >> bit) & 1) | (((hi >> bit) & 1) << 1)) != 0;
+}
+
+
+void gem_ppu_draw_dot(Gem *g) {
+  GemPpu *p = &g->ppu;
+  int x = p->cycle - 1, y = p->scanline;
+  bool opaque;
+  uint32_t color;
+  background_pixel(g, x, y, &color, &opaque);
+  p->framebuffer[y * 256 + x] = color;
+  p->bg_opaque[x] = opaque;
+  if (opaque && (p->mask & 0x18) == 0x18 && x != 255 && sprite0_opaque(g, x, y))
+    p->status |= 0x40;
+  if (x == 255) render_sprites(g, y, p->bg_opaque, &p->framebuffer[y * 256]);
 }

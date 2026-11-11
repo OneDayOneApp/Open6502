@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include "audio.h"
 
 #define GEM6502_VERSION "0.1.0"
 #define GEM_RAM_SIZE   0x0800u
@@ -39,6 +40,7 @@ typedef struct GemCpu {
   uint64_t instructions;
   int dma_stall;
   bool halted;
+  bool irq_pending;
   bool trace;
   const char *stop_reason;
 } GemCpu;
@@ -50,7 +52,12 @@ typedef struct GemPpu {
   uint8_t pal[GEM_PAL_SIZE];
   uint8_t chr[GEM_CHR_SIZE];
   uint8_t read_buf;
-  uint16_t vaddr;
+  uint16_t vaddr, taddr;
+  uint8_t fine_x;
+  bool nmi_line;
+  bool framebuffer_valid;
+  uint32_t framebuffer[256 * 240];
+  uint8_t bg_opaque[256];
   uint8_t scroll_x, scroll_y;
   bool w_toggle;
   int scanline;       /* current NEMU scanline */
@@ -61,9 +68,11 @@ typedef struct GemPpu {
 } GemPpu;
 
 typedef struct GemApu {
+  GemSound sound;
   uint8_t regs[0x18];
   uint64_t cycles;
   uint8_t joy1, joy2;
+  bool joy_strobe;
   uint8_t joy1_shift, joy2_shift;
   bool irq;
   uint64_t frame_div;
@@ -75,12 +84,14 @@ typedef struct GemApu {
 typedef struct GemBus {
   uint8_t ram[GEM_RAM_SIZE];
   uint8_t prg[GEM_PRG_SIZE];
+  uint8_t prg_ram[0x2000];
   uint8_t chr_rom[GEM_CHR_SIZE];
   uint8_t cart_prg[GEM_CART_PRG_MAX];
   size_t cart_prg_size;
   uint8_t cart_chr[GEM_CART_CHR_MAX];
   size_t cart_chr_size;
   uint8_t mapper;
+  bool vertical_mirroring;
   uint8_t m1_shift, m1_count, m1_ctrl, m1_chr0, m1_chr1, m1_prg;
   uint8_t m2_bank, m3_bank, m7_bank;
   uint8_t m4_select, m4_regs[8], m4_prg_mode, m4_chr_mode;
@@ -116,12 +127,16 @@ struct Gem {
 Gem *gem_create(void);
 void gem_destroy(Gem *gem);
 void gem_reset(Gem *gem);
+int gem_load_game(Gem *gem, const char *path);
 int gem_load_prg(Gem *gem, const char *path);
 int gem_run(Gem *gem, uint64_t max_cycles);
 int gem_step(Gem *gem);
+/* side_effect=false peeks without changing device state or read counters. */
 uint8_t gem_bus_read(Gem *gem, uint16_t addr, bool side_effect);
 void gem_bus_write(Gem *gem, uint16_t addr, uint8_t value);
 void gem_ppu_advance(Gem *gem, uint32_t cpu_cycles);
+uint8_t gem_chr_read(const Gem *gem, uint16_t addr);
+unsigned gem_nt_offset(const Gem *gem, uint16_t addr);
 void gem_cart_a12(Gem *gem, int level);
 void gem_apu_advance(Gem *gem, uint32_t cpu_cycles);
 void gem_print_stats(const Gem *gem);

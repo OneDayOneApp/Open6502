@@ -519,6 +519,8 @@ static void cpu_step(void) {
   }
   if (cart.irq) cpu.irq_pending = true;
   if (apu.frame_irq || apu.dmc.irq) cpu.irq_pending = true;
+  if (getenv("NEMU_DEBUG_IRQ") && cpu.irq_pending && !((cpu.p & 0x04) != 0))
+    fprintf(stderr, "IRQ pending after pc=%04x ppu=%d:%d cart=%d\n", (unsigned)(cpu.pc & 0xFFFF), ppu.scanline, ppu.cycle, cart.irq);
 }
 
 static bool run_frame(void) {

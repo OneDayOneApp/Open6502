@@ -202,6 +202,48 @@ int main(void) {
              pixel_eq(rgb, GEM_RENDER_WIDTH, 20, 23, 0xFF, 0xFE, 0xFF),
          "vertical sprite flip mirrors tile rows");
 
+  /* Scroll across a horizontal nametable boundary. */
+  clear_gem(&g);
+  g.bus.vertical_mirroring = true;
+  g.ppu.mask = 0x0A;
+  g.ppu.scroll_x = 252;
+  g.ppu.pal[1] = 0x30; g.ppu.pal[2] = 0x16;
+  fill_tile(&g, 0, 1, 1); fill_tile(&g, 0, 2, 2);
+  memset(g.ppu.vram, 1, 960); memset(g.ppu.vram + 1024, 2, 960);
+  render(&g, rgb);
+  expect(pixel_eq(rgb, 256, 0, 0, 255, 254, 255) &&
+         pixel_eq(rgb, 256, 4, 0, 181, 49, 32),
+         "horizontal scrolling switches nametables at the screen edge");
+
+  /* A bank or palette write after a pixel is scanned must not repaint it. */
+  clear_gem(&g);
+  g.ppu.mask = 0x0A;
+  g.ppu.pal[1] = 0x30;
+  fill_tile(&g, 0, 0, 1);
+  g.ppu.scanline = 0; g.ppu.cycle = 1;
+  gem_ppu_advance(&g, 1); /* x=0..2 white */
+  gem_bus_write(&g, 0x2006, 0x3F); gem_bus_write(&g, 0x2006, 1);
+  gem_bus_write(&g, 0x2007, 0x16);
+  g.ppu.vaddr = 0;
+  gem_ppu_advance(&g, 1); /* x=3..5 red */
+  g.ppu.framebuffer_valid = true;
+  render(&g, rgb);
+  expect(pixel_eq(rgb, 256, 0, 0, 255, 254, 255) &&
+         pixel_eq(rgb, 256, 3, 0, 181, 49, 32),
+         "raster output preserves palette changes within a frame");
+
+  clear_gem(&g);
+  g.ppu.mask = 8;
+  g.ppu.vaddr = 0x7000 | (29 << 5);
+  g.ppu.scanline = 0; g.ppu.cycle = 256;
+  gem_ppu_advance(&g, 1);
+  expect((g.ppu.vaddr & 0x7BE0) == 0x0800,
+         "fine Y overflow toggles vertical nametable at coarse row 29");
+  gem_bus_write(&g, 0x2005, 0xFD); gem_bus_write(&g, 0x2005, 0xEE);
+  expect(g.ppu.fine_x == 5 && (g.ppu.taddr & 31) == 31 &&
+         ((g.ppu.taddr >> 12) & 7) == 6 && ((g.ppu.taddr >> 5) & 31) == 29,
+         "scroll writes latch coarse and fine coordinates separately");
+
   if (failures == 0) {
     printf("ALL GEM6502 RENDER TESTS PASS\n");
     return 0;

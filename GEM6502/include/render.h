@@ -20,13 +20,17 @@ extern "C" {
  * If width/height are smaller, the image is cropped to the top-left corner.
  * No scaling is performed.
  *
- * Interprets PPU ctrl/mask bits for background and sprite enable and uses the
- * compact NTSC 2C02 palette. Rendering is a pure function of the Gem state:
- * it does not mutate the PPU (including the sprite-0 hit flag).
+ * When a frame has completed, exports the raster framebuffer captured during
+ * PPU advancement. Mid-frame register/CHR/palette changes therefore affect
+ * only pixels scanned after the change. Before any completed frame, renders
+ * a static preview from the current registers for debugging and unit tests.
+ * Export does not mutate the PPU, including sprite-0 hit status.
  *
  * gem may be NULL, rgb may be NULL, and width/height may be non-positive; in
  * those cases the function is a no-op.
  */
+void gem_ppu_draw_dot(Gem *gem);
+
 void gem_render_frame(const Gem *gem, uint8_t *rgb, int width, int height);
 
 #ifdef __cplusplus

@@ -11,6 +11,7 @@
  * It is deliberately not a gate-level model and not a full NES PPU renderer.
  */
 #include "gem6502.h"
+#include "render.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -249,8 +250,10 @@ static int cpu_step(Gem *g) {
   GemCpu *c = &g->cpu;
   if (c->halted) return 0;
   if (c->dma_stall > 0) {
-    int n = c->dma_stall > 64 ? 64 : c->dma_stall;
+    int n = c->dma_stall;
     c->dma_stall -= n;
+    c->cycles += n;
+    g->stats.cpu_cycles += n;
     return n;
   }
   if (g->ppu.nmi_pending) {
@@ -263,7 +266,10 @@ static int cpu_step(Gem *g) {
     c->cycles += 7;
     return 7;
   }
-  if ((g->apu.irq || g->bus.cart_irq) && !getf(g, F_I)) {
+  /* NEMU samples mapper/APU IRQs after completing each instruction and
+   * services the pending level on the following instruction boundary. */
+  if ((c->irq_pending || g->apu.irq || g->bus.cart_irq) && !getf(g, F_I)) {
+    c->irq_pending = false;
     if (getenv("GEM_DEBUG_IRQ"))
       fprintf(stderr, "IRQ entry pc=%04x sp=%02x p=%02x cart=%d apu=%d\n",
               c->pc, c->sp, c->p, g->bus.cart_irq, g->apu.irq);
@@ -504,45 +510,89 @@ int gem_run_events(Gem *g, uint64_t until) {
 }
 
 /* ---------- Bus / devices ---------- */
+uint8_t gem_chr_read(const Gem *g, uint16_t addr) {
+  addr &= 0x1FFF;
+  if (!g->bus.cart_chr_size) return g->ppu.chr[addr];
+  unsigned bank = addr >> 10;
+  if (g->bus.mapper == 4) {
+    unsigned slot = bank ^ (g->bus.m4_chr_mode ? 4 : 0);
+    if (slot < 4) bank = (g->bus.m4_regs[slot >> 1] & 0xFE) + (slot & 1);
+    else bank = g->bus.m4_regs[slot - 2];
+  }
+  return g->bus.cart_chr[(bank * 0x400u + (addr & 0x3FF)) % g->bus.cart_chr_size];
+}
+
+unsigned gem_nt_offset(const Gem *g, uint16_t addr) {
+  unsigned nt = (addr >> 10) & 3;
+  unsigned page = g->bus.vertical_mirroring ? (nt & 1) : (nt >> 1);
+  return page * 0x400 + (addr & 0x3FF);
+}
+
+static unsigned palette_offset(uint16_t addr) {
+  unsigned index = addr & 31;
+  return (index & 0x13) == 0x10 ? index & 0x0F : index;
+}
+
 static void ppu_register_write(Gem *g, uint8_t reg, uint8_t v) {
   GemPpu *p = &g->ppu;
   switch (reg) {
-    case 0: p->ctrl = v; break;
+    case 0:
+      p->ctrl = v;
+      p->taddr = (p->taddr & ~0x0C00) | ((v & 3) << 10);
+      if ((v & 0x80) && (p->status & 0x80) && !p->nmi_line) {
+        p->nmi_pending = p->nmi_line = true;
+      }
+      break;
     case 1: p->mask = v; break;
     case 3: p->oam_addr = v; break;
     case 4: p->oam[p->oam_addr++] = v; break;
     case 5:
-      if (!p->w_toggle) p->scroll_x = v; else p->scroll_y = v;
+      if (!p->w_toggle) {
+        p->scroll_x = v;
+        p->fine_x = v & 7;
+        p->taddr = (p->taddr & ~0x001F) | (v >> 3);
+      } else {
+        p->scroll_y = v;
+        p->taddr = (p->taddr & ~0x73E0) | ((v & 0xF8) << 2) | ((v & 7) << 12);
+      }
       p->w_toggle = !p->w_toggle; break;
     case 6:
-      if (!p->w_toggle) p->vaddr = (uint16_t)((p->vaddr & 0x00FF) | (v << 8));
-      else p->vaddr = (uint16_t)((p->vaddr & 0xFF00) | v);
+      if (!p->w_toggle) p->taddr = (p->taddr & 0x00FF) | ((v & 0x3F) << 8);
+      else { p->taddr = (p->taddr & 0x7F00) | v; p->vaddr = p->taddr; }
       p->w_toggle = !p->w_toggle; break;
-    case 7:
-      if (p->vaddr < 0x2000) p->chr[p->vaddr & 0x1FFF] = v;
-      else if (p->vaddr < 0x3F00) p->vram[(p->vaddr - 0x2000) & 0x07FF] = v;
-      else p->pal[p->vaddr & 0x1F] = v;
-      p->vaddr = (uint16_t)(p->vaddr + ((p->ctrl & 0x04) ? 32 : 1));
+    case 7: {
+      uint16_t addr = p->vaddr & 0x3FFF;
+      if (addr < 0x2000) { if (!g->bus.cart_chr_size) p->chr[addr] = v; }
+      else if (addr < 0x3F00) p->vram[gem_nt_offset(g, addr)] = v;
+      else p->pal[palette_offset(addr)] = v & 0x3F;
+      p->vaddr = (p->vaddr + ((p->ctrl & 0x04) ? 32 : 1)) & 0x7FFF;
       break;
+    }
     default: break;
   }
 }
-static uint8_t ppu_register_read(Gem *g, uint8_t reg) {
+static uint8_t ppu_register_read(Gem *g, uint8_t reg, bool side_effect) {
   GemPpu *p = &g->ppu;
   switch (reg) {
     case 2: {
       uint8_t v = p->status;
-      p->status &= (uint8_t)~0x80;
-      p->w_toggle = false;
+      if (side_effect) {
+        p->status &= (uint8_t)~0x80;
+        p->w_toggle = false;
+      }
       return v;
     }
     case 4: return p->oam[p->oam_addr];
     case 7: {
-      uint8_t v = p->read_buf;
-      if (p->vaddr < 0x2000) p->read_buf = p->chr[p->vaddr & 0x1FFF];
-      else if (p->vaddr < 0x3F00) p->read_buf = p->vram[(p->vaddr - 0x2000) & 0x07FF];
-      else return p->pal[p->vaddr & 0x1F];
-      p->vaddr = (uint16_t)(p->vaddr + ((p->ctrl & 0x04) ? 32 : 1));
+      uint16_t addr = p->vaddr & 0x3FFF;
+      uint8_t v = addr >= 0x3F00 ? p->pal[palette_offset(addr)] : p->read_buf;
+      if (side_effect) {
+        /* Palette reads bypass the buffer but refill it from the underlying
+         * nametable. All reads advance, including palette reads. */
+        if (addr < 0x2000) p->read_buf = gem_chr_read(g, addr);
+        else p->read_buf = p->vram[gem_nt_offset(g, addr)];
+        p->vaddr = (uint16_t)((p->vaddr + ((p->ctrl & 0x04) ? 32 : 1)) & 0x7FFF);
+      }
       return v;
     }
     default: return 0;
@@ -618,7 +668,7 @@ static void cart_write(Gem *g, uint16_t addr, uint8_t value) {
           g->bus.m4_prg_mode = (value >> 6) & 1u;
           g->bus.m4_chr_mode = (value >> 7) & 1u;
         } else if (addr < 0xC000) {
-          /* mirroring: not modelled in this fast model */
+          g->bus.vertical_mirroring = !(value & 1);
         } else if (addr < 0xE000) {
           g->bus.m4_irq_latch = value;
         } else {
@@ -643,31 +693,33 @@ static void cart_write(Gem *g, uint16_t addr, uint8_t value) {
 }
 
 uint8_t gem_bus_read(Gem *g, uint16_t addr, bool side_effect) {
-  (void)side_effect;
-  g->stats.bus_reads++;
+  if (side_effect) g->stats.bus_reads++;
   if (addr < 0x2000) return g->bus.ram[addr & 0x07FF];
-  if (addr < 0x4000) return ppu_register_read(g, (uint8_t)(addr & 7));
+  if (addr < 0x4000) return ppu_register_read(g, (uint8_t)(addr & 7), side_effect);
   if (addr < 0x4020) {
     switch (addr) {
       case 0x4015: {
         uint8_t v = (uint8_t)(g->apu.regs[0x15] & 0x1F);
-        if (g->apu.irq) { v |= 0x40; g->apu.irq = false; }
+        if (g->apu.irq) {
+          v |= 0x40;
+          if (side_effect) g->apu.irq = false;
+        }
         return v;
       }
       case 0x4016: {
-        uint8_t v = g->apu.joy1_shift & 1;
-        g->apu.joy1_shift >>= 1;
+        uint8_t v = (g->apu.joy_strobe ? g->apu.joy1 : g->apu.joy1_shift) & 1;
+        if (side_effect && !g->apu.joy_strobe) g->apu.joy1_shift >>= 1;
         return v;
       }
       case 0x4017: {
-        uint8_t v = g->apu.joy2_shift & 1;
-        g->apu.joy2_shift >>= 1;
+        uint8_t v = (g->apu.joy_strobe ? g->apu.joy2 : g->apu.joy2_shift) & 1;
+        if (side_effect && !g->apu.joy_strobe) g->apu.joy2_shift >>= 1;
         return v;
       }
       default: return 0;
     }
   }
-  if (addr >= 0x6000 && addr < 0x8000) return g->bus.ram[addr & 0x07FF];
+  if (addr >= 0x6000 && addr < 0x8000) return g->bus.prg_ram[addr - 0x6000];
   if (addr >= 0x8000) {
     if (g->bus.cart_prg_size) return g->bus.cart_prg[cart_prg_offset(g, addr)];
     return g->bus.prg[(addr - 0x8000) & 0x7FFF];
@@ -685,13 +737,16 @@ void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
     if (addr == 0x4014) {
       uint16_t page = (uint16_t)(value << 8);
       for (int i = 0; i < 256; i++)
-        g->ppu.oam[i] = gem_bus_read(g, (uint16_t)(page + i), false);
+        g->ppu.oam[(g->ppu.oam_addr + i) & 0xFF] = gem_bus_read(g, (uint16_t)(page + i), true);
       g->cpu.dma_stall = 513;
       return;
     }
     if (addr == 0x4016) {
-      g->apu.joy1_shift = g->apu.joy1;
-      g->apu.joy2_shift = g->apu.joy2;
+      g->apu.joy_strobe = (value & 1) != 0;
+      if (g->apu.joy_strobe) {
+        g->apu.joy1_shift = g->apu.joy1;
+        g->apu.joy2_shift = g->apu.joy2;
+      }
       return;
     }
     if (addr == 0x4017) {
@@ -701,10 +756,11 @@ void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
       g->apu.frame_div = 0;
       if (g->apu.frame_inhibit) g->apu.irq = false;
     }
+    gem_sound_write(&g->apu.sound, addr, value);
     g->apu.regs[addr & 0x1F] = value;
     return;
   }
-  if (addr >= 0x6000 && addr < 0x8000) { g->bus.ram[addr & 0x07FF] = value; return; }
+  if (addr >= 0x6000 && addr < 0x8000) { g->bus.prg_ram[addr - 0x6000] = value; return; }
   if (addr >= 0x8000) { cart_write(g, addr, value); return; }
 }
 
@@ -712,6 +768,8 @@ void gem_cart_a12(Gem *g, int level) {
   static int prev = 0;
   if (g->bus.mapper != 4) return;
   if (level && !prev) {
+    if (getenv("GEM_DEBUG_IRQ")) fprintf(stderr, "A12 IRQ edge pc=%04x sl=%d cyc=%d counter=%u latch=%u enable=%d\n", g->cpu.pc, g->ppu.scanline, g->ppu.cycle, g->bus.m4_irq_counter, g->bus.m4_irq_latch, g->bus.m4_irq_enable);
+
     if (g->bus.m4_irq_counter == 0 || g->bus.m4_irq_reload) {
       g->bus.m4_irq_counter = g->bus.m4_irq_latch;
       g->bus.m4_irq_reload = 0;
@@ -725,20 +783,60 @@ void gem_cart_a12(Gem *g, int level) {
   prev = level;
 }
 
+static void ppu_inc_y(GemPpu *p) {
+  if ((p->vaddr & 0x7000) != 0x7000) p->vaddr += 0x1000;
+  else {
+    p->vaddr &= ~0x7000;
+    int y = (p->vaddr >> 5) & 31;
+    if (y == 29) { y = 0; p->vaddr ^= 0x0800; }
+    else if (y == 31) y = 0;
+    else y++;
+    p->vaddr = (p->vaddr & ~0x03E0) | (y << 5);
+  }
+}
+
 void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {
   GemPpu *p = &g->ppu;
   int n = (int)cpu_cycles * 3;
   for (int i = 0; i < n; i++) {
     if (p->scanline == 261 && p->cycle == 1) {
       p->status &= (uint8_t)~0xE0;
+      p->nmi_line = false;
+      if (p->mask & 0x18) p->vaddr = p->taddr;
+      p->framebuffer_valid = true;
       p->frame_ready = true;
       g->stats.ppu_frames++;
       p->odd_frame = !p->odd_frame;
     }
     if (p->scanline == 241 && p->cycle == 1) {
       p->status |= 0x80;
-      if (p->ctrl & 0x80) p->nmi_pending = true;
+      if (p->ctrl & 0x80) p->nmi_pending = p->nmi_line = true;
     }
+    if (g->bus.mapper == 4 && p->scanline == 240 && p->cycle == 0 &&
+        getenv("GEM_DEBUG_IRQ")) {
+      fprintf(stderr, "pre-vblank m4 counter=%u latch=%u reload=%u enable=%d irq=%d pc=%04x\\n",
+              g->bus.m4_irq_counter, g->bus.m4_irq_latch, g->bus.m4_irq_reload,
+              g->bus.m4_irq_enable, g->bus.cart_irq, g->cpu.pc);
+    }
+    /* NEMU reference clocks MMC3 once at the start of each visible
+     * scanline; use the same callback point instead of synthetic pattern
+     * addresses for this fast-cycle model. */
+    if (p->cycle == 0 && p->scanline < 240 && g->bus.mapper == 4) {
+      if (g->bus.m4_irq_counter == 0 || g->bus.m4_irq_reload) {
+        g->bus.m4_irq_counter = g->bus.m4_irq_latch;
+        g->bus.m4_irq_reload = 0;
+      } else {
+        g->bus.m4_irq_counter--;
+      }
+      if (g->bus.m4_irq_counter == 0 && g->bus.m4_irq_enable)
+        g->bus.cart_irq = true;
+    }
+    if (p->scanline < 240 && p->cycle >= 1 && p->cycle <= 256) {
+      gem_ppu_draw_dot(g);
+      if (p->cycle == 256 && (p->mask & 0x18)) ppu_inc_y(p);
+    }
+    if (p->scanline < 240 && p->cycle == 257 && (p->mask & 0x18))
+      p->vaddr = (p->vaddr & ~0x041F) | (p->taddr & 0x041F);
     /* Odd frames skip PPU dot 340 of the pre-render scanline when rendering is enabled. */
     if (p->scanline == 261 && p->cycle == 339 && p->odd_frame &&
         (p->mask & 0x18)) {
@@ -756,6 +854,7 @@ void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {
 }
 void gem_apu_advance(Gem *g, uint32_t cpu_cycles) {
   GemApu *a = &g->apu;
+  gem_sound_step(&a->sound, (int)cpu_cycles, false);
   a->cycles += cpu_cycles;
   a->frame_div += cpu_cycles;
   /* 240 Hz frame sequencer approximation: 7457 CPU cycles per step. */
@@ -779,10 +878,16 @@ void gem_destroy(Gem *g) {
   gem_event_destroy(&g->events);
   free(g);
 }
+static uint8_t sound_dmc_read(void *bus, uint16_t addr) {
+  return gem_bus_read((Gem *)bus, addr, false);
+}
 void gem_reset(Gem *g) {
   memset(&g->cpu, 0, sizeof(g->cpu));
   memset(&g->ppu, 0, sizeof(g->ppu));
   memset(&g->apu, 0, sizeof(g->apu));
+  gem_sound_reset(&g->apu.sound);
+  g->apu.sound.dmc_read = sound_dmc_read;
+  g->apu.sound.dmc_bus = g;
   memset(&g->stats, 0, sizeof(g->stats));
   g->cpu.sp = 0xFD;
   g->cpu.p = F_U | F_I;
@@ -804,9 +909,19 @@ int gem_load_prg(Gem *g, const char *path) {
 int gem_step(Gem *g) {
   int c = cpu_step(g);
   if (c > 0) {
+    /* Account for OAM DMA with the triggering instruction, before sampling
+     * interrupts. The fast model advances the PPU once for the whole stall. */
+    if (g->cpu.dma_stall > 0) {
+      int stall = g->cpu.dma_stall;
+      g->cpu.dma_stall = 0;
+      g->cpu.cycles += stall;
+      g->stats.cpu_cycles += stall;
+      c += stall;
+    }
     g->now += (uint64_t)c;
     gem_ppu_advance(g, (uint32_t)c);
     gem_apu_advance(g, (uint32_t)c);
+    if (g->apu.irq || g->bus.cart_irq) g->cpu.irq_pending = true;
     if (g->trace_state) {
       fprintf(g->trace_state, "%04x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %llu %d %llu %d\n",
               g->cpu.pc, g->cpu.a, g->cpu.x, g->cpu.y, g->cpu.sp, g->cpu.p,

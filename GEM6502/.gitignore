@@ -2,3 +2,7 @@ gem6502
 tests/test_gem6502
 *.o
 *.dSYM/
+
+/tests/test_frontend
+
+/tests/test_audio
