@@ -180,16 +180,18 @@ static void test_trainer(void) {
   puts("PASS: trainer image rejected");
 }
 
-static void test_unsupported_mapper(void) {
+static void test_mapper_header(void) {
   uint8_t header[GEM_INES_HEADER_SIZE];
   char path[256];
-
+  GemInes ines;
   make_header(header, 1, 1, 0x20, 0x00); /* mapper 2 */
   tmp_path(path, sizeof(path), "mapper");
   assert(write_image(path, header, 0x4000, 0x2000, 0) == 0);
-  expect_rejected(path, "mapper");
+  assert(gem_ines_load(path, &ines) == 0);
+  assert(ines.mapper == 2);
+  gem_ines_free(&ines);
   remove(path);
-  puts("PASS: non-NROM mapper reported");
+  puts("PASS: mapper header parsed");
 }
 
 static void test_truncated_files(void) {
@@ -281,7 +283,7 @@ int main(int argc, char **argv) {
   test_nes2_header();
   test_bad_magic();
   test_trainer();
-  test_unsupported_mapper();
+  test_mapper_header();
   test_truncated_files();
   test_missing_and_null();
 

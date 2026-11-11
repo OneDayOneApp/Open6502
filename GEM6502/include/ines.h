@@ -37,8 +37,8 @@ typedef struct GemInes {
  * Load an iNES image from path.
  *
  * Returns 0 on success and -1 on failure.  On failure out->error holds a
- * human-readable reason (and no buffers are left allocated).  Only mapper 0
- * (NROM) is accepted; trainer-bearing images are rejected.
+ * human-readable reason (and no buffers are left allocated).  Trainer-bearing
+ * images are rejected.  Mapper support is implemented by the SoC/bus layer.
  */
 int gem_ines_load(const char *path, GemInes *out);
 

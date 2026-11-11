@@ -128,14 +128,6 @@ int gem_ines_load(const char *path, GemInes *out) {
                        : ((flags6 & 0x01u) ? GEM_INES_MIRROR_VERTICAL
                                            : GEM_INES_MIRROR_HORIZONTAL);
 
-  if (mapper != 0) {
-    ines_set_error(out,
-                   "unsupported mapper %d (only mapper 0 / NROM is supported)",
-                   mapper);
-    fclose(fp);
-    return -1;
-  }
-
   if (prg_banks == 0) {
     ines_set_error(out, "invalid iNES header: PRG bank count is 0");
     fclose(fp);

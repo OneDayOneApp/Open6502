@@ -13,6 +13,8 @@
 #define GEM_VRAM_SIZE  0x0800u
 #define GEM_OAM_SIZE   0x0100u
 #define GEM_PAL_SIZE   0x0020u
+#define GEM_CART_PRG_MAX 0x40000u
+#define GEM_CART_CHR_MAX 0x20000u
 
 typedef struct Gem Gem;
 
@@ -73,6 +75,13 @@ typedef struct GemBus {
   uint8_t ram[GEM_RAM_SIZE];
   uint8_t prg[GEM_PRG_SIZE];
   uint8_t chr_rom[GEM_CHR_SIZE];
+  uint8_t cart_prg[GEM_CART_PRG_MAX];
+  size_t cart_prg_size;
+  uint8_t cart_chr[GEM_CART_CHR_MAX];
+  size_t cart_chr_size;
+  uint8_t mapper;
+  uint8_t m1_shift, m1_count, m1_ctrl, m1_chr0, m1_chr1, m1_prg;
+  uint8_t m2_bank, m3_bank, m7_bank;
   uint64_t reads;
   uint64_t writes;
 } GemBus;

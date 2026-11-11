@@ -516,6 +516,63 @@ static uint8_t ppu_register_read(Gem *g, uint8_t reg) {
   }
 }
 
+
+static size_t cart_prg_offset(Gem *g, uint16_t addr) {
+  size_t size = g->bus.cart_prg_size;
+  if (size == 0) return (size_t)(addr - 0x8000);
+  switch (g->bus.mapper) {
+    case 0:
+      return (size_t)(addr - 0x8000) & (size - 1u);
+    case 1: {
+      size_t bank;
+      if (g->bus.m1_ctrl & 0x08u) {
+        bank = (addr < 0xC000) ? (g->bus.m1_prg & 0x0Fu)
+                               : (size / 0x4000u - 1u);
+      } else {
+        bank = (g->bus.m1_prg & 0x0Eu) >> 1;
+      }
+      return (bank * 0x4000u + (addr & 0x3FFFu)) % size;
+    }
+    case 2: {
+      size_t bank = (addr < 0xC000) ? (g->bus.m2_bank & 0x0Fu)
+                                    : (size / 0x4000u - 1u);
+      return (bank * 0x4000u + (addr & 0x3FFFu)) % size;
+    }
+    case 3:
+      return (size_t)(addr - 0x8000) & (size - 1u);
+    case 7: {
+      size_t bank = g->bus.m7_bank & 0x07u;
+      return (bank * 0x8000u + (addr & 0x7FFFu)) % size;
+    }
+    default:
+      return (size_t)(addr - 0x8000) & (size - 1u);
+  }
+}
+
+static void cart_write(Gem *g, uint16_t addr, uint8_t value) {
+  switch (g->bus.mapper) {
+    case 1:
+      if (value & 0x80u) {
+        g->bus.m1_shift = 0; g->bus.m1_count = 0;
+      } else {
+        g->bus.m1_shift |= (uint8_t)((value & 1u) << g->bus.m1_count);
+        if (++g->bus.m1_count == 5) {
+          uint8_t v = g->bus.m1_shift & 0x1Fu;
+          if (addr < 0xA000) g->bus.m1_ctrl = v;
+          else if (addr < 0xC000) g->bus.m1_chr0 = v;
+          else if (addr < 0xE000) g->bus.m1_chr1 = v;
+          else g->bus.m1_prg = v;
+          g->bus.m1_shift = 0; g->bus.m1_count = 0;
+        }
+      }
+      break;
+    case 2: g->bus.m2_bank = value & 0x0Fu; break;
+    case 3: g->bus.m3_bank = value & 0x03u; break;
+    case 7: g->bus.m7_bank = value & 0x07u; break;
+    default: break;
+  }
+}
+
 uint8_t gem_bus_read(Gem *g, uint16_t addr, bool side_effect) {
   (void)side_effect;
   g->stats.bus_reads++;
@@ -542,7 +599,10 @@ uint8_t gem_bus_read(Gem *g, uint16_t addr, bool side_effect) {
     }
   }
   if (addr >= 0x6000 && addr < 0x8000) return g->bus.ram[addr & 0x07FF];
-  if (addr >= 0x8000) return g->bus.prg[(addr - 0x8000) & 0x7FFF];
+  if (addr >= 0x8000) {
+    if (g->bus.cart_prg_size) return g->bus.cart_prg[cart_prg_offset(g, addr)];
+    return g->bus.prg[(addr - 0x8000) & 0x7FFF];
+  }
   return 0;
 }
 
@@ -574,7 +634,7 @@ void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
     return;
   }
   if (addr >= 0x6000 && addr < 0x8000) { g->bus.ram[addr & 0x07FF] = value; return; }
-  /* NROM: writes to PRG are ignored. */
+  if (addr >= 0x8000) { cart_write(g, addr, value); return; }
 }
 
 void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {

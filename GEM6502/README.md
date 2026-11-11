@@ -130,7 +130,7 @@ extensions are intentionally illegal.
 - PPU renderer is a compact background/sprite rasterizer, not a dot-exact PPU.
 - No per-dot PPU/CPU interleaving.
 - No APU audio synthesis; register file only.
-- Mapper 0 only in the game loader; no MMC1/MMC3 banking yet.
+- Mapper 0/1/2/3/7 bus mapping is present; MMC3 (mapper 4) banking/IRQ is not yet implemented.
 - No cycle-exact bus stalls for every PPU register access.
 - No checkpoint/restore.
 - No C++/Python bindings.
@@ -203,7 +203,7 @@ Each case currently matches for 25-35 instructions.
 ## Roadmap
 
 1. Add NMI/IRQ priority and mapper IRQ tests.
-2. Add mapper 1/2/3/4/7 banking.
+2. Add MMC3 (mapper 4) banking and A12 IRQ.
 3. Add frame hash comparison against NEMU for multiple games.
 4. Add APU frame sequencer and audio sample output.
 5. Add checkpoint/restore.

@@ -36,18 +36,23 @@ static int run_game(Gem *g, const char *rom, int frames, const char *out, bool p
     gem_ines_free(&ines);
     return 2;
   }
-  if (ines.mapper != 0) {
+  if (ines.mapper != 0 && ines.mapper != 1 && ines.mapper != 2 &&
+      ines.mapper != 3 && ines.mapper != 7) {
     fprintf(stderr, "gem6502: mapper %d not implemented yet\n", ines.mapper);
     gem_ines_free(&ines);
     return 2;
   }
-  if (ines.prg_size > GEM_PRG_SIZE) {
+  if (ines.prg_size > GEM_CART_PRG_MAX) {
     fprintf(stderr, "gem6502: PRG too large\n");
     gem_ines_free(&ines);
     return 2;
   }
+  memset(g->bus.cart_prg, 0xEA, sizeof(g->bus.cart_prg));
+  memcpy(g->bus.cart_prg, ines.prg, ines.prg_size);
+  g->bus.cart_prg_size = ines.prg_size;
+  g->bus.mapper = (uint8_t)ines.mapper;
   memset(g->bus.prg, 0xEA, sizeof(g->bus.prg));
-  memcpy(g->bus.prg, ines.prg, ines.prg_size);
+  memcpy(g->bus.prg, ines.prg, ines.prg_size < GEM_PRG_SIZE ? ines.prg_size : GEM_PRG_SIZE);
   gem_reset(g);
   /* gem_reset clears PPU state, so load CHR afterwards. */
   memset(g->ppu.chr, 0, sizeof(g->ppu.chr));
