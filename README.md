@@ -279,6 +279,7 @@ rtl/                  SystemVerilog SoC
 tb/                   SystemVerilog testbenches
 sim/difftest/         NEMU/RTL DiffTest
 sim/game/             RTL game bring-up
+GEM6502/              fast C cycle model for 6502/NES SoC
 docs/                 Design, verification, area and cost documents
 ```
 
@@ -301,8 +302,9 @@ docs/                 Design, verification, area and cost documents
 - [Synthesis area](docs/open6502-chip/synthesis-area.md)
 - [START recovery plan](docs/open6502-chip/startup-recovery-plan.md)
 
-### Emulator and golden reference
+### Models and reference
 
+- [GEM6502 fast C cycle model](GEM6502/README.md)
 - [6502EMU guide](NEMU/6502EMU.md)
 - [NES golden reference design](docs/nes-golden-reference/design.md)
 - [NES golden reference test plan](docs/nes-golden-reference/test-plan.md)

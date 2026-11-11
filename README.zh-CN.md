@@ -275,6 +275,7 @@ rtl/                  SystemVerilog SoC
 tb/                   SystemVerilog 测试平台
 sim/difftest/         NEMU/RTL DiffTest
 sim/game/             RTL 游戏 bring-up
+GEM6502/              6502/NES SoC 的快速 C 周期模型
 docs/                 设计、验证、面积与成本文档
 ```
 
@@ -297,8 +298,9 @@ docs/                 设计、验证、面积与成本文档
 - [综合面积](docs/open6502-chip/synthesis-area.md)
 - [START 恢复计划](docs/open6502-chip/startup-recovery-plan.md)
 
-### 模拟器与 golden reference
+### 模型与参考
 
+- [GEM6502 快速 C 周期模型](GEM6502/README.md)
 - [6502EMU 指南](NEMU/6502EMU.md)
 - [NES golden reference 设计](docs/nes-golden-reference/design.md)
 - [NES golden reference 测试计划](docs/nes-golden-reference/test-plan.md)
