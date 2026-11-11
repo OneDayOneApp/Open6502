@@ -259,6 +259,14 @@ static int cpu_step(Gem *g) {
     c->cycles += 7;
     return 7;
   }
+  if (g->apu.irq && !getf(g, F_I)) {
+    push8(g, (uint8_t)(c->pc >> 8)); push8(g, (uint8_t)c->pc);
+    push8(g, (uint8_t)(c->p | F_U));
+    setf(g, F_I, true);
+    c->pc = read16(g, 0xFFFE);
+    c->cycles += 7;
+    return 7;
+  }
   uint16_t op_pc = c->pc;
   uint8_t opcode = fetch8(g);
   const OpInfo *info = &optab[opcode];
@@ -515,7 +523,11 @@ uint8_t gem_bus_read(Gem *g, uint16_t addr, bool side_effect) {
   if (addr < 0x4000) return ppu_register_read(g, (uint8_t)(addr & 7));
   if (addr < 0x4020) {
     switch (addr) {
-      case 0x4015: return 0;
+      case 0x4015: {
+        uint8_t v = (uint8_t)(g->apu.regs[0x15] & 0x1F);
+        if (g->apu.irq) { v |= 0x40; g->apu.irq = false; }
+        return v;
+      }
       case 0x4016: {
         uint8_t v = g->apu.joy1_shift & 1;
         g->apu.joy1_shift >>= 1;
@@ -551,6 +563,13 @@ void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
       g->apu.joy2_shift = g->apu.joy2;
       return;
     }
+    if (addr == 0x4017) {
+      g->apu.frame_mode = (value & 0x80) != 0;
+      g->apu.frame_inhibit = (value & 0x40) != 0;
+      g->apu.frame_step = 0;
+      g->apu.frame_div = 0;
+      if (g->apu.frame_inhibit) g->apu.irq = false;
+    }
     g->apu.regs[addr & 0x1F] = value;
     return;
   }
@@ -576,7 +595,17 @@ void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {
     }
   }
 }
-void gem_apu_advance(Gem *g, uint32_t cpu_cycles) { g->apu.cycles += cpu_cycles; }
+void gem_apu_advance(Gem *g, uint32_t cpu_cycles) {
+  GemApu *a = &g->apu;
+  a->cycles += cpu_cycles;
+  a->frame_div += cpu_cycles;
+  /* 240 Hz frame sequencer approximation: 7457 CPU cycles per step. */
+  while (a->frame_div >= 7457u) {
+    a->frame_div -= 7457u;
+    a->frame_step = (uint8_t)((a->frame_step + 1) & 3);
+    if (a->frame_step == 3 && !a->frame_inhibit) a->irq = true;
+  }
+}
 
 /* ---------- Lifecycle ---------- */
 Gem *gem_create(void) {

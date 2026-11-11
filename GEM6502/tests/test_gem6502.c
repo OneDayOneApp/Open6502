@@ -67,6 +67,30 @@ static void test_stack_and_jsr(void) {
   gem_destroy(g);
 }
 
+static void test_irq_rti(void) {
+  Gem *g = gem_create();
+  assert(g);
+  /* NOP; JMP $8000; IRQ vector -> $8020: PHA; LDA $4015; LDA #$55; PLA; RTI */
+  const uint8_t code[] = { 0xEA, 0x4C, 0x00, 0x80 };
+  put(g, 0x8000, code, sizeof(code));
+  const uint8_t handler[] = { 0xA9, 0x55, 0x48, 0xAD, 0x15, 0x40, 0x68, 0x40 };
+  put(g, 0x8020, handler, sizeof(handler));
+  g->bus.prg[0x7FFC] = 0x00; g->bus.prg[0x7FFD] = 0x80;
+  g->bus.prg[0x7FFE] = 0x20; g->bus.prg[0x7FFF] = 0x80;
+  gem_reset(g);
+  g->cpu.p &= (uint8_t)~0x04; /* clear I */
+  g->apu.irq = true;
+  gem_step(g);                /* take IRQ */
+  assert(g->cpu.pc == 0x8020);
+  for (int i = 0; i < 8 && g->cpu.pc != 0x8000; i++) gem_step(g);
+  assert(g->cpu.pc == 0x8000);
+  assert(g->cpu.a == 0x55);
+  assert(g->cpu.sp == 0xFD);
+  assert(!g->apu.irq);
+  puts("PASS: GEM6502 IRQ/RTI");
+  gem_destroy(g);
+}
+
 static void test_ppu_vblank(void) {
   Gem *g = gem_create();
   assert(g);
@@ -83,6 +107,7 @@ int main(void) {
   test_event_order();
   test_alu_program();
   test_stack_and_jsr();
+  test_irq_rti();
   test_ppu_vblank();
   puts("ALL GEM6502 TESTS PASS");
   return 0;

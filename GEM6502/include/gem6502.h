@@ -62,6 +62,11 @@ typedef struct GemApu {
   uint64_t cycles;
   uint8_t joy1, joy2;
   uint8_t joy1_shift, joy2_shift;
+  bool irq;
+  uint64_t frame_div;
+  uint8_t frame_step;
+  bool frame_mode;
+  bool frame_inhibit;
 } GemApu;
 
 typedef struct GemBus {

@@ -21,6 +21,9 @@ test: tests/test_gem6502 tests/test_ines tests/test_render
 difftest: gem6502
 	./tests/difftest.sh
 
+games: gem6502
+	./tests/run_games.sh
+
 tests/test_gem6502: $(CORE) $(TEST) include/gem6502.h
 	$(CC) $(CFLAGS) -o $@ $(CORE) $(TEST) $(LDFLAGS)
 
@@ -33,4 +36,4 @@ tests/test_render: src/render.c src/gem6502.c $(RENDER_TEST) include/render.h
 clean:
 	rm -f gem6502 tests/test_gem6502 tests/test_ines tests/test_render
 
-.PHONY: all test difftest clean
+.PHONY: all test difftest games clean

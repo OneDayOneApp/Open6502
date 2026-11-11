@@ -126,7 +126,7 @@ extensions are intentionally illegal.
 
 ## Current limitations
 
-- No IRQ model; NMI from PPU vblank only.
+- IRQ is a simple level model with the 240 Hz APU frame sequencer; no mapper IRQ yet.
 - PPU renderer is a compact background/sprite rasterizer, not a dot-exact PPU.
 - No per-dot PPU/CPU interleaving.
 - No APU audio synthesis; register file only.
@@ -148,6 +148,7 @@ Current unit tests:
 ```text
 PASS: GEM6502 ALU/branch/cycle count
 PASS: GEM6502 JSR/RTS stack
+PASS: GEM6502 IRQ/RTI
 PASS: GEM6502 PPU vblank/NMI
 ALL GEM6502 TESTS PASS
 ```
@@ -159,6 +160,22 @@ ALL GEM6502 TESTS PASS
 ```text
 PASS: all iNES tests
 ALL GEM6502 RENDER TESTS PASS
+```
+
+### Multi-game smoke
+
+```sh
+make games
+```
+
+Current NROM results:
+
+```text
+falling        colors=4  black=880
+galaxypatrol   colors=8  black=59335
+hanoi          colors=3  black=0
+table_tennis   colors=3  black=56842
+PASS: GEM6502 NROM game smoke
 ```
 
 ### NEMU golden-state diff
@@ -185,7 +202,7 @@ Each case currently matches for 25-35 instructions.
 
 ## Roadmap
 
-1. Add IRQ and NMI/IRQ priority tests.
+1. Add NMI/IRQ priority and mapper IRQ tests.
 2. Add mapper 1/2/3/4/7 banking.
 3. Add frame hash comparison against NEMU for multiple games.
 4. Add APU frame sequencer and audio sample output.
