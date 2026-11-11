@@ -503,9 +503,9 @@ static void cpu_step(void) {
       if (path) trace_fp = fopen(path, "w");
       trace_init = 1;
     }
-    if (trace_fp) fprintf(trace_fp, "%04x %02x %02x %02x %02x %02x %llu\n",
+    if (trace_fp) fprintf(trace_fp, "%04x %02x %02x %02x %02x %02x %llu %d %d %d\n",
         (unsigned)(cpu.pc & 0xFFFF), cpu.a, cpu.x, cpu.y, cpu.sp, cpu.p,
-        (unsigned long long)cpu.cycles);
+        (unsigned long long)cpu.cycles, ppu.scanline, ppu.cycle, ppu.nmi_trigger);
   }
   int delta = (int)(cpu.cycles - before);
   if (delta <= 0) delta = 1;
