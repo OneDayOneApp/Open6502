@@ -1,0 +1,18 @@
+# Open6502 SoC synthesis / area report
+read_verilog -sv -DSYNTHESIS rtl/open6502_pkg.sv
+read_verilog -sv rtl/open6502_top.sv
+read_verilog -sv rtl/cpu/open6502_cpu.sv
+read_verilog -sv rtl/bus/open6502_bus.sv
+read_verilog -sv rtl/bus/open6502_wram.sv
+read_verilog -sv rtl/ppu/open6502_ppu.sv
+read_verilog -sv rtl/apu/open6502_apu.sv
+read_verilog -sv rtl/apu/open6502_dmc.sv
+read_verilog -sv rtl/cart/open6502_mapper.sv
+read_verilog -sv rtl/clocks/open6502_clocks.sv
+read_verilog -sv rtl/video/open6502_video_timing.sv
+read_verilog -sv rtl/input/open6502_controller.sv
+read_verilog -sv rtl/dma/open6502_oam_dma.sv
+read_verilog -sv rtl/dbg/open6502_difftest_bridge.sv
+hierarchy -check -top open6502_top
+synth -top open6502_top -flatten -noabc
+stat -tech xilinx

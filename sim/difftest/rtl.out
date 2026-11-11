@@ -1,8 +1,12 @@
-RTL A=42 X=04 Y=00 SP=fd P=24 PC=8008
+RTL A=42 X=04 Y=00 SP=fd P=24 PC=8009
 PC 8000
 PC 8002
 PC 8005
 PC 8007
 PC 8008
 PC 8008
-/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:48: $finish called at 551000 (1ps)
+PC 8008
+PC 8008
+PC 8008
+PC 8008
+/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:48: $finish called at 631000 (1ps)

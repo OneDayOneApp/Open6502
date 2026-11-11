@@ -331,6 +331,26 @@ module open6502_top #(
   assign cart_we = cart_we_i;
   assign dbg_valid = dbg_valid_i;
   assign dbg_payload = dbg_payload_i;
+`ifdef SYNTHESIS
+  assign dbg_ppu_ctrl = 8'h00;
+  assign dbg_ppu_mask = 8'h00;
+  assign dbg_ppu_status = 8'h00;
+  assign dbg_pal0 = 8'h00;
+  assign dbg_chr0 = 8'h00;
+  assign dbg_pal1 = 8'h00;
+  assign dbg_pal2 = 8'h00;
+  assign dbg_zp0a = 8'h00;
+  assign dbg_zp0b = 8'h00;
+  assign dbg_zp47 = 8'h00;
+  assign dbg_zp00 = 8'h00;
+  assign dbg_zp37 = 8'h00;
+  assign dbg_zp38 = 8'h00;
+  assign dbg_zp39 = 8'h00;
+  assign dbg_zp0e = 8'h00;
+  assign dbg_zp0f = 8'h00;
+  assign dbg_zp10 = 8'h00;
+  assign dbg_zp11 = 8'h00;
+`else
   assign dbg_ppu_ctrl = u_ppu.ctrl;
   assign dbg_ppu_mask = u_ppu.mask;
   assign dbg_ppu_status = u_ppu.status;
@@ -356,6 +376,7 @@ module open6502_top #(
   assign dbg_zp0f = u_ram.mem[11'h00f];
   assign dbg_zp10 = u_ram.mem[11'h010];
   assign dbg_zp11 = u_ram.mem[11'h011];
+`endif
   always_ff @(posedge clk_21m or negedge rst_sync_n) begin
     if (!rst_sync_n) nmi_hits <= 16'd0;
     else if (cpu_ce && (dbg_cpu_pc == 16'hC0CD)) nmi_hits <= nmi_hits + 16'd1;

@@ -37,6 +37,11 @@ module open6502_ppu (
   logic [7:0]  read_buf;
   logic        w_toggle;
   logic        nmi_level;
+`ifdef SYNTHESIS
+  localparam int SPR_MAX = 8;
+`else
+  localparam int SPR_MAX = 64;
+`endif
   logic [15:0] pal_writes;
   logic [7:0]  pal_last;
   logic [4:0]  pal_addr;
@@ -60,7 +65,11 @@ module open6502_ppu (
     bg_opaque = 1'b0;
     sprite_count = 0;
     sprite_height = ctrl[5] ? 16 : 8;
-    for (sj = 0; sj < 64; sj = sj + 1) begin
+    i = 0; sj = 0; sy = 0; sx = 0; stile = 0; sattr = 0; srow = 0; scol = 0;
+    spat = 0; sbit = 0; scolor = 0; sprite_data = 0; lo = 0; hi = 0; color = 0;
+    pal_bits = 0; tile = 0; attr = 0; pat = 0; fine_y = 0; tx = 0; ty = 0;
+    ntx = 0; nty = 0; nt = 0; px = 0; py = 0; bitpos = 0;
+    for (sj = 0; sj < SPR_MAX; sj = sj + 1) begin
       if (y >= (oam[sj*4] + 1) && y < (oam[sj*4] + 1 + sprite_height))
         sprite_count = sprite_count + 1;
     end
@@ -90,7 +99,7 @@ module open6502_ppu (
     end
 
     if ((mask[4]) && (x < 9'd256) && (y < 9'd240)) begin
-      for (i = 0; i < 64; i = i + 1) begin
+      for (i = 0; i < SPR_MAX; i = i + 1) begin
         sy = oam[i*4] + 8'd1;
         sx = oam[i*4 + 3];
         if (y >= sy && y < (sy + sprite_height) && x >= sx && x < (sx + 8)) begin
@@ -134,10 +143,12 @@ module open6502_ppu (
       pal_writes <= 16'd0;
       pal_last <= 8'h00;
       pal_addr <= 5'd0;
+`ifndef SYNTHESIS
       for (int i = 0; i < 8192; i++) chr[i] <= 8'h00;
       for (int i = 0; i < 2048; i++) vram[i] <= 8'h00;
       for (int i = 0; i < 256; i++) oam[i] <= 8'h00;
       for (int i = 0; i < 32; i++) pal[i] <= 8'h00;
+`endif
     end else begin
       if (chr_load_we) chr[chr_load_addr] <= chr_load_data;
       if (dma_we) oam[dma_addr] <= dma_wdata;

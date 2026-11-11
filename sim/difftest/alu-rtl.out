@@ -1,4 +1,4 @@
-RTL A=15 X=00 Y=00 SP=fd P=26 PC=8011
+RTL A=15 X=00 Y=00 SP=fd P=26 PC=8012
 PC 8000
 PC 8002
 PC 8003
@@ -13,4 +13,8 @@ PC 800e
 PC 800f
 PC 8011
 PC 8011
-/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:48: $finish called at 1071000 (1ps)
+PC 8011
+PC 8011
+PC 8011
+PC 8011
+/Users/tongxiaojun/github/Open6502/tb/open6502_cpu_difftest_tb.sv:48: $finish called at 991000 (1ps)

@@ -63,6 +63,7 @@ module open6502_cpu (
     logic signed [5:0] slo, shi;
     logic signed [8:0] diff;
     logic borrow;
+    lo = 5'd0; hi = 5'd0; slo = 6'sd0; shi = 6'sd0; diff = 9'sd0;
     sum = {1'b0, a} + {1'b0, bus_rdata} + {8'd0, p[0]};
     adc_v = ~(a[7] ^ bus_rdata[7]) & (a[7] ^ sum[7]);
     if (p[3]) begin

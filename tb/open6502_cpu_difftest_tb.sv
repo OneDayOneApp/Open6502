@@ -38,7 +38,7 @@ module open6502_cpu_difftest_tb;
     for (int i = 0; i < 2000; i++) begin
       @(posedge clk); cpu_en = 1; @(posedge clk); #1; cpu_en = 0;
       if (pc == stop_pc && (stop_pc != 16'h8008 || x == 8'h04)) begin
-        repeat (4) begin
+        repeat (8) begin
           @(posedge clk); cpu_en = 1; @(posedge clk); #1; cpu_en = 0;
         end
         $display("RTL A=%02X X=%02X Y=%02X SP=%02X P=%02X PC=%04X",
