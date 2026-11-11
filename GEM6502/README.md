@@ -1,22 +1,28 @@
 # GEM6502
 
-GEM6502 is a **fast C cycle model** for the Open6502 SoC. It borrows the useful
-parts of GEM5's structure without trying to be GEM5:
+Current legacy baseline: **v0.1.0**, tag `gem6502-v0.1.0`.
+See [release notes](releases/0.1.0.md).
 
-- a global event queue,
-- explicit clock/cycle accounting,
-- SimObject-like CPU/PPU/APU/bus separation,
-- statistics and trace hooks,
-- deterministic cycle counts for 6502 instructions.
+GEM6502 is being redesigned as a gem5-style, event-driven architecture and
+timing simulation platform for the Open6502 SoC. The target includes timing
+ports, clock domains, resource contention, DMA arbitration, checkpoints,
+causal statistics, and independently calibrated RTL comparison.
 
-It is intended for:
+**The current implementation is a legacy instruction-driven functional/cycle
+model, not the completed chip timing platform.** Its event queue does not yet
+drive normal execution. Games, cycle counts, and NEMU trace matches are useful
+regression assets, but do not establish chip-level timing fidelity.
 
-- fast boot/regression of 6502 programs without an RTL simulator,
-- cycle-budget exploration before RTL changes,
-- NEMU/RTL model comparison,
-- CI smoke tests that need a programmable 6502 SoC model.
+The normative target and implementation rules are defined in:
 
-It is **not** a replacement for NEMU, Verilator, or signoff simulation.
+- [Requirements and acceptance gates](docs/requirements.md) (Chinese)
+- [Architecture and coding guide](docs/coding-guide.md) (Chinese)
+
+These documents describe required future capabilities. Existing commands below
+run the current legacy model; proposed timing APIs and build targets in the
+design documents are not implemented yet. The target is architecture and
+microarchitecture timing simulation, not RTL/netlist execution or silicon
+signoff. GEM6502 is not a gem5 fork or a gem5 API-compatible implementation.
 
 ## Build
 
@@ -159,9 +165,9 @@ sprite-hit sampling, and frame rendering. This remains a fast instruction-level
 model rather than a hardware dot-exact implementation. Frame output now preserves scan-time register/bank/palette state rather than
 repainting the whole frame with its final state. Scroll writes use separate
 current/temporary PPU addresses and fine X; visible-line Y increments and
-horizontal reloads follow the NEMU reference. Pending mapper IRQs are latched
-at instruction boundaries so mapper acknowledgement cannot discard an
-already-pending CPU interrupt.
+horizontal reloads follow the NEMU reference. The legacy model latches pending mapper IRQs at instruction boundaries to
+match NEMU. This is a compatibility rule that must be revalidated against
+the selected chip profile before reuse in the timing model.
 
 File Fixers after START:
 
@@ -171,19 +177,21 @@ Stallar after START:
 
 ![Stallar gameplay](docs/stallar-gameplay.png)
 
-## GEM5 mapping
+## Legacy scaffolding and target gaps
 
-| GEM5 concept | GEM6502 implementation |
+These structures are migration assets, not completed gem5-equivalent capabilities.
+
+| Target capability | Current legacy implementation and limitation |
 |---|---|
-| SimObject | `GemCpu`, `GemPpu`, `GemApu`, `GemBus` |
-| Event queue | `GemEventQueue` min-heap |
-| Clock domain | CPU cycles drive PPU/APU advancement |
-| Statistics | `GemStats` |
-| Trace | CPU trace flag / bus counters |
-| Memory object | RAM, PRG, CHR, VRAM, OAM, palette arrays |
-| Checkpointing | not implemented yet |
+| Component lifecycle and ports | Device structs with direct cross-component access |
+| Event-driven scheduling | Min-heap API; normal execution does not use it |
+| Independent clock domains | PPU/APU advanced in batches after CPU instructions |
+| Performance statistics | Basic counters; no modeled queue/contending-resource delays |
+| Transaction tracing | CPU state traces and bus counters; no full transaction protocol |
+| Timing memory objects | Direct arrays and synchronous accesses |
+| Checkpointing | Not implemented |
 
-## Architecture
+## Current legacy architecture
 
 ```text
 main.c / frontend.c
@@ -317,13 +325,18 @@ brk       PASS
 
 Each case currently matches for 25-35 instructions.
 
-## Roadmap
+## Architecture and timing roadmap
 
-1. Add NMI/IRQ priority and mapper IRQ tests.
-2. Add MMC3 (mapper 4) banking and A12 IRQ.
-3. Extend movement replay/framebuffer comparison to more games.
-4. Refine APU frame sequencer, sweep/envelope timing and DMC bus stalls.
-5. Add checkpoint/restore.
-6. Add cocotb/C API bindings.
-7. Add NEMU/RTL/GEM6502 three-way trace comparison.
-8. Feed GEM6502 timing data back into RTL verification.
+Development follows the mandatory gates in [the requirements](docs/requirements.md):
+
+1. G0: freeze chip profiles, sampling phases, memory and interrupt contracts.
+2. G1: make the event kernel, object lifecycle and clock domains drive execution.
+3. G2: implement timing ports, asynchronous transactions and resource arbitration.
+4. G3: implement the timing CPU and validate visible bus cycles.
+5. G4: integrate real DMA requests, PPU/mapper fetch events and unified APU timing.
+6. G5: provide configuration, causal statistics, checkpoints and RTL comparison.
+7. G6: publish independent calibration evidence and supported accuracy limits.
+
+Game compatibility and UI additions are regression/support work and do not
+count as completion of these architecture gates. Existing NEMU matches must
+not be represented as independent hardware timing calibration.
