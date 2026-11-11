@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define GEM6502_VERSION "0.1.0"
 #define GEM_RAM_SIZE   0x0800u
@@ -90,6 +91,7 @@ struct Gem {
   GemStats stats;
   uint64_t now;         /* global event tick */
   uint64_t max_cycles;
+  FILE *trace_state;
 };
 
 Gem *gem_create(void);

@@ -119,7 +119,7 @@ These are deliberate v0.1 boundaries.
 make test
 ```
 
-Current tests:
+Current unit tests:
 
 ```text
 PASS: GEM6502 ALU/branch/cycle count
@@ -127,6 +127,28 @@ PASS: GEM6502 JSR/RTS stack
 PASS: GEM6502 PPU vblank/NMI
 ALL GEM6502 TESTS PASS
 ```
+
+### NEMU golden-state diff
+
+```sh
+make difftest
+```
+
+This runs directed programs in both NEMU and GEM6502, then compares the full
+state trace: PC, A, X, Y, SP, P (B/U masked), and zero-page checkpoints.
+
+Current cases:
+
+```text
+alu       PASS
+decimal   PASS
+stack     PASS
+branch    PASS
+rmw       PASS
+brk       PASS
+```
+
+Each case currently matches for 25-35 instructions.
 
 ## Roadmap
 

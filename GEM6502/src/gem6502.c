@@ -187,7 +187,7 @@ static void sbc(Gem *g, uint8_t v) {
     g->cpu.a = (uint8_t)diff;
     setf(g, F_C, diff >= 0);
   }
-  setf(g, F_V, ((olda ^ v) & (olda ^ (uint8_t)diff) & 0x80) != 0);
+  setf(g, F_V, ((olda ^ v) & (olda ^ g->cpu.a) & 0x80) != 0);
   set_nz(g, g->cpu.a);
 }
 
@@ -613,6 +613,12 @@ int gem_step(Gem *g) {
     g->now += (uint64_t)c;
     gem_ppu_advance(g, (uint32_t)c);
     gem_apu_advance(g, (uint32_t)c);
+    if (g->trace_state) {
+      fprintf(g->trace_state, "%04x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+              g->cpu.pc, g->cpu.a, g->cpu.x, g->cpu.y, g->cpu.sp, g->cpu.p,
+              g->bus.ram[0x00], g->bus.ram[0x0A], g->bus.ram[0x37],
+              g->bus.ram[0x38], g->bus.ram[0x39], g->bus.ram[0x47]);
+    }
   }
   return c;
 }

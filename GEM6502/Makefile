@@ -14,10 +14,13 @@ gem6502: $(CORE) $(MAIN) include/gem6502.h
 test: tests/test_gem6502
 	./tests/test_gem6502
 
+difftest: gem6502
+	./tests/difftest.sh
+
 tests/test_gem6502: $(CORE) $(TEST) include/gem6502.h
 	$(CC) $(CFLAGS) -o $@ $(CORE) $(TEST) $(LDFLAGS)
 
 clean:
 	rm -f gem6502 tests/test_gem6502
 
-.PHONY: all test clean
+.PHONY: all test difftest clean

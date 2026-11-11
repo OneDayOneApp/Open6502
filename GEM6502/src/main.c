@@ -22,14 +22,20 @@ int main(int argc, char **argv) {
   const char *path = argv[2];
   uint64_t max_cycles = 1000000;
   bool trace = false;
+  const char *trace_state = NULL;
   for (int i = 3; i < argc; i++) {
     if (strcmp(argv[i], "--trace") == 0) trace = true;
+    else if (strncmp(argv[i], "--trace-state=", 14) == 0) trace_state = argv[i] + 14;
     else max_cycles = strtoull(argv[i], NULL, 0);
   }
   Gem *g = gem_create();
   if (!g) { fprintf(stderr, "out of memory\n"); return 2; }
   if (gem_load_prg(g, path) != 0) { gem_destroy(g); return 2; }
   g->cpu.trace = trace;
+  if (trace_state) {
+    g->trace_state = fopen(trace_state, "w");
+    if (!g->trace_state) { perror(trace_state); gem_destroy(g); return 2; }
+  }
   if (strcmp(cmd, "stats") == 0) {
     gem_print_stats(g);
     gem_destroy(g);
@@ -38,6 +44,7 @@ int main(int argc, char **argv) {
   if (strcmp(cmd, "run") != 0) { usage(argv[0]); gem_destroy(g); return 2; }
   gem_run(g, max_cycles);
   gem_print_stats(g);
+  if (g->trace_state) fclose(g->trace_state);
   gem_destroy(g);
   return 0;
 }
