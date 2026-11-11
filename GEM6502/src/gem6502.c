@@ -730,7 +730,7 @@ void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {
   p->frame = (int)(new_total / 262u);
   for (uint64_t t = old_total + 1; t <= new_total; t++) {
     int line = (int)(t % 262u);
-    if (line == 241) {
+    if (line == 241 && p->dot > t * 341u) {
       p->status |= 0x80;
       g->stats.ppu_frames++;
       if (p->ctrl & 0x80) p->nmi_pending = true;
@@ -793,10 +793,11 @@ int gem_step(Gem *g) {
     gem_ppu_advance(g, (uint32_t)c);
     gem_apu_advance(g, (uint32_t)c);
     if (g->trace_state) {
-      fprintf(g->trace_state, "%04x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+      fprintf(g->trace_state, "%04x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %llu\n",
               g->cpu.pc, g->cpu.a, g->cpu.x, g->cpu.y, g->cpu.sp, g->cpu.p,
               g->bus.ram[0x00], g->bus.ram[0x0A], g->bus.ram[0x37],
-              g->bus.ram[0x38], g->bus.ram[0x39], g->bus.ram[0x47]);
+              g->bus.ram[0x38], g->bus.ram[0x39], g->bus.ram[0x47],
+              (unsigned long long)g->cpu.cycles);
     }
   }
   return c;

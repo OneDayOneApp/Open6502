@@ -481,11 +481,32 @@ static void cpu_step(void) {
   Decode s;
   memset(&s, 0, sizeof(s));
   s.pc = cpu.pc & 0xFFFF;
+  if (getenv("NEMU_DEBUG_FBA0") && s.pc == 0xFBA0) {
+    fprintf(stderr, "NEMU FBA0 sp=%02x sel=%02x regs=%02x %02x %02x %02x %02x %02x %02x %02x\n",
+            cpu.sp, cart.bank_select, cart.bank_regs[0], cart.bank_regs[1],
+            cart.bank_regs[2], cart.bank_regs[3], cart.bank_regs[4],
+            cart.bank_regs[5], cart.bank_regs[6], cart.bank_regs[7]);
+    fprintf(stderr, "NEMU stack:");
+    for (int i = 1; i <= 16; i++) fprintf(stderr, " %02x", nes_cpu_read((uint16_t)(0x100 | (uint8_t)(cpu.sp + i))));
+    fprintf(stderr, "\n");
+  }
   s.snpc = s.pc;
   s.dnpc = s.pc;
   uint64_t before = cpu.cycles;
   isa_exec_once(&s);
   cpu.pc = s.dnpc & 0xFFFF;
+  {
+    static FILE *trace_fp = NULL;
+    static int trace_init = 0;
+    if (!trace_init) {
+      const char *path = getenv("NEMU_NES_TRACE");
+      if (path) trace_fp = fopen(path, "w");
+      trace_init = 1;
+    }
+    if (trace_fp) fprintf(trace_fp, "%04x %02x %02x %02x %02x %02x %llu\n",
+        (unsigned)(cpu.pc & 0xFFFF), cpu.a, cpu.x, cpu.y, cpu.sp, cpu.p,
+        (unsigned long long)cpu.cycles);
+  }
   int delta = (int)(cpu.cycles - before);
   if (delta <= 0) delta = 1;
 
