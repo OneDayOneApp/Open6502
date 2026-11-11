@@ -14,6 +14,26 @@ Open6502 is two things in one repository:
 The RTL is verified against the emulator: the CPU passes Klaus, and the RTL
 title frame is byte-identical to the NEMU title frame.
 
+## Project goal: 55nm tapeout
+
+The long-term goal is a **55nm tapeout** of an open, verifiable 6502/NES-compatible
+SoC. The repository is currently a functional prototype, not a tapeout-ready
+chip.
+
+We are looking for technical contributors:
+
+- 6502/NES hardware and verification reviewers
+- PPU timing, sprite evaluation and APU/DMC engineers
+- FPGA bring-up and timing-closure engineers
+- 55nm ASIC, SRAM, DFT, PDK and physical-design engineers
+- test-ROM and hardware-capture contributors with clear licenses
+
+Start here:
+
+- [55nm tapeout roadmap](docs/55nm-tapeout-roadmap.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [Good first issues](CONTRIBUTING.md#good-first-issues)
+
 ---
 
 ## See it run

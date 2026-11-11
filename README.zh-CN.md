@@ -11,6 +11,25 @@ Open6502 在同一个仓库里包含两部分：
 
 RTL 与模拟器互相验证：CPU 通过 Klaus，RTL 标题帧与 NEMU 标题帧逐字节一致。
 
+## 项目目标：55nm 流片
+
+长期目标是完成一颗**开放、可验证的 6502/NES 兼容 SoC 的 55nm 流片**。
+当前仓库是功能原型，还不是 tapeout-ready 芯片。
+
+正在寻找技术爱好者一起参与：
+
+- 6502/NES 硬件与验证评审
+- PPU 时序、精灵 evaluation、APU/DMC 工程师
+- FPGA bring-up 与时序收敛工程师
+- 55nm ASIC、SRAM、DFT、PDK、物理设计工程师
+- 能提供明确许可证的测试 ROM 和硬件采集数据
+
+从这里开始：
+
+- [55nm 流片路线图](docs/55nm-tapeout-roadmap.md)
+- [贡献指南](CONTRIBUTING.md)
+- [适合新手的任务](CONTRIBUTING.md#good-first-issues)
+
 ---
 
 ## 先看效果
