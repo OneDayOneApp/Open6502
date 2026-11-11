@@ -241,6 +241,10 @@ static bool is_read_op(uint8_t op) {
   }
 }
 
+typedef struct { uint16_t jsr_pc, target, ret; uint8_t sp; } JsrHist;
+static JsrHist g_jsr_hist[16];
+static int g_jsr_idx;
+
 static int cpu_step(Gem *g) {
   GemCpu *c = &g->cpu;
   if (c->halted) return 0;
@@ -271,6 +275,21 @@ static int cpu_step(Gem *g) {
     return 7;
   }
   uint16_t op_pc = c->pc;
+  if (getenv("GEM_DEBUG_IRQ") && op_pc == 0xFBA0 &&
+      read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + 1))) == 0 &&
+      read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + 2))) == 0) {
+    fprintf(stderr, "FBA0 sp=%02x m4 sel=%02x regs=%02x %02x %02x %02x %02x %02x %02x %02x\n",
+            c->sp, g->bus.m4_select, g->bus.m4_regs[0], g->bus.m4_regs[1],
+            g->bus.m4_regs[2], g->bus.m4_regs[3], g->bus.m4_regs[4],
+            g->bus.m4_regs[5], g->bus.m4_regs[6], g->bus.m4_regs[7]);
+    fprintf(stderr, "FBA0 stack:");
+    for (int i = 1; i <= 16; i++) fprintf(stderr, " %02x", read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + i))));
+    fprintf(stderr, "\n");
+    for (int i = 0; i < 16; i++) {
+      JsrHist *h = &g_jsr_hist[(g_jsr_idx + i) & 15];
+      if (h->jsr_pc) fprintf(stderr, "  JSR pc=%04x target=%04x ret=%04x sp=%02x\n", h->jsr_pc, h->target, h->ret, h->sp);
+    }
+  }
   if (getenv("GEM_DEBUG_IRQ") && (op_pc == 0xF55B || op_pc == 0xF56B)) {
     fprintf(stderr, "PC=%04x sp=%02x p=%02x stack=", op_pc, c->sp, c->p);
     for (int i = 1; i <= 6; i++) fprintf(stderr, "%02x ", read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + i))));
@@ -350,6 +369,7 @@ static int cpu_step(Gem *g) {
       uint16_t ret = (uint16_t)(c->pc - 1);
       push8(g, (uint8_t)(ret >> 8)); push8(g, (uint8_t)ret);
       c->pc = target;
+      g_jsr_hist[g_jsr_idx++ & 15] = (JsrHist){op_pc, target, ret, c->sp};
       break;
     }
     case O_RTS: {
@@ -653,6 +673,8 @@ uint8_t gem_bus_read(Gem *g, uint16_t addr, bool side_effect) {
 
 void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
   g->stats.bus_writes++;
+  if (getenv("GEM_DEBUG_STACK") && addr >= 0x01F8 && addr <= 0x01FB)
+    fprintf(stderr, "WR stack %04x=%02x pc=%04x sp=%02x\n", addr, value, g->cpu.pc, g->cpu.sp);
   if (addr < 0x2000) { g->bus.ram[addr & 0x07FF] = value; return; }
   if (addr < 0x4000) { ppu_register_write(g, (uint8_t)(addr & 7), value); return; }
   if (addr < 0x4020) {
