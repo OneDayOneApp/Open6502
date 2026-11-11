@@ -57,6 +57,8 @@ typedef struct GemPpu {
   int scanline;
   int frame;
   bool nmi_pending;
+  bool nmi_armed;
+  uint64_t nmi_target;
 } GemPpu;
 
 typedef struct GemApu {

@@ -132,7 +132,7 @@ extensions are intentionally illegal.
 - No APU audio synthesis; register file only.
 - Mapper 0/1/2/3/7 bus mapping is present.
 - MMC3 (mapper 4) PRG banking and A12 IRQ have unit coverage.
-- MMC3 games still fail after ~6 frames. NEMU and GEM6502 agree for 35,001 instructions, then diverge at an NMI boundary: NEMU executes one more `$F48A` before servicing NMI; GEM6502 services it earlier. The stack corruption is a downstream symptom of this NMI-timing divergence.
+- MMC3 games still fail after ~6 frames. NEMU and GEM6502 now agree for 46,864 instructions; the next divergence is still an NMI boundary (`NEMU $F605` vs `GEM $F492`). The PPU NMI timing model is closer but not exact.
 - No cycle-exact bus stalls for every PPU register access.
 - No checkpoint/restore.
 - No C++/Python bindings.

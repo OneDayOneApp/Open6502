@@ -275,6 +275,10 @@ static int cpu_step(Gem *g) {
     return 7;
   }
   uint16_t op_pc = c->pc;
+  if (getenv("GEM_DEBUG_NMI") && (op_pc == 0xF48A || op_pc == 0xF48C))
+    fprintf(stderr, "pc=%04x cyc=%llu dot=%llu line=%d nl=%d\n", op_pc,
+            (unsigned long long)c->cycles, (unsigned long long)g->ppu.dot,
+            g->ppu.scanline, g->ppu.nmi_pending);
   if (getenv("GEM_DEBUG_IRQ") && op_pc == 0xFBA0 &&
       read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + 1))) == 0 &&
       read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + 2))) == 0) {
@@ -730,13 +734,19 @@ void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {
   p->frame = (int)(new_total / 262u);
   for (uint64_t t = old_total + 1; t <= new_total; t++) {
     int line = (int)(t % 262u);
-    if (line == 241 && p->dot > t * 341u) {
+    if (line == 241) {
       p->status |= 0x80;
       g->stats.ppu_frames++;
-      if (p->ctrl & 0x80) p->nmi_pending = true;
+      p->nmi_armed = true;
+      p->nmi_target = t * 341u + 10u;
     } else if (line == 261) {
       p->status &= (uint8_t)~0x80;
+      p->nmi_armed = false;
     }
+  }
+  if (p->nmi_armed && p->dot >= p->nmi_target) {
+    p->nmi_armed = false;
+    if (p->ctrl & 0x80) p->nmi_pending = true;
   }
 }
 void gem_apu_advance(Gem *g, uint32_t cpu_cycles) {
