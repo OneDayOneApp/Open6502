@@ -39,6 +39,38 @@ Start here:
 - [Contributing guide](CONTRIBUTING.md)
 - [Good first issues](CONTRIBUTING.md#good-first-issues)
 
+## Progress summary
+
+Last verified: **2026-11-11**. Percentages are engineering progress, not
+tapeout completion.
+
+| Stage | Progress | Evidence | Next gate |
+|---|---:|---|---|
+| NEMU reference | **90%** | Playable open-source games; CPU Klaus PASS; reference screenshots reproducible | Compatibility runs and replay goldens |
+| RTL SoC | **60%** | 28 RTL tests PASS; RTL Klaus PASS at `PC=0x3469`; title frame byte-identical to NEMU; START gameplay frame rendered | Lockstep NEMU/RTL parity and cycle-accurate timing |
+| FPGA prototype | **10%** | FPGA wrapper exists; no bitstream or board run | Full synthesis, BRAM, timing, board bring-up |
+| 55nm ASIC | **5%** | Yosys area report and 55nm planning estimate | PDK, SRAM, DFT, timing, DRC/LVS, shuttle |
+
+Current RTL metrics:
+
+```text
+RTL tests:            28 PASS
+CPU Klaus:            PASS, PC=0x3469
+RTL title frame:      SHA-256 41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33
+NEMU title frame:     same SHA-256
+Yosys generic cells:  1,021,421
+55nm planning die:    1.2-2.0 mm^2 after SRAM/PPU refactor
+```
+
+Main open blockers:
+
+- PPU is not cycle-exact: no full fetch/shift pipeline or exact sprite evaluation.
+- DMC bus arbitration and DMA alignment are incomplete.
+- NEMU/RTL comparison is not yet a multi-game lockstep DiffTest.
+- No FPGA bitstream and no silicon.
+
+See [55nm tapeout roadmap](docs/55nm-tapeout-roadmap.md) for the full gate list.
+
 ---
 
 ## See it run

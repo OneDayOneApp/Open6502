@@ -36,6 +36,37 @@ NEMU 参考模型 -> RTL SoC -> FPGA 原型 -> 55nm ASIC 流片
 - [贡献指南](CONTRIBUTING.md)
 - [适合新手的任务](CONTRIBUTING.md#good-first-issues)
 
+## 进度概要
+
+最后验证：**2026-11-11**。百分比是工程进度，不是流片完成度。
+
+| 阶段 | 进度 | 依据 | 下一道门禁 |
+|---|---:|---|---|
+| NEMU 参考模型 | **90%** | 开源游戏可玩；CPU Klaus PASS；参考截图可复现 | 兼容性回归和回放 golden |
+| RTL SoC | **60%** | 28 个 RTL 测试 PASS；RTL Klaus PASS at `PC=0x3469`；标题帧与 NEMU 逐字节一致；START 后游戏帧可渲染 | NEMU/RTL lockstep 对齐与逐周期时序 |
+| FPGA 原型 | **10%** | 有 FPGA 顶层封装；无 bitstream 和板级运行 | 全综合、BRAM、时序、上板 |
+| 55nm ASIC | **5%** | 有 Yosys 面积报告和 55nm 规划估算 | PDK、SRAM、DFT、时序、DRC/LVS、shuttle |
+
+当前 RTL 指标：
+
+```text
+RTL 测试：            28 PASS
+CPU Klaus：           PASS, PC=0x3469
+RTL 标题帧：          SHA-256 41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33
+NEMU 标题帧：         相同 SHA-256
+Yosys generic cells： 1,021,421
+55nm 规划 die：        SRAM/PPU 重构后 1.2-2.0 mm²
+```
+
+当前主要未完成项：
+
+- PPU 不是逐周期精确：还没有完整 fetch/shift 流水线和精确精灵 evaluation。
+- DMC 总线仲裁和 DMA 对齐未完成。
+- NEMU/RTL 对比还不是多游戏 lockstep DiffTest。
+- 没有 FPGA bitstream，也没有硅片。
+
+完整门禁列表见 [55nm 流片路线图](docs/55nm-tapeout-roadmap.md)。
+
 ---
 
 ## 先看效果
