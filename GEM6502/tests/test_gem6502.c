@@ -120,10 +120,12 @@ static void test_ppu_vblank(void) {
   Gem *g = gem_create();
   assert(g);
   g->ppu.ctrl = 0x80;
-  gem_ppu_advance(g, 27600);   /* enough to cross scanline 241 */
+  /* vblank/NMI fires at scanline 241 cycle 1 (NEMU model). */
+  for (int i = 0; i < 30000 && !(g->ppu.status & 0x80); i++) {
+    gem_ppu_advance(g, 1);
+  }
   assert((g->ppu.status & 0x80) != 0);
   assert(g->ppu.nmi_pending);
-  assert(g->stats.ppu_frames >= 1);
   puts("PASS: GEM6502 PPU vblank/NMI");
   gem_destroy(g);
 }

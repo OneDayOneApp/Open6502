@@ -276,8 +276,8 @@ static int cpu_step(Gem *g) {
   }
   uint16_t op_pc = c->pc;
   if (getenv("GEM_DEBUG_NMI") && (op_pc == 0xF48A || op_pc == 0xF48C))
-    fprintf(stderr, "pc=%04x cyc=%llu dot=%llu line=%d nl=%d\n", op_pc,
-            (unsigned long long)c->cycles, (unsigned long long)g->ppu.dot,
+    fprintf(stderr, "pc=%04x cyc=%llu dot=%d line=%d nl=%d\n", op_pc,
+            (unsigned long long)c->cycles, g->ppu.cycle,
             g->ppu.scanline, g->ppu.nmi_pending);
   if (getenv("GEM_DEBUG_IRQ") && op_pc == 0xFBA0 &&
       read8(g, (uint16_t)(0x100 | (uint8_t)(c->sp + 1))) == 0 &&
@@ -727,28 +727,31 @@ void gem_cart_a12(Gem *g, int level) {
 
 void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {
   GemPpu *p = &g->ppu;
-  uint64_t old_eff = p->dot;
-  p->dot += (uint64_t)cpu_cycles * 3u;
-  uint64_t new_eff = p->dot;
-  uint64_t old_total = old_eff / 341u;
-  uint64_t new_total = new_eff / 341u;
-  p->scanline = (int)(new_total % 262u);
-  p->frame = (int)(new_total / 262u);
-  for (uint64_t t = old_total + 1; t <= new_total; t++) {
-    int line = (int)(t % 262u);
-    if (line == 241) {
-      p->status |= 0x80;
+  int n = (int)cpu_cycles * 3;
+  for (int i = 0; i < n; i++) {
+    if (p->scanline == 261 && p->cycle == 1) {
+      p->status &= (uint8_t)~0xE0;
+      p->frame_ready = true;
       g->stats.ppu_frames++;
-      p->nmi_armed = true;
-      p->nmi_target = t * 341u + 1u;
-    } else if (line == 261) {
-      p->status &= (uint8_t)~0x80;
-      p->nmi_armed = false;
+      p->odd_frame = !p->odd_frame;
     }
-  }
-  if (p->nmi_armed && new_eff >= p->nmi_target) {
-    p->nmi_armed = false;
-    if (p->ctrl & 0x80) p->nmi_pending = true;
+    if (p->scanline == 241 && p->cycle == 1) {
+      p->status |= 0x80;
+      if (p->ctrl & 0x80) p->nmi_pending = true;
+    }
+    /* Odd frames skip PPU dot 340 of the pre-render scanline when rendering is enabled. */
+    if (p->scanline == 261 && p->cycle == 339 && p->odd_frame &&
+        (p->mask & 0x18)) {
+      p->cycle = 0;
+      p->scanline = 0;
+      continue;
+    }
+    p->cycle++;
+    if (p->cycle >= 341) {
+      p->cycle = 0;
+      p->scanline++;
+      if (p->scanline >= 262) p->scanline = 0;
+    }
   }
 }
 void gem_apu_advance(Gem *g, uint32_t cpu_cycles) {
@@ -785,7 +788,7 @@ void gem_reset(Gem *g) {
   g->cpu.p = F_U | F_I;
   g->now = 0;
   g->ppu.scanline = 0;
-  g->ppu.dot = 0;
+  g->ppu.cycle = 0;
   g->cpu.pc = read16(g, 0xFFFC);
   g->cpu.stop_reason = "running";
 }
@@ -810,7 +813,7 @@ int gem_step(Gem *g) {
               g->bus.ram[0x00], g->bus.ram[0x0A], g->bus.ram[0x37],
               g->bus.ram[0x38], g->bus.ram[0x39], g->bus.ram[0x47],
               (unsigned long long)g->cpu.cycles, g->ppu.scanline,
-              (unsigned long long)(g->ppu.dot % 341u), g->ppu.nmi_pending);
+              (unsigned long long)g->ppu.cycle, g->ppu.nmi_pending);
     }
   }
   return c;

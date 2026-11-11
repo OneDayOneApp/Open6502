@@ -53,12 +53,11 @@ typedef struct GemPpu {
   uint16_t vaddr;
   uint8_t scroll_x, scroll_y;
   bool w_toggle;
-  uint64_t dot;       /* total PPU dots */
-  int scanline;
-  int frame;
+  int scanline;       /* current NEMU scanline */
+  int cycle;          /* current NEMU cycle within scanline (0..340) */
+  bool odd_frame;     /* next completed frame is odd -> skip pre-render dot 340 */
+  bool frame_ready;   /* set at scanline 261 cycle 1, cleared per rendered frame */
   bool nmi_pending;
-  bool nmi_armed;
-  uint64_t nmi_target;
 } GemPpu;
 
 typedef struct GemApu {
