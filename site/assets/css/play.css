@@ -415,3 +415,56 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Desktop download strip under the in-page emulator. */
+
+.download-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin: 0 0 36px;
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+}
+
+.download-copy h3 {
+  margin: 7px 0 5px;
+  font-size: clamp(17px, 2vw, 20px);
+  color: var(--text);
+}
+
+.download-copy p {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.download-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.download-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.download-meta {
+  font: 500 11px/1.4 var(--font-mono, ui-monospace, monospace);
+  color: var(--dim);
+}
+
+@media (max-width: 760px) {
+  .download-card { align-items: flex-start; }
+  .download-side { align-items: flex-start; }
+}

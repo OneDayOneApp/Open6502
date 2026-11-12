@@ -37,7 +37,8 @@ declares `hreflang` alternates and a matching canonical URL.
 
 ## Interactive WebAssembly demo
 
-The `#play` section of both landing pages is a working GEM6502 emulator;
+The `#play` section of both landing pages is a working GEM6502 emulator and a
+macOS download strip for the packaged nesearch desktop app;
 Play links jump straight to its `#emulator` card so the whole demo is visible. It
 loads a ~30 KB freestanding WebAssembly build of the same core used by the
 desktop player; rendering, input and audio scheduling are handled by
