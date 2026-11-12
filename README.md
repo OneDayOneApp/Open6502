@@ -14,6 +14,42 @@ Open6502 is two things in one repository:
 The RTL is verified against the emulator: the CPU passes Klaus, and the RTL
 title frame is byte-identical to the NEMU title frame.
 
+## nesearch: NES search & download tool / NES 游戏搜索与下载工具
+
+**English** — `nesearch` is a C++20 NES game discovery and download tool in this
+repository, available as both a **CLI** and a **local Web UI**. It aggregates
+GitHub homebrew catalogs, Homebrew Hub, PDRoms and Internet Archive, supports
+custom JSON catalogs, and enriches entries with TuxNES mapper data and Fogleman
+title screenshots. Downloads are resumable, SHA-256 verified and iNES-validated;
+downloaded ROMs can be launched directly in **GEM6502** or **NEMU**.
+
+**中文** — `nesearch` 是本仓库中的 C++20 NES 游戏搜索与下载工具，同时提供
+**CLI** 和**本地 Web UI**。它聚合 GitHub homebrew 目录、Homebrew Hub、PDRoms
+和 Internet Archive，支持自定义 JSON 目录，并使用 TuxNES mapper 数据与
+Fogleman 标题截图补全元数据。下载支持断点续传、SHA-256 校验和 iNES 头校验，
+下载后的 ROM 可直接用 **GEM6502** 或 **NEMU** 启动。
+
+![nesearch local Web UI / nesearch 本地 Web UI](nesearch/ui/screenshots/discover.png)
+
+```sh
+# Build / 构建
+cmake -S nesearch -B nesearch/build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+cmake --build nesearch/build -j
+
+# Update catalog and start the UI / 更新目录并启动 UI
+./nesearch/build/nesearch update
+./nesearch/build/nesearch ui
+
+# Or use the workspace-local launcher / 或使用 workspace 启动脚本
+./nesearch/run-ui.sh
+```
+
+- Chinese documentation / 中文文档: [nesearch/README.md](nesearch/README.md)
+- English documentation / 英文文档: [nesearch/README.en.md](nesearch/README.en.md)
+- Screenshots / 截图: [nesearch/ui/screenshots](nesearch/ui/screenshots)
+
 ## Project goal: 55nm tapeout
 
 The long-term goal is a **55nm tapeout** of an open, verifiable 6502/NES-compatible
