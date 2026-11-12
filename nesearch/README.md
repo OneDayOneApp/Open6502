@@ -2,6 +2,8 @@
 
 NES 游戏搜索与下载工具，C++20 实现，支持 **CLI + 本地 Web UI** 双模式。
 
+[English README](README.en.md)
+
 当前状态：**可运行 MVP**（GitHub 目录 + 自定义 JSON 源 + 下载/校验/本地库 + 本地 UI）。
 
 ![nesearch UI](ui/screenshots/running.png)
