@@ -1,5 +1,9 @@
 # Open6502
 
+<p align="center">
+  <img src="docs/images/logo-lockup.svg" alt="Open6502 logo" width="760">
+</p>
+
 **English** | [简体中文](README.zh-CN.md)
 
 **A 6502/NES-compatible SoC that runs games in software today, and a
@@ -348,6 +352,16 @@ docs/                 Design, verification, area and cost documents
 - [6502EMU guide](NEMU/6502EMU.md)
 - [NES golden reference design](docs/nes-golden-reference/design.md)
 - [NES golden reference test plan](docs/nes-golden-reference/test-plan.md)
+
+---
+
+## Brand assets
+
+- [Logo mark (SVG)](docs/images/logo.svg)
+- [Logo mark (PNG, 1024×1024)](docs/images/logo.png)
+- [Logo lockup (SVG)](docs/images/logo-lockup.svg)
+- [Logo lockup (PNG)](docs/images/logo-lockup.png)
+- [GitHub social preview (1280×640)](docs/images/logo-social.png)
 
 ---
 

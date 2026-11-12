@@ -1,5 +1,9 @@
 # Open6502
 
+<p align="center">
+  <img src="docs/images/logo-lockup.svg" alt="Open6502 logo" width="760">
+</p>
+
 [English](README.md) | **简体中文**
 
 **一个今天就能在软件里玩 NES 游戏，同时又能用 SystemVerilog RTL 渲染同一款游戏的 6502/NES SoC 项目。**
@@ -307,6 +311,14 @@ docs/                 设计、验证、面积与成本文档
 - [NES golden reference 测试计划](docs/nes-golden-reference/test-plan.md)
 
 ---
+
+## 品牌资源
+
+- [Logo 图标（SVG）](docs/images/logo.svg)
+- [Logo 图标（PNG，1024×1024）](docs/images/logo.png)
+- [Logo 横版（SVG）](docs/images/logo-lockup.svg)
+- [Logo 横版（PNG）](docs/images/logo-lockup.png)
+- [GitHub 社交预览图（1280×640）](docs/images/logo-social.png)
 
 ## 当前限制
 
