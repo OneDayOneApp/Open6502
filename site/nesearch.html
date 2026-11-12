@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>nesearch — NES search &amp; download | Open6502</title>
+  <meta name="description" content="nesearch searches six NES catalogs, downloads and verifies ROMs, and launches them in GEM6502 or NEMU. CLI and local Web UI for macOS Apple Silicon.">
+  <meta name="theme-color" content="#06080c">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://onedayoneapp.github.io/Open6502/nesearch.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/nesearch.zh.html">
+  <link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/nesearch.html">
+  <link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/nesearch.html">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Open6502">
+  <meta property="og:title" content="nesearch — NES search &amp; download | Open6502">
+  <meta property="og:description" content="nesearch searches six NES catalogs, downloads and verifies ROMs, and launches them in GEM6502 or NEMU. CLI and local Web UI for macOS Apple Silicon.">
+  <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/nesearch.html">
+  <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/nesearch/discover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/play.css">
+  <link rel="stylesheet" href="assets/css/nesearch.css">
+  <script src="assets/js/site.js" defer></script>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("open6502:lang");
+        if (saved === "zh") { location.replace("nesearch.zh.html" + location.search + location.hash); return; }
+        if (saved === "en") return;
+      } catch (_) {}
+      var primary = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+      if (/^zh(\b|[-_])/i.test(primary)) location.replace("nesearch.zh.html" + location.search + location.hash);
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="page-bg" aria-hidden="true"></div>
+  <header class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.html" aria-label="Open6502 home">
+        <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+        <span class="brand-text">
+          <span class="brand-name">OPEN6502</span>
+          <span class="brand-sub">6502 / NES SoC</span>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-link" href="index.html#emulator">Play</a>
+        <a class="nav-link" href="index.html#games">Games</a>
+        <a class="nav-link" href="index.html#status">Status</a>
+        <a class="nav-link" href="index.html#architecture">Architecture</a>
+        <a class="nav-link" href="docs.html">Docs</a>
+        <a class="nav-link" href="nesearch.html" aria-current="page">nesearch</a>
+        <a class="nav-link" href="index.html#contribute">Contribute</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="nav-lang" href="nesearch.zh.html" hreflang="en" lang="en" data-lang-switch aria-label="查看中文版">中文</a>
+        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="View Open6502 on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+          <span>Star</span>
+        </a>
+        <a class="btn btn--ghost btn--sm nav-download" href="https://github.com/OneDayOneApp/Open6502/releases/download/nesearch-v0.2.0/nesearch-0.2.0-macos-arm64.zip" aria-label="Download nesearch for macOS (Apple Silicon)">Download</a>
+        <a class="btn btn--primary btn--sm" href="index.html#emulator">Play now</a>
+        <button class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation menu">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="nav-mobile" id="mobile-nav">
+      <a href="index.html#emulator">Play</a>
+      <a href="index.html#games">Games</a>
+      <a href="index.html#status">Status</a>
+      <a href="index.html#architecture">Architecture</a>
+      <a href="docs.html">Docs</a>
+      <a href="nesearch.html">nesearch</a>
+      <a href="index.html#contribute">Contribute</a>
+      <a href="nesearch.zh.html" hreflang="en" data-lang-switch>English</a>
+      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
+      <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502/releases/download/nesearch-v0.2.0/nesearch-0.2.0-macos-arm64.zip">Download for macOS</a>
+      <a class="btn btn--primary" href="index.html#emulator">Play now</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="ns-hero">
+      <div class="container ns-hero-grid">
+        <div class="ns-hero-copy">
+          <span class="eyebrow">nesearch · NES search &amp; download</span>
+          <h1 class="ns-title">Search. Download.<br><em>Play.</em></h1>
+          <p class="ns-lede">A C++20 catalog browser for NES homebrew: six sources, resumable downloads with SHA-256 and iNES validation, a local library, and one-click launch in the bundled GEM6502 or NEMU. Ships as a CLI and a local Web UI.</p>
+          <div class="ns-chips"><span class="ns-chip">v0.2.0</span><span class="ns-chip">macOS 12+</span><span class="ns-chip">Apple Silicon</span><span class="ns-chip">1.2 MB</span></div>
+          <div class="hero-cta">
+            <a class="btn btn--primary" href="https://github.com/OneDayOneApp/Open6502/releases/download/nesearch-v0.2.0/nesearch-0.2.0-macos-arm64.zip">Download for macOS <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">View on GitHub ↗</a>
+            <a class="btn btn--ghost" href="#shots">Screenshots</a>
+          </div>
+        </div>
+        <div class="ns-shot">
+          <div class="ns-shot-bar"><i></i><i></i><i></i><span>nesearch · discover</span></div>
+          <img src="assets/img/nesearch/discover.png" alt="nesearch Discover view" width="1440" height="900">
+        </div>
+      </div>
+    </section>
+
+    <section class="ns-section" id="download">
+      <div class="container">
+        <div class="download-card">
+          <div class="download-copy">
+            <span class="emu-kicker">macOS · Apple Silicon</span>
+            <h3>nesearch v0.2.0 desktop bundle</h3>
+            <p>Contract-free download. Unzip, run <code>./run-ui.command</code>, and the UI finds the bundled GEM6502 and NEMU automatically.</p>
+          </div>
+          <div class="download-side">
+            <div class="download-actions">
+              <a class="btn btn--primary" href="https://github.com/OneDayOneApp/Open6502/releases/download/nesearch-v0.2.0/nesearch-0.2.0-macos-arm64.zip">Download .zip</a>
+              <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502/releases/tag/nesearch-v0.2.0" target="_blank" rel="noopener">Release notes</a>
+            </div>
+            <span class="download-meta">1.2 MB · SHA-256 47c79733…</span>
+          </div>
+        </div>
+        <p class="ns-fineprint">The build is not notarized. If Gatekeeper blocks it, run <code>xattr -dr com.apple.quarantine nesearch-0.2.0-macos-arm64</code>. Windows builds are not published yet.</p>
+      </div>
+    </section>
+
+    <section class="ns-section" id="features">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow"><span class="sec-index">01</span>What it does</span>
+          <h2>From “I remember that game” <em>to playing it</em>.</h2>
+        </div>
+        <div class="ns-features">
+        <article class="ns-feature">
+          <span class="ns-ico"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5.5h6l2 2h6v9H3v-11Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 9.5h14" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <h3>Six catalogs, one list</h3>
+          <p>GitHub retrobrews, Homebrew Hub, PDRoms, Internet Archive, plus TuxNES mapper and Fogleman screenshot metadata.</p>
+        </article>
+        <article class="ns-feature">
+          <span class="ns-ico"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 4.5h14v11H3z" stroke="currentColor" stroke-width="1.5"/><path d="M6 8l2 2-2 2M10 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <h3>CLI and local UI</h3>
+          <p>The same catalog, download and library services behind a terminal and a loopback-only Web UI.</p>
+        </article>
+        <article class="ns-feature">
+          <span class="ns-ico"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.5 16 5v4.5c0 4-2.5 6.5-6 8-3.5-1.5-6-4-6-8V5l6-2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m7.5 9.8 1.8 1.8 3.4-3.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <h3>Downloads that verify</h3>
+          <p>Resume, retry, atomic rename, iNES parsing and SHA-256 checks before a ROM joins the library.</p>
+        </article>
+        <article class="ns-feature">
+          <span class="ns-ico"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 4.5h6v5H3zM11 4.5h6v5h-6zM3 11.5h6v5H3zM11 11.5h6v5h-6z" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <h3>A real local library</h3>
+          <p>Grid and list views, search, verify, and delete — backed by a plain JSON index.</p>
+        </article>
+        <article class="ns-feature">
+          <span class="ns-ico"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 8h3.5l1.5-2 2 4 1.5-2H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="2.5" y="5" width="15" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <h3>Bundled emulators</h3>
+          <p>GEM6502 and NEMU/6502EMU ship in the macOS package; the Play button resolves them without configuration.</p>
+        </article>
+        <article class="ns-feature">
+          <span class="ns-ico"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.5v6M7 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 11.5v3A1.5 1.5 0 0 0 5.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <h3>Bring your own catalog</h3>
+          <p>Point it at a custom JSON source, test the connection, and merge it into the same search.</p>
+        </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="ns-section" id="shots">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow"><span class="sec-index">02</span>In the app</span>
+          <h2>A local-first UI, <em>not a website</em>.</h2>
+        </div>
+        <div class="ns-shots">
+        <figure class="ns-figure">
+          <img src="assets/img/nesearch/downloads.png" alt="Downloads — queue, progress, pause/resume and verification." loading="eager" width="1440" height="900">
+          <figcaption>Downloads — queue, progress, pause/resume and verification.</figcaption>
+        </figure>
+        <figure class="ns-figure">
+          <img src="assets/img/nesearch/library-grid.png" alt="Library — grid view of everything already downloaded." loading="eager" width="1440" height="900">
+          <figcaption>Library — grid view of everything already downloaded.</figcaption>
+        </figure>
+        <figure class="ns-figure">
+          <img src="assets/img/nesearch/cli.png" alt="CLI — the same operations scriptable from a terminal." loading="eager" width="1440" height="900">
+          <figcaption>CLI — the same operations scriptable from a terminal.</figcaption>
+        </figure>
+        <figure class="ns-figure">
+          <img src="assets/img/nesearch/sources.png" alt="Sources — per-source status, entry counts and custom catalogs." loading="eager" width="1440" height="900">
+          <figcaption>Sources — per-source status, entry counts and custom catalogs.</figcaption>
+        </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="ns-section" id="sources">
+      <div class="container ns-split">
+        <div>
+          <div class="section-head">
+            <span class="eyebrow"><span class="sec-index">03</span>Data sources</span>
+            <h2>Six sources, <em>116 games</em>.</h2>
+          </div>
+          <table class="ns-table">
+            <thead><tr><th>Source</th><th>Entries</th></tr></thead>
+            <tbody>
+          <tr><td>GitHub retrobrews/nes-games</td><td>82</td></tr>
+          <tr><td>Homebrew Hub / nesdev-org</td><td>24</td></tr>
+          <tr><td>PDRoms NES RSS</td><td>10</td></tr>
+          <tr><td>Internet Archive</td><td>network</td></tr>
+          <tr><td>TuxNES mapper list</td><td>1,437</td></tr>
+          <tr><td>Fogleman title screens</td><td>630</td></tr>
+            </tbody>
+          </table>
+          <p class="ns-fineprint">Counts from the v0.2.0 catalog. Internet Archive availability depends on the network; PDRoms currently uses the latest 10 RSS entries.</p>
+        </div>
+        <div id="quickstart">
+          <div class="section-head">
+            <span class="eyebrow"><span class="sec-index">04</span>Quick start</span>
+            <h2>Unzip. Run. <em>Search.</em></h2>
+          </div>
+          <h3 class="ns-sub">Start the app</h3>
+          <pre class="ns-pre"><code>./run-ui.command</code></pre>
+          <h3 class="ns-sub">Or stay in the terminal</h3>
+          <pre class="ns-pre"><code>./nesearch update
+./nesearch search falling
+./nesearch download falling -o ~/Downloads</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="ns-section" id="limits">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow"><span class="sec-index">05</span>Requirements</span>
+          <h2>What you need <em>to know</em>.</h2>
+        </div>
+        <ul class="ns-limits">
+        <li><strong>macOS 12+ on Apple Silicon</strong><span>The current package is arm64 only. Intel and Windows builds are not published yet.</span></li>
+        <li><strong>Unsigned binaries</strong><span>No Developer ID or notarization yet; clear the quarantine attribute once after unzipping.</span></li>
+        <li><strong>Some sources are flaky</strong><span>Internet Archive can be unreachable; PDRoms exposes only the latest 10 entries.</span></li>
+        <li><strong>Local only</strong><span>The UI binds to 127.0.0.1 with a one-time token. Nothing is uploaded.</span></li>
+        </ul>
+        <p class="ns-fineprint">nesearch is part of the Open6502 project. NEMU is distributed under Mulan PSL v2 and SDL2 under zlib; see the bundle's LICENSES directory.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Open6502 home">
+            <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+            <span class="brand-text">
+              <span class="brand-name">OPEN6502</span>
+              <span class="brand-sub">Open silicon · from emulator to silicon</span>
+            </span>
+          </a>
+          <p>An open-source 6502/NES SoC: a playable software reference first, then the same chip in SystemVerilog, on the way to 55nm.</p>
+          <div class="footer-links">
+            <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.md" target="_blank" rel="noopener">README</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+          </div>
+        </div>
+        <div class="footer-col"><h4>Start</h4><ul><li><a href="index.html#emulator">Play in your browser</a></li>
+            <li><a href="nesearch.html">nesearch desktop app</a></li>
+            <li><a href="docs.html#quickstart">Build &amp; run</a></li>
+            <li><a href="docs.html#troubleshooting">Troubleshooting</a></li></ul></div>
+        <div class="footer-col"><h4>Deep dive</h4><ul><li><a href="docs.html#architecture">Architecture</a></li>
+            <li><a href="docs.html#verification">Verification</a></li>
+            <li><a href="docs.html#difftest">DiffTest</a></li>
+            <li><a href="docs.html#synthesis">Synthesis &amp; area</a></li></ul></div>
+        <div class="footer-col"><h4>Project</h4><ul><li><a href="index.html#roadmap">Roadmap</a></li>
+            <li><a href="index.html#status">Current status</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROMs &amp; licences ↗</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/nesearch" target="_blank" rel="noopener">Source ↗</a></li></ul></div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> Open6502 · open-source 6502/NES SoC project</span>
+        <span>Last verified · 2026-11-11</span>
+        <span class="right">Source in <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · plain HTML/CSS/JS · GitHub Pages</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

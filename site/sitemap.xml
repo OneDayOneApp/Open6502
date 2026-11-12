@@ -37,4 +37,22 @@
     <xhtml:link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/docs.zh.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/docs.html"/>
   </url>
+  <url>
+    <loc>https://onedayoneapp.github.io/Open6502/nesearch.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/nesearch.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/nesearch.zh.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/nesearch.html"/>
+  </url>
+  <url>
+    <loc>https://onedayoneapp.github.io/Open6502/nesearch.zh.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/nesearch.html"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/nesearch.zh.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/nesearch.html"/>
+  </url>
 </urlset>

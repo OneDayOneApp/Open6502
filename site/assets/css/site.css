@@ -3811,6 +3811,12 @@ html[lang="en"] .section-head h2 em {
   }
 }
 
+@media (max-width: 1180px) {
+  .nav-download {
+    display: none;
+  }
+}
+
 @media (max-width: 960px) {
   .nav-links,
   .nav-gh span {

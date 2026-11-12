@@ -16,6 +16,12 @@ Pages from the `site/` directory on `main`.
   contributing and further reading. It auto-detects Chinese locales and
   redirects to `docs.zh.html`.
 - `docs.zh.html` — Chinese technical documentation with the same section IDs.
+- `nesearch.html` — **English default** product page for the nesearch desktop
+  app: feature tour, screenshots, data sources, quick start, requirements and
+  the macOS Apple Silicon download. Redirects Chinese locales to
+  `nesearch.zh.html`.
+- `nesearch.zh.html` — Chinese product page with the same sections.
+- `nesearch.en.html` — explicit English alias for the product page.
 - `index.en.html`, `docs.en.html` — explicit English aliases. They never
   auto-redirect, so old links and “force English” links keep working.
 - `404.html` — bilingual static not-found page.
@@ -104,6 +110,9 @@ site/
 ├── docs.html           # English docs (default, auto-detects zh)
 ├── docs.zh.html        # Chinese docs
 ├── docs.en.html        # explicit English docs alias (no auto-detect)
+├── nesearch.html       # nesearch product page (default, auto-detects zh)
+├── nesearch.zh.html    # Chinese nesearch product page
+├── nesearch.en.html    # explicit English nesearch alias
 ├── 404.html            # bilingual not-found
 ├── robots.txt
 ├── sitemap.xml
@@ -112,8 +121,10 @@ site/
 └── assets/
     ├── css/site.css
     ├── css/play.css        # styles for the in-page emulator
+    ├── css/nesearch.css    # styles for the nesearch product page
     ├── js/site.js          # progressive enhancement only
     ├── play/               # wasm, player.js, bundled ROMs
+    ├── img/nesearch/       # product screenshots
     └── img/                # logo, favicon, screenshots, frames
 ```
 
