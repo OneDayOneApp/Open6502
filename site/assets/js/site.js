@@ -176,24 +176,136 @@
   }
 
   /* ---------- Hero frame switcher ---------- */
-  const frameTabs = $$("[data-frame-tab]");
-  if (frameTabs.length) {
-    const image = $("[data-frame-image]");
-    const caption = $("[data-frame-caption]");
-    const hash = $("[data-frame-hash]");
-    frameTabs.forEach((tab) =>
-      tab.addEventListener("click", () => {
-        frameTabs.forEach((item) =>
-          item.setAttribute("aria-pressed", String(item === tab))
-        );
-        if (image) {
-          image.src = tab.dataset.src;
-          image.alt = tab.dataset.alt || image.alt;
+  /* ---------- Hero game carousel ---------- */
+  const heroCarousel = $("[data-hero-carousel]");
+  if (heroCarousel) {
+    const data = $("[data-hero-slides]", heroCarousel);
+    let slides = [];
+    try {
+      slides = JSON.parse(data.textContent);
+    } catch (_) {
+      slides = [];
+    }
+
+    if (slides.length) {
+      const image = $("[data-frame-image]", heroCarousel);
+      const title = $("[data-hero-title]", heroCarousel);
+      const indexLabel = $("[data-hero-index]", heroCarousel);
+      const caption = $("[data-frame-caption]", heroCarousel);
+      const hash = $("[data-frame-hash]", heroCarousel);
+      const seg = $(".seg", heroCarousel);
+      const tabs = $$("[data-frame-tab]", heroCarousel);
+      const dotsWrap = $("[data-hero-dots]", heroCarousel);
+      const dotLabel = heroCarousel.dataset.heroDotLabel || "Show";
+      const interval = Number(heroCarousel.dataset.heroInterval) || 5000;
+      let index = 0;
+      let mode = "nemu";
+      let timer = null;
+
+      const dots = slides.map((slide, i) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "stage-dot";
+        button.setAttribute("aria-label", `${dotLabel} ${slide.title}`);
+        button.addEventListener("click", () => {
+          show(i);
+          restart();
+        });
+        dotsWrap.appendChild(button);
+        return button;
+      });
+
+      const render = () => {
+        const slide = slides[index];
+        const rtl = mode === "rtl" && Boolean(slide.rtl);
+        image.src = rtl ? slide.rtl : slide.src;
+        image.alt = slide.alt || slide.title;
+        if (title) title.textContent = slide.title;
+        if (indexLabel) indexLabel.textContent = String(index + 1).padStart(2, "0");
+        if (caption) {
+          caption.textContent = rtl
+            ? slide.rtlCaption || slide.caption || ""
+            : slide.caption || "";
         }
-        if (caption) caption.textContent = tab.dataset.caption || caption.textContent;
-        if (hash) hash.textContent = tab.dataset.hash || hash.textContent;
-      })
-    );
+        if (hash) {
+          hash.textContent = rtl ? slide.rtlHash || slide.hash || "" : slide.hash || "";
+          hash.hidden = !hash.textContent;
+        }
+        if (seg) seg.style.display = slide.rtl ? "" : "none";
+        tabs.forEach((tab) =>
+          tab.setAttribute(
+            "aria-pressed",
+            String(rtl && tab.dataset.mode === mode)
+          )
+        );
+        dots.forEach((dot, i) =>
+          dot.setAttribute("aria-current", String(i === index))
+        );
+      };
+
+      const show = (next) => {
+        index = (next + slides.length) % slides.length;
+        mode = "nemu";
+        render();
+      };
+
+      const advance = () => {
+        index = (index + 1) % slides.length;
+        mode = "nemu";
+        render();
+      };
+
+      const stop = () => {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      };
+
+      const start = () => {
+        if (prefersReduced || document.hidden) return;
+        if (
+          heroCarousel.matches(":hover") ||
+          heroCarousel.contains(document.activeElement)
+        ) {
+          return;
+        }
+        stop();
+        timer = setInterval(advance, interval);
+      };
+
+      const restart = () => {
+        stop();
+        start();
+      };
+
+      tabs.forEach((tab) =>
+        tab.addEventListener("click", () => {
+          mode = tab.dataset.mode || "nemu";
+          render();
+          restart();
+        })
+      );
+
+      heroCarousel.addEventListener("mouseenter", stop);
+      heroCarousel.addEventListener("mouseleave", restart);
+      heroCarousel.addEventListener("focusin", stop);
+      heroCarousel.addEventListener("focusout", (event) => {
+        if (!heroCarousel.contains(event.relatedTarget)) restart();
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stop();
+        else restart();
+      });
+
+      slides.forEach((slide) => {
+        new Image().src = slide.src;
+        if (slide.rtl) new Image().src = slide.rtl;
+      });
+
+      render();
+      start();
+    }
   }
 
   /* ---------- Checklist with local persistence ---------- */

@@ -843,6 +843,40 @@ a.screen:focus-visible .screen-play {
   border-radius: 10px;
 }
 
+
+.stage-dots-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 0 0;
+}
+
+.stage-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(233, 239, 248, 0.22);
+  cursor: pointer;
+  transition: width 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.stage-dot:hover {
+  background: rgba(233, 239, 248, 0.5);
+}
+
+.stage-dot[aria-current="true"] {
+  width: 18px;
+  background: var(--red);
+}
+
+.stage-dot:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
 .stage-foot {
   display: flex;
   align-items: center;

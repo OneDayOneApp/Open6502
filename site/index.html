@@ -166,17 +166,17 @@
         </div>
 
         <div class="hero-stage">
-          <div class="stage">
+          <div class="stage" data-hero-carousel data-hero-interval="5000" data-hero-dot-label="Show">
             <div class="stage-top">
               <span class="stage-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="stage-title">FRAME_0001 · <b>FALLING</b></span>
+              <span class="stage-title">GAME <span data-hero-index>01</span> · <b data-hero-title>FALLING</b></span>
               <div class="seg" role="group" aria-label="Switch execution path">
-                <button class="seg-btn" type="button" data-frame-tab aria-pressed="true"
+                <button class="seg-btn" type="button" data-frame-tab data-mode="nemu" aria-pressed="true"
                   data-src="assets/img/frame-nemu-title.png"
                   data-alt="FALLING title frame rendered by the NEMU emulator"
                   data-caption="NEMU · SOFTWARE REFERENCE"
                   data-hash="SHA 41e8…5a33">NEMU</button>
-                <button class="seg-btn" type="button" data-frame-tab aria-pressed="false"
+                <button class="seg-btn" type="button" data-frame-tab data-mode="rtl" aria-pressed="false"
                   data-src="assets/img/frame-rtl-title.png"
                   data-alt="FALLING title frame rendered by the RTL SoC through Verilator"
                   data-caption="RTL · VERILATOR DUT"
@@ -189,6 +189,8 @@
               <span class="screen-vignette" aria-hidden="true"></span>
               <span class="screen-play"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 3.5v9l7-4.5-7-4.5Z" fill="currentColor"/></svg> Click to play</span>
             </a>
+            <div class="stage-dots-nav" data-hero-dots role="group" aria-label="Featured games"></div>
+            <script type="application/json" data-hero-slides>[{"title":"FALLING","src":"assets/img/frame-nemu-title.png","alt":"FALLING title screen rendered by the emulator","caption":"NEMU · SOFTWARE REFERENCE","hash":"SHA 41e8…5a33","rtl":"assets/img/frame-rtl-title.png","rtlCaption":"RTL · VERILATOR DUT"},{"title":"HANOI","src":"assets/img/play-hanoi.png","alt":"Tower of Hanoi title screen rendered by the emulator","caption":"NEMU · SOFTWARE REFERENCE","hash":""},{"title":"TABLE TENNIS","src":"assets/img/play-table_tennis.png","alt":"8-Bit Table Tennis title screen rendered by the emulator","caption":"NEMU · SOFTWARE REFERENCE","hash":""},{"title":"FILE FIXERS","src":"assets/img/play-file-fixers.png","alt":"File Fixers title screen rendered by the emulator","caption":"NEMU · SOFTWARE REFERENCE","hash":""},{"title":"STALLAR","src":"assets/img/play-stallar.png","alt":"Stallar title screen rendered by the emulator","caption":"NEMU · SOFTWARE REFERENCE","hash":""}]</script>
             <div class="stage-foot">
               <span class="dot" aria-hidden="true"></span>
               <span data-frame-caption>NEMU · SOFTWARE REFERENCE</span>
