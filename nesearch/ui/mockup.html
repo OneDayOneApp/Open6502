@@ -294,16 +294,16 @@
         <div>
           <div class="eyebrow"><svg class="icon"><use href="#i-settings"/></svg> Preferences</div>
           <h1>Settings</h1>
-          <p class="view-sub">Shared by CLI and UI · config file <code style="font-family:var(--mono);color:var(--text-2)">~/.config/nesearch/config.json</code></p>
+          <p class="view-sub">Shared by CLI and UI · config file <code id="configPath" style="font-family:var(--mono);color:var(--text-2)">~/.config/nesearch/config.json</code></p>
         </div>
       </div>
       <div class="settings-grid">
         <div>
           <div class="settings-panel">
             <h2>Downloads</h2>
-            <p class="hint">Where ROMs go and how transfers behave.</p>
-            <div class="field"><label>Download folder<span class="sub">Final .nes files are written here</span></label><input class="input" value="~/Downloads/nesearch"></div>
-            <div class="field"><label>Concurrent downloads<span class="sub">1–16, per-host limits apply</span></label><input class="input" value="4" style="min-width:60px;width:60px;text-align:center"></div>
+            <p class="hint">Where ROMs go and how transfers behave. Changes are saved to the config file.</p>
+            <div class="field"><label>Download folder<span class="sub">Final .nes files are written here</span></label><input class="input" id="downloadDirInput" value="~/Downloads/nesearch"></div>
+            <div class="field"><label>Concurrent downloads<span class="sub">1–16, per-host limits apply</span></label><input class="input" id="jobsInput" value="4" style="min-width:60px;width:60px;text-align:center"></div>
             <div class="field"><label>Resume partial files<span class="sub">Keep .part files on interrupt</span></label><span class="switch on"></span></div>
             <div class="field"><label>Verify SHA-256<span class="sub">Strict when the source publishes a hash</span></label><span class="switch on"></span></div>
           </div>
@@ -317,14 +317,14 @@
           <div class="settings-panel" style="margin-top:12px">
             <h2>Network</h2>
             <p class="hint">Proxy and GitHub API budget.</p>
-            <div class="field"><label>HTTPS proxy<span class="sub">Empty = system proxy</span></label><input class="input" value=""></div>
+            <div class="field"><label>HTTPS proxy<span class="sub">Empty = system proxy</span></label><input class="input" id="proxyInput" value=""></div>
             <div class="field"><label>GitHub token<span class="sub">Only sent to api.github.com</span></label><input class="input" value="••••••••••••" type="password"></div>
           </div>
         </div>
         <div>
           <div class="settings-panel">
             <h2>Interface</h2>
-            <p class="hint">This is a design preview; values are not persisted.</p>
+            <p class="hint">Theme and density are UI preferences.</p>
             <div class="field"><label>Theme</label><select class="select" style="height:29px"><option>Dark (default)</option><option>Light</option><option>System</option></select></div>
             <div class="field"><label>Density</label><select class="select" style="height:29px"><option>Comfortable</option><option>Compact</option></select></div>
             <div class="field"><label>License display<span class="sub">Informational only; does not block downloads</span></label><span class="switch on"></span></div>

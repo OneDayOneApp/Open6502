@@ -1128,6 +1128,10 @@ async function initLive() {
     renderEmulatorSettings();
     if ($("#archiveQuery")) $("#archiveQuery").value = configData.archive_org_query || "";
     if ($("#archiveLimit")) $("#archiveLimit").value = configData.archive_org_limit || 12;
+    if ($("#downloadDirInput")) $("#downloadDirInput").value = configData.download_dir || "";
+    if ($("#jobsInput")) $("#jobsInput").value = configData.jobs || 4;
+    if ($("#proxyInput")) $("#proxyInput").value = configData.proxy || "";
+    if ($("#configPath") && configData.config_path) $("#configPath").textContent = configData.config_path;
     renderLibraryCounts();
     renderGrid();
     renderDetail();
@@ -1188,6 +1192,23 @@ function playGame(id, emulator) {
   api("/api/v1/play", { method: "POST", body: JSON.stringify({ id, emulator }) })
     .then((data) => showToast(`Opened in ${emulator === "gem6502" ? "GEM6502" : "NEMU"}`))
     .catch((error) => showToast(error.message, true));
+}
+
+async function saveRuntimeSettings() {
+  if (!LIVE_MODE) return;
+  try {
+    await api("/api/v1/config", {
+      method: "PUT",
+      body: JSON.stringify({
+        download_dir: $("#downloadDirInput").value.trim(),
+        jobs: Number($("#jobsInput").value) || 4,
+        proxy: $("#proxyInput").value.trim()
+      })
+    });
+    showToast("Settings saved");
+  } catch (error) {
+    showToast(error.message, true);
+  }
 }
 
 async function saveArchiveSettings() {
@@ -1301,6 +1322,9 @@ function bindEvents() {
   });
   $$(".nav-item").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
   $("#settingsBtn").addEventListener("click", () => setView("settings"));
+  if ($("#downloadDirInput")) $("#downloadDirInput").addEventListener("change", saveRuntimeSettings);
+  if ($("#jobsInput")) $("#jobsInput").addEventListener("change", saveRuntimeSettings);
+  if ($("#proxyInput")) $("#proxyInput").addEventListener("change", saveRuntimeSettings);
   if ($("#archiveQuery")) $("#archiveQuery").addEventListener("change", saveArchiveSettings);
   if ($("#archiveLimit")) $("#archiveLimit").addEventListener("change", saveArchiveSettings);
   $("#cliBtn").addEventListener("click", () => openCli());

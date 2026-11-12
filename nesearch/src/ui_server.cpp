@@ -482,6 +482,7 @@ void UiServer::run(int port, bool open_browser_flag) {
                     {"jobs", config_.jobs},
                     {"proxy", config_.proxy},
                     {"ui_port", config_.ui_port},
+                    {"config_path", (config_.source_path.empty() ? Config::default_path() : config_.source_path).string()},
                     {"archive_org_enabled", config_.archive_org_enabled},
                     {"archive_org_query", config_.archive_org_query},
                     {"archive_org_limit", config_.archive_org_limit}});
