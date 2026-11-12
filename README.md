@@ -20,10 +20,10 @@ title frame is byte-identical to the NEMU title frame.
 
 ## Website
 
-- Project site: **https://onedayoneapp.github.io/Open6502/**
-- Technical documentation: **https://onedayoneapp.github.io/Open6502/docs.html**
+- Project site: **[中文](https://onedayoneapp.github.io/Open6502/)** · **[English](https://onedayoneapp.github.io/Open6502/index.en.html)**
+- Technical documentation: **[中文](https://onedayoneapp.github.io/Open6502/docs.html)** · **[English](https://onedayoneapp.github.io/Open6502/docs.en.html)**
 
-The static site lives in [`site/`](site/) and is deployed by GitHub Pages.
+The bilingual static site lives in [`site/`](site/) and is deployed by GitHub Pages.
 
 ## nesearch: NES search & download tool / NES 游戏搜索与下载工具
 

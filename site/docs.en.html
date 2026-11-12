@@ -1,0 +1,1366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Technical documentation — Open6502</title>
+  <meta name="description" content="Open6502 technical documentation: architecture, CPU, PPU, APU, bus, mapper, verification, DiffTest, synthesis area and the 55nm path, with reproducible build and troubleshooting commands.">
+  <meta name="theme-color" content="#06080c">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://onedayoneapp.github.io/Open6502/docs.en.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/docs.html">
+  <link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/docs.en.html">
+  <link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/docs.html">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Open6502">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta property="og:title" content="Open6502 technical documentation">
+  <meta property="og:description" content="The full path from a NEMU reference model to 55nm: architecture, verification, DiffTest, synthesis and troubleshooting.">
+  <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/docs.en.html">
+  <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#docs-main">Skip to documentation</a>
+  <div class="page-bg" aria-hidden="true"></div>
+  <div class="reading-bar" data-reading-bar aria-hidden="true"></div>
+
+  <header class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.en.html" aria-label="Open6502 home">
+        <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+        <span class="brand-text">
+          <span class="brand-name">OPEN6502</span>
+          <span class="brand-sub">6502 / NES SoC</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-link" href="index.en.html#play">Play</a>
+        <a class="nav-link" href="index.en.html#games">Games</a>
+        <a class="nav-link" href="index.en.html#status">Status</a>
+        <a class="nav-link" href="index.en.html#architecture">Architecture</a>
+        <a class="nav-link" href="docs.en.html" aria-current="page">Docs</a>
+        <a class="nav-link" href="index.en.html#contribute">Contribute</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="nav-lang" href="docs.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch aria-label="查看中文版">中文</a>
+        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="View Open6502 on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+          <span>Star</span>
+        </a>
+        <a class="btn btn--primary btn--sm" href="index.en.html#play">Play now</a>
+        <button class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation menu">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-mobile" id="mobile-nav">
+      <a href="index.en.html#play">Play</a>
+      <a href="index.en.html#games">Games</a>
+      <a href="index.en.html#status">Status</a>
+      <a href="index.en.html#architecture">Architecture</a>
+      <a href="docs.en.html">Docs</a>
+      <a href="index.en.html#contribute">Contribute</a>
+      <a href="docs.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch>简体中文</a>
+      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
+      <a class="btn btn--primary" href="index.en.html#play">Play in 2 minutes</a>
+    </div>
+  </header>
+
+  <main id="docs-main">
+    <section class="docs-hero">
+      <div class="container">
+        <span class="eyebrow">Technical documentation</span>
+        <h1>Open6502 technical documentation</h1>
+        <p>From a playable emulator to a synthesizable 6502/NES SoC. Architecture, timing, verification evidence, synthesis numbers, and every sharp edge still open. The commands here are meant to be copied.</p>
+        <div class="docs-hero-meta">
+          <span class="chip chip--green"><span class="dot"></span>Last verified · 2026-11-11</span>
+          <span class="chip">19 chapters</span>
+          <span class="chip">~25 min read</span>
+          <span class="chip chip--amber">Functional prototype · not tapeout-ready</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="container docs-layout">
+      <aside class="docs-sidebar" id="docs-nav" aria-label="Documentation menu">
+        <div class="docs-drawer-head">
+          <span>Docs menu</span>
+          <button type="button" class="docs-drawer-close" data-docs-close aria-label="Close documentation menu">Close ×</button>
+        </div>
+        <div class="docs-search">
+          <button class="docs-search-trigger" type="button" data-search-open aria-haspopup="dialog">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Search docs…</span>
+            <kbd data-shortcut>⌘K</kbd>
+          </button>
+        </div>
+        <nav class="docs-nav">
+          <div class="nav-group">
+            <div class="nav-group-title">Start</div>
+            <a href="#overview" data-spy><span class="n">00</span>Overview</a>
+            <a href="#quickstart" data-spy><span class="n">01</span>Quickstart</a>
+            <a href="#repo" data-spy><span class="n">02</span>Repository map</a>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-title">Design</div>
+            <a href="#architecture" data-spy><span class="n">03</span>Architecture</a>
+            <a href="#cpu" data-spy><span class="n">04</span>CPU</a>
+            <a href="#ppu" data-spy><span class="n">05</span>PPU</a>
+            <a href="#apu" data-spy><span class="n">06</span>APU &amp; DMC</a>
+            <a href="#bus" data-spy><span class="n">07</span>Bus &amp; memory</a>
+            <a href="#cart" data-spy><span class="n">08</span>Cartridge &amp; mapper</a>
+            <a href="#video" data-spy><span class="n">09</span>Video, input &amp; clocks</a>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-title">Verification</div>
+            <a href="#verification" data-spy><span class="n">10</span>Verification</a>
+            <a href="#difftest" data-spy><span class="n">11</span>DiffTest protocol</a>
+            <a href="#goldens" data-spy><span class="n">12</span>Golden frames</a>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-title">Toward silicon</div>
+            <a href="#gem6502" data-spy><span class="n">13</span>GEM6502 model</a>
+            <a href="#synthesis" data-spy><span class="n">14</span>Synthesis &amp; area</a>
+            <a href="#tapeout" data-spy><span class="n">15</span>55nm path</a>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-title">Reference</div>
+            <a href="#troubleshooting" data-spy><span class="n">16</span>Troubleshooting</a>
+            <a href="#contributing" data-spy><span class="n">17</span>Contributing</a>
+            <a href="#reading" data-spy><span class="n">18</span>Further reading</a>
+          </div>
+        </nav>
+      </aside>
+      <div class="docs-backdrop" data-docs-backdrop></div>
+
+      <article class="docs-main">
+        <div class="docs-mobile-bar">
+          <button class="btn btn--ghost btn--sm" type="button" data-docs-menu aria-expanded="false" aria-controls="docs-nav">Menu</button>
+          <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Search docs…
+          </button>
+        </div>
+
+        <!-- 00 OVERVIEW -->
+        <section class="doc-section" id="overview" data-group="Start" data-keywords="overview reading path what it is not DUT REF status snapshot">
+          <div class="doc-kicker"><span class="dot"></span>00 · Overview</div>
+          <h2><span>Overview: what this is and where to start</span></h2>
+          <p class="doc-lead">This is a document you can follow: every command is in the repo, and every conclusion has a test or a hash behind it. It also says plainly what has not been done yet — this is not a finished chip.</p>
+
+          <h3>Three reading paths</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Who you are</th><th>Start here</th><th>Then</th></tr></thead>
+              <tbody>
+                <tr><td>I just want to run it</td><td><a href="#quickstart">01 Quickstart</a></td><td>If it breaks: <a href="#troubleshooting">16 Troubleshooting</a></td></tr>
+                <tr><td>I want to understand the design</td><td><a href="#architecture">03 Architecture</a></td><td><a href="#cpu">04 CPU</a> → <a href="#ppu">05 PPU</a> → <a href="#verification">10 Verification</a></td></tr>
+                <tr><td>I want to contribute or push tapeout</td><td><a href="#repo">02 Repository map</a></td><td><a href="#verification">10 Verification</a> → <a href="#synthesis">14 Synthesis</a> → <a href="#tapeout">15 55nm</a> → <a href="#contributing">17 Contributing</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>What it is, and what it is not</h3>
+          <div class="callout callout--ok">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><strong>It is:</strong> a working NES functional prototype. The NEMU frontend plays all six MIT-licensed ROMs; the RTL SoC passes 28 tests, Klaus and frame-level DiffTest; the code synthesizes, and area has been estimated per module.</span>
+          </div>
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span><strong>It is not:</strong> a cycle-exact NES; an FPGA project with a bitstream; a tapeout-ready chip; or an open-source project with a published root licence. The PPU pipeline, DMC arbitration and multi-game lockstep DiffTest are incomplete.</span>
+          </div>
+
+          <h3>Three execution paths</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Path</th><th>Role</th><th>Status</th><th>Best for</th></tr></thead>
+              <tbody>
+                <tr><td><code>NEMU / 6502EMU</code></td><td>Software reference (REF)</td><td><span class="badge badge--pass">Playable</span></td><td>Playing, golden frames, CPU reference behaviour</td></tr>
+                <tr><td><code>RTL SoC</code></td><td>Design under test (DUT)</td><td><span class="badge badge--part">Prototype</span></td><td>Synthesis, verification, DiffTest, future FPGA/ASIC</td></tr>
+                <tr><td><code>GEM6502</code></td><td>C functional / cycle model</td><td><span class="badge badge--part">Legacy</span></td><td>Fast PRG runs and instruction-level regression; not a full timing platform</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p><strong>DUT and REF must stay independent.</strong> NEMU is never synthesized, and RTL may not borrow NEMU's implementation to “check the answer”. DiffTest compares observable state only: registers, bus transactions, frame hashes, audio samples and mapper state.</p>
+
+          <h3>Latest verification snapshot</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead>
+              <tbody>
+                <tr><td>RTL unit / integration tests</td><td><span class="badge badge--pass">28 PASS</span></td><td><code>cd rtl &amp;&amp; make sim</code></td></tr>
+                <tr><td>RTL lint</td><td><span class="badge badge--pass">PASS</span></td><td><code>cd rtl &amp;&amp; make lint</code></td></tr>
+                <tr><td>RTL CPU Klaus</td><td><span class="badge badge--pass">PASS · PC=0x3469</span></td><td><code>sim/klaus/</code></td></tr>
+                <tr><td>RTL / NEMU golden title frame</td><td><span class="badge badge--pass">SHA-256 match</span></td><td><a href="#goldens">12 Golden frames</a></td></tr>
+                <tr><td>RTL gameplay after START</td><td><span class="badge badge--pass">Rendered</span></td><td><a href="#quickstart">01 Quickstart</a></td></tr>
+                <tr><td>FPGA bitstream / board</td><td><span class="badge badge--no">Not yet</span></td><td><a href="#tapeout">15 55nm path</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 01 QUICKSTART -->
+        <section class="doc-section" id="quickstart" data-group="Start" data-keywords="quickstart build install compile sdl2 headless screenshot run game gem6502 rtl verilator commands">
+          <div class="doc-kicker"><span class="dot"></span>01 · Quickstart</div>
+          <h2><span>Quickstart: get one frame running</span></h2>
+          <p>The shortest path is NEMU: build once, then use <code>roms/play.sh</code> as often as you like. To exercise the RTL, run the same ROM through Verilator and capture a PPM frame.</p>
+
+          <h3>Dependencies</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Tool</th><th>Purpose</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Git</td><td>Get the repository</td><td>First clone only</td></tr>
+                <tr><td>clang / gcc + make</td><td>Build NEMU and GEM6502</td><td>macOS needs Xcode Command Line Tools</td></tr>
+                <tr><td>SDL2</td><td>Emulator window, keyboard and audio</td><td><code>brew install sdl2</code> / <code>libsdl2-dev</code></td></tr>
+                <tr><td>Python 3</td><td>iNES extraction, PPM to PNG</td><td>Pillow optional</td></tr>
+                <tr><td>Icarus Verilog</td><td><code>make sim</code> runs 28 RTL tests</td><td>Default Icarus path</td></tr>
+                <tr><td>Verilator</td><td>RTL frame capture, Klaus, DiffTest</td><td>Needs a working C++ toolchain</td></tr>
+                <tr><td>Yosys 0.60</td><td>Area estimates</td><td>Optional, <code>-noabc</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Build and play NEMU</h3>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="git clone https://github.com/OneDayOneApp/Open6502.git
+cd Open6502
+make -C NEMU m6502_defconfig
+make -C NEMU -j8
+./roms/play.sh falling"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> git clone https://github.com/OneDayOneApp/Open6502.git
+<span class="p">$</span> cd Open6502
+<span class="p">$</span> make -C NEMU m6502_defconfig
+<span class="p">$</span> make -C NEMU -j8
+<span class="p">$</span> ./roms/play.sh falling</pre>
+          </div>
+
+          <p>You can also call the binary directly: <code>./NEMU/build/6502EMU roms/falling.nes</code>. Most games start with <span class="kbd">V</span>; 1P uses WASD + Space/Z + X, 2P uses the arrow keys and <code>, . / '</code>.</p>
+
+          <h3>Bundled ROMs</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>ROM</th><th>Mapper</th><th>Genre</th><th>Licence</th><th>300-frame status</th></tr></thead>
+              <tbody>
+                <tr><td><code>falling.nes</code></td><td>0 / NROM</td><td>Platformer</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>galaxypatrol.nes</code></td><td>0 / NROM</td><td>Shooter</td><td>MIT</td><td>Boots, playable; known starfield rendering gap</td></tr>
+                <tr><td><code>hanoi.nes</code></td><td>0 / NROM</td><td>Puzzle</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>table_tennis.nes</code></td><td>0 / NROM</td><td>2P pong</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>file-fixers.nes</code></td><td>4 / MMC3</td><td>Puzzle</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>stallar.nes</code></td><td>4 / MMC3</td><td>Platformer</td><td>MIT</td><td>Boots, title screen</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout--info">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Every ROM is open-source homebrew; the licence texts are in <code>roms/LICENSES/</code>. The repository contains no commercial ROMs.</span>
+          </div>
+
+          <h3>Headless screenshots (NEMU)</h3>
+          <p>Both the title frame and the post-START frame can be captured without a window. This is also where the golden frames come from:</p>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="./NEMU/build/6502EMU --headless --no-audio --frames=300 --screenshot=/tmp/nemu-falling.ppm roms/falling.nes
+./NEMU/build/6502EMU --headless --no-audio --hold=start --frames=20 --screenshot=/tmp/nemu-start.ppm roms/falling.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> ./NEMU/build/6502EMU --headless --no-audio --frames=300 \
+    --screenshot=/tmp/nemu-falling.ppm roms/falling.nes
+<span class="p">$</span> ./NEMU/build/6502EMU --headless --no-audio --hold=start --frames=20 \
+    --screenshot=/tmp/nemu-start.ppm roms/falling.nes</pre>
+          </div>
+          <div class="code">
+            <div class="code-bar"><span class="lang">python</span><button class="code-copy" type="button" data-copy="python3 -c 'from PIL import Image; Image.open(&quot;/tmp/nemu-falling.ppm&quot;).save(&quot;/tmp/nemu-falling.png&quot;)'"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="c"># PPM to PNG; on macOS without Pillow, use sips</span>
+<span class="p">$</span> python3 -c 'from PIL import Image; Image.open("/tmp/nemu-falling.ppm").save("/tmp/nemu-falling.png")'</pre>
+          </div>
+
+          <h3>GEM6502 C model</h3>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="cd GEM6502
+make
+make test
+./gem6502 game ../roms/falling.nes 60 /tmp/gem-title.ppm
+./gem6502 play ../roms/file-fixers.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> cd GEM6502
+<span class="p">$</span> make
+<span class="p">$</span> make test
+<span class="p">$</span> ./gem6502 game ../roms/falling.nes 60 /tmp/gem-title.ppm
+<span class="p">$</span> ./gem6502 play ../roms/file-fixers.nes</pre>
+          </div>
+          <p><code>play</code> needs SDL2. Without it the CLI still builds, but <code>play</code> reports the missing dependency. See <a href="#gem6502">13 GEM6502</a> for scope and limits.</p>
+
+          <h3>Run the RTL game and capture a frame</h3>
+          <p>The repository script wraps iNES extraction, the Verilator build and the run:</p>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm
+python3 -c 'from PIL import Image; Image.open(&quot;/tmp/falling-rtl.ppm&quot;).save(&quot;/tmp/falling-rtl.png&quot;)'"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> ./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm
+<span class="p">$</span> python3 -c 'from PIL import Image; Image.open("/tmp/falling-rtl.ppm").save("/tmp/falling-rtl.png")'</pre>
+          </div>
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span><code>sim/game/run.sh</code> defaults to macOS <code>clang++</code>, the macOS SDK and Homebrew LLVM's <code>libc++</code> path. On Linux or a different LLVM version, override <code>SDK=…</code>, <code>LIBCXX_DIR=…</code> or <code>CXX=…</code>, or adjust the link flags as noted in the script.</span>
+          </div>
+
+          <h3>Run the whole regression</h3>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="cd rtl
+make lint
+make sim
+cd ..
+./sim/difftest/run.sh
+./sim/difftest/run_alu.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> cd rtl
+<span class="p">$</span> make lint
+<span class="p">$</span> make sim
+<span class="p">$</span> cd ..
+<span class="p">$</span> ./sim/difftest/run.sh
+<span class="p">$</span> ./sim/difftest/run_alu.sh</pre>
+          </div>
+          <p><code>make sim</code> compiles and runs 28 testbenches with Icarus. The output is large, but every step should print <code>PASS</code>. On Windows, use WSL2 and follow the Linux steps.</p>
+        </section>
+
+        <!-- 02 REPO -->
+        <section class="doc-section" id="repo" data-group="Start" data-keywords="repository directory map docs index paths nesearch tb sim docs rtl">
+          <div class="doc-kicker"><span class="dot"></span>02 · Repository</div>
+          <h2><span>Repository map: where everything lives</span></h2>
+          <p>The repo holds the software reference, the RTL SoC, verification scripts, a C model, a game downloader and the docs. These are the most useful entry points.</p>
+
+          <div class="ascii">Open6502/
+├── NEMU/                NEMU-derived 6502/NES emulator + BASIC + SDL frontend
+├── rtl/                 SystemVerilog SoC (the only synthesizable implementation)
+│   ├── cpu/             open6502_cpu.sv
+│   ├── ppu/             open6502_ppu.sv
+│   ├── apu/             APU + DMC
+│   ├── bus/             bus decode + WRAM
+│   ├── cart/            mapper 0/1/2/3/4/7
+│   ├── dma/             OAM DMA
+│   ├── input/           controller shift register
+│   ├── video/           341×262 video timing
+│   ├── clocks/          clock / reset / enables
+│   ├── fpga/            FPGA wrapper
+│   └── dbg/             DiffTest event bridge
+├── tb/                  28 SystemVerilog testbenches
+├── sim/
+│   ├── difftest/        NEMU/RTL state and PC trace comparison
+│   ├── game/            RTL game bring-up + PPM capture
+│   └── klaus/           RTL Klaus test
+├── GEM6502/             C functional / cycle model (legacy baseline)
+├── nesearch/            C++20 NES search / download CLI + local Web UI
+├── roms/                6 open-source ROMs + licences
+├── docs/                chip, verification, area and roadmap documents
+└── site/                this website (plain static, GitHub Pages)</div>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Directory</th><th>Read first</th><th>Common command</th></tr></thead>
+              <tbody>
+                <tr><td><code>NEMU/</code></td><td><code>6502EMU.md</code></td><td><code>make -C NEMU -j8</code></td></tr>
+                <tr><td><code>rtl/</code></td><td><code>README.md</code>, <code>open6502_top.sv</code></td><td><code>make lint && make sim</code></td></tr>
+                <tr><td><code>sim/difftest/</code></td><td><code>README.md</code></td><td><code>./sim/difftest/run.sh</code></td></tr>
+                <tr><td><code>GEM6502/</code></td><td><code>README.md</code>, <code>docs/requirements.md</code></td><td><code>make && make test</code></td></tr>
+                <tr><td><code>nesearch/</code></td><td><code>README.en.md</code>, <code>PRD.md</code></td><td><code>./nesearch/run-ui.sh</code></td></tr>
+                <tr><td><code>docs/open6502-chip/</code></td><td>Architecture, verification, DiffTest, area</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Documentation index</h3>
+          <div class="doc-index-grid">
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/55nm-tapeout-roadmap.md" target="_blank" rel="noopener">
+              <span class="t">55nm tapeout roadmap</span>
+              <span class="d">Four stages, exit criteria and current blockers</span>
+              <span class="p">docs/55nm-tapeout-roadmap.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/game-testing.md" target="_blank" rel="noopener">
+              <span class="t">Game testing guide</span>
+              <span class="d">NEMU and RTL paths, screenshots and known limits</span>
+              <span class="p">docs/game-testing.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/architecture.md" target="_blank" rel="noopener">
+              <span class="t">SoC architecture</span>
+              <span class="d">Clocks, address map, modules and ports</span>
+              <span class="p">docs/open6502-chip/architecture.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/verification.md" target="_blank" rel="noopener">
+              <span class="t">Verification plan</span>
+              <span class="d">L0–L7 levels, test ROMs and release gates</span>
+              <span class="p">docs/open6502-chip/verification.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/difftest.md" target="_blank" rel="noopener">
+              <span class="t">DiffTest protocol</span>
+              <span class="d">Sync points, event records and mismatch reports</span>
+              <span class="p">docs/open6502-chip/difftest.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/synthesis-area.md" target="_blank" rel="noopener">
+              <span class="t">Synthesis &amp; area</span>
+              <span class="d">Yosys generic cells, PPU breakdown and caveats</span>
+              <span class="p">docs/open6502-chip/synthesis-area.md</span>
+            </a>
+          </div>
+          <div class="callout callout--info">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Repository docs are maintained in English; this page is the same content in a navigable form. If this page and the repository disagree, the current code and latest test results win. The last full verification was on 2026-11-11.</span>
+          </div>
+        </section>
+
+        <!-- 03 ARCH -->
+        <section class="doc-section" id="architecture" data-group="Design" data-keywords="architecture block diagram clock address map top-level ports modules enable CDC reset">
+          <div class="doc-kicker"><span class="dot"></span>03 · Architecture</div>
+          <h2><span>Architecture: one clock, several phases</span></h2>
+          <p>All sequential logic runs on the 21.477272 MHz master clock; enable phases create the CPU, PPU, APU and pixel beats, avoiding multi-clock CDC. Reset asserts asynchronously and releases synchronously. This is an NES/Famicom-compatible digital SoC, not a device-by-device copy of the NES board.</p>
+
+          <div class="ascii">21.477272 MHz ──► clock / reset (÷12 CPU · ÷4 PPU · ÷24 audio)
+                         │
+   ┌─────────────┐   ┌───▼──────────┐   ┌──────────┐   ┌─────────┐
+   │  6502 CPU   │◄─►│  system bus  │◄─►│ 2C02 PPU │──►│  video  │
+   │ 2A03 profile│   │  decode /    │   │  dot     │   │ RGB444  │
+   └─────────────┘   │  arbitration │   └────┬─────┘   └─────────┘
+                     └──┬───┬────┬──┘        │
+              ┌─────────▼┐  │    ▼           ▼
+              │ 2KB WRAM │  │  VRAM / OAM / palette
+              └──────────┘  │
+                     ┌──────▼─────┐   ┌──────────────┐
+                     │ 2A03 APU   │   │ cart / mapper│
+                     │ 4ch + DMC  │   │ PRG / CHR    │
+                     └──────┬─────┘   └──────┬───────┘
+                            │                │
+                       audio mixer      cartridge bus</div>
+
+          <h3>Design principles</h3>
+          <ul>
+            <li>RTL is the only synthesizable implementation; NEMU never enters synthesis.</li>
+            <li>NEMU is the REF, not the DUT; the two may not share an implementation to “check the answer”.</li>
+            <li>Build CPU + bus first, then PPU/APU, then mappers and accessories.</li>
+            <li>FPGA prototype before ASIC; every stage has exit criteria.</li>
+            <li>Every external interface has an observable trace for DiffTest.</li>
+          </ul>
+
+          <h3>Clocks and reset</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Signal</th><th class="num">Frequency</th><th>Use</th></tr></thead>
+              <tbody>
+                <tr><td><code>clk_21m</code></td><td class="num">21.477272 MHz</td><td>Single master clock, all sequential logic</td></tr>
+                <tr><td><code>cpu_en</code></td><td class="num">1.789773 MHz</td><td>CPU phase (÷12)</td></tr>
+                <tr><td><code>ppu_en</code></td><td class="num">5.369318 MHz</td><td>PPU dot phase (÷4)</td></tr>
+                <tr><td><code>aud_en</code></td><td class="num">44.1 kHz</td><td>Audio sample</td></tr>
+                <tr><td><code>vid_pclk</code></td><td class="num">5.369318 MHz</td><td>Pixel output</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Address space</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Address</th><th>Target</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td><code>$0000–$1FFF</code></td><td>2 KB WRAM</td><td>Four mirrors</td></tr>
+                <tr><td><code>$2000–$3FFF</code></td><td>PPU registers</td><td>8-byte mirrors</td></tr>
+                <tr><td><code>$4000–$4017</code></td><td>APU / OAM DMA / controllers</td><td><code>$4014</code> triggers OAM DMA</td></tr>
+                <tr><td><code>$4018–$401F</code></td><td>Test / expansion</td><td>—</td></tr>
+                <tr><td><code>$4020–$5FFF</code></td><td>Expansion space</td><td>—</td></tr>
+                <tr><td><code>$6000–$7FFF</code></td><td>PRG RAM</td><td>Provided by the cartridge</td></tr>
+                <tr><td><code>$8000–$FFFF</code></td><td>Cartridge PRG</td><td>Reset vector at <code>$FFFC/$FFFD</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Top-level ports</h3>
+          <div class="code">
+            <div class="code-bar"><span class="lang">systemverilog</span><button class="code-copy" type="button" data-copy="module open6502_top (
+  input  logic        clk_21m,
+  input  logic        rst_n,
+  output logic        vid_pclk,
+  output logic        vid_de,
+  output logic        vid_hsync,
+  output logic        vid_vsync,
+  output logic [11:0] vid_rgb,
+  output logic        aud_valid,
+  output logic signed [15:0] aud_sample,
+  input  logic [7:0]  joy1,
+  input  logic [7:0]  joy2,
+  output logic [15:0] cart_addr,
+  output logic [7:0]  cart_wdata,
+  input  logic [7:0]  cart_rdata,
+  output logic        cart_we,
+  input  logic        cart_irq,
+  output logic        dbg_valid,
+  output logic [63:0] dbg_payload
+);"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre>module open6502_top (
+  input  logic        clk_21m,
+  input  logic        rst_n,
+  output logic        vid_pclk,
+  output logic        vid_de,
+  output logic        vid_hsync,
+  output logic        vid_vsync,
+  output logic [11:0] vid_rgb,
+  output logic        aud_valid,
+  output logic signed [15:0] aud_sample,
+  input  logic [7:0]  joy1,
+  input  logic [7:0]  joy2,
+  output logic [15:0] cart_addr,
+  output logic [7:0]  cart_wdata,
+  input  logic [7:0]  cart_rdata,
+  output logic        cart_we,
+  input  logic        cart_irq,
+  output logic        dbg_valid,
+  output logic [63:0] dbg_payload
+);</pre>
+          </div>
+
+          <h3>Module responsibilities</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Module</th><th>File</th><th>Responsibility</th></tr></thead>
+              <tbody>
+                <tr><td>CPU</td><td><code>cpu/open6502_cpu.sv</code></td><td>2A03 profile, instructions, bus cycles, interrupts</td></tr>
+                <tr><td>PPU</td><td><code>ppu/open6502_ppu.sv</code></td><td>Registers, VRAM/CHR/OAM/palette, per-dot background and sprite composition</td></tr>
+                <tr><td>APU</td><td><code>apu/open6502_apu.sv</code></td><td>Two pulses, triangle, noise, frame sequencer, envelope, length, sweep</td></tr>
+                <tr><td>DMC</td><td><code>apu/open6502_dmc.sv</code></td><td>Sample address/length/rate/loop/IRQ/output and DMA requests</td></tr>
+                <tr><td>Bus</td><td><code>bus/open6502_bus.sv</code></td><td>Address decode, chip selects, peripheral arbitration</td></tr>
+                <tr><td>WRAM</td><td><code>bus/open6502_wram.sv</code></td><td>2 KB main RAM and four-way mirroring</td></tr>
+                <tr><td>Mapper</td><td><code>cart/open6502_mapper.sv</code></td><td>Mapper 0/1/2/3/4/7 banking, mirroring, IRQ</td></tr>
+                <tr><td>OAM DMA</td><td><code>dma/open6502_oam_dma.sv</code></td><td><code>$4014</code> 256-byte transfer and CPU stall</td></tr>
+                <tr><td>Clocks</td><td><code>clocks/open6502_clocks.sv</code></td><td>Reset sync, CPU/PPU/audio enables</td></tr>
+                <tr><td>Video</td><td><code>video/open6502_video_timing.sv</code></td><td>341×262 NTSC timing and sync signals</td></tr>
+                <tr><td>Controller</td><td><code>input/open6502_controller.sv</code></td><td>Controller serial shift</td></tr>
+                <tr><td>DiffTest bridge</td><td><code>dbg/open6502_difftest_bridge.sv</code></td><td>Packs CPU/BUS/PPU/APU events</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>For the full block diagram, ports and v0 scope, see <a href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/architecture.md" target="_blank" rel="noopener">docs/open6502-chip/architecture.md</a>.</p>
+        </section>
+
+        <!-- 04 CPU -->
+        <section class="doc-section" id="cpu" data-group="Design" data-keywords="cpu 6502 2a03 instructions interrupts nmi irq klaus cycles bus decimal">
+          <div class="doc-kicker"><span class="dot"></span>04 · CPU</div>
+          <h2><span>CPU: get function right, then cycles</span></h2>
+          <p><code>open6502_cpu</code> is a 6502 core in the 2A03 configuration. The current goal is official instructions plus stable undocumented behaviour; cycle-level bus behaviour is still being filled in.</p>
+
+          <h3>Covered</h3>
+          <ul>
+            <li>Official instruction set plus target-stable undocumented instructions; decimal ADC/SBC is implemented and covered by Klaus.</li>
+            <li>Addressing: immediate, zero page, zero-page indexed, absolute, absolute indexed, indirect, indexed indirect and branches.</li>
+            <li>Cycle-level bus actions: fetch, operand reads, dummy reads, RMW double writes, DMA stalls.</li>
+            <li>Interrupts: NMI edge, IRQ level, APU frame IRQ, mapper IRQ; corrected BRK/RTI return address.</li>
+            <li>Accumulator/memory shifts, JSR/RTS, PHA/PLA/PHP/PLP, INC/DEC/BIT, JMP indirect, CMP/AND/ORA/EOR/ADC/SBC.</li>
+          </ul>
+
+          <h3>Evidence</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Test</th><th>Result</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Klaus 6502 functional</td><td><span class="badge badge--pass">PASS · PC=0x3469</span></td><td>Includes decimal ADC/SBC</td></tr>
+                <tr><td>NEMU Klaus</td><td><span class="badge badge--pass">PASS</span></td><td>The reference model passes too</td></tr>
+                <tr><td>Directed testbenches</td><td><span class="badge badge--pass">PASS</span></td><td>ADC, BRK, decimal, INC, IRQ, JMP ind, JSR, PHP, RMW, stack, ZP37 and more</td></tr>
+                <tr><td>NEMU/RTL DiffTest</td><td><span class="badge badge--pass">PASS</span></td><td>Final state, PC trace, ALU/stack</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="# Prepare the Klaus binary first; the default path is /tmp/klaus.bin
+KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="c"># Prepare the Klaus binary first; the default path is /tmp/klaus.bin</span>
+<span class="p">$</span> KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh</pre>
+          </div>
+
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span><strong>Not yet exact:</strong> CPU cycle timing, some dummy reads, NMI/IRQ interaction with DMA, and DMC stall alignment are still approximate. RTL Klaus passing at <code>PC=0x3469</code> proves function, not cycle-level equivalence.</span>
+          </div>
+        </section>
+
+        <!-- 05 PPU -->
+        <section class="doc-section" id="ppu" data-group="Design" data-keywords="ppu 2c02 render sprite background scroll palette vram oam chr registers cycles pixels">
+          <div class="doc-kicker"><span class="dot"></span>05 · PPU</div>
+          <h2><span>PPU: it draws, but it is not a dot pipeline yet</span></h2>
+          <p>The PPU is both the largest block and the biggest accuracy gap. It renders the title frame and gameplay, but uses “per-dot generation + end-of-scanline sprite composition” instead of the real 2C02 fetch/shift pipeline.</p>
+
+          <div class="ascii">CPU writes $2006/$2007
+        │
+        ▼
+  VRAM / CHR / OAM / palette (register arrays)
+        │
+        ▼
+  341 dots × 262 lines dot loop
+        │
+        ├─ background pixel (nametable + pattern + attributes + scroll)
+        ├─ sprite composition (priority, sprite 0, 8×16, overflow)
+        ▼
+  palette index → RGB444 / PPM capture</div>
+
+          <h3>Implemented</h3>
+          <ul>
+            <li>CPU-visible <code>$2000–$2007</code> registers, including <code>$2007</code> auto-increment.</li>
+            <li>Internal storage: CHR 8 KB, VRAM 2 KB, OAM 256 B, palette 32 B.</li>
+            <li>Background pixels generated per dot, with coarse/fine X/Y scroll and nametable mirroring.</li>
+            <li>Sprite overlay, priority, sprite 0 hit, scanline overflow and 8×16 mode.</li>
+            <li>VBlank/NMI and frame output; <code>vid_rgb</code> uses an RGB444 palette LUT.</li>
+          </ul>
+
+          <h3>Registers</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Address</th><th>Name</th><th>Current implementation</th></tr></thead>
+              <tbody>
+                <tr><td><code>$2000</code></td><td>PPUCTRL</td><td>NMI, sprite size, background/sprite pattern tables, address increment</td></tr>
+                <tr><td><code>$2001</code></td><td>PPUMASK</td><td>Background/sprite/left-column clipping, grayscale and emphasis bits</td></tr>
+                <tr><td><code>$2002</code></td><td>PPUSTATUS</td><td>VBlank, sprite 0, overflow</td></tr>
+                <tr><td><code>$2003</code></td><td>OAMADDR</td><td>OAM address pointer</td></tr>
+                <tr><td><code>$2004</code></td><td>OAMDATA</td><td>OAM read/write</td></tr>
+                <tr><td><code>$2005</code></td><td>PPUSCROLL</td><td>Two-write X/Y scroll</td></tr>
+                <tr><td><code>$2006</code></td><td>PPUADDR</td><td>Two-write high/low address</td></tr>
+                <tr><td><code>$2007</code></td><td>PPUDATA</td><td>VRAM/palette read/write and auto-increment</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Accuracy gaps</h3>
+          <ul>
+            <li>No complete background fetch/shift register pipeline; rendering is organised per dot/scanline.</li>
+            <li>Sprite evaluation is approximate, not the 2C02's per-scanline OAM scan.</li>
+            <li>MMC3 A12 filtering and IRQ timing are approximate.</li>
+            <li>PPU open bus and <code>$2007</code> palette read-back are not fully covered.</li>
+            <li>Storage is expanded into flip-flops, which is why it costs 975,919 generic cells; it must become BRAM before board bring-up.</li>
+          </ul>
+
+          <p>Related tests: <code>ppu_tb</code>, <code>ppu_pixel_tb</code>, <code>ppu_sprite_tb</code>, <code>ppu_scroll_tb</code>, <code>ppu_overflow_tb</code>. Area work is in <a href="#synthesis">14 Synthesis &amp; area</a>.</p>
+        </section>
+
+        <!-- 06 APU -->
+        <section class="doc-section" id="apu" data-group="Design" data-keywords="apu dmc audio pulse triangle noise frame sequencer envelope sweep samples 44.1">
+          <div class="doc-kicker"><span class="dot"></span>06 · APU / DMC</div>
+          <h2><span>APU &amp; DMC: four channels, one unarbitrated bus</span></h2>
+          <p>The APU implements the 2A03's four channels, frame sequencer, length/envelope/sweep and <code>$4015</code> status, producing 16-bit samples. DMC has its own sample and DMA request logic, but bus arbitration is still missing.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Channel</th><th>Implemented</th><th>Tests</th></tr></thead>
+              <tbody>
+                <tr><td>Pulse 1 / 2</td><td>Duty, envelope, length, sweep, mute</td><td><span class="badge badge--pass">apu_tb / apu_sweep_tb</span></td></tr>
+                <tr><td>Triangle</td><td>Linear counter, length, mute</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+                <tr><td>Noise</td><td>LFSR, envelope, length</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+                <tr><td>DMC</td><td>Rate, address, length, loop, IRQ, output, 4-cycle CPU stall</td><td><span class="badge badge--part">dmc_tb · arbitration incomplete</span></td></tr>
+                <tr><td>Frame sequencer</td><td>4/5-step, frame IRQ, length/envelope clocks</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+                <tr><td>Mixer</td><td>16-bit samples, 44.1 kHz enable</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Output path</h3>
+          <p>RTL outputs <code>aud_valid</code> and a signed 16-bit <code>aud_sample</code>; the FPGA wrapper provides a 1-bit sigma-delta audio interface. RTL has no desktop SDL frontend: frame capture works, but real-time listening still goes through NEMU or GEM6502.</p>
+
+          <h3>DMC open items</h3>
+          <ul>
+            <li>DMC bus arbitration: priority and insertion timing against CPU/PPU are not complete.</li>
+            <li>DMA and CPU stall cycle alignment is still approximate.</li>
+            <li>DMC sample address/length behaviour across page boundaries and loop edges lacks hardware alignment.</li>
+          </ul>
+
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Audio is “functionally usable”, not “cycle- and mixer-exact”. Do not call it passing based on listening; that needs a NEMU/RTL audio DiffTest first.</span>
+          </div>
+        </section>
+
+        <!-- 07 BUS -->
+        <section class="doc-section" id="bus" data-group="Design" data-keywords="bus address decode wram oam dma controller mirror transactions">
+          <div class="doc-kicker"><span class="dot"></span>07 · Bus / Memory</div>
+          <h2><span>Bus &amp; memory: 2 KB of WRAM and its mirrors</span></h2>
+          <p>The bus handles address decode, chip selects and peripheral arbitration. It routes CPU reads and writes to WRAM, PPU, APU, DMA, controllers and the cartridge; every peripheral should expose unique, observable transactions.</p>
+
+          <h3>WRAM</h3>
+          <p><code>$0000–$1FFF</code> is 2 KB of physical WRAM mirrored every 2 KB, four times. <code>$2000–$3FFF</code> is the PPU's 8-byte mirror. <code>open6502_wram</code> handles mirror decoding and adds no wait states.</p>
+
+          <h3>OAM DMA</h3>
+          <p>A write to <code>$4014</code> starts a 256-byte OAM DMA: the engine copies from CPU address space into PPU OAM and stalls the CPU. Integration tests cover the <code>$4014</code> trigger, transferred data and stall behaviour; exact bus phases still need alignment.</p>
+
+          <h3>Controllers</h3>
+          <p><code>open6502_controller</code> implements the standard serial shift: a write to <code>$4016</code> latches, then eight reads return A/B/Select/Start/directions. The two ports are independent. Tests cover button order and the stable bits.</p>
+
+          <h3>Known gaps</h3>
+          <ul>
+            <li>“Every peripheral has a unique bus transaction” is not fully covered.</li>
+            <li>Priority when OAM DMA and DMC DMA request at the same time is not verified.</li>
+            <li>Exact CPU access timing to PPU registers (read/write latency, open bus) is approximate.</li>
+          </ul>
+        </section>
+
+        <!-- 08 CART -->
+        <section class="doc-section" id="cart" data-group="Design" data-keywords="cartridge mapper mmc1 mmc3 nrom uxrom cnrom axrom prg chr irq ines">
+          <div class="doc-kicker"><span class="dot"></span>08 · Cartridge</div>
+          <h2><span>Cartridge &amp; mapper: 0/1/2/3/4/7</span></h2>
+          <p>RTL mappers cover NROM, MMC1, UxROM, CNROM, MMC3 and AxROM. They handle PRG/CHR banks, mirroring, PRG RAM and IRQ; MMC3 A12 filtering remains approximate.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Mapper</th><th>Name</th><th>Key behaviour</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>0</td><td>NROM</td><td>Fixed PRG/CHR, no banking</td><td><span class="badge badge--pass">Pass</span></td></tr>
+                <tr><td>1</td><td>MMC1</td><td>Serial shift register, PRG/CHR banks, mirroring</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>2</td><td>UxROM</td><td>PRG bank switching</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>3</td><td>CNROM</td><td>CHR bank switching</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>4</td><td>MMC3</td><td>Banks, PRG RAM, scanline IRQ</td><td><span class="badge badge--part">A12 approximate</span></td></tr>
+                <tr><td>7</td><td>AxROM</td><td>32 KB PRG banks, single-screen mirroring</td><td><span class="badge badge--part">Basic</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>How ROMs enter RTL</h3>
+          <ul>
+            <li>NEMU loads iNES directly and supports mapper 0/1/2/3/4/7.</li>
+            <li>RTL simulation: <code>sim/game/extract_ines.py</code> turns iNES into Verilog <code>$readmemh</code> images for PRG/CHR.</li>
+            <li>FPGA (future): load iNES from SPI Flash/SD into SRAM/BRAM, or use a physical cartridge connector.</li>
+          </ul>
+
+          <div class="callout callout--info">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span><code>file-fixers.nes</code> and <code>stallar.nes</code> are the key MMC3 regression samples. Running does not mean A12/IRQ timing is exact.</span>
+          </div>
+        </section>
+
+        <!-- 09 VIDEO -->
+        <section class="doc-section" id="video" data-group="Design" data-keywords="video timing 341 262 rgb444 vga hdmi input controller clocks sigma delta">
+          <div class="doc-kicker"><span class="dot"></span>09 · Video / Input</div>
+          <h2><span>Video, input and clocks: the last analogue edge</span></h2>
+          <p>The digital side outputs 341×262 NTSC timing, RGB444 pixels and 44.1 kHz audio. Analogue video/audio and physical controller ports are left to the FPGA board or external DACs.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Item</th><th>Current implementation</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Scan timing</td><td>341 dots × 262 lines</td><td><code>vid_pclk / de / hsync / vsync</code></td></tr>
+                <tr><td>Pixel format</td><td>RGB444</td><td>Internal palette index through a LUT</td></tr>
+                <tr><td>Frame rate</td><td>NTSC, ~60 Hz</td><td>Simulation driven by the frame loop</td></tr>
+                <tr><td>Audio</td><td>16-bit PCM / σΔ</td><td>FPGA wrapper provides 1-bit sigma-delta</td></tr>
+                <tr><td>Input</td><td>Two standard controllers</td><td>Serial shift, <code>joy1/joy2</code></td></tr>
+                <tr><td>FPGA output</td><td>Wrapper exists</td><td>No bitstream, no board validation</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>FPGA wrapper</h3>
+          <p><code>fpga/open6502_fpga_top.sv</code> wraps VGA and sigma-delta audio, but full synthesis, BRAM inference, timing constraints and board bring-up are not done. Artix-7/Nexys A7 class is a planning target, not a verified result.</p>
+
+          <h3>Clock strategy</h3>
+          <p>No free-running multiple clocks: one <code>clk_21m</code> plus enables. CPU/PPU/APU relative phase is therefore deterministic in simulation and after synthesis, which makes tick-aligned DiffTest possible. The cost is enable discipline; any write missing its enable repeats across all 12 21 MHz cycles.</p>
+
+          <div class="callout callout--info">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>A real bug from this rule: PPU chip select was not qualified by <code>cpu_ce</code>, so one CPU store committed on all 12 master clocks and <code>$2006/$2007</code> writes landed wrong. The title frame only matched NEMU after the fix.</span>
+          </div>
+        </section>
+
+        <!-- 10 VERIFICATION -->
+        <section class="doc-section" id="verification" data-group="Verification" data-keywords="verification tests klaus 28 pass regression testbench release gate coverage">
+          <div class="doc-kicker"><span class="dot"></span>10 · Verification</div>
+          <h2><span>Verification: evidence, not slogans</span></h2>
+          <p>Verification has seven levels: package/decode unit tests, CPU + bus, PPU frames, APU samples, mapper, full games, and FPGA board validation. The strongest evidence today is L0–L2 plus a single L3 frame.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Level</th><th>Object</th><th>Method</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>L0</td><td>package / decode / counters</td><td>SystemVerilog unit tests</td><td><span class="badge badge--pass">PASS</span></td></tr>
+                <tr><td>L1</td><td>CPU / PPU / APU blocks</td><td>Directed tests + vectors</td><td><span class="badge badge--pass">PASS</span></td></tr>
+                <tr><td>L2</td><td>CPU + bus</td><td>Klaus, nestest, DiffTest</td><td><span class="badge badge--part">Klaus PASS</span><br><span class="muted">nestest not wired up</span></td></tr>
+                <tr><td>L3</td><td>PPU + CPU</td><td>PPU ROMs, frame hashes</td><td><span class="badge badge--part">Single frame</span></td></tr>
+                <tr><td>L4</td><td>APU</td><td>apu_test, DMC, sample hashes</td><td><span class="badge badge--part">Block level</span></td></tr>
+                <tr><td>L5</td><td>Mapper</td><td>Bank/IRQ test ROMs</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>L6</td><td>System</td><td>Open-source games, hardware</td><td><span class="badge badge--part">6 ROMs run</span></td></tr>
+                <tr><td>L7</td><td>FPGA</td><td>Board video/audio/input</td><td><span class="badge badge--no">Not started</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Current regression results</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Check</th><th>Result</th><th>Command / location</th></tr></thead>
+              <tbody>
+                <tr><td>RTL lint</td><td><span class="badge badge--pass">PASS</span></td><td><code>cd rtl &amp;&amp; make lint</code></td></tr>
+                <tr><td>RTL unit/integration tests</td><td><span class="badge badge--pass">28 PASS</span></td><td><code>cd rtl &amp;&amp; make sim</code></td></tr>
+                <tr><td>RTL Klaus</td><td><span class="badge badge--pass">PASS · PC=0x3469</span></td><td><code>sim/klaus/run.sh</code></td></tr>
+                <tr><td>NEMU/RTL final state</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
+                <tr><td>NEMU/RTL PC trace</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
+                <tr><td>NEMU/RTL ALU / stack</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run_alu.sh</code></td></tr>
+                <tr><td>FALLING title frame</td><td><span class="badge badge--pass">SHA match</span></td><td><code>sim/game/run.sh</code></td></tr>
+                <tr><td>FALLING post-START frame</td><td><span class="badge badge--pass">Rendered</span></td><td><a href="#quickstart">01 Quickstart</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Still missing</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Test suite</th><th>Coverage</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Klaus 6502 functional</td><td>Official instructions and flags</td><td><span class="badge badge--pass">PASS</span></td></tr>
+                <tr><td>nestest</td><td>Instruction/cycle golden log</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>instr_test-v5 / instr_misc</td><td>Undocumented instructions</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>cpu_timing_test6</td><td>Cycle-level CPU</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>cpu_interrupts_v2</td><td>NMI/IRQ/BRK timing</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>ppu_vbl_nmi / sprite_hit / overflow / open_bus</td><td>PPU edge cases</td><td><span class="badge badge--part">Partial</span></td></tr>
+                <tr><td>apu_test / apu_reset / DMC</td><td>Audio accuracy</td><td><span class="badge badge--part">Partial</span></td></tr>
+                <tr><td>240p Test Suite</td><td>Video and sync</td><td><span class="badge badge--no">Not wired up</span></td></tr>
+                <tr><td>Multi-game lockstep DiffTest</td><td>System-level consistency</td><td><span class="badge badge--no">Not wired up</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Release gates</h3>
+          <p>A v0 FPGA prototype needs at least: Klaus, PPU VBlank/NMI/sprite 0, four APU channels, mapper 0/1/2/3/4/7, six playable open-source ROMs, and a passing CPU + frame-level DiffTest. ASIC adds DFT, timing closure, power, package and hardware alignment.</p>
+
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>“28 tests pass” means those 28 tests pass. It does not equal NES compatibility, and it does not equal cycle accuracy. Never substitute a test count for coverage analysis.</span>
+          </div>
+        </section>
+
+        <!-- 11 DIFFTEST -->
+        <section class="doc-section" id="difftest" data-group="Verification" data-keywords="difftest compare nemu rtl sync points events mismatch report lockstep">
+          <div class="doc-kicker"><span class="dot"></span>11 · DiffTest</div>
+          <h2><span>DiffTest: make two implementations testify</span></h2>
+          <p>The goal is to compare observable DUT (RTL) and REF (NEMU) state under identical input, from instructions and bus transactions to scanlines, frame hashes, audio samples and mapper state. It cannot prove RTL matches real NES hardware; it only proves RTL matches REF.</p>
+
+          <div class="ascii">┌───────────────────┐   DPI / shared memory   ┌───────────────────┐
+│ Verilator RTL DUT │ ◄─────────────────────► │ NEMU NES REF      │
+│ open6502_top      │                          │ nes_ref_machine   │
+└─────────┬─────────┘                          └─────────┬─────────┘
+          │                                              │
+          └────────────── DiffTest runner ───────────────┘
+                              │
+                        mismatch report</div>
+
+          <h3>Event record</h3>
+          <div class="code">
+            <div class="code-bar"><span class="lang">systemverilog</span><button class="code-copy" type="button" data-copy="typedef struct packed {
+  logic        valid;
+  logic [1:0]  kind;   // 0=cpu, 1=bus, 2=ppu, 3=apu
+  logic [63:0] tick;
+  logic [15:0] addr;
+  logic [7:0]  data;
+  logic        we;
+  logic [7:0]  source;
+} open6502_dbg_event;"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre>typedef struct packed {
+  logic        valid;
+  logic [1:0]  kind;   <span class="c">// 0=cpu, 1=bus, 2=ppu, 3=apu</span>
+  logic [63:0] tick;
+  logic [15:0] addr;
+  logic [7:0]  data;
+  logic        we;
+  logic [7:0]  source;
+} open6502_dbg_event;</pre>
+          </div>
+
+          <h3>Sync points</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Granularity</th><th>RTL</th><th>REF</th><th>Compare</th></tr></thead>
+              <tbody>
+                <tr><td>Instruction</td><td><code>cpu_retire</code></td><td><code>cpu_step</code></td><td>PC / A / X / Y / SP / P / cycles</td></tr>
+                <tr><td>Bus</td><td><code>bus_event</code></td><td>bus trace</td><td>addr / data / we / tick</td></tr>
+                <tr><td>Scanline</td><td><code>ppu_scanline_end</code></td><td>PPU state</td><td>v / t / x / w / OAM / status</td></tr>
+                <tr><td>Frame</td><td><code>frame_end</code></td><td>framebuffer</td><td>frame hash</td></tr>
+                <tr><td>Audio</td><td><code>aud_valid</code></td><td>APU samples</td><td>sample hash / tolerance</td></tr>
+                <tr><td>Mapper</td><td><code>cart_event</code></td><td>mapper state</td><td>bank / IRQ / PRG RAM</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Modes and budget</h3>
+          <ul>
+            <li><code>cpu-only</code>: Klaus/hello first, zero mismatches before anything else.</li>
+            <li><code>frame-only</code>: per-frame hash, good for NROM games.</li>
+            <li><code>scanline</code>: PPU state level, for test ROMs.</li>
+            <li><code>audio</code>: per-sample or hash tolerance.</li>
+            <li><code>full</code>: bus + PPU + APU + mapper.</li>
+          </ul>
+          <p>Performance budget: Verilator + REF at least 10<sup>6</sup> cycles/s; stop at the first mismatch and keep a window around it. FPGA compares frames/hashes only; dot-level comparison stays in simulation.</p>
+
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span><strong>REF independence is the current risk:</strong> the NEMU frontend and REF still share some PPU/APU code, so REF itself is provisional. Keep calibrating against Klaus, external test ROMs and hardware captures, or DiffTest may be “wrong together”.</span>
+          </div>
+        </section>
+
+        <!-- 12 GOLDENS -->
+        <section class="doc-section" id="goldens" data-group="Verification" data-keywords="golden hash sha256 frame audio 67667b1cbc4c1cf3 e78422afbcb92ac3 41e8eb">
+          <div class="doc-kicker"><span class="dot"></span>12 · Golden hashes</div>
+          <h2><span>Golden frames and hashes: read before changing output</span></h2>
+          <p>Golden hashes anchor the regression. Any change that alters output must explain why the hash moved; never update the hash just to make a test pass.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Object</th><th>Hash / value</th><th>Scope</th></tr></thead>
+              <tbody>
+                <tr><td>RTL title frame</td><td><code>41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</code></td><td>FALLING, 256×240, same as NEMU</td></tr>
+                <tr><td>NEMU title frame</td><td><code>41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</code></td><td>Same, byte-identical</td></tr>
+                <tr><td>REF 60-frame frame hash</td><td><code>67667b1cbc4c1cf3</code></td><td>Bundled NROM game, REF/frontend parity</td></tr>
+                <tr><td>REF 60-frame audio hash</td><td><code>e78422afbcb92ac3</code></td><td>Same</td></tr>
+                <tr><td>RTL Klaus end point</td><td><code>PC=0x3469</code></td><td>Functional test, not cycle test</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Reproduce</h3>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="./NEMU/build/6502EMU --headless --no-audio --frames=300 --screenshot=/tmp/nemu-title.ppm roms/falling.nes
+./sim/game/run.sh roms/falling.nes /tmp/rtl-title.ppm
+shasum -a 256 /tmp/nemu-title.ppm /tmp/rtl-title.ppm"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> ./NEMU/build/6502EMU --headless --no-audio --frames=300 \
+    --screenshot=/tmp/nemu-title.ppm roms/falling.nes
+<span class="p">$</span> ./sim/game/run.sh roms/falling.nes /tmp/rtl-title.ppm
+<span class="p">$</span> shasum -a 256 /tmp/nemu-title.ppm /tmp/rtl-title.ppm</pre>
+          </div>
+          <div class="callout callout--info">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Compare shape and pixels before comparing file hashes: different tools may emit different PPM headers (comments, maxval formatting). The repository's <code>41e8…</code> comes from its own capture tooling; the comparison on this site uses the same pixel data.</span>
+          </div>
+        </section>
+
+        <!-- 13 GEM6502 -->
+        <section class="doc-section" id="gem6502" data-group="Toward silicon" data-keywords="gem6502 c model cycle timing events gem5 legacy functional model player">
+          <div class="doc-kicker"><span class="dot"></span>13 · GEM6502</div>
+          <h2><span>GEM6502: being rewritten, do not overrate it</span></h2>
+          <p>GEM6502 targets a gem5-style, event-driven architecture and timing platform: clock domains, resource contention, DMA arbitration, checkpoints, causal statistics and independent RTL calibration. The current implementation is still a legacy instruction-driven functional/cycle model.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>It can do now</th><th>It cannot do yet</th></tr></thead>
+              <tbody>
+                <tr><td>Load NROM PRG, run instructions, print registers/cycle stats</td><td>No completed timing CPU, timing bus or calibrated chip profile</td></tr>
+                <tr><td>SDL player, PPM frames, MMC3 game regression</td><td>The event queue does not drive normal execution yet; not a chip-level timing model</td></tr>
+                <tr><td>Compare traces against NEMU</td><td>Not a pre-silicon signoff or RTL timing substitute</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="cd GEM6502
+make
+make test
+./gem6502 run /tmp/gem-demo.bin 1000
+./gem6502 stats /tmp/gem-demo.bin
+./gem6502 play ../roms/stallar.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> cd GEM6502
+<span class="p">$</span> make
+<span class="p">$</span> make test
+<span class="p">$</span> ./gem6502 run /tmp/gem-demo.bin 1000
+<span class="p">$</span> ./gem6502 stats /tmp/gem-demo.bin
+<span class="p">$</span> ./gem6502 play ../roms/stallar.nes</pre>
+          </div>
+
+          <p>Target specification (Chinese): <a href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/docs/requirements.md" target="_blank" rel="noopener">requirements.md</a>; architecture and coding rules: <a href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/docs/coding-guide.md" target="_blank" rel="noopener">coding-guide.md</a>. Those documents describe target capabilities, not implemented features.</p>
+        </section>
+
+        <!-- 14 SYNTHESIS -->
+        <section class="doc-section" id="synthesis" data-group="Toward silicon" data-keywords="synthesis area yosys cells ppu wram cost die mm2 tapeout generic cells">
+          <div class="doc-kicker"><span class="dot"></span>14 · Synthesis</div>
+          <h2><span>Synthesis &amp; area: 1.02M generic cells</span></h2>
+          <p>Per-module synthesis uses Yosys 0.60 with <code>read_verilog -sv -DSYNTHESIS → hierarchy → synth -flatten -noabc → stat</code>. <code>-noabc</code> is used because the full PPU combinational renderer is too large for ABC mapping; the counts are generic cells.</p>
+
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="yosys -s rtl/scripts/synth_open6502.ys"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> yosys -s rtl/scripts/synth_open6502.ys</pre>
+          </div>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Module</th><th class="num">Generic cells</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td><code>open6502_cpu</code></td><td class="num">4,138</td><td>Small</td></tr>
+                <tr><td><code>open6502_apu</code></td><td class="num">1,855</td><td>—</td></tr>
+                <tr><td><code>open6502_dmc</code></td><td class="num">828</td><td>—</td></tr>
+                <tr><td><code>open6502_mapper</code></td><td class="num">745</td><td>6 mappers</td></tr>
+                <tr><td><code>open6502_oam_dma</code></td><td class="num">154</td><td>—</td></tr>
+                <tr><td><code>open6502_wram</code></td><td class="num">37,003</td><td>Flip-flop implementation</td></tr>
+                <tr><td><code>open6502_bus</code></td><td class="num">171</td><td>—</td></tr>
+                <tr><td><code>open6502_clocks</code></td><td class="num">360</td><td>—</td></tr>
+                <tr><td><code>open6502_video_timing</code></td><td class="num">164</td><td>—</td></tr>
+                <tr><td><code>open6502_controller</code></td><td class="num">19</td><td>—</td></tr>
+                <tr><td><code>open6502_difftest_bridge</code></td><td class="num">65</td><td>—</td></tr>
+                <tr><td><code>open6502_ppu</code></td><td class="num">975,919</td><td>Dominant</td></tr>
+                <tr><td><strong>Hierarchical sum</strong></td><td class="num"><strong>1,021,421</strong></td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>PPU breakdown</h3>
+          <div class="ascii">975,919 cells
+ 84,224 flip-flops
+840,701 muxes
+ 40,283 AND
+  9,301 OR
+    674 XOR</div>
+          <p>Most of the area is the expanded <code>chr[8192]</code>, <code>vram[2048]</code>, <code>oam[256]</code> and <code>pal[32]</code> storage plus per-pixel/attribute mux trees. An FPGA flow must map them to BRAM and shrink the combinational sprite scan.</p>
+
+          <h3>Caveats you must read together</h3>
+          <ol>
+            <li>These are generic-cell estimates, not placed-and-routed area.</li>
+            <li><code>SYNTHESIS</code> skips memory reset loops; simulation still initialises them.</li>
+            <li><code>SYNTHESIS</code> limits the PPU sprite scan to 8 sprites for runtime; simulation scans all 64.</li>
+            <li>Full top-level flatten did not finish within 600 seconds; the table is a per-module sum, not one flattened result.</li>
+            <li>No timing closure, LUT mapping, BRAM mapping or ASIC standard-cell mapping has been done.</li>
+          </ol>
+
+          <h3>55nm planning estimate</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Scenario</th><th>Die area</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Current RTL, flip-flop memories</td><td class="num">4–7 mm²</td><td>Not acceptable</td></tr>
+                <tr><td>SRAM + PPU refactor</td><td class="num">1.2–2.0 mm²</td><td>Planning target</td></tr>
+                <tr><td>Recommended planning value</td><td class="num">~1.5 mm²</td><td>Used for the cost model</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>At 1.5–2.0 mm² and 55nm, unit cost at volume is roughly USD 0.3–0.7 (die + package + test), with mask/NRE around USD 150k–400k+. These are planning numbers, not quotes.</p>
+        </section>
+
+        <!-- 15 TAPEOUT -->
+        <section class="doc-section" id="tapeout" data-group="Toward silicon" data-keywords="55nm asic tapeout fpga roadmap gate dft sram funding">
+          <div class="doc-kicker"><span class="dot"></span>15 · Tapeout</div>
+          <h2><span>Toward 55nm: four gates, no skipping</span></h2>
+          <p>The roadmap is not a schedule; it is an acceptance order: NEMU → RTL → FPGA → 55nm ASIC. A later stage may not hide an earlier failure. Without FPGA validation, physical design should not start.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Stage</th><th>Purpose</th><th>Current status</th><th>Exit gate</th></tr></thead>
+              <tbody>
+                <tr><td>1. NEMU</td><td>Playable reference model</td><td>Working</td><td>Games playable, Klaus PASS, golden frames stable</td></tr>
+                <tr><td>2. RTL</td><td>SystemVerilog SoC</td><td>Functional prototype</td><td>Multi-game frame match, no unexplained divergence, deterministic regression</td></tr>
+                <tr><td>3. FPGA</td><td>Real board prototype</td><td>Not started</td><td>Bitstream runs a game; video/audio/input stable</td></tr>
+                <tr><td>4. ASIC</td><td>55nm tapeout</td><td>Planning</td><td>Timing/DFT/DRC/LVS clean; shuttle and funding secured</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Before RTL → FPGA</h3>
+          <ol>
+            <li>Add bus transaction strobes for every peripheral.</li>
+            <li>Make CPU cycle timing accurate enough for NMI/DMA-sensitive games.</li>
+            <li>Replace PPU flip-flop storage with BRAM-friendly arrays.</li>
+            <li>Rewrite sprite selection as a sequential scan.</li>
+            <li>Rewrite background rendering as a fetch/shift pipeline.</li>
+            <li>Complete DMC bus arbitration.</li>
+            <li>Add deterministic frame-index DiffTest.</li>
+            <li>Complete full-SoC synthesis and timing constraints.</li>
+          </ol>
+
+          <h3>Before FPGA → ASIC</h3>
+          <ol>
+            <li>Replace BRAM with 55nm SRAM macros.</li>
+            <li>Insert DFT/scan and set coverage targets.</li>
+            <li>Define clock/reset/power intent.</li>
+            <li>Synthesize with the 55nm standard-cell library.</li>
+            <li>Run place-and-route and timing closure.</li>
+            <li>Run DRC/LVS clean.</li>
+            <li>Define package, pad ring and ESD.</li>
+            <li>Secure a foundry shuttle and funding.</li>
+          </ol>
+
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Non-negotiable: no commercial ROMs or proprietary PDK data in the repo; no tapeout claims before timing/DFT/DRC/LVS are clean; golden hash changes need review; do not delete tests to make a change pass.</span>
+          </div>
+        </section>
+
+        <!-- 16 TROUBLESHOOTING -->
+        <section class="doc-section" id="troubleshooting" data-group="Reference" data-keywords="troubleshooting errors sdl2 verilator link klaus audio screen not starting pillow shasum headless wsl">
+          <div class="doc-kicker"><span class="dot"></span>16 · Troubleshooting</div>
+          <h2><span>Troubleshooting: find your symptom first</span></h2>
+          <p>These are the most common failures. First decide whether you are running NEMU, GEM6502 or RTL — their dependencies and outputs are completely different.</p>
+
+          <h3>1. SDL2 not found, or <code>sdl2-config</code> missing</h3>
+          <p>NEMU and the GEM6502 player need SDL2. The CLI can build without it, but <code>play</code>, the window and audio will be missing.</p>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="brew install sdl2
+# Debian/Ubuntu:
+sudo apt install -y libsdl2-dev"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> brew install sdl2
+<span class="c"># Debian/Ubuntu:</span>
+<span class="p">$</span> sudo apt install -y libsdl2-dev</pre>
+          </div>
+          <p>If it is installed but still not found, make sure <code>sdl2-config --cflags --libs</code> is on PATH. GEM6502's Makefile probes it through that command and falls back to a no-UI build.</p>
+
+          <h3>2. Verilator link fails with <code>Undefined symbols ... __cxa_*</code></h3>
+          <p>This is a known macOS mismatch between Verilator-generated code and the C++ runtime. The repo scripts explicitly select <code>clang++</code>, the macOS SDK and Homebrew LLVM's <code>libc++</code>. If your LLVM version differs, find the real path and override it:</p>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="ls /opt/homebrew/Cellar/llvm/*/lib/c++
+LIBCXX_DIR=/opt/homebrew/Cellar/llvm/&lt;version&gt;/lib/c++ ./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> ls /opt/homebrew/Cellar/llvm/*/lib/c++
+<span class="p">$</span> LIBCXX_DIR=/opt/homebrew/Cellar/llvm/&lt;version&gt;/lib/c++ \
+    ./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm</pre>
+          </div>
+          <p>If you only need functional verification, use Icarus first: <code>cd rtl &amp;&amp; make sim</code> avoids Verilator's C++ link path.</p>
+
+          <h3>3. <code>make sim</code> is slow and noisy</h3>
+          <p>It compiles and runs 28 testbenches, so it is not a silent command. Run <code>make lint</code> first to rule out syntax errors, then redirect: <code>make sim &gt; /tmp/rtl-sim.log 2&gt;&amp;1</code> and finish with <code>grep -i fail /tmp/rtl-sim.log</code>.</p>
+
+          <h3>4. The game runs but stays on the title screen</h3>
+          <p>Most ROMs need START, not any key. NEMU's default START is <span class="kbd">V</span> and Select is <span class="kbd">C</span>; the GEM6502 player uses <span class="kbd">Enter</span> / <span class="kbd">Backspace</span>. Make sure the window has focus and the player is not paused (press <span class="kbd">P</span> in GEM6502).</p>
+
+          <h3>5. No sound</h3>
+          <p>Check that you did not pass <code>--no-audio</code> (the headless screenshot commands do). GEM6502 needs an SDL2 audio device; on Linux check ALSA/PulseAudio. If opening the device fails, the player prints the SDL error and continues without audio by design.</p>
+
+          <h3>6. RTL has no window and no sound</h3>
+          <p>RTL is an SoC simulation, not a desktop emulator. It captures PPM frames through Verilator and has no SDL frontend; audio is 16-bit samples/sigma-delta only. To play on a desktop, use NEMU or GEM6502.</p>
+
+          <h3>7. My SHA does not match the docs</h3>
+          <p>Compare pixels before file bytes: PPM headers can differ between tools. Convert both to PNG and compare pixels, or generate with the repo's own capture scripts. The hashes in the docs come from the repository toolchain; confirm the format before comparing across tools.</p>
+
+          <h3>8. Pillow is missing, so PPM → PNG fails</h3>
+          <p>On macOS use <code>sips -s format png /tmp/frame.ppm --out /tmp/frame.png</code>, or install Pillow with <code>python3 -m pip install Pillow</code>. If you only want to look at an RTL frame, Preview can open PPM directly.</p>
+
+          <h3>Still stuck?</h3>
+          <p>When filing an issue, include: OS and version, the exact command, the full error, <code>clang --version</code> / <code>verilator --version</code>, and which path you are on (NEMU / GEM6502 / RTL). Use the <a href="https://github.com/OneDayOneApp/Open6502/issues/new" target="_blank" rel="noopener">GitHub issue</a> or PR template; specific information gets reproduced faster.</p>
+        </section>
+
+        <!-- 17 CONTRIBUTING -->
+        <section class="doc-section" id="contributing" data-group="Reference" data-keywords="contributing workflow pr tests licence issues rules commits english">
+          <div class="doc-kicker"><span class="dot"></span>17 · Contributing</div>
+          <h2><span>Contributing: start with a verifiable small problem</span></h2>
+
+          <div class="callout callout--warn">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span><strong>Read the licence first:</strong> the root licence has not been published. The maintainers explicitly ask contributors not to contribute code until the root licence and contribution terms are published. ROMs are MIT; ASIC contributions must not upload PDKs, SRAM compiler output or proprietary standard-cell libraries.</span>
+          </div>
+
+          <h3>Workstreams</h3>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Workstream</th><th>Typical tasks</th><th>Entry point</th></tr></thead>
+              <tbody>
+                <tr><td>CPU / bus</td><td>Cycle timing, NMI/DMA interaction, bus strobes, Klaus/nestest</td><td><code>rtl/cpu/</code>, <code>rtl/bus/</code></td></tr>
+                <tr><td>PPU</td><td>Fetch/shift pipeline, sprite evaluation, open bus, mirroring, frame comparison</td><td><code>rtl/ppu/</code></td></tr>
+                <tr><td>APU / DMC</td><td>Frame sequencer, sweep/envelope edges, DMC arbitration</td><td><code>rtl/apu/</code></td></tr>
+                <tr><td>Cartridge / mapper</td><td>Bank/IRQ timing, MMC3 A12, iNES/NES 2.0</td><td><code>rtl/cart/</code></td></tr>
+                <tr><td>FPGA</td><td>Yosys synthesis, BRAM inference, timing, VGA/HDMI, audio</td><td><code>rtl/fpga/</code></td></tr>
+                <tr><td>ASIC / 55nm</td><td>SRAM, DFT, clock/reset/power, package</td><td><code>docs/55nm-tapeout-roadmap.md</code></td></tr>
+                <tr><td>Software / CI</td><td>Lockstep DiffTest, frame index, CI, repro scripts</td><td><code>sim/</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Before you submit</h3>
+          <div class="code">
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="cd rtl
+make lint
+make sim
+cd ..
+./sim/difftest/run.sh
+./sim/difftest/run_alu.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="p">$</span> cd rtl
+<span class="p">$</span> make lint
+<span class="p">$</span> make sim
+<span class="p">$</span> cd ..
+<span class="p">$</span> ./sim/difftest/run.sh
+<span class="p">$</span> ./sim/difftest/run_alu.sh</pre>
+          </div>
+          <ul>
+            <li>Use English commit messages and English repository docs; keep changes small and reversible.</li>
+            <li>Add/update tests before changing RTL behaviour; state the verification evidence in the PR.</li>
+            <li>Do not change golden hashes to “fix” a test; do not delete tests to make a change pass.</li>
+            <li>Prefer forward fixes over reverts.</li>
+            <li>No commercial ROMs, BIOS files or proprietary PDK data.</li>
+          </ul>
+
+          <h3>Good first issues</h3>
+          <ul>
+            <li>Add a unit test for PPU <code>$2007</code> palette read behaviour.</li>
+            <li>Add frame-index assertions to <code>sim/game</code>.</li>
+            <li>Add a controller A/B/Select/Start order test.</li>
+            <li>Rewrite sprite selection as a sequential scan to remove the big combinational mux.</li>
+            <li>Add deterministic frame-hash output to DiffTest.</li>
+          </ul>
+          <div class="doc-actions">
+            <a class="btn btn--primary btn--sm" href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Full contributing guide ↗</a>
+            <a class="btn btn--ghost btn--sm" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">Browse issues ↗</a>
+          </div>
+        </section>
+
+        <!-- 18 READING -->
+        <section class="doc-section" id="reading" data-group="Reference" data-keywords="further reading documents links roadmap test guide spec changelog">
+          <div class="doc-kicker"><span class="dot"></span>18 · Further reading</div>
+          <h2><span>Further reading: find docs by goal</span></h2>
+          <p>Repository docs are maintained in English; this page is the navigable version. When you finish here, the next step is usually one of these source documents.</p>
+
+          <div class="doc-index-grid">
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/README.md" target="_blank" rel="noopener">
+              <span class="t">README</span>
+              <span class="d">Project overview, current metrics, quickstart and doc map</span>
+              <span class="p">README.md · README.zh-CN.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/STATUS.md" target="_blank" rel="noopener">
+              <span class="t">STATUS</span>
+              <span class="d">Verified items, RTL blocks, open items and next gate</span>
+              <span class="p">STATUS.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/nes-golden-reference/design.md" target="_blank" rel="noopener">
+              <span class="t">NES golden reference</span>
+              <span class="d">REF boundaries, feature matrix and test plan</span>
+              <span class="p">docs/nes-golden-reference/</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/NEMU/6502EMU.md" target="_blank" rel="noopener">
+              <span class="t">6502EMU guide</span>
+              <span class="d">CLI, headless runs, tests and layout</span>
+              <span class="p">NEMU/6502EMU.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/README.md" target="_blank" rel="noopener">
+              <span class="t">GEM6502</span>
+              <span class="d">C model capabilities, build, player and target spec</span>
+              <span class="p">GEM6502/README.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/nesearch/README.en.md" target="_blank" rel="noopener">
+              <span class="t">nesearch</span>
+              <span class="d">NES search/download CLI and local Web UI</span>
+              <span class="p">nesearch/README.en.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
+              <span class="t">Changelog</span>
+              <span class="d">v1.0.0 REF baseline and in-progress v1.5 work</span>
+              <span class="p">CHANGELOG.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">
+              <span class="t">Contributing guide</span>
+              <span class="d">Licence warning, rules, workstreams and good first issues</span>
+              <span class="p">CONTRIBUTING.md</span>
+            </a>
+          </div>
+
+          <div class="callout callout--info">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Found a documentation bug? Edit the matching file under <code>docs/</code>, or open a PR against this page's source. Documentation needs reproducible evidence just like code.</span>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Documentation pagination">
+          <a href="index.en.html">
+            <span class="dir">← Back</span>
+            <span class="name">Project home</span>
+          </a>
+          <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">
+            <span class="dir">External</span>
+            <span class="name">GitHub repository ↗</span>
+          </a>
+        </nav>
+      </article>
+
+      <aside class="docs-toc" aria-label="On this page">
+        <h4>On this page</h4>
+        <nav>
+          <a href="#overview" data-spy>Overview</a>
+          <a href="#quickstart" data-spy>Quickstart</a>
+          <a href="#repo" data-spy>Repository map</a>
+          <a href="#architecture" data-spy>Architecture</a>
+          <a href="#cpu" data-spy>CPU</a>
+          <a href="#ppu" data-spy>PPU</a>
+          <a href="#apu" data-spy>APU &amp; DMC</a>
+          <a href="#bus" data-spy>Bus &amp; memory</a>
+          <a href="#cart" data-spy>Cartridge &amp; mapper</a>
+          <a href="#video" data-spy>Video &amp; input</a>
+          <a href="#verification" data-spy>Verification</a>
+          <a href="#difftest" data-spy>DiffTest</a>
+          <a href="#goldens" data-spy>Golden frames</a>
+          <a href="#gem6502" data-spy>GEM6502</a>
+          <a href="#synthesis" data-spy>Synthesis &amp; area</a>
+          <a href="#tapeout" data-spy>55nm path</a>
+          <a href="#troubleshooting" data-spy>Troubleshooting</a>
+          <a href="#contributing" data-spy>Contributing</a>
+          <a href="#reading" data-spy>Further reading</a>
+        </nav>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="index.en.html" aria-label="Open6502 home">
+            <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+            <span class="brand-text">
+              <span class="brand-name">OPEN6502</span>
+              <span class="brand-sub">Open silicon · from emulator to silicon</span>
+            </span>
+          </a>
+          <p>An open-source 6502/NES-compatible SoC: first a playable software reference, then the same chip in SystemVerilog, then 55nm.</p>
+          <div class="footer-links">
+            <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.md" target="_blank" rel="noopener">English README</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Start</h4>
+          <ul>
+            <li><a href="index.en.html#play">Play in 2 minutes</a></li>
+            <li><a href="index.en.html#games">Six games</a></li>
+            <li><a href="#quickstart">Build &amp; run</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Deep dive</h4>
+          <ul>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#verification">Verification</a></li>
+            <li><a href="#difftest">DiffTest</a></li>
+            <li><a href="#synthesis">Synthesis &amp; area</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Project</h4>
+          <ul>
+            <li><a href="index.en.html#roadmap">Roadmap</a></li>
+            <li><a href="index.en.html#status">Current status</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROMs &amp; licences ↗</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/nesearch" target="_blank" rel="noopener">nesearch ↗</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> Open6502 · open-source 6502/NES SoC project</span>
+        <span>Last verified · 2026-11-11</span>
+        <span class="right">Source in <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · plain HTML/CSS/JS · GitHub Pages</span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="to-top" type="button" data-to-top aria-label="Back to top">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <div class="search-overlay" data-search-overlay role="dialog" aria-modal="true" aria-label="Search documentation">
+    <div class="search-box">
+      <div class="search-field">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input type="search" data-search-field placeholder="Search sections, commands or concepts…" aria-label="Search documentation" autocomplete="off" spellcheck="false">
+        <button class="esc" type="button" data-search-close aria-label="Close search">ESC</button>
+      </div>
+      <div class="search-results" data-search-results></div>
+      <div class="search-hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> select</span>
+        <span><kbd>Enter</kbd> open</span>
+        <span><kbd>Esc</kbd> close</span>
+        <span style="margin-left:auto">19 sections indexed</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
