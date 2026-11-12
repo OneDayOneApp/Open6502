@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://onedayoneapp.github.io/Open6502/sitemap.xml

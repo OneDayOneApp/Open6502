@@ -15,6 +15,13 @@ Open6502 在同一个仓库里包含两部分：
 
 RTL 与模拟器互相验证：CPU 通过 Klaus，RTL 标题帧与 NEMU 标题帧逐字节一致。
 
+## 项目网站
+
+- 项目主页：**https://onedayoneapp.github.io/Open6502/**
+- 技术文档：**https://onedayoneapp.github.io/Open6502/docs.html**
+
+静态站点源码在 [`site/`](site/)，由 GitHub Pages 自动发布。
+
 ## 项目目标：55nm 流片
 
 长期目标是完成一颗**开放、可验证的 6502/NES 兼容 SoC 的 55nm 流片**。

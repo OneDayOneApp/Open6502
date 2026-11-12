@@ -18,6 +18,13 @@ Open6502 is two things in one repository:
 The RTL is verified against the emulator: the CPU passes Klaus, and the RTL
 title frame is byte-identical to the NEMU title frame.
 
+## Website
+
+- Project site: **https://onedayoneapp.github.io/Open6502/**
+- Technical documentation: **https://onedayoneapp.github.io/Open6502/docs.html**
+
+The static site lives in [`site/`](site/) and is deployed by GitHub Pages.
+
 ## nesearch: NES search & download tool / NES 游戏搜索与下载工具
 
 > **把童年，跑进一颗芯片。**  
