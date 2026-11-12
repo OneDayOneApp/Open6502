@@ -17,9 +17,10 @@ RTL 与模拟器互相验证：CPU 通过 Klaus，RTL 标题帧与 NEMU 标题�
 
 ## 项目网站
 
-- 项目主页：**[中文](https://onedayoneapp.github.io/Open6502/)** · **[English](https://onedayoneapp.github.io/Open6502/index.en.html)**
-- 技术文档：**[中文](https://onedayoneapp.github.io/Open6502/docs.html)** · **[English](https://onedayoneapp.github.io/Open6502/docs.en.html)**
+- 项目主页：**[English（默认）](https://onedayoneapp.github.io/Open6502/)** · **[中文](https://onedayoneapp.github.io/Open6502/index.zh.html)**
+- 技术文档：**[English（默认）](https://onedayoneapp.github.io/Open6502/docs.html)** · **[中文](https://onedayoneapp.github.io/Open6502/docs.zh.html)**
 
+默认页面会根据操作系统/浏览器的主语言自动选择中文，其他情况回退到英文。
 双语静态站点源码在 [`site/`](site/)，由 GitHub Pages 自动发布。
 
 ## 项目目标：55nm 流片
