@@ -1,37 +1,57 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>技术文档 — Open6502</title>
-  <meta name="description" content="Open6502 技术文档：架构、CPU、PPU、APU、总线、Mapper、验证体系、DiffTest、综合面积与 55nm 路线，以及可复现的构建与故障排查命令。">
+  <title>Technical documentation — Open6502</title>
+  <meta name="description" content="Open6502 technical documentation: architecture, CPU, PPU, APU, bus, mapper, verification, DiffTest, synthesis area and the 55nm path, with reproducible build and troubleshooting commands.">
   <meta name="theme-color" content="#06080c">
   <meta name="color-scheme" content="dark">
   <link rel="canonical" href="https://onedayoneapp.github.io/Open6502/docs.html">
-  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/docs.html">
-  <link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/docs.en.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/docs.zh.html">
+  <link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/docs.html">
   <link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/docs.html">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Open6502">
-  <meta property="og:locale" content="zh_CN">
-  <meta property="og:locale:alternate" content="en_US">
-  <meta property="og:title" content="Open6502 技术文档">
-  <meta property="og:description" content="从 NEMU 参考模型到 55nm 的完整技术路线：架构、验证、DiffTest、综合与故障排查。">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta property="og:title" content="Open6502 technical documentation">
+  <meta property="og:description" content="The full path from a NEMU reference model to 55nm: architecture, verification, DiffTest, synthesis and troubleshooting.">
   <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/docs.html">
   <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
+  <script>
+    // Choose the default language from the OS/browser locale. English is the
+    // fallback; an explicit language choice (localStorage) always wins.
+    (function () {
+      try {
+        var saved = localStorage.getItem("open6502:lang");
+        if (saved === "zh") {
+          location.replace("docs.zh.html" + location.search + location.hash);
+          return;
+        }
+        if (saved === "en") return;
+      } catch (_) {}
+      var primary = (navigator.languages && navigator.languages[0])
+        || navigator.language || "";
+      var prefersChinese = /^zh(\b|[-_])/i.test(primary);
+      if (prefersChinese) {
+        location.replace("docs.zh.html" + location.search + location.hash);
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="assets/css/site.css">
   <script src="assets/js/site.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#docs-main">跳到文档正文</a>
+  <a class="skip-link" href="#docs-main">Skip to documentation</a>
   <div class="page-bg" aria-hidden="true"></div>
   <div class="reading-bar" data-reading-bar aria-hidden="true"></div>
 
   <header class="site-nav">
     <div class="container nav-inner">
-      <a class="brand" href="index.html" aria-label="Open6502 首页">
+      <a class="brand" href="index.html" aria-label="Open6502 home">
         <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
         <span class="brand-text">
           <span class="brand-name">OPEN6502</span>
@@ -39,38 +59,38 @@
         </span>
       </a>
 
-      <nav class="nav-links" aria-label="主导航">
-        <a class="nav-link" href="index.html#play">试玩</a>
-        <a class="nav-link" href="index.html#games">游戏</a>
-        <a class="nav-link" href="index.html#status">进度</a>
-        <a class="nav-link" href="index.html#architecture">架构</a>
-        <a class="nav-link" href="docs.html" aria-current="page">技术文档</a>
-        <a class="nav-link" href="index.html#contribute">参与</a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-link" href="index.html#play">Play</a>
+        <a class="nav-link" href="index.html#games">Games</a>
+        <a class="nav-link" href="index.html#status">Status</a>
+        <a class="nav-link" href="index.html#architecture">Architecture</a>
+        <a class="nav-link" href="docs.html" aria-current="page">Docs</a>
+        <a class="nav-link" href="index.html#contribute">Contribute</a>
       </nav>
 
       <div class="nav-actions">
-        <a class="nav-lang" href="docs.en.html" hreflang="en" lang="en" data-lang-switch aria-label="View this page in English">EN</a>
-        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="在 GitHub 上查看 Open6502">
+        <a class="nav-lang" href="docs.zh.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch aria-label="查看中文版">中文</a>
+        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="View Open6502 on GitHub">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
           <span>Star</span>
         </a>
-        <a class="btn btn--primary btn--sm" href="index.html#play">开始试玩</a>
-        <button class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="打开导航菜单">
+        <a class="btn btn--primary btn--sm" href="index.html#play">Play now</a>
+        <button class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation menu">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
         </button>
       </div>
     </div>
 
     <div class="nav-mobile" id="mobile-nav">
-      <a href="index.html#play">试玩</a>
-      <a href="index.html#games">游戏</a>
-      <a href="index.html#status">进度</a>
-      <a href="index.html#architecture">架构</a>
-      <a href="docs.html">技术文档</a>
-      <a href="index.html#contribute">参与</a>
-      <a href="docs.en.html" hreflang="en" lang="en" data-lang-switch>English</a>
-      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
-      <a class="btn btn--primary" href="index.html#play">2 分钟玩起来</a>
+      <a href="index.html#play">Play</a>
+      <a href="index.html#games">Games</a>
+      <a href="index.html#status">Status</a>
+      <a href="index.html#architecture">Architecture</a>
+      <a href="docs.html">Docs</a>
+      <a href="index.html#contribute">Contribute</a>
+      <a href="docs.zh.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch>简体中文</a>
+      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
+      <a class="btn btn--primary" href="index.html#play">Play in 2 minutes</a>
     </div>
   </header>
 
@@ -78,64 +98,64 @@
     <section class="docs-hero">
       <div class="container">
         <span class="eyebrow">Technical documentation</span>
-        <h1>Open6502 技术文档</h1>
-        <p>从一个能玩的模拟器，到一颗可综合的 6502/NES SoC。这里记录架构、时序、验证证据、综合数字，以及每个还没解决的坑。文档里的命令都可以直接复制。</p>
+        <h1>Open6502 technical documentation</h1>
+        <p>From a playable emulator to a synthesizable 6502/NES SoC. Architecture, timing, verification evidence, synthesis numbers, and every sharp edge still open. The commands here are meant to be copied.</p>
         <div class="docs-hero-meta">
           <span class="chip chip--green"><span class="dot"></span>Last verified · 2026-11-11</span>
-          <span class="chip">19 个章节</span>
-          <span class="chip">约 25 分钟</span>
-          <span class="chip chip--amber">Functional prototype · 非流片就绪</span>
+          <span class="chip">19 chapters</span>
+          <span class="chip">~25 min read</span>
+          <span class="chip chip--amber">Functional prototype · not tapeout-ready</span>
         </div>
       </div>
     </section>
 
     <div class="container docs-layout">
-      <aside class="docs-sidebar" id="docs-nav" aria-label="文档目录">
+      <aside class="docs-sidebar" id="docs-nav" aria-label="Documentation menu">
         <div class="docs-drawer-head">
-          <span>文档目录</span>
-          <button type="button" class="docs-drawer-close" data-docs-close aria-label="关闭文档目录">关闭 ×</button>
+          <span>Docs menu</span>
+          <button type="button" class="docs-drawer-close" data-docs-close aria-label="Close documentation menu">Close ×</button>
         </div>
         <div class="docs-search">
           <button class="docs-search-trigger" type="button" data-search-open aria-haspopup="dialog">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>搜索文档…</span>
+            <span>Search docs…</span>
             <kbd data-shortcut>⌘K</kbd>
           </button>
         </div>
         <nav class="docs-nav">
           <div class="nav-group">
-            <div class="nav-group-title">开始</div>
-            <a href="#overview" data-spy><span class="n">00</span>概览</a>
-            <a href="#quickstart" data-spy><span class="n">01</span>快速开始</a>
-            <a href="#repo" data-spy><span class="n">02</span>仓库地图</a>
+            <div class="nav-group-title">Start</div>
+            <a href="#overview" data-spy><span class="n">00</span>Overview</a>
+            <a href="#quickstart" data-spy><span class="n">01</span>Quickstart</a>
+            <a href="#repo" data-spy><span class="n">02</span>Repository map</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">设计</div>
-            <a href="#architecture" data-spy><span class="n">03</span>系统架构</a>
+            <div class="nav-group-title">Design</div>
+            <a href="#architecture" data-spy><span class="n">03</span>Architecture</a>
             <a href="#cpu" data-spy><span class="n">04</span>CPU</a>
             <a href="#ppu" data-spy><span class="n">05</span>PPU</a>
-            <a href="#apu" data-spy><span class="n">06</span>APU 与 DMC</a>
-            <a href="#bus" data-spy><span class="n">07</span>总线与存储</a>
-            <a href="#cart" data-spy><span class="n">08</span>卡带与 Mapper</a>
-            <a href="#video" data-spy><span class="n">09</span>视频、输入与时钟</a>
+            <a href="#apu" data-spy><span class="n">06</span>APU &amp; DMC</a>
+            <a href="#bus" data-spy><span class="n">07</span>Bus &amp; memory</a>
+            <a href="#cart" data-spy><span class="n">08</span>Cartridge &amp; mapper</a>
+            <a href="#video" data-spy><span class="n">09</span>Video, input &amp; clocks</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">验证</div>
-            <a href="#verification" data-spy><span class="n">10</span>验证体系</a>
-            <a href="#difftest" data-spy><span class="n">11</span>DiffTest 协议</a>
-            <a href="#goldens" data-spy><span class="n">12</span>黄金帧与哈希</a>
+            <div class="nav-group-title">Verification</div>
+            <a href="#verification" data-spy><span class="n">10</span>Verification</a>
+            <a href="#difftest" data-spy><span class="n">11</span>DiffTest protocol</a>
+            <a href="#goldens" data-spy><span class="n">12</span>Golden frames</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">走向芯片</div>
-            <a href="#gem6502" data-spy><span class="n">13</span>GEM6502 模型</a>
-            <a href="#synthesis" data-spy><span class="n">14</span>综合与面积</a>
-            <a href="#tapeout" data-spy><span class="n">15</span>55nm 路线</a>
+            <div class="nav-group-title">Toward silicon</div>
+            <a href="#gem6502" data-spy><span class="n">13</span>GEM6502 model</a>
+            <a href="#synthesis" data-spy><span class="n">14</span>Synthesis &amp; area</a>
+            <a href="#tapeout" data-spy><span class="n">15</span>55nm path</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">参考</div>
-            <a href="#troubleshooting" data-spy><span class="n">16</span>故障排查</a>
-            <a href="#contributing" data-spy><span class="n">17</span>参与贡献</a>
-            <a href="#reading" data-spy><span class="n">18</span>延伸阅读</a>
+            <div class="nav-group-title">Reference</div>
+            <a href="#troubleshooting" data-spy><span class="n">16</span>Troubleshooting</a>
+            <a href="#contributing" data-spy><span class="n">17</span>Contributing</a>
+            <a href="#reading" data-spy><span class="n">18</span>Further reading</a>
           </div>
         </nav>
       </aside>
@@ -143,100 +163,100 @@
 
       <article class="docs-main">
         <div class="docs-mobile-bar">
-          <button class="btn btn--ghost btn--sm" type="button" data-docs-menu aria-expanded="false" aria-controls="docs-nav">目录</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-docs-menu aria-expanded="false" aria-controls="docs-nav">Menu</button>
           <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            搜索文档…
+            Search docs…
           </button>
         </div>
 
         <!-- 00 OVERVIEW -->
-        <section class="doc-section" id="overview" data-group="开始" data-keywords="概览 阅读路线 是什么 不是什么 DUT REF 状态 快照">
+        <section class="doc-section" id="overview" data-group="Start" data-keywords="overview reading path what it is not DUT REF status snapshot">
           <div class="doc-kicker"><span class="dot"></span>00 · Overview</div>
-          <h2><span>概览：这是什么，从哪里读起</span></h2>
-          <p class="doc-lead">这是一份“可以照着做”的文档：每条命令都在仓库里，每个结论都有测试或哈希对应。它也明确写清楚哪些事情还没做到——这不是一颗已经完成的芯片。</p>
+          <h2><span>Overview: what this is and where to start</span></h2>
+          <p class="doc-lead">This is a document you can follow: every command is in the repo, and every conclusion has a test or a hash behind it. It also says plainly what has not been done yet — this is not a finished chip.</p>
 
-          <h3>三条阅读路线</h3>
+          <h3>Three reading paths</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>你是谁</th><th>从这里开始</th><th>然后</th></tr></thead>
+              <thead><tr><th>Who you are</th><th>Start here</th><th>Then</th></tr></thead>
               <tbody>
-                <tr><td>我只想跑起来玩</td><td><a href="#quickstart">01 快速开始</a></td><td>遇到报错看 <a href="#troubleshooting">16 故障排查</a></td></tr>
-                <tr><td>我想读懂设计</td><td><a href="#architecture">03 系统架构</a></td><td><a href="#cpu">04 CPU</a> → <a href="#ppu">05 PPU</a> → <a href="#verification">10 验证</a></td></tr>
-                <tr><td>我想参与或推动流片</td><td><a href="#repo">02 仓库地图</a></td><td><a href="#verification">10 验证</a> → <a href="#synthesis">14 综合</a> → <a href="#tapeout">15 55nm</a> → <a href="#contributing">17 贡献</a></td></tr>
+                <tr><td>I just want to run it</td><td><a href="#quickstart">01 Quickstart</a></td><td>If it breaks: <a href="#troubleshooting">16 Troubleshooting</a></td></tr>
+                <tr><td>I want to understand the design</td><td><a href="#architecture">03 Architecture</a></td><td><a href="#cpu">04 CPU</a> → <a href="#ppu">05 PPU</a> → <a href="#verification">10 Verification</a></td></tr>
+                <tr><td>I want to contribute or push tapeout</td><td><a href="#repo">02 Repository map</a></td><td><a href="#verification">10 Verification</a> → <a href="#synthesis">14 Synthesis</a> → <a href="#tapeout">15 55nm</a> → <a href="#contributing">17 Contributing</a></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>它是什么，不是什么</h3>
+          <h3>What it is, and what it is not</h3>
           <div class="callout callout--ok">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span><strong>是：</strong>一个可运行的 NES 功能原型。NEMU 前端可以完整游玩 6 款 MIT 协议 ROM；RTL SoC 通过 28 项测试、Klaus 与帧级 DiffTest；代码可以综合，面积已逐模块估算。</span>
+            <span><strong>It is:</strong> a working NES functional prototype. The NEMU frontend plays all six MIT-licensed ROMs; the RTL SoC passes 28 tests, Klaus and frame-level DiffTest; the code synthesizes, and area has been estimated per module.</span>
           </div>
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span><strong>不是：</strong>周期精确的 NES；不是已经有 bitstream 的 FPGA 工程；不是流片就绪的芯片；不是已有根许可证的开源项目。PPU 管线、DMC 仲裁、多游戏 lockstep DiffTest 都还没完成。</span>
+            <span><strong>It is not:</strong> a cycle-exact NES; an FPGA project with a bitstream; a tapeout-ready chip; or an open-source project with a published root licence. The PPU pipeline, DMC arbitration and multi-game lockstep DiffTest are incomplete.</span>
           </div>
 
-          <h3>三条执行路径</h3>
+          <h3>Three execution paths</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>路径</th><th>角色</th><th>状态</th><th>适合做什么</th></tr></thead>
+              <thead><tr><th>Path</th><th>Role</th><th>Status</th><th>Best for</th></tr></thead>
               <tbody>
-                <tr><td><code>NEMU / 6502EMU</code></td><td>软件参考模型（REF）</td><td><span class="badge badge--pass">Playable</span></td><td>游玩、黄金帧、CPU 参考行为</td></tr>
-                <tr><td><code>RTL SoC</code></td><td>被测设计（DUT）</td><td><span class="badge badge--part">Prototype</span></td><td>综合、验证、DiffTest、未来 FPGA/ASIC</td></tr>
-                <tr><td><code>GEM6502</code></td><td>C 功能 / 周期模型</td><td><span class="badge badge--part">Legacy</span></td><td>快速跑 PRG、指令级回归；不是完整时序平台</td></tr>
+                <tr><td><code>NEMU / 6502EMU</code></td><td>Software reference (REF)</td><td><span class="badge badge--pass">Playable</span></td><td>Playing, golden frames, CPU reference behaviour</td></tr>
+                <tr><td><code>RTL SoC</code></td><td>Design under test (DUT)</td><td><span class="badge badge--part">Prototype</span></td><td>Synthesis, verification, DiffTest, future FPGA/ASIC</td></tr>
+                <tr><td><code>GEM6502</code></td><td>C functional / cycle model</td><td><span class="badge badge--part">Legacy</span></td><td>Fast PRG runs and instruction-level regression; not a full timing platform</td></tr>
               </tbody>
             </table>
           </div>
 
-          <p><strong>DUT 与 REF 必须独立。</strong>NEMU 不能被综合，RTL 也不能拿 NEMU 的实现来“对答案”。DiffTest 只比较可观测状态：寄存器、总线事务、帧哈希、音频样本、mapper 状态。</p>
+          <p><strong>DUT and REF must stay independent.</strong> NEMU is never synthesized, and RTL may not borrow NEMU's implementation to “check the answer”. DiffTest compares observable state only: registers, bus transactions, frame hashes, audio samples and mapper state.</p>
 
-          <h3>最近一次验证快照</h3>
+          <h3>Latest verification snapshot</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>检查项</th><th>结果</th><th>证据位置</th></tr></thead>
+              <thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead>
               <tbody>
-                <tr><td>RTL 单元 / 集成测试</td><td><span class="badge badge--pass">28 PASS</span></td><td><code>cd rtl &amp;&amp; make sim</code></td></tr>
+                <tr><td>RTL unit / integration tests</td><td><span class="badge badge--pass">28 PASS</span></td><td><code>cd rtl &amp;&amp; make sim</code></td></tr>
                 <tr><td>RTL lint</td><td><span class="badge badge--pass">PASS</span></td><td><code>cd rtl &amp;&amp; make lint</code></td></tr>
                 <tr><td>RTL CPU Klaus</td><td><span class="badge badge--pass">PASS · PC=0x3469</span></td><td><code>sim/klaus/</code></td></tr>
-                <tr><td>RTL / NEMU 黄金标题帧</td><td><span class="badge badge--pass">SHA-256 相同</span></td><td><a href="#goldens">12 黄金帧</a></td></tr>
-                <tr><td>RTL START 后游戏画面</td><td><span class="badge badge--pass">已渲染</span></td><td><a href="#quickstart">01 快速开始</a></td></tr>
-                <tr><td>FPGA bitstream / 上板</td><td><span class="badge badge--no">尚未</span></td><td><a href="#tapeout">15 55nm 路线</a></td></tr>
+                <tr><td>RTL / NEMU golden title frame</td><td><span class="badge badge--pass">SHA-256 match</span></td><td><a href="#goldens">12 Golden frames</a></td></tr>
+                <tr><td>RTL gameplay after START</td><td><span class="badge badge--pass">Rendered</span></td><td><a href="#quickstart">01 Quickstart</a></td></tr>
+                <tr><td>FPGA bitstream / board</td><td><span class="badge badge--no">Not yet</span></td><td><a href="#tapeout">15 55nm path</a></td></tr>
               </tbody>
             </table>
           </div>
         </section>
 
         <!-- 01 QUICKSTART -->
-        <section class="doc-section" id="quickstart" data-group="开始" data-keywords="快速开始 构建 安装 编译 sdl2 无头 截图 运行 游戏 gem6502 rtl verilator 命令">
+        <section class="doc-section" id="quickstart" data-group="Start" data-keywords="quickstart build install compile sdl2 headless screenshot run game gem6502 rtl verilator commands">
           <div class="doc-kicker"><span class="dot"></span>01 · Quickstart</div>
-          <h2><span>快速开始：先让一帧跑起来</span></h2>
-          <p>最短路径是 NEMU：编译一次，之后用 <code>roms/play.sh</code> 就能反复玩。想验证 RTL，则用 Verilator 跑同一款 ROM 并抓一帧 PPM。</p>
+          <h2><span>Quickstart: get one frame running</span></h2>
+          <p>The shortest path is NEMU: build once, then use <code>roms/play.sh</code> as often as you like. To exercise the RTL, run the same ROM through Verilator and capture a PPM frame.</p>
 
-          <h3>依赖</h3>
+          <h3>Dependencies</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>工具</th><th>用途</th><th>备注</th></tr></thead>
+              <thead><tr><th>Tool</th><th>Purpose</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td>Git</td><td>获取仓库</td><td>仅首次需要</td></tr>
-                <tr><td>clang / gcc + make</td><td>编译 NEMU 与 GEM6502</td><td>macOS 需 Xcode Command Line Tools</td></tr>
-                <tr><td>SDL2</td><td>模拟器窗口、键盘与音频</td><td><code>brew install sdl2</code> / <code>libsdl2-dev</code></td></tr>
-                <tr><td>Python 3</td><td>iNES 提取、PPM 转 PNG</td><td>Pillow 可选</td></tr>
-                <tr><td>Icarus Verilog</td><td><code>make sim</code> 运行 28 项 RTL 测试</td><td>默认 Icarus 路径</td></tr>
-                <tr><td>Verilator</td><td>RTL 游戏抓帧、Klaus、DiffTest</td><td>需要可用的 C++ 工具链</td></tr>
-                <tr><td>Yosys 0.60</td><td>面积估算</td><td>可选，<code>-noabc</code></td></tr>
+                <tr><td>Git</td><td>Get the repository</td><td>First clone only</td></tr>
+                <tr><td>clang / gcc + make</td><td>Build NEMU and GEM6502</td><td>macOS needs Xcode Command Line Tools</td></tr>
+                <tr><td>SDL2</td><td>Emulator window, keyboard and audio</td><td><code>brew install sdl2</code> / <code>libsdl2-dev</code></td></tr>
+                <tr><td>Python 3</td><td>iNES extraction, PPM to PNG</td><td>Pillow optional</td></tr>
+                <tr><td>Icarus Verilog</td><td><code>make sim</code> runs 28 RTL tests</td><td>Default Icarus path</td></tr>
+                <tr><td>Verilator</td><td>RTL frame capture, Klaus, DiffTest</td><td>Needs a working C++ toolchain</td></tr>
+                <tr><td>Yosys 0.60</td><td>Area estimates</td><td>Optional, <code>-noabc</code></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>编译并游玩 NEMU</h3>
+          <h3>Build and play NEMU</h3>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="git clone https://github.com/OneDayOneApp/Open6502.git
 cd Open6502
 make -C NEMU m6502_defconfig
 make -C NEMU -j8
-./roms/play.sh falling"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+./roms/play.sh falling"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> git clone https://github.com/OneDayOneApp/Open6502.git
 <span class="p">$</span> cd Open6502
 <span class="p">$</span> make -C NEMU m6502_defconfig
@@ -244,79 +264,79 @@ make -C NEMU -j8
 <span class="p">$</span> ./roms/play.sh falling</pre>
           </div>
 
-          <p>也可以直接调用二进制：<code>./NEMU/build/6502EMU roms/falling.nes</code>。大多数游戏按 <span class="kbd">V</span> 开始；1P 使用 WASD + Space/Z + X，2P 使用方向键与 <code>, . / '</code>。</p>
+          <p>You can also call the binary directly: <code>./NEMU/build/6502EMU roms/falling.nes</code>. Most games start with <span class="kbd">V</span>; 1P uses WASD + Space/Z + X, 2P uses the arrow keys and <code>, . / '</code>.</p>
 
-          <h3>内置 ROM</h3>
+          <h3>Bundled ROMs</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>ROM</th><th>Mapper</th><th>类型</th><th>许可证</th><th>300 帧状态</th></tr></thead>
+              <thead><tr><th>ROM</th><th>Mapper</th><th>Genre</th><th>Licence</th><th>300-frame status</th></tr></thead>
               <tbody>
-                <tr><td><code>falling.nes</code></td><td>0 / NROM</td><td>平台跳跃</td><td>MIT</td><td>启动，标题画面</td></tr>
-                <tr><td><code>galaxypatrol.nes</code></td><td>0 / NROM</td><td>射击</td><td>MIT</td><td>启动，可玩；星空有已知渲染差距</td></tr>
-                <tr><td><code>hanoi.nes</code></td><td>0 / NROM</td><td>益智</td><td>MIT</td><td>启动，标题画面</td></tr>
-                <tr><td><code>table_tennis.nes</code></td><td>0 / NROM</td><td>双人乒乓</td><td>MIT</td><td>启动，标题画面</td></tr>
-                <tr><td><code>file-fixers.nes</code></td><td>4 / MMC3</td><td>解谜</td><td>MIT</td><td>启动，标题画面</td></tr>
-                <tr><td><code>stallar.nes</code></td><td>4 / MMC3</td><td>平台冒险</td><td>MIT</td><td>启动，标题画面</td></tr>
+                <tr><td><code>falling.nes</code></td><td>0 / NROM</td><td>Platformer</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>galaxypatrol.nes</code></td><td>0 / NROM</td><td>Shooter</td><td>MIT</td><td>Boots, playable; known starfield rendering gap</td></tr>
+                <tr><td><code>hanoi.nes</code></td><td>0 / NROM</td><td>Puzzle</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>table_tennis.nes</code></td><td>0 / NROM</td><td>2P pong</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>file-fixers.nes</code></td><td>4 / MMC3</td><td>Puzzle</td><td>MIT</td><td>Boots, title screen</td></tr>
+                <tr><td><code>stallar.nes</code></td><td>4 / MMC3</td><td>Platformer</td><td>MIT</td><td>Boots, title screen</td></tr>
               </tbody>
             </table>
           </div>
           <div class="callout callout--info">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>所有 ROM 都是开源 homebrew，许可证原文在 <code>roms/LICENSES/</code>。仓库不包含任何商业 ROM。</span>
+            <span>Every ROM is open-source homebrew; the licence texts are in <code>roms/LICENSES/</code>. The repository contains no commercial ROMs.</span>
           </div>
 
-          <h3>无头截图（NEMU）</h3>
-          <p>标题帧与 START 后帧都可以在无窗口模式下抓取，这也是黄金帧的来源：</p>
+          <h3>Headless screenshots (NEMU)</h3>
+          <p>Both the title frame and the post-START frame can be captured without a window. This is also where the golden frames come from:</p>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="./NEMU/build/6502EMU --headless --no-audio --frames=300 --screenshot=/tmp/nemu-falling.ppm roms/falling.nes
-./NEMU/build/6502EMU --headless --no-audio --hold=start --frames=20 --screenshot=/tmp/nemu-start.ppm roms/falling.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+./NEMU/build/6502EMU --headless --no-audio --hold=start --frames=20 --screenshot=/tmp/nemu-start.ppm roms/falling.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> ./NEMU/build/6502EMU --headless --no-audio --frames=300 \
     --screenshot=/tmp/nemu-falling.ppm roms/falling.nes
 <span class="p">$</span> ./NEMU/build/6502EMU --headless --no-audio --hold=start --frames=20 \
     --screenshot=/tmp/nemu-start.ppm roms/falling.nes</pre>
           </div>
           <div class="code">
-            <div class="code-bar"><span class="lang">python</span><button class="code-copy" type="button" data-copy="python3 -c 'from PIL import Image; Image.open(&quot;/tmp/nemu-falling.ppm&quot;).save(&quot;/tmp/nemu-falling.png&quot;)'"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
-            <pre><span class="c"># PPM → PNG；macOS 没有 Pillow 也可以用 sips</span>
+            <div class="code-bar"><span class="lang">python</span><button class="code-copy" type="button" data-copy="python3 -c 'from PIL import Image; Image.open(&quot;/tmp/nemu-falling.ppm&quot;).save(&quot;/tmp/nemu-falling.png&quot;)'"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="c"># PPM to PNG; on macOS without Pillow, use sips</span>
 <span class="p">$</span> python3 -c 'from PIL import Image; Image.open("/tmp/nemu-falling.ppm").save("/tmp/nemu-falling.png")'</pre>
           </div>
 
-          <h3>GEM6502 C 模型</h3>
+          <h3>GEM6502 C model</h3>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="cd GEM6502
 make
 make test
 ./gem6502 game ../roms/falling.nes 60 /tmp/gem-title.ppm
-./gem6502 play ../roms/file-fixers.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+./gem6502 play ../roms/file-fixers.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> cd GEM6502
 <span class="p">$</span> make
 <span class="p">$</span> make test
 <span class="p">$</span> ./gem6502 game ../roms/falling.nes 60 /tmp/gem-title.ppm
 <span class="p">$</span> ./gem6502 play ../roms/file-fixers.nes</pre>
           </div>
-          <p><code>play</code> 需要 SDL2；没有 SDL2 时 CLI 仍可构建，但 <code>play</code> 会报告缺少依赖。GEM6502 的定位与已知限制见 <a href="#gem6502">13 GEM6502 模型</a>。</p>
+          <p><code>play</code> needs SDL2. Without it the CLI still builds, but <code>play</code> reports the missing dependency. See <a href="#gem6502">13 GEM6502</a> for scope and limits.</p>
 
-          <h3>运行 RTL 游戏并抓帧</h3>
-          <p>推荐直接使用仓库脚本，它封装了 iNES 提取、Verilator 构建和运行：</p>
+          <h3>Run the RTL game and capture a frame</h3>
+          <p>The repository script wraps iNES extraction, the Verilator build and the run:</p>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm
-python3 -c 'from PIL import Image; Image.open(&quot;/tmp/falling-rtl.ppm&quot;).save(&quot;/tmp/falling-rtl.png&quot;)'"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+python3 -c 'from PIL import Image; Image.open(&quot;/tmp/falling-rtl.ppm&quot;).save(&quot;/tmp/falling-rtl.png&quot;)'"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> ./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm
 <span class="p">$</span> python3 -c 'from PIL import Image; Image.open("/tmp/falling-rtl.ppm").save("/tmp/falling-rtl.png")'</pre>
           </div>
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span><code>sim/game/run.sh</code> 默认使用 macOS 的 <code>clang++</code>、SDK 与 Homebrew LLVM 的 <code>libc++</code> 路径。Linux 或不同 LLVM 版本请通过环境变量覆盖：<code>SDK=…</code>、<code>LIBCXX_DIR=…</code>、<code>CXX=…</code>，或参考脚注调整链接参数。</span>
+            <span><code>sim/game/run.sh</code> defaults to macOS <code>clang++</code>, the macOS SDK and Homebrew LLVM's <code>libc++</code> path. On Linux or a different LLVM version, override <code>SDK=…</code>, <code>LIBCXX_DIR=…</code> or <code>CXX=…</code>, or adjust the link flags as noted in the script.</span>
           </div>
 
-          <h3>一次跑完回归</h3>
+          <h3>Run the whole regression</h3>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="cd rtl
 make lint
 make sim
 cd ..
 ./sim/difftest/run.sh
-./sim/difftest/run_alu.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+./sim/difftest/run_alu.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> cd rtl
 <span class="p">$</span> make lint
 <span class="p">$</span> make sim
@@ -324,100 +344,100 @@ cd ..
 <span class="p">$</span> ./sim/difftest/run.sh
 <span class="p">$</span> ./sim/difftest/run_alu.sh</pre>
           </div>
-          <p><code>make sim</code> 会用 Icarus 逐个编译并运行 28 个 testbench，输出量较大，但每一步都应出现 <code>PASS</code>。Windows 推荐 WSL2，按 Linux 步骤操作。</p>
+          <p><code>make sim</code> compiles and runs 28 testbenches with Icarus. The output is large, but every step should print <code>PASS</code>. On Windows, use WSL2 and follow the Linux steps.</p>
         </section>
 
         <!-- 02 REPO -->
-        <section class="doc-section" id="repo" data-group="开始" data-keywords="仓库 目录 地图 文档索引 路径 neseach tb sim docs rtl">
+        <section class="doc-section" id="repo" data-group="Start" data-keywords="repository directory map docs index paths nesearch tb sim docs rtl">
           <div class="doc-kicker"><span class="dot"></span>02 · Repository</div>
-          <h2><span>仓库地图：东西都在哪</span></h2>
-          <p>仓库同时包含软件参考模型、RTL SoC、验证脚本、C 模型、游戏下载器和文档。下面是最常用的入口。</p>
+          <h2><span>Repository map: where everything lives</span></h2>
+          <p>The repo holds the software reference, the RTL SoC, verification scripts, a C model, a game downloader and the docs. These are the most useful entry points.</p>
 
           <div class="ascii">Open6502/
-├── NEMU/                NEMU 派生的 6502/NES 模拟器 + BASIC + SDL 前端
-├── rtl/                 SystemVerilog SoC（唯一可综合实现）
+├── NEMU/                NEMU-derived 6502/NES emulator + BASIC + SDL frontend
+├── rtl/                 SystemVerilog SoC (the only synthesizable implementation)
 │   ├── cpu/             open6502_cpu.sv
 │   ├── ppu/             open6502_ppu.sv
 │   ├── apu/             APU + DMC
-│   ├── bus/             总线译码 + WRAM
+│   ├── bus/             bus decode + WRAM
 │   ├── cart/            mapper 0/1/2/3/4/7
 │   ├── dma/             OAM DMA
-│   ├── input/           手柄移位寄存器
-│   ├── video/           341×262 视频时序
-│   ├── clocks/          时钟 / 复位 / enable
+│   ├── input/           controller shift register
+│   ├── video/           341×262 video timing
+│   ├── clocks/          clock / reset / enables
 │   ├── fpga/            FPGA wrapper
-│   └── dbg/             DiffTest 事件桥
-├── tb/                  28 个 SystemVerilog testbench
+│   └── dbg/             DiffTest event bridge
+├── tb/                  28 SystemVerilog testbenches
 ├── sim/
-│   ├── difftest/        NEMU/RTL 状态与 PC trace 对比
-│   ├── game/            RTL 游戏 bring-up + PPM 抓帧
-│   └── klaus/           RTL Klaus 测试
-├── GEM6502/             C 功能 / 周期模型（遗留基线）
-├── nesearch/            C++20 NES 搜索 / 下载 CLI + 本地 Web UI
-├── roms/                6 款开源 ROM + 许可证
-├── docs/                芯片、验证、面积、路线图文档
-└── site/                本网站（纯静态，GitHub Pages）</div>
+│   ├── difftest/        NEMU/RTL state and PC trace comparison
+│   ├── game/            RTL game bring-up + PPM capture
+│   └── klaus/           RTL Klaus test
+├── GEM6502/             C functional / cycle model (legacy baseline)
+├── nesearch/            C++20 NES search / download CLI + local Web UI
+├── roms/                6 open-source ROMs + licences
+├── docs/                chip, verification, area and roadmap documents
+└── site/                this website (plain static, GitHub Pages)</div>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>目录</th><th>先看什么</th><th>常见命令</th></tr></thead>
+              <thead><tr><th>Directory</th><th>Read first</th><th>Common command</th></tr></thead>
               <tbody>
                 <tr><td><code>NEMU/</code></td><td><code>6502EMU.md</code></td><td><code>make -C NEMU -j8</code></td></tr>
-                <tr><td><code>rtl/</code></td><td><code>README.md</code>、<code>open6502_top.sv</code></td><td><code>make lint && make sim</code></td></tr>
+                <tr><td><code>rtl/</code></td><td><code>README.md</code>, <code>open6502_top.sv</code></td><td><code>make lint && make sim</code></td></tr>
                 <tr><td><code>sim/difftest/</code></td><td><code>README.md</code></td><td><code>./sim/difftest/run.sh</code></td></tr>
-                <tr><td><code>GEM6502/</code></td><td><code>README.md</code>、<code>docs/requirements.md</code></td><td><code>make && make test</code></td></tr>
-                <tr><td><code>nesearch/</code></td><td><code>README.md</code>、<code>PRD.md</code></td><td><code>./nesearch/run-ui.sh</code></td></tr>
-                <tr><td><code>docs/open6502-chip/</code></td><td>架构、验证、DiffTest、面积</td><td>—</td></tr>
+                <tr><td><code>GEM6502/</code></td><td><code>README.md</code>, <code>docs/requirements.md</code></td><td><code>make && make test</code></td></tr>
+                <tr><td><code>nesearch/</code></td><td><code>README.en.md</code>, <code>PRD.md</code></td><td><code>./nesearch/run-ui.sh</code></td></tr>
+                <tr><td><code>docs/open6502-chip/</code></td><td>Architecture, verification, DiffTest, area</td><td>—</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>文档索引</h3>
+          <h3>Documentation index</h3>
           <div class="doc-index-grid">
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/55nm-tapeout-roadmap.md" target="_blank" rel="noopener">
-              <span class="t">55nm 流片路线图</span>
-              <span class="d">四个阶段、退出条件与当前卡点</span>
+              <span class="t">55nm tapeout roadmap</span>
+              <span class="d">Four stages, exit criteria and current blockers</span>
               <span class="p">docs/55nm-tapeout-roadmap.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/game-testing.md" target="_blank" rel="noopener">
-              <span class="t">游戏测试指南</span>
-              <span class="d">NEMU / RTL 两条路径、截图与已知限制</span>
+              <span class="t">Game testing guide</span>
+              <span class="d">NEMU and RTL paths, screenshots and known limits</span>
               <span class="p">docs/game-testing.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/architecture.md" target="_blank" rel="noopener">
-              <span class="t">SoC 架构</span>
-              <span class="d">时钟、地址映射、模块与端口</span>
+              <span class="t">SoC architecture</span>
+              <span class="d">Clocks, address map, modules and ports</span>
               <span class="p">docs/open6502-chip/architecture.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/verification.md" target="_blank" rel="noopener">
-              <span class="t">验证计划</span>
-              <span class="d">L0–L7 层级、测试 ROM 与发布门</span>
+              <span class="t">Verification plan</span>
+              <span class="d">L0–L7 levels, test ROMs and release gates</span>
               <span class="p">docs/open6502-chip/verification.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/difftest.md" target="_blank" rel="noopener">
-              <span class="t">DiffTest 协议</span>
-              <span class="d">同步点、事件记录与失配报告</span>
+              <span class="t">DiffTest protocol</span>
+              <span class="d">Sync points, event records and mismatch reports</span>
               <span class="p">docs/open6502-chip/difftest.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/synthesis-area.md" target="_blank" rel="noopener">
-              <span class="t">综合与面积</span>
-              <span class="d">Yosys 通用单元、PPU 拆分与注意事项</span>
+              <span class="t">Synthesis &amp; area</span>
+              <span class="d">Yosys generic cells, PPU breakdown and caveats</span>
               <span class="p">docs/open6502-chip/synthesis-area.md</span>
             </a>
           </div>
           <div class="callout callout--info">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>仓库内文档以英文维护，本页是中文入口与索引。若本页与仓库文档、代码不一致，以仓库当前代码和最新测试结果为准；最近一次全量验证在 2026-11-11。</span>
+            <span>Repository docs are maintained in English; this page is the same content in a navigable form. If this page and the repository disagree, the current code and latest test results win. The last full verification was on 2026-11-11.</span>
           </div>
         </section>
 
         <!-- 03 ARCH -->
-        <section class="doc-section" id="architecture" data-group="设计" data-keywords="架构 框图 时钟 地址映射 顶层端口 模块 enable CDC 复位">
+        <section class="doc-section" id="architecture" data-group="Design" data-keywords="architecture block diagram clock address map top-level ports modules enable CDC reset">
           <div class="doc-kicker"><span class="dot"></span>03 · Architecture</div>
-          <h2><span>系统架构：单时钟，多相位</span></h2>
-          <p>所有时序逻辑跑在 21.477272 MHz 主时钟上，用 enable 相位产生 CPU、PPU、APU 与像素节拍，避免多时钟 CDC。复位异步拉低、同步释放。这是一个 NES/Famicom 兼容的数字 SoC，不是把 NES 主板逐器件复刻。</p>
+          <h2><span>Architecture: one clock, several phases</span></h2>
+          <p>All sequential logic runs on the 21.477272 MHz master clock; enable phases create the CPU, PPU, APU and pixel beats, avoiding multi-clock CDC. Reset asserts asynchronously and releases synchronously. This is an NES/Famicom-compatible digital SoC, not a device-by-device copy of the NES board.</p>
 
-          <div class="ascii">21.477272 MHz ──► clock / reset（÷12 CPU · ÷4 PPU · ÷24 音频）
+          <div class="ascii">21.477272 MHz ──► clock / reset (÷12 CPU · ÷4 PPU · ÷24 audio)
                          │
    ┌─────────────┐   ┌───▼──────────┐   ┌──────────┐   ┌─────────┐
    │  6502 CPU   │◄─►│  system bus  │◄─►│ 2C02 PPU │──►│  video  │
@@ -434,46 +454,46 @@ cd ..
                             │                │
                        audio mixer      cartridge bus</div>
 
-          <h3>设计原则</h3>
+          <h3>Design principles</h3>
           <ul>
-            <li>RTL 是唯一可综合实现；NEMU 永不进入综合。</li>
-            <li>NEMU 是 REF，不是 DUT；两者不能共享同一个实现来“对答案”。</li>
-            <li>先 CPU + 总线，再 PPU/APU，最后 mapper 与配件。</li>
-            <li>先 FPGA 原型，再 ASIC；每级都有退出条件。</li>
-            <li>每个外部接口都有可观测 trace，方便 DiffTest。</li>
+            <li>RTL is the only synthesizable implementation; NEMU never enters synthesis.</li>
+            <li>NEMU is the REF, not the DUT; the two may not share an implementation to “check the answer”.</li>
+            <li>Build CPU + bus first, then PPU/APU, then mappers and accessories.</li>
+            <li>FPGA prototype before ASIC; every stage has exit criteria.</li>
+            <li>Every external interface has an observable trace for DiffTest.</li>
           </ul>
 
-          <h3>时钟与复位</h3>
+          <h3>Clocks and reset</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>信号</th><th class="num">频率</th><th>用途</th></tr></thead>
+              <thead><tr><th>Signal</th><th class="num">Frequency</th><th>Use</th></tr></thead>
               <tbody>
-                <tr><td><code>clk_21m</code></td><td class="num">21.477272 MHz</td><td>唯一主时钟，所有时序逻辑</td></tr>
-                <tr><td><code>cpu_en</code></td><td class="num">1.789773 MHz</td><td>CPU 相位（÷12）</td></tr>
-                <tr><td><code>ppu_en</code></td><td class="num">5.369318 MHz</td><td>PPU 点相位（÷4）</td></tr>
-                <tr><td><code>aud_en</code></td><td class="num">44.1 kHz</td><td>音频采样</td></tr>
-                <tr><td><code>vid_pclk</code></td><td class="num">5.369318 MHz</td><td>像素输出</td></tr>
+                <tr><td><code>clk_21m</code></td><td class="num">21.477272 MHz</td><td>Single master clock, all sequential logic</td></tr>
+                <tr><td><code>cpu_en</code></td><td class="num">1.789773 MHz</td><td>CPU phase (÷12)</td></tr>
+                <tr><td><code>ppu_en</code></td><td class="num">5.369318 MHz</td><td>PPU dot phase (÷4)</td></tr>
+                <tr><td><code>aud_en</code></td><td class="num">44.1 kHz</td><td>Audio sample</td></tr>
+                <tr><td><code>vid_pclk</code></td><td class="num">5.369318 MHz</td><td>Pixel output</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>地址空间</h3>
+          <h3>Address space</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>地址</th><th>目标</th><th>说明</th></tr></thead>
+              <thead><tr><th>Address</th><th>Target</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td><code>$0000–$1FFF</code></td><td>2 KB WRAM</td><td>四级镜像</td></tr>
-                <tr><td><code>$2000–$3FFF</code></td><td>PPU 寄存器</td><td>8 字节镜像</td></tr>
-                <tr><td><code>$4000–$4017</code></td><td>APU / OAM DMA / 手柄</td><td><code>$4014</code> 触发 OAM DMA</td></tr>
-                <tr><td><code>$4018–$401F</code></td><td>测试 / 扩展</td><td>—</td></tr>
-                <tr><td><code>$4020–$5FFF</code></td><td>扩展空间</td><td>—</td></tr>
-                <tr><td><code>$6000–$7FFF</code></td><td>PRG RAM</td><td>卡带提供</td></tr>
-                <tr><td><code>$8000–$FFFF</code></td><td>卡带 PRG</td><td>复位向量在 <code>$FFFC/$FFFD</code></td></tr>
+                <tr><td><code>$0000–$1FFF</code></td><td>2 KB WRAM</td><td>Four mirrors</td></tr>
+                <tr><td><code>$2000–$3FFF</code></td><td>PPU registers</td><td>8-byte mirrors</td></tr>
+                <tr><td><code>$4000–$4017</code></td><td>APU / OAM DMA / controllers</td><td><code>$4014</code> triggers OAM DMA</td></tr>
+                <tr><td><code>$4018–$401F</code></td><td>Test / expansion</td><td>—</td></tr>
+                <tr><td><code>$4020–$5FFF</code></td><td>Expansion space</td><td>—</td></tr>
+                <tr><td><code>$6000–$7FFF</code></td><td>PRG RAM</td><td>Provided by the cartridge</td></tr>
+                <tr><td><code>$8000–$FFFF</code></td><td>Cartridge PRG</td><td>Reset vector at <code>$FFFC/$FFFD</code></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>顶层端口</h3>
+          <h3>Top-level ports</h3>
           <div class="code">
             <div class="code-bar"><span class="lang">systemverilog</span><button class="code-copy" type="button" data-copy="module open6502_top (
   input  logic        clk_21m,
@@ -494,7 +514,7 @@ cd ..
   input  logic        cart_irq,
   output logic        dbg_valid,
   output logic [63:0] dbg_payload
-);"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+);"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre>module open6502_top (
   input  logic        clk_21m,
   input  logic        rst_n,
@@ -517,323 +537,323 @@ cd ..
 );</pre>
           </div>
 
-          <h3>模块职责</h3>
+          <h3>Module responsibilities</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>模块</th><th>文件</th><th>职责</th></tr></thead>
+              <thead><tr><th>Module</th><th>File</th><th>Responsibility</th></tr></thead>
               <tbody>
-                <tr><td>CPU</td><td><code>cpu/open6502_cpu.sv</code></td><td>2A03 配置、指令、总线周期、中断</td></tr>
-                <tr><td>PPU</td><td><code>ppu/open6502_ppu.sv</code></td><td>寄存器、VRAM/CHR/OAM/调色板、逐点背景与精灵合成</td></tr>
-                <tr><td>APU</td><td><code>apu/open6502_apu.sv</code></td><td>双脉冲、三角、噪声、帧序列器、包络、长度、sweep</td></tr>
-                <tr><td>DMC</td><td><code>apu/open6502_dmc.sv</code></td><td>采样地址/长度/速率/循环/IRQ/输出与 DMA 请求</td></tr>
-                <tr><td>Bus</td><td><code>bus/open6502_bus.sv</code></td><td>地址译码、片选、外设仲裁</td></tr>
-                <tr><td>WRAM</td><td><code>bus/open6502_wram.sv</code></td><td>2 KB 主存与四级镜像</td></tr>
-                <tr><td>Mapper</td><td><code>cart/open6502_mapper.sv</code></td><td>mapper 0/1/2/3/4/7 的 bank、镜像、IRQ</td></tr>
-                <tr><td>OAM DMA</td><td><code>dma/open6502_oam_dma.sv</code></td><td><code>$4014</code> 256 字节搬运与 CPU stall</td></tr>
-                <tr><td>Clocks</td><td><code>clocks/open6502_clocks.sv</code></td><td>复位同步、CPU/PPU/音频 enable</td></tr>
-                <tr><td>Video</td><td><code>video/open6502_video_timing.sv</code></td><td>341×262 NTSC 时序与同步信号</td></tr>
-                <tr><td>Controller</td><td><code>input/open6502_controller.sv</code></td><td>手柄串行移位</td></tr>
-                <tr><td>DiffTest bridge</td><td><code>dbg/open6502_difftest_bridge.sv</code></td><td>CPU/BUS/PPU/APU 事件打包</td></tr>
+                <tr><td>CPU</td><td><code>cpu/open6502_cpu.sv</code></td><td>2A03 profile, instructions, bus cycles, interrupts</td></tr>
+                <tr><td>PPU</td><td><code>ppu/open6502_ppu.sv</code></td><td>Registers, VRAM/CHR/OAM/palette, per-dot background and sprite composition</td></tr>
+                <tr><td>APU</td><td><code>apu/open6502_apu.sv</code></td><td>Two pulses, triangle, noise, frame sequencer, envelope, length, sweep</td></tr>
+                <tr><td>DMC</td><td><code>apu/open6502_dmc.sv</code></td><td>Sample address/length/rate/loop/IRQ/output and DMA requests</td></tr>
+                <tr><td>Bus</td><td><code>bus/open6502_bus.sv</code></td><td>Address decode, chip selects, peripheral arbitration</td></tr>
+                <tr><td>WRAM</td><td><code>bus/open6502_wram.sv</code></td><td>2 KB main RAM and four-way mirroring</td></tr>
+                <tr><td>Mapper</td><td><code>cart/open6502_mapper.sv</code></td><td>Mapper 0/1/2/3/4/7 banking, mirroring, IRQ</td></tr>
+                <tr><td>OAM DMA</td><td><code>dma/open6502_oam_dma.sv</code></td><td><code>$4014</code> 256-byte transfer and CPU stall</td></tr>
+                <tr><td>Clocks</td><td><code>clocks/open6502_clocks.sv</code></td><td>Reset sync, CPU/PPU/audio enables</td></tr>
+                <tr><td>Video</td><td><code>video/open6502_video_timing.sv</code></td><td>341×262 NTSC timing and sync signals</td></tr>
+                <tr><td>Controller</td><td><code>input/open6502_controller.sv</code></td><td>Controller serial shift</td></tr>
+                <tr><td>DiffTest bridge</td><td><code>dbg/open6502_difftest_bridge.sv</code></td><td>Packs CPU/BUS/PPU/APU events</td></tr>
               </tbody>
             </table>
           </div>
 
-          <p>更完整的框图、端口与 v0 范围见 <a href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/architecture.md" target="_blank" rel="noopener">docs/open6502-chip/architecture.md</a>。</p>
+          <p>For the full block diagram, ports and v0 scope, see <a href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/architecture.md" target="_blank" rel="noopener">docs/open6502-chip/architecture.md</a>.</p>
         </section>
 
         <!-- 04 CPU -->
-        <section class="doc-section" id="cpu" data-group="设计" data-keywords="cpu 6502 2a03 指令 中断 nmi irq klaus 周期 总线 十进制">
+        <section class="doc-section" id="cpu" data-group="Design" data-keywords="cpu 6502 2a03 instructions interrupts nmi irq klaus cycles bus decimal">
           <div class="doc-kicker"><span class="dot"></span>04 · CPU</div>
-          <h2><span>CPU：先对功能，再对周期</span></h2>
-          <p><code>open6502_cpu</code> 是一个 2A03 配置的 6502 核。当前目标是把官方指令集与稳定的未文档化行为跑对，周期级总线行为仍在补齐。</p>
+          <h2><span>CPU: get function right, then cycles</span></h2>
+          <p><code>open6502_cpu</code> is a 6502 core in the 2A03 configuration. The current goal is official instructions plus stable undocumented behaviour; cycle-level bus behaviour is still being filled in.</p>
 
-          <h3>已覆盖</h3>
+          <h3>Covered</h3>
           <ul>
-            <li>官方指令集，以及目标稳定的未文档化指令；十进制 ADC/SBC 已实现并进入 Klaus 覆盖。</li>
-            <li>寻址：立即、零页、零页索引、绝对、绝对索引、间接、索引间接与分支。</li>
-            <li>周期级总线动作：取指、操作数读、dummy read、RMW 双写、DMA stall。</li>
-            <li>中断：NMI 边沿、IRQ 电平、APU frame IRQ、mapper IRQ；BRK/RTI 返回地址修正。</li>
-            <li>累加器/内存移位、JSR/RTS、PHA/PLA/PHP/PLP、INC/DEC/BIT、JMP 间接、CMP/AND/ORA/EOR/ADC/SBC。</li>
+            <li>Official instruction set plus target-stable undocumented instructions; decimal ADC/SBC is implemented and covered by Klaus.</li>
+            <li>Addressing: immediate, zero page, zero-page indexed, absolute, absolute indexed, indirect, indexed indirect and branches.</li>
+            <li>Cycle-level bus actions: fetch, operand reads, dummy reads, RMW double writes, DMA stalls.</li>
+            <li>Interrupts: NMI edge, IRQ level, APU frame IRQ, mapper IRQ; corrected BRK/RTI return address.</li>
+            <li>Accumulator/memory shifts, JSR/RTS, PHA/PLA/PHP/PLP, INC/DEC/BIT, JMP indirect, CMP/AND/ORA/EOR/ADC/SBC.</li>
           </ul>
 
-          <h3>验证证据</h3>
+          <h3>Evidence</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>测试</th><th>结果</th><th>说明</th></tr></thead>
+              <thead><tr><th>Test</th><th>Result</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td>Klaus 6502 functional</td><td><span class="badge badge--pass">PASS · PC=0x3469</span></td><td>含十进制 ADC/SBC</td></tr>
-                <tr><td>NEMU Klaus</td><td><span class="badge badge--pass">PASS</span></td><td>参考模型同样通过</td></tr>
-                <tr><td>Directed testbenches</td><td><span class="badge badge--pass">PASS</span></td><td>ADC、BRK、decimal、INC、IRQ、JMP ind、JSR、PHP、RMW、stack、ZP37 等</td></tr>
-                <tr><td>NEMU/RTL DiffTest</td><td><span class="badge badge--pass">PASS</span></td><td>最终状态、PC trace、ALU/栈</td></tr>
+                <tr><td>Klaus 6502 functional</td><td><span class="badge badge--pass">PASS · PC=0x3469</span></td><td>Includes decimal ADC/SBC</td></tr>
+                <tr><td>NEMU Klaus</td><td><span class="badge badge--pass">PASS</span></td><td>The reference model passes too</td></tr>
+                <tr><td>Directed testbenches</td><td><span class="badge badge--pass">PASS</span></td><td>ADC, BRK, decimal, INC, IRQ, JMP ind, JSR, PHP, RMW, stack, ZP37 and more</td></tr>
+                <tr><td>NEMU/RTL DiffTest</td><td><span class="badge badge--pass">PASS</span></td><td>Final state, PC trace, ALU/stack</td></tr>
               </tbody>
             </table>
           </div>
 
           <div class="code">
-            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="# 需要先准备 Klaus 二进制；默认路径 /tmp/klaus.bin
-KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
-            <pre><span class="c"># 需要先准备 Klaus 二进制；默认路径 /tmp/klaus.bin</span>
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="# Prepare the Klaus binary first; the default path is /tmp/klaus.bin
+KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
+            <pre><span class="c"># Prepare the Klaus binary first; the default path is /tmp/klaus.bin</span>
 <span class="p">$</span> KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh</pre>
           </div>
 
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span><strong>还不精确：</strong>CPU 周期时序、部分 dummy read、NMI/IRQ 与 DMA 的交互、DMC stall 对齐都仍是近似。RTL Klaus 在 <code>PC=0x3469</code> 通过，只证明功能，不证明周期级一致。</span>
+            <span><strong>Not yet exact:</strong> CPU cycle timing, some dummy reads, NMI/IRQ interaction with DMA, and DMC stall alignment are still approximate. RTL Klaus passing at <code>PC=0x3469</code> proves function, not cycle-level equivalence.</span>
           </div>
         </section>
 
         <!-- 05 PPU -->
-        <section class="doc-section" id="ppu" data-group="设计" data-keywords="ppu 2c02 渲染 精灵 sprite 背景 滚动 调色板 vram oam chr 寄存器 周期 像素">
+        <section class="doc-section" id="ppu" data-group="Design" data-keywords="ppu 2c02 render sprite background scroll palette vram oam chr registers cycles pixels">
           <div class="doc-kicker"><span class="dot"></span>05 · PPU</div>
-          <h2><span>PPU：能出画面，但还不是点级管线</span></h2>
-          <p>PPU 是当前项目的面积大头，也是精度缺口最大的模块。它能渲染标题帧与游戏画面，但采用的是“逐点生成 + 扫描线末合成精灵”的结构，而不是真实 2C02 的 fetch/shift 管线。</p>
+          <h2><span>PPU: it draws, but it is not a dot pipeline yet</span></h2>
+          <p>The PPU is both the largest block and the biggest accuracy gap. It renders the title frame and gameplay, but uses “per-dot generation + end-of-scanline sprite composition” instead of the real 2C02 fetch/shift pipeline.</p>
 
-          <div class="ascii">CPU 写 $2006/$2007
+          <div class="ascii">CPU writes $2006/$2007
         │
         ▼
-  VRAM / CHR / OAM / palette（寄存器阵列）
+  VRAM / CHR / OAM / palette (register arrays)
         │
         ▼
-  341 dots × 262 lines 点循环
+  341 dots × 262 lines dot loop
         │
-        ├─ 背景像素（名称表 + 图案表 + 属性 + 滚动）
-        ├─ 精灵合成（优先级、sprite 0、8×16、overflow）
+        ├─ background pixel (nametable + pattern + attributes + scroll)
+        ├─ sprite composition (priority, sprite 0, 8×16, overflow)
         ▼
-  调色板索引 → RGB444 / PPM 抓帧</div>
+  palette index → RGB444 / PPM capture</div>
 
-          <h3>已实现</h3>
+          <h3>Implemented</h3>
           <ul>
-            <li>CPU 可见的 <code>$2000–$2007</code> 寄存器，<code>$2007</code> 自动递增。</li>
-            <li>CHR 8 KB、VRAM 2 KB、OAM 256 B、调色板 32 B 的内部存储。</li>
-            <li>背景像素按点生成，支持 coarse/fine X/Y 滚动、名称表镜像。</li>
-            <li>精灵叠加、优先级、sprite 0 hit、扫描线溢出、8×16 模式。</li>
-            <li>VBlank/NMI 与帧级输出；<code>vid_rgb</code> 使用 RGB444 调色板 LUT。</li>
+            <li>CPU-visible <code>$2000–$2007</code> registers, including <code>$2007</code> auto-increment.</li>
+            <li>Internal storage: CHR 8 KB, VRAM 2 KB, OAM 256 B, palette 32 B.</li>
+            <li>Background pixels generated per dot, with coarse/fine X/Y scroll and nametable mirroring.</li>
+            <li>Sprite overlay, priority, sprite 0 hit, scanline overflow and 8×16 mode.</li>
+            <li>VBlank/NMI and frame output; <code>vid_rgb</code> uses an RGB444 palette LUT.</li>
           </ul>
 
-          <h3>寄存器</h3>
+          <h3>Registers</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>地址</th><th>名称</th><th>当前实现</th></tr></thead>
+              <thead><tr><th>Address</th><th>Name</th><th>Current implementation</th></tr></thead>
               <tbody>
-                <tr><td><code>$2000</code></td><td>PPUCTRL</td><td>NMI、精灵尺寸、背景/精灵图案表、地址增量</td></tr>
-                <tr><td><code>$2001</code></td><td>PPUMASK</td><td>背景/精灵/左列裁剪、灰度与强调位</td></tr>
-                <tr><td><code>$2002</code></td><td>PPUSTATUS</td><td>VBlank、sprite 0、overflow</td></tr>
-                <tr><td><code>$2003</code></td><td>OAMADDR</td><td>OAM 地址指针</td></tr>
-                <tr><td><code>$2004</code></td><td>OAMDATA</td><td>OAM 读写</td></tr>
-                <tr><td><code>$2005</code></td><td>PPUSCROLL</td><td>两次写入的 X/Y 滚动</td></tr>
-                <tr><td><code>$2006</code></td><td>PPUADDR</td><td>两次写入的高/低字节</td></tr>
-                <tr><td><code>$2007</code></td><td>PPUDATA</td><td>VRAM/调色板读写与自动递增</td></tr>
+                <tr><td><code>$2000</code></td><td>PPUCTRL</td><td>NMI, sprite size, background/sprite pattern tables, address increment</td></tr>
+                <tr><td><code>$2001</code></td><td>PPUMASK</td><td>Background/sprite/left-column clipping, grayscale and emphasis bits</td></tr>
+                <tr><td><code>$2002</code></td><td>PPUSTATUS</td><td>VBlank, sprite 0, overflow</td></tr>
+                <tr><td><code>$2003</code></td><td>OAMADDR</td><td>OAM address pointer</td></tr>
+                <tr><td><code>$2004</code></td><td>OAMDATA</td><td>OAM read/write</td></tr>
+                <tr><td><code>$2005</code></td><td>PPUSCROLL</td><td>Two-write X/Y scroll</td></tr>
+                <tr><td><code>$2006</code></td><td>PPUADDR</td><td>Two-write high/low address</td></tr>
+                <tr><td><code>$2007</code></td><td>PPUDATA</td><td>VRAM/palette read/write and auto-increment</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>精度缺口</h3>
+          <h3>Accuracy gaps</h3>
           <ul>
-            <li>没有完整的背景 fetch/shift 寄存器管线，渲染按点/扫描线组织。</li>
-            <li>精灵评估是近似的，不是 2C02 的逐扫描线 OAM 扫描。</li>
-            <li>MMC3 A12 过滤与 IRQ 时序是近似实现。</li>
-            <li>PPU open bus、<code>$2007</code> 调色板读回等边界行为未完全覆盖。</li>
-            <li>存储以触发器展开，直接导致 975,919 个通用单元；上板前必须换成 BRAM。</li>
+            <li>No complete background fetch/shift register pipeline; rendering is organised per dot/scanline.</li>
+            <li>Sprite evaluation is approximate, not the 2C02's per-scanline OAM scan.</li>
+            <li>MMC3 A12 filtering and IRQ timing are approximate.</li>
+            <li>PPU open bus and <code>$2007</code> palette read-back are not fully covered.</li>
+            <li>Storage is expanded into flip-flops, which is why it costs 975,919 generic cells; it must become BRAM before board bring-up.</li>
           </ul>
 
-          <p>相关测试：<code>ppu_tb</code>、<code>ppu_pixel_tb</code>、<code>ppu_sprite_tb</code>、<code>ppu_scroll_tb</code>、<code>ppu_overflow_tb</code>。面积优化方向见 <a href="#synthesis">14 综合与面积</a>。</p>
+          <p>Related tests: <code>ppu_tb</code>, <code>ppu_pixel_tb</code>, <code>ppu_sprite_tb</code>, <code>ppu_scroll_tb</code>, <code>ppu_overflow_tb</code>. Area work is in <a href="#synthesis">14 Synthesis &amp; area</a>.</p>
         </section>
 
         <!-- 06 APU -->
-        <section class="doc-section" id="apu" data-group="设计" data-keywords="apu dmc 音频 脉冲 三角 噪声 帧序列 包络 sweep 采样 44.1">
+        <section class="doc-section" id="apu" data-group="Design" data-keywords="apu dmc audio pulse triangle noise frame sequencer envelope sweep samples 44.1">
           <div class="doc-kicker"><span class="dot"></span>06 · APU / DMC</div>
-          <h2><span>APU 与 DMC：四个声道，一条未仲裁的总线</span></h2>
-          <p>APU 已实现 2A03 的四个声道、帧序列器、长度/包络/sweep 与 <code>$4015</code> 状态，输出 16 位样本。DMC 有独立的采样与 DMA 请求逻辑，但总线仲裁仍是缺口。</p>
+          <h2><span>APU &amp; DMC: four channels, one unarbitrated bus</span></h2>
+          <p>The APU implements the 2A03's four channels, frame sequencer, length/envelope/sweep and <code>$4015</code> status, producing 16-bit samples. DMC has its own sample and DMA request logic, but bus arbitration is still missing.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>声道</th><th>已实现</th><th>测试</th></tr></thead>
+              <thead><tr><th>Channel</th><th>Implemented</th><th>Tests</th></tr></thead>
               <tbody>
-                <tr><td>Pulse 1 / 2</td><td>占空比、包络、长度、sweep、静音</td><td><span class="badge badge--pass">apu_tb / apu_sweep_tb</span></td></tr>
-                <tr><td>Triangle</td><td>线性计数器、长度、静音</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
-                <tr><td>Noise</td><td>LFSR、包络、长度</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
-                <tr><td>DMC</td><td>速率、地址、长度、循环、IRQ、输出、4 周期 CPU stall</td><td><span class="badge badge--part">dmc_tb · 仲裁未完成</span></td></tr>
-                <tr><td>Frame sequencer</td><td>4/5 step、frame IRQ、长度/包络时钟</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
-                <tr><td>Mixer</td><td>16 位样本、44.1 kHz enable</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+                <tr><td>Pulse 1 / 2</td><td>Duty, envelope, length, sweep, mute</td><td><span class="badge badge--pass">apu_tb / apu_sweep_tb</span></td></tr>
+                <tr><td>Triangle</td><td>Linear counter, length, mute</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+                <tr><td>Noise</td><td>LFSR, envelope, length</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+                <tr><td>DMC</td><td>Rate, address, length, loop, IRQ, output, 4-cycle CPU stall</td><td><span class="badge badge--part">dmc_tb · arbitration incomplete</span></td></tr>
+                <tr><td>Frame sequencer</td><td>4/5-step, frame IRQ, length/envelope clocks</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
+                <tr><td>Mixer</td><td>16-bit samples, 44.1 kHz enable</td><td><span class="badge badge--pass">apu_tb</span></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>输出路径</h3>
-          <p>RTL 输出 <code>aud_valid</code> 与 16 位有符号 <code>aud_sample</code>；FPGA wrapper 提供 1-bit sigma-delta 音频接口。当前 RTL 没有桌面 SDL 前端，抓帧可以，实时听音仍要走 NEMU 或 GEM6502。</p>
+          <h3>Output path</h3>
+          <p>RTL outputs <code>aud_valid</code> and a signed 16-bit <code>aud_sample</code>; the FPGA wrapper provides a 1-bit sigma-delta audio interface. RTL has no desktop SDL frontend: frame capture works, but real-time listening still goes through NEMU or GEM6502.</p>
 
-          <h3>DMC 的未完成项</h3>
+          <h3>DMC open items</h3>
           <ul>
-            <li>DMC 总线仲裁：与 CPU/PPU 争用时的优先级和插入时机未完全实现。</li>
-            <li>DMA 与 CPU stall 的精确周期对齐仍是近似。</li>
-            <li>DMC 采样地址/长度在跨页与循环边界的行为缺少硬件对齐。</li>
+            <li>DMC bus arbitration: priority and insertion timing against CPU/PPU are not complete.</li>
+            <li>DMA and CPU stall cycle alignment is still approximate.</li>
+            <li>DMC sample address/length behaviour across page boundaries and loop edges lacks hardware alignment.</li>
           </ul>
 
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>音频目前是“功能可用”，不是“周期与混音精确”。在做 NEMU/RTL 音频 DiffTest 前，不应当用听觉主观判断“通过”。</span>
+            <span>Audio is “functionally usable”, not “cycle- and mixer-exact”. Do not call it passing based on listening; that needs a NEMU/RTL audio DiffTest first.</span>
           </div>
         </section>
 
         <!-- 07 BUS -->
-        <section class="doc-section" id="bus" data-group="设计" data-keywords="总线 地址 译码 wram oam dma 手柄 controller 镜像 事务">
+        <section class="doc-section" id="bus" data-group="Design" data-keywords="bus address decode wram oam dma controller mirror transactions">
           <div class="doc-kicker"><span class="dot"></span>07 · Bus / Memory</div>
-          <h2><span>总线与存储：2 KB WRAM 和它的镜像</span></h2>
-          <p>总线负责地址译码、片选与外设仲裁。它把 CPU 的读写分发到 WRAM、PPU、APU、DMA、手柄与卡带；每个外设都应有唯一、可观测的事务。</p>
+          <h2><span>Bus &amp; memory: 2 KB of WRAM and its mirrors</span></h2>
+          <p>The bus handles address decode, chip selects and peripheral arbitration. It routes CPU reads and writes to WRAM, PPU, APU, DMA, controllers and the cartridge; every peripheral should expose unique, observable transactions.</p>
 
           <h3>WRAM</h3>
-          <p><code>$0000–$1FFF</code> 是 2 KB 物理 WRAM，每 2 KB 镜像一次，共四次；<code>$2000–$3FFF</code> 是 PPU 的 8 字节镜像。<code>open6502_wram</code> 负责镜像解码，本身不做等待周期。</p>
+          <p><code>$0000–$1FFF</code> is 2 KB of physical WRAM mirrored every 2 KB, four times. <code>$2000–$3FFF</code> is the PPU's 8-byte mirror. <code>open6502_wram</code> handles mirror decoding and adds no wait states.</p>
 
           <h3>OAM DMA</h3>
-          <p>写 <code>$4014</code> 触发 256 字节 OAM DMA：DMA 引擎从 CPU 地址空间搬运到 PPU OAM，并让 CPU stall。集成测试覆盖 <code>$4014</code> 触发、搬运内容与 stall 行为；精确的总线相位仍需继续对齐。</p>
+          <p>A write to <code>$4014</code> starts a 256-byte OAM DMA: the engine copies from CPU address space into PPU OAM and stalls the CPU. Integration tests cover the <code>$4014</code> trigger, transferred data and stall behaviour; exact bus phases still need alignment.</p>
 
-          <h3>手柄</h3>
-          <p><code>open6502_controller</code> 实现标准手柄的串行移位：写 <code>$4016</code> 锁存，随后读 8 次得到 A/B/Select/Start/方向。两个端口独立。测试覆盖按键顺序与稳定位。</p>
+          <h3>Controllers</h3>
+          <p><code>open6502_controller</code> implements the standard serial shift: a write to <code>$4016</code> latches, then eight reads return A/B/Select/Start/directions. The two ports are independent. Tests cover button order and the stable bits.</p>
 
-          <h3>已知缺口</h3>
+          <h3>Known gaps</h3>
           <ul>
-            <li>“每个外设都有唯一 bus transaction”还没有做到全覆盖。</li>
-            <li>OAM DMA 与 DMC DMA 同时请求时的优先级未验证。</li>
-            <li>CPU 访问 PPU 寄存器的精确时序（读写延迟、open bus）仍近似。</li>
+            <li>“Every peripheral has a unique bus transaction” is not fully covered.</li>
+            <li>Priority when OAM DMA and DMC DMA request at the same time is not verified.</li>
+            <li>Exact CPU access timing to PPU registers (read/write latency, open bus) is approximate.</li>
           </ul>
         </section>
 
         <!-- 08 CART -->
-        <section class="doc-section" id="cart" data-group="设计" data-keywords="卡带 mapper mmc1 mmc3 nrom uxrom cnrom axrom prg chr irq ines">
+        <section class="doc-section" id="cart" data-group="Design" data-keywords="cartridge mapper mmc1 mmc3 nrom uxrom cnrom axrom prg chr irq ines">
           <div class="doc-kicker"><span class="dot"></span>08 · Cartridge</div>
-          <h2><span>卡带与 Mapper：0/1/2/3/4/7</span></h2>
-          <p>RTL mapper 覆盖 NROM、MMC1、UxROM、CNROM、MMC3 与 AxROM。它处理 PRG/CHR bank、镜像、PRG RAM 和 IRQ；MMC3 的 A12 过滤仍是近似。</p>
+          <h2><span>Cartridge &amp; mapper: 0/1/2/3/4/7</span></h2>
+          <p>RTL mappers cover NROM, MMC1, UxROM, CNROM, MMC3 and AxROM. They handle PRG/CHR banks, mirroring, PRG RAM and IRQ; MMC3 A12 filtering remains approximate.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>Mapper</th><th>名称</th><th>关键行为</th><th>状态</th></tr></thead>
+              <thead><tr><th>Mapper</th><th>Name</th><th>Key behaviour</th><th>Status</th></tr></thead>
               <tbody>
-                <tr><td>0</td><td>NROM</td><td>固定 PRG/CHR，无 banking</td><td><span class="badge badge--pass">通过</span></td></tr>
-                <tr><td>1</td><td>MMC1</td><td>串行移位寄存器、PRG/CHR bank、镜像</td><td><span class="badge badge--part">基础实现</span></td></tr>
-                <tr><td>2</td><td>UxROM</td><td>PRG bank 切换</td><td><span class="badge badge--part">基础实现</span></td></tr>
-                <tr><td>3</td><td>CNROM</td><td>CHR bank 切换</td><td><span class="badge badge--part">基础实现</span></td></tr>
-                <tr><td>4</td><td>MMC3</td><td>bank、PRG RAM、扫描线 IRQ</td><td><span class="badge badge--part">A12 近似</span></td></tr>
-                <tr><td>7</td><td>AxROM</td><td>32 KB PRG bank、单屏镜像</td><td><span class="badge badge--part">基础实现</span></td></tr>
+                <tr><td>0</td><td>NROM</td><td>Fixed PRG/CHR, no banking</td><td><span class="badge badge--pass">Pass</span></td></tr>
+                <tr><td>1</td><td>MMC1</td><td>Serial shift register, PRG/CHR banks, mirroring</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>2</td><td>UxROM</td><td>PRG bank switching</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>3</td><td>CNROM</td><td>CHR bank switching</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>4</td><td>MMC3</td><td>Banks, PRG RAM, scanline IRQ</td><td><span class="badge badge--part">A12 approximate</span></td></tr>
+                <tr><td>7</td><td>AxROM</td><td>32 KB PRG banks, single-screen mirroring</td><td><span class="badge badge--part">Basic</span></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>ROM 如何进入 RTL</h3>
+          <h3>How ROMs enter RTL</h3>
           <ul>
-            <li>NEMU 直接加载 iNES，支持 mapper 0/1/2/3/4/7。</li>
-            <li>RTL 仿真：<code>sim/game/extract_ines.py</code> 把 iNES 拆成 PRG/CHR 的 Verilog <code>$readmemh</code> 镜像。</li>
-            <li>FPGA（未来）：SPI Flash/SD 卡加载 iNES 到 SRAM/BRAM，或直接使用物理卡带连接器。</li>
+            <li>NEMU loads iNES directly and supports mapper 0/1/2/3/4/7.</li>
+            <li>RTL simulation: <code>sim/game/extract_ines.py</code> turns iNES into Verilog <code>$readmemh</code> images for PRG/CHR.</li>
+            <li>FPGA (future): load iNES from SPI Flash/SD into SRAM/BRAM, or use a physical cartridge connector.</li>
           </ul>
 
           <div class="callout callout--info">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span><code>file-fixers.nes</code> 与 <code>stallar.nes</code> 是 MMC3 回归的关键样本。它们能跑起来，不代表 A12/IRQ 时序精确。</span>
+            <span><code>file-fixers.nes</code> and <code>stallar.nes</code> are the key MMC3 regression samples. Running does not mean A12/IRQ timing is exact.</span>
           </div>
         </section>
 
         <!-- 09 VIDEO -->
-        <section class="doc-section" id="video" data-group="设计" data-keywords="视频 时序 341 262 rgb444 vga hdmi 输入 手柄 时钟 sigma delta">
+        <section class="doc-section" id="video" data-group="Design" data-keywords="video timing 341 262 rgb444 vga hdmi input controller clocks sigma delta">
           <div class="doc-kicker"><span class="dot"></span>09 · Video / Input</div>
-          <h2><span>视频、输入与时钟：最后一段模拟边界</span></h2>
-          <p>数字侧输出的是 341×262 NTSC 时序、RGB444 像素与 44.1 kHz 音频。模拟视频、模拟音频与真实手柄接口留给 FPGA 板级或外部 DAC。</p>
+          <h2><span>Video, input and clocks: the last analogue edge</span></h2>
+          <p>The digital side outputs 341×262 NTSC timing, RGB444 pixels and 44.1 kHz audio. Analogue video/audio and physical controller ports are left to the FPGA board or external DACs.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>项目</th><th>当前实现</th><th>说明</th></tr></thead>
+              <thead><tr><th>Item</th><th>Current implementation</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td>扫描时序</td><td>341 dots × 262 lines</td><td><code>vid_pclk / de / hsync / vsync</code></td></tr>
-                <tr><td>像素格式</td><td>RGB444</td><td>内部调色板索引经 LUT 转换</td></tr>
-                <tr><td>帧率</td><td>NTSC 约 60 Hz</td><td>仿真由帧循环驱动</td></tr>
-                <tr><td>音频</td><td>16 位 PCM / σΔ</td><td>FPGA wrapper 提供 1-bit sigma-delta</td></tr>
-                <tr><td>输入</td><td>两个标准手柄</td><td>串行移位，<code>joy1/joy2</code></td></tr>
-                <tr><td>FPGA 输出</td><td>wrapper 存在</td><td>无 bitstream、无上板验证</td></tr>
+                <tr><td>Scan timing</td><td>341 dots × 262 lines</td><td><code>vid_pclk / de / hsync / vsync</code></td></tr>
+                <tr><td>Pixel format</td><td>RGB444</td><td>Internal palette index through a LUT</td></tr>
+                <tr><td>Frame rate</td><td>NTSC, ~60 Hz</td><td>Simulation driven by the frame loop</td></tr>
+                <tr><td>Audio</td><td>16-bit PCM / σΔ</td><td>FPGA wrapper provides 1-bit sigma-delta</td></tr>
+                <tr><td>Input</td><td>Two standard controllers</td><td>Serial shift, <code>joy1/joy2</code></td></tr>
+                <tr><td>FPGA output</td><td>Wrapper exists</td><td>No bitstream, no board validation</td></tr>
               </tbody>
             </table>
           </div>
 
           <h3>FPGA wrapper</h3>
-          <p><code>fpga/open6502_fpga_top.sv</code> 提供 VGA 与 sigma-delta 音频的顶层封装，但还没有完成全量综合、BRAM 推断、时序约束与板级 bring-up。Artix-7/Nexys A7 级别是规划目标，不是已验证结果。</p>
+          <p><code>fpga/open6502_fpga_top.sv</code> wraps VGA and sigma-delta audio, but full synthesis, BRAM inference, timing constraints and board bring-up are not done. Artix-7/Nexys A7 class is a planning target, not a verified result.</p>
 
-          <h3>时钟策略</h3>
-          <p>不使用多个自由运行的时钟，而是单 <code>clk_21m</code> + enable。这样 CPU/PPU/APU 的相对相位在仿真和综合后都确定，也便于 DiffTest 以 tick 对齐。代价是所有逻辑都要遵守 enable 纪律；任何漏加 enable 的写操作都会在 12 个 21 MHz 周期里重复执行。</p>
+          <h3>Clock strategy</h3>
+          <p>No free-running multiple clocks: one <code>clk_21m</code> plus enables. CPU/PPU/APU relative phase is therefore deterministic in simulation and after synthesis, which makes tick-aligned DiffTest possible. The cost is enable discipline; any write missing its enable repeats across all 12 21 MHz cycles.</p>
 
           <div class="callout callout--info">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>曾经的真实 bug：PPU 片选没有用 <code>cpu_ce</code> 限定，导致一次 CPU store 在 12 个主时钟上重复提交，<code>$2006/$2007</code> 写入错位。修复后标题帧才与 NEMU 一致。</span>
+            <span>A real bug from this rule: PPU chip select was not qualified by <code>cpu_ce</code>, so one CPU store committed on all 12 master clocks and <code>$2006/$2007</code> writes landed wrong. The title frame only matched NEMU after the fix.</span>
           </div>
         </section>
 
         <!-- 10 VERIFICATION -->
-        <section class="doc-section" id="verification" data-group="验证" data-keywords="验证 测试 klaus 28 pass 回归 测试台 testbench 发布门 覆盖">
+        <section class="doc-section" id="verification" data-group="Verification" data-keywords="verification tests klaus 28 pass regression testbench release gate coverage">
           <div class="doc-kicker"><span class="dot"></span>10 · Verification</div>
-          <h2><span>验证体系：证据，不是口号</span></h2>
-          <p>验证分七层：从包/译码单测，到 CPU+总线、PPU 帧、APU 采样、mapper、整机游戏，最后到 FPGA 板级。当前最强证据集中在 L0–L2 与 L3 的单帧。</p>
+          <h2><span>Verification: evidence, not slogans</span></h2>
+          <p>Verification has seven levels: package/decode unit tests, CPU + bus, PPU frames, APU samples, mapper, full games, and FPGA board validation. The strongest evidence today is L0–L2 plus a single L3 frame.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>层级</th><th>对象</th><th>方法</th><th>状态</th></tr></thead>
+              <thead><tr><th>Level</th><th>Object</th><th>Method</th><th>Status</th></tr></thead>
               <tbody>
-                <tr><td>L0</td><td>package / decode / counters</td><td>SystemVerilog 单测</td><td><span class="badge badge--pass">PASS</span></td></tr>
-                <tr><td>L1</td><td>CPU / PPU / APU 模块</td><td>定向测试 + 向量</td><td><span class="badge badge--pass">PASS</span></td></tr>
-                <tr><td>L2</td><td>CPU + 总线</td><td>Klaus、nestest、DiffTest</td><td><span class="badge badge--part">Klaus PASS</span><br><span class="muted">nestest 未接</span></td></tr>
-                <tr><td>L3</td><td>PPU + CPU</td><td>PPU ROM、帧哈希</td><td><span class="badge badge--part">单帧通过</span></td></tr>
-                <tr><td>L4</td><td>APU</td><td>apu_test、DMC、采样哈希</td><td><span class="badge badge--part">模块级</span></td></tr>
-                <tr><td>L5</td><td>Mapper</td><td>bank/IRQ 测试 ROM</td><td><span class="badge badge--part">基础</span></td></tr>
-                <tr><td>L6</td><td>系统</td><td>开源游戏、硬件</td><td><span class="badge badge--part">6 款可运行</span></td></tr>
-                <tr><td>L7</td><td>FPGA</td><td>板级视频/音频/输入</td><td><span class="badge badge--no">未开始</span></td></tr>
+                <tr><td>L0</td><td>package / decode / counters</td><td>SystemVerilog unit tests</td><td><span class="badge badge--pass">PASS</span></td></tr>
+                <tr><td>L1</td><td>CPU / PPU / APU blocks</td><td>Directed tests + vectors</td><td><span class="badge badge--pass">PASS</span></td></tr>
+                <tr><td>L2</td><td>CPU + bus</td><td>Klaus, nestest, DiffTest</td><td><span class="badge badge--part">Klaus PASS</span><br><span class="muted">nestest not wired up</span></td></tr>
+                <tr><td>L3</td><td>PPU + CPU</td><td>PPU ROMs, frame hashes</td><td><span class="badge badge--part">Single frame</span></td></tr>
+                <tr><td>L4</td><td>APU</td><td>apu_test, DMC, sample hashes</td><td><span class="badge badge--part">Block level</span></td></tr>
+                <tr><td>L5</td><td>Mapper</td><td>Bank/IRQ test ROMs</td><td><span class="badge badge--part">Basic</span></td></tr>
+                <tr><td>L6</td><td>System</td><td>Open-source games, hardware</td><td><span class="badge badge--part">6 ROMs run</span></td></tr>
+                <tr><td>L7</td><td>FPGA</td><td>Board video/audio/input</td><td><span class="badge badge--no">Not started</span></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>当前回归结果</h3>
+          <h3>Current regression results</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>检查</th><th>结果</th><th>命令 / 位置</th></tr></thead>
+              <thead><tr><th>Check</th><th>Result</th><th>Command / location</th></tr></thead>
               <tbody>
                 <tr><td>RTL lint</td><td><span class="badge badge--pass">PASS</span></td><td><code>cd rtl &amp;&amp; make lint</code></td></tr>
-                <tr><td>RTL 单元/集成测试</td><td><span class="badge badge--pass">28 PASS</span></td><td><code>cd rtl &amp;&amp; make sim</code></td></tr>
+                <tr><td>RTL unit/integration tests</td><td><span class="badge badge--pass">28 PASS</span></td><td><code>cd rtl &amp;&amp; make sim</code></td></tr>
                 <tr><td>RTL Klaus</td><td><span class="badge badge--pass">PASS · PC=0x3469</span></td><td><code>sim/klaus/run.sh</code></td></tr>
-                <tr><td>NEMU/RTL 最终状态</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
+                <tr><td>NEMU/RTL final state</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
                 <tr><td>NEMU/RTL PC trace</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
-                <tr><td>NEMU/RTL ALU / 栈</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run_alu.sh</code></td></tr>
-                <tr><td>FALLING 标题帧</td><td><span class="badge badge--pass">SHA 相同</span></td><td><code>sim/game/run.sh</code></td></tr>
-                <tr><td>FALLING START 后画面</td><td><span class="badge badge--pass">已渲染</span></td><td><a href="#quickstart">01 快速开始</a></td></tr>
+                <tr><td>NEMU/RTL ALU / stack</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run_alu.sh</code></td></tr>
+                <tr><td>FALLING title frame</td><td><span class="badge badge--pass">SHA match</span></td><td><code>sim/game/run.sh</code></td></tr>
+                <tr><td>FALLING post-START frame</td><td><span class="badge badge--pass">Rendered</span></td><td><a href="#quickstart">01 Quickstart</a></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>还需要的测试</h3>
+          <h3>Still missing</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>测试套件</th><th>覆盖</th><th>状态</th></tr></thead>
+              <thead><tr><th>Test suite</th><th>Coverage</th><th>Status</th></tr></thead>
               <tbody>
-                <tr><td>Klaus 6502 functional</td><td>官方指令与标志</td><td><span class="badge badge--pass">PASS</span></td></tr>
-                <tr><td>nestest</td><td>指令/周期黄金日志</td><td><span class="badge badge--part">待接入</span></td></tr>
-                <tr><td>instr_test-v5 / instr_misc</td><td>未文档化指令</td><td><span class="badge badge--part">待接入</span></td></tr>
-                <tr><td>cpu_timing_test6</td><td>周期级 CPU</td><td><span class="badge badge--part">待接入</span></td></tr>
-                <tr><td>cpu_interrupts_v2</td><td>NMI/IRQ/BRK 时序</td><td><span class="badge badge--part">待接入</span></td></tr>
-                <tr><td>ppu_vbl_nmi / sprite_hit / overflow / open_bus</td><td>PPU 边界</td><td><span class="badge badge--part">部分</span></td></tr>
-                <tr><td>apu_test / apu_reset / DMC</td><td>音频精度</td><td><span class="badge badge--part">部分</span></td></tr>
-                <tr><td>240p Test Suite</td><td>视频与同步</td><td><span class="badge badge--no">未接</span></td></tr>
-                <tr><td>多游戏 lockstep DiffTest</td><td>系统级一致性</td><td><span class="badge badge--no">未接</span></td></tr>
+                <tr><td>Klaus 6502 functional</td><td>Official instructions and flags</td><td><span class="badge badge--pass">PASS</span></td></tr>
+                <tr><td>nestest</td><td>Instruction/cycle golden log</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>instr_test-v5 / instr_misc</td><td>Undocumented instructions</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>cpu_timing_test6</td><td>Cycle-level CPU</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>cpu_interrupts_v2</td><td>NMI/IRQ/BRK timing</td><td><span class="badge badge--part">Not wired up</span></td></tr>
+                <tr><td>ppu_vbl_nmi / sprite_hit / overflow / open_bus</td><td>PPU edge cases</td><td><span class="badge badge--part">Partial</span></td></tr>
+                <tr><td>apu_test / apu_reset / DMC</td><td>Audio accuracy</td><td><span class="badge badge--part">Partial</span></td></tr>
+                <tr><td>240p Test Suite</td><td>Video and sync</td><td><span class="badge badge--no">Not wired up</span></td></tr>
+                <tr><td>Multi-game lockstep DiffTest</td><td>System-level consistency</td><td><span class="badge badge--no">Not wired up</span></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>发布门</h3>
-          <p>v0 FPGA 原型至少需要：Klaus、PPU VBlank/NMI/sprite 0、APU 四声道、mapper 0/1/2/3/4/7、6 款开源 ROM 可玩，以及 CPU + 帧级 DiffTest 通过。ASIC 还要额外满足 DFT、时序收敛、功耗、封装与硬件对齐。</p>
+          <h3>Release gates</h3>
+          <p>A v0 FPGA prototype needs at least: Klaus, PPU VBlank/NMI/sprite 0, four APU channels, mapper 0/1/2/3/4/7, six playable open-source ROMs, and a passing CPU + frame-level DiffTest. ASIC adds DFT, timing closure, power, package and hardware alignment.</p>
 
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>“28 项测试通过”只代表这 28 个测试通过。它不等于 NES 兼容性，也不等于周期精确。不要用测试数量替代覆盖分析。</span>
+            <span>“28 tests pass” means those 28 tests pass. It does not equal NES compatibility, and it does not equal cycle accuracy. Never substitute a test count for coverage analysis.</span>
           </div>
         </section>
 
         <!-- 11 DIFFTEST -->
-        <section class="doc-section" id="difftest" data-group="验证" data-keywords="difftest 对拍 nemu rtl 同步点 事件 失配 报告 lockstep">
+        <section class="doc-section" id="difftest" data-group="Verification" data-keywords="difftest compare nemu rtl sync points events mismatch report lockstep">
           <div class="doc-kicker"><span class="dot"></span>11 · DiffTest</div>
-          <h2><span>DiffTest：让两个实现互相作证</span></h2>
-          <p>目标是在相同输入下比较 DUT（RTL）与 REF（NEMU）的可观测状态。比较粒度从指令、总线事务，到扫描线、帧哈希、音频样本与 mapper 状态。它不能证明 RTL 与真实 NES 一致，只能证明 RTL 与 REF 一致。</p>
+          <h2><span>DiffTest: make two implementations testify</span></h2>
+          <p>The goal is to compare observable DUT (RTL) and REF (NEMU) state under identical input, from instructions and bus transactions to scanlines, frame hashes, audio samples and mapper state. It cannot prove RTL matches real NES hardware; it only proves RTL matches REF.</p>
 
           <div class="ascii">┌───────────────────┐   DPI / shared memory   ┌───────────────────┐
 │ Verilator RTL DUT │ ◄─────────────────────► │ NEMU NES REF      │
@@ -844,7 +864,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
                               │
                         mismatch report</div>
 
-          <h3>事件记录</h3>
+          <h3>Event record</h3>
           <div class="code">
             <div class="code-bar"><span class="lang">systemverilog</span><button class="code-copy" type="button" data-copy="typedef struct packed {
   logic        valid;
@@ -854,7 +874,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
   logic [7:0]  data;
   logic        we;
   logic [7:0]  source;
-} open6502_dbg_event;"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+} open6502_dbg_event;"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre>typedef struct packed {
   logic        valid;
   logic [1:0]  kind;   <span class="c">// 0=cpu, 1=bus, 2=ppu, 3=apu</span>
@@ -866,61 +886,61 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
 } open6502_dbg_event;</pre>
           </div>
 
-          <h3>同步点</h3>
+          <h3>Sync points</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>粒度</th><th>RTL</th><th>REF</th><th>比较内容</th></tr></thead>
+              <thead><tr><th>Granularity</th><th>RTL</th><th>REF</th><th>Compare</th></tr></thead>
               <tbody>
-                <tr><td>指令</td><td><code>cpu_retire</code></td><td><code>cpu_step</code></td><td>PC / A / X / Y / SP / P / cycles</td></tr>
-                <tr><td>总线</td><td><code>bus_event</code></td><td>bus trace</td><td>addr / data / we / tick</td></tr>
-                <tr><td>扫描线</td><td><code>ppu_scanline_end</code></td><td>PPU state</td><td>v / t / x / w / OAM / status</td></tr>
-                <tr><td>帧</td><td><code>frame_end</code></td><td>framebuffer</td><td>帧哈希</td></tr>
-                <tr><td>音频</td><td><code>aud_valid</code></td><td>APU samples</td><td>样本哈希 / 容差</td></tr>
+                <tr><td>Instruction</td><td><code>cpu_retire</code></td><td><code>cpu_step</code></td><td>PC / A / X / Y / SP / P / cycles</td></tr>
+                <tr><td>Bus</td><td><code>bus_event</code></td><td>bus trace</td><td>addr / data / we / tick</td></tr>
+                <tr><td>Scanline</td><td><code>ppu_scanline_end</code></td><td>PPU state</td><td>v / t / x / w / OAM / status</td></tr>
+                <tr><td>Frame</td><td><code>frame_end</code></td><td>framebuffer</td><td>frame hash</td></tr>
+                <tr><td>Audio</td><td><code>aud_valid</code></td><td>APU samples</td><td>sample hash / tolerance</td></tr>
                 <tr><td>Mapper</td><td><code>cart_event</code></td><td>mapper state</td><td>bank / IRQ / PRG RAM</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>模式与预算</h3>
+          <h3>Modes and budget</h3>
           <ul>
-            <li><code>cpu-only</code>：先跑 Klaus/hello，零失配再谈其他。</li>
-            <li><code>frame-only</code>：逐帧哈希，适合 NROM 游戏。</li>
-            <li><code>scanline</code>：PPU 状态级，用于测试 ROM。</li>
-            <li><code>audio</code>：逐样本或哈希容差。</li>
-            <li><code>full</code>：总线 + PPU + APU + mapper。</li>
+            <li><code>cpu-only</code>: Klaus/hello first, zero mismatches before anything else.</li>
+            <li><code>frame-only</code>: per-frame hash, good for NROM games.</li>
+            <li><code>scanline</code>: PPU state level, for test ROMs.</li>
+            <li><code>audio</code>: per-sample or hash tolerance.</li>
+            <li><code>full</code>: bus + PPU + APU + mapper.</li>
           </ul>
-          <p>性能预算：Verilator + REF 至少 10<sup>6</sup> cycles/s；遇到第一个失配就停，保留前后窗口。FPGA 只做帧/哈希级比较，点级比较留在仿真。</p>
+          <p>Performance budget: Verilator + REF at least 10<sup>6</sup> cycles/s; stop at the first mismatch and keep a window around it. FPGA compares frames/hashes only; dot-level comparison stays in simulation.</p>
 
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span><strong>REF 独立性是当前风险：</strong>NEMU 前端与 REF 仍共享部分 PPU/APU 代码，REF 本身是暂定参考。必须继续用 Klaus、外部测试 ROM 与硬件抓取校准，否则 DiffTest 可能“一起错”。</span>
+            <span><strong>REF independence is the current risk:</strong> the NEMU frontend and REF still share some PPU/APU code, so REF itself is provisional. Keep calibrating against Klaus, external test ROMs and hardware captures, or DiffTest may be “wrong together”.</span>
           </div>
         </section>
 
         <!-- 12 GOLDENS -->
-        <section class="doc-section" id="goldens" data-group="验证" data-keywords="黄金 哈希 sha256 帧 音频 67667b1cbc4c1cf3 e78422afbcb92ac3 41e8eb">
+        <section class="doc-section" id="goldens" data-group="Verification" data-keywords="golden hash sha256 frame audio 67667b1cbc4c1cf3 e78422afbcb92ac3 41e8eb">
           <div class="doc-kicker"><span class="dot"></span>12 · Golden hashes</div>
-          <h2><span>黄金帧与哈希：变更前先看这里</span></h2>
-          <p>黄金哈希是回归的锚点。任何改变输出画面的改动，都必须解释哈希为什么变；不能为了“让测试通过”直接更新。</p>
+          <h2><span>Golden frames and hashes: read before changing output</span></h2>
+          <p>Golden hashes anchor the regression. Any change that alters output must explain why the hash moved; never update the hash just to make a test pass.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>对象</th><th>哈希 / 值</th><th>范围</th></tr></thead>
+              <thead><tr><th>Object</th><th>Hash / value</th><th>Scope</th></tr></thead>
               <tbody>
-                <tr><td>RTL 标题帧</td><td><code>41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</code></td><td>FALLING，256×240，与 NEMU 相同</td></tr>
-                <tr><td>NEMU 标题帧</td><td><code>41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</code></td><td>同上，逐字节一致</td></tr>
-                <tr><td>REF 60 帧帧哈希</td><td><code>67667b1cbc4c1cf3</code></td><td>内置 NROM 游戏，REF/frontend parity</td></tr>
-                <tr><td>REF 60 帧音频哈希</td><td><code>e78422afbcb92ac3</code></td><td>同上</td></tr>
-                <tr><td>RTL Klaus 结束点</td><td><code>PC=0x3469</code></td><td>功能测试，不是周期测试</td></tr>
+                <tr><td>RTL title frame</td><td><code>41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</code></td><td>FALLING, 256×240, same as NEMU</td></tr>
+                <tr><td>NEMU title frame</td><td><code>41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</code></td><td>Same, byte-identical</td></tr>
+                <tr><td>REF 60-frame frame hash</td><td><code>67667b1cbc4c1cf3</code></td><td>Bundled NROM game, REF/frontend parity</td></tr>
+                <tr><td>REF 60-frame audio hash</td><td><code>e78422afbcb92ac3</code></td><td>Same</td></tr>
+                <tr><td>RTL Klaus end point</td><td><code>PC=0x3469</code></td><td>Functional test, not cycle test</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>复现方式</h3>
+          <h3>Reproduce</h3>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="./NEMU/build/6502EMU --headless --no-audio --frames=300 --screenshot=/tmp/nemu-title.ppm roms/falling.nes
 ./sim/game/run.sh roms/falling.nes /tmp/rtl-title.ppm
-shasum -a 256 /tmp/nemu-title.ppm /tmp/rtl-title.ppm"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+shasum -a 256 /tmp/nemu-title.ppm /tmp/rtl-title.ppm"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> ./NEMU/build/6502EMU --headless --no-audio --frames=300 \
     --screenshot=/tmp/nemu-title.ppm roms/falling.nes
 <span class="p">$</span> ./sim/game/run.sh roms/falling.nes /tmp/rtl-title.ppm
@@ -928,23 +948,23 @@ shasum -a 256 /tmp/nemu-title.ppm /tmp/rtl-title.ppm"><svg viewBox="0 0 16 16" f
           </div>
           <div class="callout callout--info">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>比较时先确认形状与像素，再比较文件哈希：不同工具生成的 PPM 头（注释、maxval 写法）可能不同。仓库记录的 41e8… 来自项目抓帧工具；本网站的对比图使用相同像素数据。</span>
+            <span>Compare shape and pixels before comparing file hashes: different tools may emit different PPM headers (comments, maxval formatting). The repository's <code>41e8…</code> comes from its own capture tooling; the comparison on this site uses the same pixel data.</span>
           </div>
         </section>
 
         <!-- 13 GEM6502 -->
-        <section class="doc-section" id="gem6502" data-group="走向芯片" data-keywords="gem6502 c 模型 周期 时序 事件 gem5 遗留 功能模型 播放器">
+        <section class="doc-section" id="gem6502" data-group="Toward silicon" data-keywords="gem6502 c model cycle timing events gem5 legacy functional model player">
           <div class="doc-kicker"><span class="dot"></span>13 · GEM6502</div>
-          <h2><span>GEM6502：正在重写，不要高估它</span></h2>
-          <p>GEM6502 的目标是 gem5 风格的事件驱动架构与芯片时序仿真平台：时钟域、资源争用、DMA 仲裁、检查点、因果统计，以及与 RTL 的独立校准。但当前实现仍是遗留的指令驱动功能/周期模型。</p>
+          <h2><span>GEM6502: being rewritten, do not overrate it</span></h2>
+          <p>GEM6502 targets a gem5-style, event-driven architecture and timing platform: clock domains, resource contention, DMA arbitration, checkpoints, causal statistics and independent RTL calibration. The current implementation is still a legacy instruction-driven functional/cycle model.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>它现在能做</th><th>它还不能做</th></tr></thead>
+              <thead><tr><th>It can do now</th><th>It cannot do yet</th></tr></thead>
               <tbody>
-                <tr><td>加载 NROM PRG、跑指令并输出寄存器/周期统计</td><td>没有已完成的时序 CPU、时序总线和校准过的芯片 profile</td></tr>
-                <tr><td>SDL 播放器、PPM 帧、MMC3 游戏回归</td><td>事件队列尚未驱动正常执行；不是芯片级时序模型</td></tr>
-                <tr><td>与 NEMU trace 做回归对比</td><td>不能作为硅前 signoff 或 RTL 时序替身</td></tr>
+                <tr><td>Load NROM PRG, run instructions, print registers/cycle stats</td><td>No completed timing CPU, timing bus or calibrated chip profile</td></tr>
+                <tr><td>SDL player, PPM frames, MMC3 game regression</td><td>The event queue does not drive normal execution yet; not a chip-level timing model</td></tr>
+                <tr><td>Compare traces against NEMU</td><td>Not a pre-silicon signoff or RTL timing substitute</td></tr>
               </tbody>
             </table>
           </div>
@@ -955,7 +975,7 @@ make
 make test
 ./gem6502 run /tmp/gem-demo.bin 1000
 ./gem6502 stats /tmp/gem-demo.bin
-./gem6502 play ../roms/stallar.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+./gem6502 play ../roms/stallar.nes"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> cd GEM6502
 <span class="p">$</span> make
 <span class="p">$</span> make test
@@ -964,206 +984,206 @@ make test
 <span class="p">$</span> ./gem6502 play ../roms/stallar.nes</pre>
           </div>
 
-          <p>目标规范（中文）：<a href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/docs/requirements.md" target="_blank" rel="noopener">requirements.md</a>；架构与编码规则：<a href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/docs/coding-guide.md" target="_blank" rel="noopener">coding-guide.md</a>。这些文档描述的是目标能力，不是已实现功能。</p>
+          <p>Target specification (Chinese): <a href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/docs/requirements.md" target="_blank" rel="noopener">requirements.md</a>; architecture and coding rules: <a href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/docs/coding-guide.md" target="_blank" rel="noopener">coding-guide.md</a>. Those documents describe target capabilities, not implemented features.</p>
         </section>
 
         <!-- 14 SYNTHESIS -->
-        <section class="doc-section" id="synthesis" data-group="走向芯片" data-keywords="综合 面积 yosys 单元 ppu wram 成本 裸片 mm2 流片 通用单元">
+        <section class="doc-section" id="synthesis" data-group="Toward silicon" data-keywords="synthesis area yosys cells ppu wram cost die mm2 tapeout generic cells">
           <div class="doc-kicker"><span class="dot"></span>14 · Synthesis</div>
-          <h2><span>综合与面积：1.02M 个通用单元</span></h2>
-          <p>使用 Yosys 0.60 做逐模块综合，流程为 <code>read_verilog -sv -DSYNTHESIS → hierarchy → synth -flatten -noabc → stat</code>。由于完整 PPU 组合渲染器对 ABC 映射过大，使用 <code>-noabc</code>，得到的是通用单元计数。</p>
+          <h2><span>Synthesis &amp; area: 1.02M generic cells</span></h2>
+          <p>Per-module synthesis uses Yosys 0.60 with <code>read_verilog -sv -DSYNTHESIS → hierarchy → synth -flatten -noabc → stat</code>. <code>-noabc</code> is used because the full PPU combinational renderer is too large for ABC mapping; the counts are generic cells.</p>
 
           <div class="code">
-            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="yosys -s rtl/scripts/synth_open6502.ys"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="6.5" y="6.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M11.5 6.5v-2a1.2 1.2 0 0 0-1.2-1.2H4.7A1.2 1.2 0 0 0 3.5 4.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+            <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="yosys -s rtl/scripts/synth_open6502.ys"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> yosys -s rtl/scripts/synth_open6502.ys</pre>
           </div>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>模块</th><th class="num">通用单元</th><th>备注</th></tr></thead>
+              <thead><tr><th>Module</th><th class="num">Generic cells</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td><code>open6502_cpu</code></td><td class="num">4,138</td><td>很小</td></tr>
+                <tr><td><code>open6502_cpu</code></td><td class="num">4,138</td><td>Small</td></tr>
                 <tr><td><code>open6502_apu</code></td><td class="num">1,855</td><td>—</td></tr>
                 <tr><td><code>open6502_dmc</code></td><td class="num">828</td><td>—</td></tr>
-                <tr><td><code>open6502_mapper</code></td><td class="num">745</td><td>6 种 mapper</td></tr>
+                <tr><td><code>open6502_mapper</code></td><td class="num">745</td><td>6 mappers</td></tr>
                 <tr><td><code>open6502_oam_dma</code></td><td class="num">154</td><td>—</td></tr>
-                <tr><td><code>open6502_wram</code></td><td class="num">37,003</td><td>触发器实现</td></tr>
+                <tr><td><code>open6502_wram</code></td><td class="num">37,003</td><td>Flip-flop implementation</td></tr>
                 <tr><td><code>open6502_bus</code></td><td class="num">171</td><td>—</td></tr>
                 <tr><td><code>open6502_clocks</code></td><td class="num">360</td><td>—</td></tr>
                 <tr><td><code>open6502_video_timing</code></td><td class="num">164</td><td>—</td></tr>
                 <tr><td><code>open6502_controller</code></td><td class="num">19</td><td>—</td></tr>
                 <tr><td><code>open6502_difftest_bridge</code></td><td class="num">65</td><td>—</td></tr>
-                <tr><td><code>open6502_ppu</code></td><td class="num">975,919</td><td>绝对大头</td></tr>
-                <tr><td><strong>层次总和</strong></td><td class="num"><strong>1,021,421</strong></td><td>—</td></tr>
+                <tr><td><code>open6502_ppu</code></td><td class="num">975,919</td><td>Dominant</td></tr>
+                <tr><td><strong>Hierarchical sum</strong></td><td class="num"><strong>1,021,421</strong></td><td>—</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>PPU 拆分</h3>
+          <h3>PPU breakdown</h3>
           <div class="ascii">975,919 cells
  84,224 flip-flops
 840,701 muxes
  40,283 AND
   9,301 OR
     674 XOR</div>
-          <p>大部分面积来自展开的 <code>chr[8192]</code>、<code>vram[2048]</code>、<code>oam[256]</code>、<code>pal[32]</code> 存储，以及逐像素/属性的 mux 树。FPGA 流程必须把它们映射到 BRAM，并减少组合精灵扫描。</p>
+          <p>Most of the area is the expanded <code>chr[8192]</code>, <code>vram[2048]</code>, <code>oam[256]</code> and <code>pal[32]</code> storage plus per-pixel/attribute mux trees. An FPGA flow must map them to BRAM and shrink the combinational sprite scan.</p>
 
-          <h3>必须一起读的 caveat</h3>
+          <h3>Caveats you must read together</h3>
           <ol>
-            <li>这是通用单元估算，不是布局布线后的面积。</li>
-            <li><code>SYNTHESIS</code> 跳过存储复位循环；仿真仍会初始化。</li>
-            <li><code>SYNTHESIS</code> 把 PPU 精灵扫描限制为 8 个以控制运行时间；仿真仍扫描全部 64 个。</li>
-            <li>顶层全展开综合在 600 秒内未完成，上表是逐模块求和，不是一次 flatten 的结果。</li>
-            <li>还没有时序收敛、LUT 映射、BRAM 映射或 ASIC 标准单元映射。</li>
+            <li>These are generic-cell estimates, not placed-and-routed area.</li>
+            <li><code>SYNTHESIS</code> skips memory reset loops; simulation still initialises them.</li>
+            <li><code>SYNTHESIS</code> limits the PPU sprite scan to 8 sprites for runtime; simulation scans all 64.</li>
+            <li>Full top-level flatten did not finish within 600 seconds; the table is a per-module sum, not one flattened result.</li>
+            <li>No timing closure, LUT mapping, BRAM mapping or ASIC standard-cell mapping has been done.</li>
           </ol>
 
-          <h3>55nm 规划估算</h3>
+          <h3>55nm planning estimate</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>方案</th><th>裸片面积</th><th>说明</th></tr></thead>
+              <thead><tr><th>Scenario</th><th>Die area</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td>当前 RTL，存储用触发器</td><td class="num">4–7 mm²</td><td>不可接受</td></tr>
-                <tr><td>SRAM + PPU 重构</td><td class="num">1.2–2.0 mm²</td><td>规划目标</td></tr>
-                <tr><td>推荐规划值</td><td class="num">~1.5 mm²</td><td>用于成本模型</td></tr>
+                <tr><td>Current RTL, flip-flop memories</td><td class="num">4–7 mm²</td><td>Not acceptable</td></tr>
+                <tr><td>SRAM + PPU refactor</td><td class="num">1.2–2.0 mm²</td><td>Planning target</td></tr>
+                <tr><td>Recommended planning value</td><td class="num">~1.5 mm²</td><td>Used for the cost model</td></tr>
               </tbody>
             </table>
           </div>
-          <p>按 1.5–2.0 mm²、55nm 估算：量产后单颗成本约 USD 0.3–0.7（die + package + test），mask/NRE 约 USD 150k–400k+。这些是规划数字，不是报价。</p>
+          <p>At 1.5–2.0 mm² and 55nm, unit cost at volume is roughly USD 0.3–0.7 (die + package + test), with mask/NRE around USD 150k–400k+. These are planning numbers, not quotes.</p>
         </section>
 
         <!-- 15 TAPEOUT -->
-        <section class="doc-section" id="tapeout" data-group="走向芯片" data-keywords="55nm asic 流片 fpga 路线 门 dft sram tapeout 资金">
+        <section class="doc-section" id="tapeout" data-group="Toward silicon" data-keywords="55nm asic tapeout fpga roadmap gate dft sram funding">
           <div class="doc-kicker"><span class="dot"></span>15 · Tapeout</div>
-          <h2><span>走向 55nm：四个门，逐级放行</span></h2>
-          <p>路线图不是时间表，而是验收顺序：NEMU → RTL → FPGA → 55nm ASIC。后一级不允许掩盖前一级的失败；没有 FPGA 验证，就不该开始物理设计。</p>
+          <h2><span>Toward 55nm: four gates, no skipping</span></h2>
+          <p>The roadmap is not a schedule; it is an acceptance order: NEMU → RTL → FPGA → 55nm ASIC. A later stage may not hide an earlier failure. Without FPGA validation, physical design should not start.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>阶段</th><th>目的</th><th>当前状态</th><th>退出条件</th></tr></thead>
+              <thead><tr><th>Stage</th><th>Purpose</th><th>Current status</th><th>Exit gate</th></tr></thead>
               <tbody>
-                <tr><td>1. NEMU</td><td>可玩的参考模型</td><td>Working</td><td>游戏可玩、Klaus PASS、黄金帧稳定</td></tr>
-                <tr><td>2. RTL</td><td>SystemVerilog SoC</td><td>Functional prototype</td><td>多游戏帧匹配、无未解释状态分叉、回归确定</td></tr>
-                <tr><td>3. FPGA</td><td>真板子原型</td><td>未开始</td><td>bitstream 在板上跑游戏；视频/音频/输入稳定</td></tr>
-                <tr><td>4. ASIC</td><td>55nm 流片</td><td>规划</td><td>时序/DFT/DRC/LVS clean；shuttle 与资金落实</td></tr>
+                <tr><td>1. NEMU</td><td>Playable reference model</td><td>Working</td><td>Games playable, Klaus PASS, golden frames stable</td></tr>
+                <tr><td>2. RTL</td><td>SystemVerilog SoC</td><td>Functional prototype</td><td>Multi-game frame match, no unexplained divergence, deterministic regression</td></tr>
+                <tr><td>3. FPGA</td><td>Real board prototype</td><td>Not started</td><td>Bitstream runs a game; video/audio/input stable</td></tr>
+                <tr><td>4. ASIC</td><td>55nm tapeout</td><td>Planning</td><td>Timing/DFT/DRC/LVS clean; shuttle and funding secured</td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>RTL → FPGA 之前必须完成</h3>
+          <h3>Before RTL → FPGA</h3>
           <ol>
-            <li>为所有外设补齐 bus transaction strobe。</li>
-            <li>把 CPU 周期时序做到能通过 NMI/DMA 敏感游戏。</li>
-            <li>把 PPU 触发器存储替换为 BRAM 友好的数组。</li>
-            <li>把精灵选择改写为顺序扫描。</li>
-            <li>把背景渲染改写为 fetch/shift 管线。</li>
-            <li>完成 DMC 总线仲裁。</li>
-            <li>增加确定性帧序号 DiffTest。</li>
-            <li>完成全 SoC 综合与时序约束。</li>
+            <li>Add bus transaction strobes for every peripheral.</li>
+            <li>Make CPU cycle timing accurate enough for NMI/DMA-sensitive games.</li>
+            <li>Replace PPU flip-flop storage with BRAM-friendly arrays.</li>
+            <li>Rewrite sprite selection as a sequential scan.</li>
+            <li>Rewrite background rendering as a fetch/shift pipeline.</li>
+            <li>Complete DMC bus arbitration.</li>
+            <li>Add deterministic frame-index DiffTest.</li>
+            <li>Complete full-SoC synthesis and timing constraints.</li>
           </ol>
 
-          <h3>FPGA → ASIC 之前必须完成</h3>
+          <h3>Before FPGA → ASIC</h3>
           <ol>
-            <li>BRAM 换成 55nm SRAM macro。</li>
-            <li>DFT/scan 插入与覆盖率目标。</li>
-            <li>时钟/复位/功耗意图。</li>
-            <li>用 55nm 标准单元库综合。</li>
-            <li>布局布线与时序收敛。</li>
-            <li>DRC/LVS clean。</li>
-            <li>封装、pad ring、ESD。</li>
-            <li>落实 foundry shuttle 与资金。</li>
+            <li>Replace BRAM with 55nm SRAM macros.</li>
+            <li>Insert DFT/scan and set coverage targets.</li>
+            <li>Define clock/reset/power intent.</li>
+            <li>Synthesize with the 55nm standard-cell library.</li>
+            <li>Run place-and-route and timing closure.</li>
+            <li>Run DRC/LVS clean.</li>
+            <li>Define package, pad ring and ESD.</li>
+            <li>Secure a foundry shuttle and funding.</li>
           </ol>
 
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>不可协商：仓库不包含商业 ROM 或专有 PDK 数据；时序/DFT/DRC/LVS 未 clean 前不做流片宣传；黄金哈希变更必须评审；不通过删测试来让改动通过。</span>
+            <span>Non-negotiable: no commercial ROMs or proprietary PDK data in the repo; no tapeout claims before timing/DFT/DRC/LVS are clean; golden hash changes need review; do not delete tests to make a change pass.</span>
           </div>
         </section>
 
         <!-- 16 TROUBLESHOOTING -->
-        <section class="doc-section" id="troubleshooting" data-group="参考" data-keywords="故障 排查 报错 sdl2 verilator 链接 klaus 音频 画面 不启动 pillow shasum 无窗口 wsl">
+        <section class="doc-section" id="troubleshooting" data-group="Reference" data-keywords="troubleshooting errors sdl2 verilator link klaus audio screen not starting pillow shasum headless wsl">
           <div class="doc-kicker"><span class="dot"></span>16 · Troubleshooting</div>
-          <h2><span>故障排查：先对号入座</span></h2>
-          <p>下面是最常见的几类问题。先确认你跑的是 NEMU、GEM6502 还是 RTL——它们的依赖和输出方式完全不同。</p>
+          <h2><span>Troubleshooting: find your symptom first</span></h2>
+          <p>These are the most common failures. First decide whether you are running NEMU, GEM6502 or RTL — their dependencies and outputs are completely different.</p>
 
-          <h3>1. 找不到 SDL2，或编译时报 <code>sdl2-config</code> 缺失</h3>
-          <p>NEMU 和 GEM6502 的播放器需要 SDL2。CLI 路径可以不要 SDL2，但 <code>play</code>、窗口与音频会缺失。</p>
+          <h3>1. SDL2 not found, or <code>sdl2-config</code> missing</h3>
+          <p>NEMU and the GEM6502 player need SDL2. The CLI can build without it, but <code>play</code>, the window and audio will be missing.</p>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="brew install sdl2
 # Debian/Ubuntu:
-sudo apt install -y libsdl2-dev"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+sudo apt install -y libsdl2-dev"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> brew install sdl2
 <span class="c"># Debian/Ubuntu:</span>
 <span class="p">$</span> sudo apt install -y libsdl2-dev</pre>
           </div>
-          <p>如果装了仍找不到，确认 <code>sdl2-config --cflags --libs</code> 在 PATH 中；GEM6502 的 Makefile 通过它探测 SDL2，检测不到就会构建无 UI 版本。</p>
+          <p>If it is installed but still not found, make sure <code>sdl2-config --cflags --libs</code> is on PATH. GEM6502's Makefile probes it through that command and falls back to a no-UI build.</p>
 
-          <h3>2. Verilator 链接报 <code>Undefined symbols ... __cxa_*</code></h3>
-          <p>这是 macOS 上 Verilator 生成代码与 C++ 运行时链接不一致的已知问题。仓库脚本显式指定 <code>clang++</code>、macOS SDK 和 Homebrew LLVM 的 <code>libc++</code> 路径。若你的 LLVM 版本不同，先找到实际路径再覆盖：</p>
+          <h3>2. Verilator link fails with <code>Undefined symbols ... __cxa_*</code></h3>
+          <p>This is a known macOS mismatch between Verilator-generated code and the C++ runtime. The repo scripts explicitly select <code>clang++</code>, the macOS SDK and Homebrew LLVM's <code>libc++</code>. If your LLVM version differs, find the real path and override it:</p>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="ls /opt/homebrew/Cellar/llvm/*/lib/c++
-LIBCXX_DIR=/opt/homebrew/Cellar/llvm/&lt;version&gt;/lib/c++ ./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+LIBCXX_DIR=/opt/homebrew/Cellar/llvm/&lt;version&gt;/lib/c++ ./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> ls /opt/homebrew/Cellar/llvm/*/lib/c++
 <span class="p">$</span> LIBCXX_DIR=/opt/homebrew/Cellar/llvm/&lt;version&gt;/lib/c++ \
     ./sim/game/run.sh roms/falling.nes /tmp/falling-rtl.ppm</pre>
           </div>
-          <p>如果只是验证功能，可以先用 Icarus：<code>cd rtl &amp;&amp; make sim</code>，它不依赖 Verilator 的 C++ 链接。</p>
+          <p>If you only need functional verification, use Icarus first: <code>cd rtl &amp;&amp; make sim</code> avoids Verilator's C++ link path.</p>
 
-          <h3>3. <code>make sim</code> 很慢、输出很长</h3>
-          <p>它会依次编译并运行 28 个 testbench，本身就不是静默命令。先跑 <code>make lint</code> 排除语法问题，再重定向日志：<code>make sim &gt; /tmp/rtl-sim.log 2&gt;&amp;1</code>，最后 <code>grep -i fail /tmp/rtl-sim.log</code>。</p>
+          <h3>3. <code>make sim</code> is slow and noisy</h3>
+          <p>It compiles and runs 28 testbenches, so it is not a silent command. Run <code>make lint</code> first to rule out syntax errors, then redirect: <code>make sim &gt; /tmp/rtl-sim.log 2&gt;&amp;1</code> and finish with <code>grep -i fail /tmp/rtl-sim.log</code>.</p>
 
-          <h3>4. 游戏运行了，但停在标题画面</h3>
-          <p>大多数 ROM 需要按 START，不是任意键。NEMU 默认 START 是 <span class="kbd">V</span>，Select 是 <span class="kbd">C</span>；GEM6502 播放器用 <span class="kbd">Enter</span> / <span class="kbd">Backspace</span>。确认窗口有焦点，并检查是否处于暂停（GEM6502 按 <span class="kbd">P</span> 恢复）。</p>
+          <h3>4. The game runs but stays on the title screen</h3>
+          <p>Most ROMs need START, not any key. NEMU's default START is <span class="kbd">V</span> and Select is <span class="kbd">C</span>; the GEM6502 player uses <span class="kbd">Enter</span> / <span class="kbd">Backspace</span>. Make sure the window has focus and the player is not paused (press <span class="kbd">P</span> in GEM6502).</p>
 
-          <h3>5. 没有声音</h3>
-          <p>先确认没有传 <code>--no-audio</code>（无头截图命令会关闭音频）。GEM6502 需要 SDL2 音频设备；在 Linux 上检查 ALSA/PulseAudio。音频设备打开失败时，播放器会打印 SDL 错误并继续无音频运行，这是预期行为。</p>
+          <h3>5. No sound</h3>
+          <p>Check that you did not pass <code>--no-audio</code> (the headless screenshot commands do). GEM6502 needs an SDL2 audio device; on Linux check ALSA/PulseAudio. If opening the device fails, the player prints the SDL error and continues without audio by design.</p>
 
-          <h3>6. RTL 没有窗口、没有声音</h3>
-          <p>RTL 是 SoC 仿真，不是桌面模拟器。当前通过 Verilator 抓 PPM 帧，没有 SDL 前端；音频只输出 16 位样本/σΔ 信号。想在桌面上玩，用 NEMU 或 GEM6502。</p>
+          <h3>6. RTL has no window and no sound</h3>
+          <p>RTL is an SoC simulation, not a desktop emulator. It captures PPM frames through Verilator and has no SDL frontend; audio is 16-bit samples/sigma-delta only. To play on a desktop, use NEMU or GEM6502.</p>
 
-          <h3>7. 自己算的 SHA 和文档不一致</h3>
-          <p>先比较像素而不是 PPM 文件字节：PPM 头可能因工具不同而不同。把两张图都转成 PNG 后比较像素，或用项目自己的抓帧脚本生成。文档里的哈希来自仓库工具链，跨工具比较前先确认格式。</p>
+          <h3>7. My SHA does not match the docs</h3>
+          <p>Compare pixels before file bytes: PPM headers can differ between tools. Convert both to PNG and compare pixels, or generate with the repo's own capture scripts. The hashes in the docs come from the repository toolchain; confirm the format before comparing across tools.</p>
 
-          <h3>8. 缺少 Pillow，无法 PPM 转 PNG</h3>
-          <p>macOS 可以直接用 <code>sips -s format png /tmp/frame.ppm --out /tmp/frame.png</code>；或者 <code>python3 -m pip install Pillow</code>。如果只是看 RTL 帧，用系统预览打开 PPM 也可以。</p>
+          <h3>8. Pillow is missing, so PPM → PNG fails</h3>
+          <p>On macOS use <code>sips -s format png /tmp/frame.ppm --out /tmp/frame.png</code>, or install Pillow with <code>python3 -m pip install Pillow</code>. If you only want to look at an RTL frame, Preview can open PPM directly.</p>
 
-          <h3>还是卡住？</h3>
-          <p>提 issue 时请附上：操作系统与版本、命令原文、完整错误、<code>clang --version</code> / <code>verilator --version</code>、以及你跑的是哪条路径（NEMU / GEM6502 / RTL）。用 <a href="https://github.com/OneDayOneApp/Open6502/issues/new" target="_blank" rel="noopener">GitHub issue</a> 或 PR 模板提交，信息越具体，越容易被复现。</p>
+          <h3>Still stuck?</h3>
+          <p>When filing an issue, include: OS and version, the exact command, the full error, <code>clang --version</code> / <code>verilator --version</code>, and which path you are on (NEMU / GEM6502 / RTL). Use the <a href="https://github.com/OneDayOneApp/Open6502/issues/new" target="_blank" rel="noopener">GitHub issue</a> or PR template; specific information gets reproduced faster.</p>
         </section>
 
         <!-- 17 CONTRIBUTING -->
-        <section class="doc-section" id="contributing" data-group="参考" data-keywords="贡献 参与 工作流 pr 测试 许可 issue 规则 提交 英文">
+        <section class="doc-section" id="contributing" data-group="Reference" data-keywords="contributing workflow pr tests licence issues rules commits english">
           <div class="doc-kicker"><span class="dot"></span>17 · Contributing</div>
-          <h2><span>参与贡献：从可验收的小问题开始</span></h2>
+          <h2><span>Contributing: start with a verifiable small problem</span></h2>
 
           <div class="callout callout--warn">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span><strong>先读许可证：</strong>仓库根许可证尚未发布。维护者明确要求，在根许可证与贡献条款发布前不要贡献代码。ROM 各自 MIT；ASIC 贡献不要上传 PDK、SRAM 编译器输出或专有标准单元库。</span>
+            <span><strong>Read the licence first:</strong> the root licence has not been published. The maintainers explicitly ask contributors not to contribute code until the root licence and contribution terms are published. ROMs are MIT; ASIC contributions must not upload PDKs, SRAM compiler output or proprietary standard-cell libraries.</span>
           </div>
 
-          <h3>工作流</h3>
+          <h3>Workstreams</h3>
           <div class="table-wrap">
             <table class="doc-table">
-              <thead><tr><th>工作流</th><th>典型任务</th><th>入口</th></tr></thead>
+              <thead><tr><th>Workstream</th><th>Typical tasks</th><th>Entry point</th></tr></thead>
               <tbody>
-                <tr><td>CPU / 总线</td><td>周期时序、NMI/DMA 交互、bus strobe、Klaus/nestest</td><td><code>rtl/cpu/</code>、<code>rtl/bus/</code></td></tr>
-                <tr><td>PPU</td><td>fetch/shift 管线、精灵评估、open bus、镜像、帧对比</td><td><code>rtl/ppu/</code></td></tr>
-                <tr><td>APU / DMC</td><td>frame sequencer、sweep/envelope 边界、DMC 仲裁</td><td><code>rtl/apu/</code></td></tr>
-                <tr><td>卡带 / Mapper</td><td>bank/IRQ 时序、MMC3 A12、iNES/NES 2.0</td><td><code>rtl/cart/</code></td></tr>
-                <tr><td>FPGA</td><td>Yosys 综合、BRAM 推断、时序、VGA/HDMI、音频</td><td><code>rtl/fpga/</code></td></tr>
-                <tr><td>ASIC / 55nm</td><td>SRAM、DFT、时钟/复位/功耗、封装</td><td><code>docs/55nm-tapeout-roadmap.md</code></td></tr>
-                <tr><td>软件 / CI</td><td>lockstep DiffTest、帧序号、CI、复现脚本</td><td><code>sim/</code></td></tr>
+                <tr><td>CPU / bus</td><td>Cycle timing, NMI/DMA interaction, bus strobes, Klaus/nestest</td><td><code>rtl/cpu/</code>, <code>rtl/bus/</code></td></tr>
+                <tr><td>PPU</td><td>Fetch/shift pipeline, sprite evaluation, open bus, mirroring, frame comparison</td><td><code>rtl/ppu/</code></td></tr>
+                <tr><td>APU / DMC</td><td>Frame sequencer, sweep/envelope edges, DMC arbitration</td><td><code>rtl/apu/</code></td></tr>
+                <tr><td>Cartridge / mapper</td><td>Bank/IRQ timing, MMC3 A12, iNES/NES 2.0</td><td><code>rtl/cart/</code></td></tr>
+                <tr><td>FPGA</td><td>Yosys synthesis, BRAM inference, timing, VGA/HDMI, audio</td><td><code>rtl/fpga/</code></td></tr>
+                <tr><td>ASIC / 55nm</td><td>SRAM, DFT, clock/reset/power, package</td><td><code>docs/55nm-tapeout-roadmap.md</code></td></tr>
+                <tr><td>Software / CI</td><td>Lockstep DiffTest, frame index, CI, repro scripts</td><td><code>sim/</code></td></tr>
               </tbody>
             </table>
           </div>
 
-          <h3>提交前</h3>
+          <h3>Before you submit</h3>
           <div class="code">
             <div class="code-bar"><span class="lang">shell</span><button class="code-copy" type="button" data-copy="cd rtl
 make lint
 make sim
 cd ..
 ./sim/difftest/run.sh
-./sim/difftest/run_alu.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="6.5" y="6.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M11.5 6.5v-2a1.2 1.2 0 0 0-1.2-1.2H4.7A1.2 1.2 0 0 0 3.5 4.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">复制</span></button></div>
+./sim/difftest/run_alu.sh"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg><span class="copy-label">Copy</span></button></div>
             <pre><span class="p">$</span> cd rtl
 <span class="p">$</span> make lint
 <span class="p">$</span> make sim
@@ -1172,116 +1192,116 @@ cd ..
 <span class="p">$</span> ./sim/difftest/run_alu.sh</pre>
           </div>
           <ul>
-            <li>用英文提交信息与英文仓库文档；保持改动小、可回滚。</li>
-            <li>改 RTL 行为前先加/更新测试；PR 里写清验证证据。</li>
-            <li>不要改黄金哈希来“修”测试；不要删测试来让改动通过。</li>
-            <li>优先前向修复，而不是回滚。</li>
-            <li>不提交商业 ROM、BIOS 或专有 PDK。</li>
+            <li>Use English commit messages and English repository docs; keep changes small and reversible.</li>
+            <li>Add/update tests before changing RTL behaviour; state the verification evidence in the PR.</li>
+            <li>Do not change golden hashes to “fix” a test; do not delete tests to make a change pass.</li>
+            <li>Prefer forward fixes over reverts.</li>
+            <li>No commercial ROMs, BIOS files or proprietary PDK data.</li>
           </ul>
 
-          <h3>好上手的 issue</h3>
+          <h3>Good first issues</h3>
           <ul>
-            <li>为 PPU <code>$2007</code> 调色板读取行为加单元测试。</li>
-            <li>给 <code>sim/game</code> 加帧序号断言。</li>
-            <li>补一个手柄 A/B/Select/Start 顺序测试。</li>
-            <li>把精灵选择改成顺序扫描，消掉组合大 mux。</li>
-            <li>为 DiffTest 增加确定性帧哈希输出。</li>
+            <li>Add a unit test for PPU <code>$2007</code> palette read behaviour.</li>
+            <li>Add frame-index assertions to <code>sim/game</code>.</li>
+            <li>Add a controller A/B/Select/Start order test.</li>
+            <li>Rewrite sprite selection as a sequential scan to remove the big combinational mux.</li>
+            <li>Add deterministic frame-hash output to DiffTest.</li>
           </ul>
           <div class="doc-actions">
-            <a class="btn btn--primary btn--sm" href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">完整贡献指南 ↗</a>
-            <a class="btn btn--ghost btn--sm" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">浏览 issue ↗</a>
+            <a class="btn btn--primary btn--sm" href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Full contributing guide ↗</a>
+            <a class="btn btn--ghost btn--sm" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">Browse issues ↗</a>
           </div>
         </section>
 
         <!-- 18 READING -->
-        <section class="doc-section" id="reading" data-group="参考" data-keywords="延伸 阅读 文档 链接 路线图 测试 指南 规范 更新日志">
+        <section class="doc-section" id="reading" data-group="Reference" data-keywords="further reading documents links roadmap test guide spec changelog">
           <div class="doc-kicker"><span class="dot"></span>18 · Further reading</div>
-          <h2><span>延伸阅读：按目标找文档</span></h2>
-          <p>仓库文档是英文的；本页是中文入口。读完这里，下一步通常是从下面某一份原始文档继续。</p>
+          <h2><span>Further reading: find docs by goal</span></h2>
+          <p>Repository docs are maintained in English; this page is the navigable version. When you finish here, the next step is usually one of these source documents.</p>
 
           <div class="doc-index-grid">
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/README.md" target="_blank" rel="noopener">
               <span class="t">README</span>
-              <span class="d">项目全貌、当前指标、快速开始与文档地图</span>
+              <span class="d">Project overview, current metrics, quickstart and doc map</span>
               <span class="p">README.md · README.zh-CN.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/STATUS.md" target="_blank" rel="noopener">
               <span class="t">STATUS</span>
-              <span class="d">已验证项、已有 RTL 模块、未完成项与下一门</span>
+              <span class="d">Verified items, RTL blocks, open items and next gate</span>
               <span class="p">STATUS.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/nes-golden-reference/design.md" target="_blank" rel="noopener">
-              <span class="t">NES 黄金参考设计</span>
-              <span class="d">REF 的边界、功能矩阵与测试计划</span>
+              <span class="t">NES golden reference</span>
+              <span class="d">REF boundaries, feature matrix and test plan</span>
               <span class="p">docs/nes-golden-reference/</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/NEMU/6502EMU.md" target="_blank" rel="noopener">
-              <span class="t">6502EMU 指南</span>
-              <span class="d">命令行、无头运行、测试与目录结构</span>
+              <span class="t">6502EMU guide</span>
+              <span class="d">CLI, headless runs, tests and layout</span>
               <span class="p">NEMU/6502EMU.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/README.md" target="_blank" rel="noopener">
               <span class="t">GEM6502</span>
-              <span class="d">C 模型能力、构建、播放器与目标规范</span>
+              <span class="d">C model capabilities, build, player and target spec</span>
               <span class="p">GEM6502/README.md</span>
             </a>
-            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/nesearch/README.md" target="_blank" rel="noopener">
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/nesearch/README.en.md" target="_blank" rel="noopener">
               <span class="t">nesearch</span>
-              <span class="d">NES 搜索/下载 CLI 与本地 Web UI</span>
-              <span class="p">nesearch/README.md</span>
+              <span class="d">NES search/download CLI and local Web UI</span>
+              <span class="p">nesearch/README.en.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
-              <span class="t">更新日志</span>
-              <span class="d">v1.0.0 REF 基线、v1.5 进行中的改动</span>
+              <span class="t">Changelog</span>
+              <span class="d">v1.0.0 REF baseline and in-progress v1.5 work</span>
               <span class="p">CHANGELOG.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">
-              <span class="t">贡献指南</span>
-              <span class="d">许可警告、开发规则、工作流与好上手的 issue</span>
+              <span class="t">Contributing guide</span>
+              <span class="d">Licence warning, rules, workstreams and good first issues</span>
               <span class="p">CONTRIBUTING.md</span>
             </a>
           </div>
 
           <div class="callout callout--info">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v3.6M8 4.9h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span>发现文档错误？直接改仓库里的 <code>docs/</code>，或给本页对应的 GitHub 文件提 PR。文档与代码一样需要可复现的证据。</span>
+            <span>Found a documentation bug? Edit the matching file under <code>docs/</code>, or open a PR against this page's source. Documentation needs reproducible evidence just like code.</span>
           </div>
         </section>
 
-        <nav class="pager" aria-label="文档翻页">
+        <nav class="pager" aria-label="Documentation pagination">
           <a href="index.html">
-            <span class="dir">← 返回</span>
-            <span class="name">项目首页</span>
+            <span class="dir">← Back</span>
+            <span class="name">Project home</span>
           </a>
           <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">
-            <span class="dir">外部链接</span>
-            <span class="name">GitHub 仓库 ↗</span>
+            <span class="dir">External</span>
+            <span class="name">GitHub repository ↗</span>
           </a>
         </nav>
       </article>
 
-      <aside class="docs-toc" aria-label="本页目录">
-        <h4>本页目录</h4>
+      <aside class="docs-toc" aria-label="On this page">
+        <h4>On this page</h4>
         <nav>
-          <a href="#overview" data-spy>概览</a>
-          <a href="#quickstart" data-spy>快速开始</a>
-          <a href="#repo" data-spy>仓库地图</a>
-          <a href="#architecture" data-spy>系统架构</a>
+          <a href="#overview" data-spy>Overview</a>
+          <a href="#quickstart" data-spy>Quickstart</a>
+          <a href="#repo" data-spy>Repository map</a>
+          <a href="#architecture" data-spy>Architecture</a>
           <a href="#cpu" data-spy>CPU</a>
           <a href="#ppu" data-spy>PPU</a>
-          <a href="#apu" data-spy>APU 与 DMC</a>
-          <a href="#bus" data-spy>总线与存储</a>
-          <a href="#cart" data-spy>卡带与 Mapper</a>
-          <a href="#video" data-spy>视频与输入</a>
-          <a href="#verification" data-spy>验证体系</a>
+          <a href="#apu" data-spy>APU &amp; DMC</a>
+          <a href="#bus" data-spy>Bus &amp; memory</a>
+          <a href="#cart" data-spy>Cartridge &amp; mapper</a>
+          <a href="#video" data-spy>Video &amp; input</a>
+          <a href="#verification" data-spy>Verification</a>
           <a href="#difftest" data-spy>DiffTest</a>
-          <a href="#goldens" data-spy>黄金帧</a>
+          <a href="#goldens" data-spy>Golden frames</a>
           <a href="#gem6502" data-spy>GEM6502</a>
-          <a href="#synthesis" data-spy>综合与面积</a>
-          <a href="#tapeout" data-spy>55nm 路线</a>
-          <a href="#troubleshooting" data-spy>故障排查</a>
-          <a href="#contributing" data-spy>参与贡献</a>
-          <a href="#reading" data-spy>延伸阅读</a>
+          <a href="#synthesis" data-spy>Synthesis &amp; area</a>
+          <a href="#tapeout" data-spy>55nm path</a>
+          <a href="#troubleshooting" data-spy>Troubleshooting</a>
+          <a href="#contributing" data-spy>Contributing</a>
+          <a href="#reading" data-spy>Further reading</a>
         </nav>
       </aside>
     </div>
@@ -1291,74 +1311,74 @@ cd ..
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a class="brand" href="index.html" aria-label="Open6502 首页">
+          <a class="brand" href="index.html" aria-label="Open6502 home">
             <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
             <span class="brand-text">
               <span class="brand-name">OPEN6502</span>
               <span class="brand-sub">Open silicon · from emulator to silicon</span>
             </span>
           </a>
-          <p>一个 6502/NES 兼容的开源 SoC 项目：先做一个能玩的软件参考模型，再把同一颗芯片写进 SystemVerilog，最后走向 55nm。</p>
+          <p>An open-source 6502/NES-compatible SoC: first a playable software reference, then the same chip in SystemVerilog, then 55nm.</p>
           <div class="footer-links">
             <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.zh-CN.md" target="_blank" rel="noopener">中文 README</a>
-            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">更新日志</a>
-            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">贡献指南</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.md" target="_blank" rel="noopener">English README</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
           </div>
         </div>
         <div class="footer-col">
-          <h4>开始</h4>
+          <h4>Start</h4>
           <ul>
-            <li><a href="index.html#play">2 分钟试玩</a></li>
-            <li><a href="index.html#games">六款游戏</a></li>
-            <li><a href="#quickstart">构建与运行</a></li>
-            <li><a href="#troubleshooting">故障排查</a></li>
+            <li><a href="index.html#play">Play in 2 minutes</a></li>
+            <li><a href="index.html#games">Six games</a></li>
+            <li><a href="#quickstart">Build &amp; run</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4>深入</h4>
+          <h4>Deep dive</h4>
           <ul>
-            <li><a href="#architecture">系统架构</a></li>
-            <li><a href="#verification">验证体系</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#verification">Verification</a></li>
             <li><a href="#difftest">DiffTest</a></li>
-            <li><a href="#synthesis">综合与面积</a></li>
+            <li><a href="#synthesis">Synthesis &amp; area</a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4>项目</h4>
+          <h4>Project</h4>
           <ul>
-            <li><a href="index.html#roadmap">路线图</a></li>
-            <li><a href="index.html#status">当前进度</a></li>
-            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROM 与许可证 ↗</a></li>
+            <li><a href="index.html#roadmap">Roadmap</a></li>
+            <li><a href="index.html#status">Current status</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROMs &amp; licences ↗</a></li>
             <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/nesearch" target="_blank" rel="noopener">nesearch ↗</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span data-year>2026</span> Open6502 · 开源 6502/NES SoC 项目</span>
+        <span>© <span data-year>2026</span> Open6502 · open-source 6502/NES SoC project</span>
         <span>Last verified · 2026-11-11</span>
-        <span class="right">站点源码在 <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · 纯 HTML/CSS/JS · GitHub Pages</span>
+        <span class="right">Source in <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · plain HTML/CSS/JS · GitHub Pages</span>
       </div>
     </div>
   </footer>
 
-  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+  <button class="to-top" type="button" data-to-top aria-label="Back to top">
     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
 
-  <div class="search-overlay" data-search-overlay role="dialog" aria-modal="true" aria-label="搜索文档">
+  <div class="search-overlay" data-search-overlay role="dialog" aria-modal="true" aria-label="Search documentation">
     <div class="search-box">
       <div class="search-field">
         <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <input type="search" data-search-field placeholder="搜索章节、命令或概念…" aria-label="搜索文档" autocomplete="off" spellcheck="false">
-        <button class="esc" type="button" data-search-close aria-label="关闭搜索">ESC</button>
+        <input type="search" data-search-field placeholder="Search sections, commands or concepts…" aria-label="Search documentation" autocomplete="off" spellcheck="false">
+        <button class="esc" type="button" data-search-close aria-label="Close search">ESC</button>
       </div>
       <div class="search-results" data-search-results></div>
       <div class="search-hint">
-        <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
-        <span><kbd>Enter</kbd> 跳转</span>
-        <span><kbd>Esc</kbd> 关闭</span>
-        <span style="margin-left:auto">共索引 19 个章节</span>
+        <span><kbd>↑</kbd><kbd>↓</kbd> select</span>
+        <span><kbd>Enter</kbd> open</span>
+        <span><kbd>Esc</kbd> close</span>
+        <span style="margin-left:auto">19 sections indexed</span>
       </div>
     </div>
   </div>
