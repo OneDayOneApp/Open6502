@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nesearch — UI prototype</title>
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+<svg class="svg-defs" aria-hidden="true">
+  <symbol id="i-cart" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7h7v5h-7z"/><path d="M8.5 16h4M8.5 19h7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-library" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/><path d="M8 7h8"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/><rect x="10" y="10" width="4" height="4" rx="1"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.8 3.2 8.1 7.5 9.5 4.3-1.4 7.5-4.7 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-drive" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h.01M11 15h.01"/><path d="M7 9h10"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-command" viewBox="0 0 24 24"><path d="M9 6V5a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v14a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></symbol>
+</svg>
+
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"><svg class="icon"><use href="#i-cart"/></svg></span>
+      <span class="brand-name">nesearch</span>
+      <span class="brand-ver">v0.2</span>
+    </div>
+
+    <label class="searchbox" for="searchInput">
+      <svg class="icon"><use href="#i-search"/></svg>
+      <input id="searchInput" type="text" placeholder="Search games, authors, tags…" autocomplete="off" spellcheck="false">
+      <button class="search-clear" id="clearSearch" type="button" aria-label="Clear search" hidden><svg class="icon"><use href="#i-x"/></svg></button>
+      <kbd>⌘ K</kbd>
+    </label>
+
+    <div class="top-actions">
+      <label class="source-select" title="Filter by source">
+        <span class="pulse"></span>
+        <select id="sourceFilter" aria-label="Source filter">
+          <option value="all">All sources</option>
+          <option value="GitHub">GitHub</option>
+          <option value="Homebrew Hub">Homebrew Hub</option>
+          <option value="PDRoms">PDRoms</option>
+        </select>
+        <svg class="icon"><use href="#i-chevron"/></svg>
+      </label>
+      <button class="btn ghost" id="cliBtn" title="Show the CLI equivalent">
+        <svg class="icon"><use href="#i-terminal"/></svg>
+        CLI
+      </button>
+      <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+        <svg class="icon"><use href="#i-settings"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="nav-label">Workspace</div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="nav-item active" data-view="discover">
+        <svg class="icon"><use href="#i-search"/></svg>
+        Discover
+        <span class="nav-count" id="navTotal">221</span>
+      </button>
+      <button class="nav-item" data-view="downloads">
+        <svg class="icon"><use href="#i-download"/></svg>
+        Downloads
+        <span class="nav-badge" id="navDownloads">2</span>
+      </button>
+      <button class="nav-item" data-view="library">
+        <svg class="icon"><use href="#i-library"/></svg>
+        Library
+        <span class="nav-count" id="navLibrary">12</span>
+      </button>
+      <button class="nav-item" data-view="sources">
+        <svg class="icon"><use href="#i-db"/></svg>
+        Sources
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item" data-view="settings">
+        <svg class="icon"><use href="#i-settings"/></svg>
+        Settings
+      </button>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="source-status" id="sourceStatus">
+      <div class="source-status-head">
+        <span class="pulse"></span>
+        Sources online
+        <span id="sourceOnline">3/3</span>
+      </div>
+      <div id="sourceRows">
+      <div class="source-status-row"><span class="dot"></span><span class="name">GitHub</span><span class="count">82</span><span class="count">2h</span></div>
+      <div class="source-status-row"><span class="dot" style="background:var(--violet)"></span><span class="name">Homebrew Hub</span><span class="count">24</span><span class="count">2h</span></div>
+      <div class="source-status-row"><span class="dot" style="background:var(--amber)"></span><span class="name">PDRoms</span><span class="count">115</span><span class="count">2h</span></div>
+      </div>
+      <div class="source-status-foot">
+        <span>Cache updated 2h ago</span>
+        <button id="refreshSources" type="button">Refresh</button>
+      </div>
+    </div>
+
+    <div class="sidebar-hint">
+      <svg class="icon"><use href="#i-terminal"/></svg>
+      <div>
+        <strong>CLI ready</strong>
+        <span>Same engine, scriptable without the UI.</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <section class="view" id="view-discover">
+      <div class="view-head">
+        <div>
+          <div class="eyebrow"><svg class="icon"><use href="#i-search"/></svg> Browse homebrew</div>
+          <h1>Discover</h1>
+          <p class="view-sub"><b id="resultCount">8</b> results · <span id="sourceSummary">3 sources</span> · <span id="cacheAge">cache 2h ago</span></p>
+        </div>
+        <div class="view-actions">
+          <select class="select" id="sortSelect" aria-label="Sort results">
+            <option value="relevance">Relevance</option>
+            <option value="title">Title A–Z</option>
+            <option value="size">Size</option>
+            <option value="newest">Newest</option>
+          </select>
+          <div class="segmented" role="group" aria-label="View mode">
+            <button class="active" id="gridBtn" title="Grid view" aria-label="Grid view"><svg class="icon"><use href="#i-grid"/></svg></button>
+            <button id="listBtn" title="List view" aria-label="List view"><svg class="icon"><use href="#i-list"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-row" aria-label="Filters">
+        <button class="chip active" data-license="all">All licenses</button>
+        <button class="chip" data-license="open"><span class="dot" style="width:5px;height:5px;border-radius:99px;background:var(--green)"></span>Open source</button>
+        <button class="chip" data-license="unknown"><span class="dot" style="width:5px;height:5px;border-radius:99px;background:var(--amber)"></span>Unknown</button>
+        <span class="chip-sep"></span>
+        <button class="chip active" data-mapper="all">All mappers</button>
+        <button class="chip" data-mapper="NROM">NROM</button>
+        <button class="chip" data-mapper="MMC1">MMC1</button>
+        <button class="chip" data-mapper="CNROM">CNROM</button>
+        <button class="chip" data-mapper="other">Other</button>
+        <span class="chip-sep"></span>
+        <button class="chip" id="filterInfo" title="Filters are local and instant"><svg class="icon"><use href="#i-filter"/></svg> Filters</button>
+      </div>
+
+      <div class="grid" id="gameGrid" aria-live="polite"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <div class="empty-icon"><svg class="icon"><use href="#i-search"/></svg></div>
+        <h2>No games match your search</h2>
+        <p id="emptyCopy">Try a different title, author, or clear the filters.</p>
+        <button class="btn soft" id="clearFilters">Clear search &amp; filters</button>
+      </div>
+
+      <div class="grid-foot">
+        <span class="showing" id="showingLabel">Showing 1–8 of 221</span>
+        <div class="pager" id="pager" aria-label="Pagination"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-downloads" hidden>
+      <div class="view-title-row">
+        <div>
+          <div class="eyebrow"><svg class="icon"><use href="#i-download"/></svg> Transfer queue</div>
+          <h1>Downloads</h1>
+          <p class="view-sub">Resumable transfers with SHA-256 verification · <b>1 active</b> · <b>1 queued</b></p>
+        </div>
+        <div class="view-actions">
+          <button class="btn small" id="pauseAll">Pause all</button>
+          <button class="btn small" id="clearDone">Clear completed</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Active &amp; queued</h2><span class="muted" id="activeMeta">2 items</span></div>
+        <table class="table">
+          <thead><tr><th>Game</th><th>Source</th><th>Progress</th><th>Speed</th><th>Size</th><th style="text-align:right">Actions</th></tr></thead>
+          <tbody id="downloadsBody"></tbody>
+        </table>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <div class="panel-head"><h2>Completed</h2><span class="muted">Verified</span></div>
+        <table class="table">
+          <thead><tr><th>Game</th><th>File</th><th>SHA-256</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+          <tbody id="completedBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="view" id="view-library" hidden>
+      <div class="view-title-row">
+        <div>
+          <div class="eyebrow"><svg class="icon"><use href="#i-library"/></svg> Local collection</div>
+          <h1>Library</h1>
+          <p class="view-sub" id="librarySummary"><b>12</b> ROMs · <b>4.8 MiB</b> · <b>12 verified</b> · <span style="color:var(--green)">all files present</span></p>
+        </div>
+        <div class="view-actions">
+          <div class="segmented" role="group" aria-label="Library view mode">
+            <button class="active" id="libraryGridBtn" title="Grid view" aria-label="Grid view"><svg class="icon"><use href="#i-grid"/></svg></button>
+            <button id="libraryListBtn" title="List view" aria-label="List view"><svg class="icon"><use href="#i-list"/></svg></button>
+          </div>
+          <button class="btn small" id="verifyAll"><svg class="icon"><use href="#i-shield"/></svg> Verify all</button>
+          <button class="btn small" id="openFolder"><svg class="icon"><use href="#i-folder"/></svg> Reveal folder</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Installed ROMs</h2><span class="muted" id="libraryPath">~/Downloads/nesearch</span></div>
+        <div class="library-grid" id="libraryGrid"></div>
+        <div id="libraryTableWrap" hidden>
+        <table class="table">
+          <thead><tr><th>Game</th><th>File</th><th>Mapper</th><th>Size</th><th>SHA-256</th><th>Status</th><th style="text-align:right"></th></tr></thead>
+          <tbody id="libraryBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-sources" hidden>
+      <div class="view-title-row">
+        <div>
+          <div class="eyebrow"><svg class="icon"><use href="#i-db"/></svg> Catalogs</div>
+          <h1>Sources</h1>
+          <p class="view-sub">All enabled sources are searched together · <b id="sourceCountLabel">3 online</b> · <b id="sourceEntryLabel">221 entries</b></p>
+        </div>
+        <div class="view-actions">
+          <button class="btn small" id="refreshAll"><svg class="icon"><use href="#i-refresh"/></svg> Refresh all</button>
+        </div>
+      </div>
+      <div class="sources-grid">
+        <div class="source-card">
+          <div class="source-card-head">
+            <div class="source-logo github"><svg class="icon"><use href="#i-cart"/></svg></div>
+            <div><div class="source-name">GitHub</div><div class="source-type">github:retrobrews</div></div>
+            <span class="source-status-dot"></span>
+          </div>
+          <p class="source-desc">Curated homebrew repo with raw ROM assets and per-entry metadata.</p>
+          <div class="source-stats"><div class="source-stat"><b>82</b><span>entries</span></div><div class="source-stat"><b>2h</b><span>last sync</span></div><div class="source-stat"><b>60/h</b><span>API budget</span></div></div>
+          <div class="source-card-foot"><span class="muted">ETag cache · raw downloads</span><button class="btn small">Configure</button></div>
+        </div>
+        <div class="source-card">
+          <div class="source-card-head">
+            <div class="source-logo hh"><svg class="icon"><use href="#i-db"/></svg></div>
+            <div><div class="source-name">Homebrew Hub</div><div class="source-type">hh3.gbdev.io · github:homebrew-db</div></div>
+            <span class="source-status-dot"></span>
+          </div>
+          <p class="source-desc">License-first NES database with per-entry metadata, screenshots, and optional SHA-256 hashes.</p>
+          <div class="source-stats"><div class="source-stat"><b>24</b><span>entries</span></div><div class="source-stat"><b>2h</b><span>last sync</span></div><div class="source-stat"><b>GPL</b><span>database</span></div></div>
+          <div class="source-card-foot"><span class="muted">API + raw fallback</span><button class="btn small">Configure</button></div>
+        </div>
+        <div class="source-card">
+          <div class="source-card-head">
+            <div class="source-logo pd"><svg class="icon"><use href="#i-download"/></svg></div>
+            <div><div class="source-name">PDRoms</div><div class="source-type">pdroms.de · NES files</div></div>
+            <span class="source-status-dot"></span>
+          </div>
+          <p class="source-desc">RSS + JSON-LD catalog with direct zip downloads. Opt-in: license metadata can be mixed.</p>
+          <div class="source-stats"><div class="source-stat"><b>115</b><span>files</span></div><div class="source-stat"><b>2h</b><span>last sync</span></div><div class="source-stat"><b>2</b><span>concurrency</span></div></div>
+          <div class="source-card-foot"><span class="muted">Browser UA required</span><button class="btn small">Configure</button></div>
+        </div>
+        <button class="add-source" id="addSource">
+          <svg class="icon"><use href="#i-plus"/></svg>
+          <span>Add custom JSON source</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="view" id="view-settings" hidden>
+      <div class="view-title-row">
+        <div>
+          <div class="eyebrow"><svg class="icon"><use href="#i-settings"/></svg> Preferences</div>
+          <h1>Settings</h1>
+          <p class="view-sub">Shared by CLI and UI · config file <code style="font-family:var(--mono);color:var(--text-2)">~/.config/nesearch/config.json</code></p>
+        </div>
+      </div>
+      <div class="settings-grid">
+        <div>
+          <div class="settings-panel">
+            <h2>Downloads</h2>
+            <p class="hint">Where ROMs go and how transfers behave.</p>
+            <div class="field"><label>Download folder<span class="sub">Final .nes files are written here</span></label><input class="input" value="~/Downloads/nesearch"></div>
+            <div class="field"><label>Concurrent downloads<span class="sub">1–16, per-host limits apply</span></label><input class="input" value="4" style="min-width:60px;width:60px;text-align:center"></div>
+            <div class="field"><label>Resume partial files<span class="sub">Keep .part files on interrupt</span></label><span class="switch on"></span></div>
+            <div class="field"><label>Verify SHA-256<span class="sub">Strict when the source publishes a hash</span></label><span class="switch on"></span></div>
+          </div>
+          <div class="settings-panel" style="margin-top:12px">
+            <h2>Internet Archive</h2>
+            <p class="hint">Lucene query used by Advanced Search. Changes apply on the next refresh.</p>
+            <div class="field"><label>Query<span class="sub">collection + mediatype</span></label><input class="input" id="archiveQuery" value="(collection:softwarelibrary_nes OR collection:nes-homebrew) AND mediatype:software"></div>
+            <div class="field"><label>Items<span class="sub">1–50 metadata lookups</span></label><input class="input" id="archiveLimit" type="number" min="1" max="50" value="12" style="min-width:60px;width:60px;text-align:center"></div>
+            <div class="settings-note">Current network cannot reach archive.org; source shows offline. A proxy can be set above.</div>
+          </div>
+          <div class="settings-panel" style="margin-top:12px">
+            <h2>Network</h2>
+            <p class="hint">Proxy and GitHub API budget.</p>
+            <div class="field"><label>HTTPS proxy<span class="sub">Empty = system proxy</span></label><input class="input" value=""></div>
+            <div class="field"><label>GitHub token<span class="sub">Only sent to api.github.com</span></label><input class="input" value="••••••••••••" type="password"></div>
+          </div>
+        </div>
+        <div>
+          <div class="settings-panel">
+            <h2>Interface</h2>
+            <p class="hint">This is a design preview; values are not persisted.</p>
+            <div class="field"><label>Theme</label><select class="select" style="height:29px"><option>Dark (default)</option><option>Light</option><option>System</option></select></div>
+            <div class="field"><label>Density</label><select class="select" style="height:29px"><option>Comfortable</option><option>Compact</option></select></div>
+            <div class="field"><label>License display<span class="sub">Informational only; does not block downloads</span></label><span class="switch on"></span></div>
+          </div>
+          <div class="settings-panel" style="margin-top:12px">
+            <h2>Emulators</h2>
+            <p class="hint">Detected local builds. Downloaded games can be opened directly.</p>
+            <div class="field"><label>GEM6502<span class="sub" id="gemPath">auto-detect</span></label><span class="emulator-state" id="gemState">checking…</span></div>
+            <div class="field"><label>NEMU / 6502EMU<span class="sub" id="nemuPath">auto-detect</span></label><span class="emulator-state" id="nemuState">checking…</span></div>
+            <div class="settings-note">Override with <code>NESEARCH_GEM6502</code> / <code>NESEARCH_NEMU</code> or the config file.</div>
+          </div>
+          <div class="settings-panel" style="margin-top:12px">
+            <h2>Local server</h2>
+            <p class="hint">The UI is served only on loopback. Copy the address into any browser on this machine.</p>
+            <div class="server-box">
+              <code>http://127.0.0.1:8420</code>
+              <button class="row-btn" id="copyServer" title="Copy URL"><svg class="icon"><use href="#i-copy"/></svg></button>
+              <button class="row-btn" id="openServer" title="Open in browser"><svg class="icon"><use href="#i-external"/></svg></button>
+            </div>
+            <div class="field" style="margin-top:6px"><label>Port<span class="sub">0 = random; fixed port is optional</span></label><input class="input" value="8420" style="min-width:70px;width:70px;text-align:center"></div>
+            <div class="field"><label>Open browser on launch</label><span class="switch on"></span></div>
+          </div>
+          <div class="settings-panel" style="margin-top:12px">
+            <h2>CLI parity</h2>
+            <p class="hint">Every UI action has a command equivalent.</p>
+            <div class="settings-note">
+              Launch UI: <code>nesearch ui</code><br>
+              Headless: <code>nesearch search "nova" --json</code><br>
+              Download: <code>nesearch download nova -o ~/Downloads/nesearch</code>
+            </div>
+          </div>
+          <div class="settings-panel" style="margin-top:12px">
+            <h2>About</h2>
+            <p class="hint">nesearch v0.2.0 · UI prototype · core v0.1.0</p>
+            <div class="field"><label>Check for updates</label><button class="btn small">Check</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="detail" id="detail" aria-live="polite"></aside>
+
+  <footer class="tray" id="tray">
+    <div class="tray-head">
+      <div class="tray-title"><svg class="icon"><use href="#i-download"/></svg> Downloads</div>
+      <div class="tray-sub" id="traySub">1 active · 1 queued</div>
+    </div>
+    <div class="tray-items" id="trayItems"></div>
+    <button class="tray-expand" id="trayExpand" title="Open downloads" aria-label="Open downloads"><svg class="icon"><use href="#i-chevron" style="transform:rotate(180deg)"/></svg></button>
+  </footer>
+
+  <div class="statusbar">
+    <span class="status-item"><span class="pulse"></span> <span id="statusSources">3 sources online</span></span>
+    <span class="status-sep">/</span>
+    <span class="status-item" id="statusTotal">221 entries indexed</span>
+    <span class="status-sep">/</span>
+    <span class="status-item"><svg class="icon" style="width:10px;height:10px"><use href="#i-shield"/></svg> local-first</span>
+    <span class="status-right">
+      <span><span class="status-key">UI</span> <code>nesearch ui</code></span>
+      <span><span class="status-key">CLI</span> <code>nesearch search …</code></span>
+      <span>v0.2.0 · preview</span>
+    </span>
+  </div>
+</div>
+
+<div class="modal" id="cliModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="cliTitle">
+    <div class="modal-head">
+      <div class="modal-icon"><svg class="icon"><use href="#i-terminal"/></svg></div>
+      <div>
+        <h2 class="modal-title" id="cliTitle">CLI mode</h2>
+        <p class="modal-sub">The UI and CLI share one engine. Copy the exact commands for what you see.</p>
+      </div>
+      <button class="modal-close" id="closeCli" aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </div>
+    <pre class="code-block" id="cliCode"></pre>
+    <div class="cli-note"><svg class="icon"><use href="#i-info"/></svg><span>Run <code>nesearch ui</code> to reopen this screen. Add <code>--json</code> for scripting; no UI is started in CLI mode.</span></div>
+    <div class="modal-actions">
+      <button class="btn" id="copyCli"><svg class="icon"><use href="#i-copy"/></svg> Copy commands</button>
+      <button class="btn primary" id="closeCli2">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="sourceModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="sourceTitle">
+    <div class="modal-head">
+      <div class="modal-icon" style="color:var(--blue);background:var(--blue-soft);border-color:rgba(103,168,255,.2)"><svg class="icon"><use href="#i-db"/></svg></div>
+      <div>
+        <h2 class="modal-title" id="sourceTitle">Add JSON source</h2>
+        <p class="modal-sub">Point nesearch at a local file or an HTTPS URL that follows schema v1.</p>
+      </div>
+      <button class="modal-close" id="closeSource" aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="source-form">
+      <div class="form-field">
+        <label for="sourceName">Display name</label>
+        <input class="input-text" id="sourceName" placeholder="open6502-vetted" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label for="sourceUrl">Catalog URL or local path</label>
+        <input class="input-text" id="sourceUrl" placeholder="https://example.com/nes-catalog.json" autocomplete="off">
+        <p class="hint">HTTPS only by default. Local files are allowed when the server runs on this machine.</p>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="sourceInterval">Refresh interval</label>
+          <select class="form-select" id="sourceInterval">
+            <option>Every 6 hours</option>
+            <option selected>Every 24 hours</option>
+            <option>Manual only</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="sourceFormat">Format</label>
+          <select class="form-select" id="sourceFormat">
+            <option selected>JSON catalog (v1)</option>
+            <option>JSON catalog (v0, legacy)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-toggle">
+        <label for="sourceEnabled">Enable for search immediately</label>
+        <span class="switch on" id="sourceEnabled"></span>
+      </div>
+      <div class="form-note">Required: <code>games[].id</code>, <code>games[].title</code>, <code>games[].assets[].url</code>. The source is validated before it is saved.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="testSource"><svg class="icon"><use href="#i-refresh"/></svg> Test connection</button>
+      <button class="btn primary" id="addSourceBtn">Add source</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg class="icon"><use href="#i-check"/></svg><span id="toastText">Done</span></div>
+
+<script src="mockup.js"></script>
+</body>
+</html>

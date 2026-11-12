@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "name": "example-catalog",
+  "games": [
+    {
+      "id": "falling-example",
+      "title": "Falling (example source)",
+      "author": "tragicmuffin",
+      "license": "MIT",
+      "description": "Minimal custom-source example. Replace the URL with a ROM you are allowed to download.",
+      "page_url": "https://github.com/tragicmuffin/falling-nes",
+      "assets": [
+        {
+          "url": "https://raw.githubusercontent.com/retrobrews/nes-games/master/falling.nes",
+          "filename": "falling.nes",
+          "size": 40976
+        }
+      ]
+    }
+  ]
+}

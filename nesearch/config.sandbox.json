@@ -1,0 +1,27 @@
+{
+  "archive_org_enabled": true,
+  "archive_org_limit": 12,
+  "archive_org_query": "(collection:softwarelibrary_nes OR collection:nes-homebrew) AND mediatype:software",
+  "download_dir": "downloads",
+  "fogleman_screenshots_enabled": true,
+  "fogleman_screenshots_url": "https://www.michaelfogleman.com/static/nes/",
+  "gem6502_path": "",
+  "github": {
+    "api_base": "https://api.github.com",
+    "raw_base": "https://raw.githubusercontent.com",
+    "ref": "master",
+    "repo": "retrobrews/nes-games"
+  },
+  "homebrew_hub_enabled": true,
+  "jobs": 4,
+  "nemu_path": "",
+  "pdroms_enabled": true,
+  "proxy": "",
+  "schema": 1,
+  "sources": [],
+  "timeout_seconds": 30,
+  "tuxnes_mapper_enabled": true,
+  "tuxnes_mapper_url": "https://tuxnes.sourceforge.net/nesmapper.txt",
+  "ui_open": true,
+  "ui_port": 8420
+}
