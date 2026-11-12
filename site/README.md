@@ -5,20 +5,31 @@ Pages from the `site/` directory on `main`.
 
 ## Pages
 
-- `index.html` — user-facing landing page: play path, games, honest status,
+- `index.html` — Chinese landing page: play path, games, honest status,
   RTL/NEMU parity, architecture, area, roadmap, contribution and FAQ.
-- `docs.html` — technical documentation: quickstart, architecture, CPU/PPU/APU,
-  bus, cartridge/mapper, verification, DiffTest, golden hashes, GEM6502,
-  synthesis, 55nm roadmap, troubleshooting, contributing and further reading.
-- `404.html` — static not-found page.
+- `index.en.html` — English landing page with the same structure and assets.
+- `docs.html` — Chinese technical documentation: quickstart, architecture,
+  CPU/PPU/APU, bus, cartridge/mapper, verification, DiffTest, golden hashes,
+  GEM6502, synthesis, 55nm roadmap, troubleshooting, contributing and further
+  reading.
+- `docs.en.html` — English technical documentation with the same section IDs.
+- `404.html` — bilingual static not-found page.
+
+The Chinese and English pages cross-link through the nav language switch
+(`data-lang-switch`). The switch keeps the current `#section` anchor, so a
+reader can move between `docs.html#verification` and
+`docs.en.html#verification` directly. Each page declares `hreflang` alternates
+and a matching canonical URL.
 
 ## Structure
 
 ```text
 site/
-├── index.html
-├── docs.html
-├── 404.html
+├── index.html          # Chinese landing
+├── index.en.html       # English landing
+├── docs.html           # Chinese docs
+├── docs.en.html        # English docs
+├── 404.html            # bilingual not-found
 ├── robots.txt
 ├── sitemap.xml
 ├── .nojekyll
@@ -50,6 +61,12 @@ Actions tab (`workflow_dispatch`) after the workflow exists on `main`.
 
 - Keep all asset paths relative (`assets/...`, `docs.html`). The site is served
   from `https://onedayoneapp.github.io/Open6502/`, not a domain root.
+- Keep the Chinese and English pages in sync. Section IDs, `data-*` hooks,
+  image paths and commands must stay identical so the language switch and
+  search keep working; only human-readable copy, `lang`, `title`, meta,
+  `data-group` and `data-keywords` should differ.
+- When adding a section, add it to both docs pages, the sidebar, the right-hand
+  table of contents, and the sitemap alternates.
 - Keep copy honest: verified numbers, known limitations and licence status must
   match `README.md`, `STATUS.md` and the repository docs. If they diverge, the
   repository code and latest test results win.

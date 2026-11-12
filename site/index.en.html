@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open6502 — Put childhood back into a chip</title>
+  <meta name="description" content="Open6502 is a playable NES emulator today and an open-source 6502/NES SoC in progress. Six open-source games, 28 RTL tests, and a frame-level SHA that matches NEMU exactly.">
+  <meta name="theme-color" content="#06080c">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://onedayoneapp.github.io/Open6502/index.en.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/">
+  <link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/index.en.html">
+  <link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Open6502">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta property="og:title" content="Open6502 — Put childhood back into a chip">
+  <meta property="og:description" content="A playable NES emulator today, and an open-source 6502 chip growing its own CPU, PPU, APU and bus.">
+  <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/index.en.html">
+  <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Open6502 — Put childhood back into a chip">
+  <meta name="twitter:description" content="A playable NES emulator today, and an open-source 6502/NES SoC in progress.">
+  <meta name="twitter:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/site.js" defer></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Open6502",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Linux",
+    "inLanguage": "en",
+    "description": "A playable NES emulator today, and an open-source 6502/NES SoC in progress.",
+    "url": "https://onedayoneapp.github.io/Open6502/index.en.html",
+    "codeRepository": "https://github.com/OneDayOneApp/Open6502",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="page-bg" aria-hidden="true"></div>
+
+  <header class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.en.html" aria-label="Open6502 home">
+        <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+        <span class="brand-text">
+          <span class="brand-name">OPEN6502</span>
+          <span class="brand-sub">6502 / NES SoC</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-link" href="#play">Play</a>
+        <a class="nav-link" href="#games">Games</a>
+        <a class="nav-link" href="#status">Status</a>
+        <a class="nav-link" href="#architecture">Architecture</a>
+        <a class="nav-link" href="docs.en.html">Docs</a>
+        <a class="nav-link" href="#contribute">Contribute</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="nav-lang" href="index.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch aria-label="查看中文版">中文</a>
+        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="View Open6502 on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+          <span>Star</span>
+        </a>
+        <a class="btn btn--primary btn--sm" href="#play">Play now</a>
+        <button class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation menu">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-mobile" id="mobile-nav">
+      <a href="#play">Play</a>
+      <a href="#games">Games</a>
+      <a href="#status">Status</a>
+      <a href="#architecture">Architecture</a>
+      <a href="docs.en.html">Docs</a>
+      <a href="#contribute">Contribute</a>
+      <a href="index.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch>简体中文</a>
+      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
+      <a class="btn btn--primary" href="#play">Play in 2 minutes</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Open source · 6502 / NES SoC</span>
+          <h1 class="hero-title hero-title--en" id="hero-title">
+            Put childhood<br>back into a <span class="hl">chip</span>.
+            <span class="hero-en">From emulator to silicon</span>
+          </h1>
+          <p class="hero-lede">
+            A NES emulator you can <strong>play today</strong>, and an open-source 6502 chip growing its own
+            CPU, PPU, APU and bus. The same FALLING frame runs in software and in RTL — byte for byte.
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn--primary" href="#play">
+              Play in 2 minutes
+              <svg class="arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn--ghost" href="docs.en.html">
+              Read the docs
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 2.5h5l3 3v8H4v-11Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M9 2.5v3h3" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <div class="hero-proof">
+            <div class="proof-item">
+              <span class="proof-v">6</span>
+              <span class="proof-k">open-source ROMs</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-v">28 PASS</span>
+              <span class="proof-k">RTL regression</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-v">SHA match</span>
+              <span class="proof-k">RTL frame ≡ NEMU</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-v">55 nm</span>
+              <span class="proof-k">tapeout target</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-stage">
+          <div class="stage">
+            <div class="stage-top">
+              <span class="stage-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="stage-title">FRAME_0001 · <b>FALLING</b></span>
+              <div class="seg" role="group" aria-label="Switch execution path">
+                <button class="seg-btn" type="button" data-frame-tab aria-pressed="true"
+                  data-src="assets/img/frame-nemu-title.png"
+                  data-alt="FALLING title frame rendered by the NEMU emulator"
+                  data-caption="NEMU · SOFTWARE REFERENCE"
+                  data-hash="SHA 41e8…5a33">NEMU</button>
+                <button class="seg-btn" type="button" data-frame-tab aria-pressed="false"
+                  data-src="assets/img/frame-rtl-title.png"
+                  data-alt="FALLING title frame rendered by the RTL SoC through Verilator"
+                  data-caption="RTL · VERILATOR DUT"
+                  data-hash="SHA 41e8…5a33">RTL</button>
+              </div>
+            </div>
+            <div class="screen scanlines">
+              <img class="screen-img" data-frame-image src="assets/img/frame-nemu-title.png"
+                width="256" height="240" alt="FALLING title frame rendered by the NEMU emulator">
+              <span class="screen-vignette" aria-hidden="true"></span>
+            </div>
+            <div class="stage-foot">
+              <span class="dot" aria-hidden="true"></span>
+              <span data-frame-caption>NEMU · SOFTWARE REFERENCE</span>
+              <span class="stage-foot-right" data-frame-hash>SHA 41e8…5a33</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DOORS ================= -->
+    <section class="section section--flush" aria-label="Choose your entry point">
+      <div class="container doors">
+        <a class="door reveal" href="#play">
+          <span class="door-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="door-title">I just want to play</span>
+          <span class="door-desc">Three steps, six open-source games, keyboard as gamepad. No 6502 knowledge, no dev board required.</span>
+          <span class="door-link">Start in 2 minutes <span class="arrow" aria-hidden="true">→</span></span>
+        </a>
+        <a class="door reveal" href="docs.en.html">
+          <span class="door-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16.5H6.5A2.5 2.5 0 0 0 4 22V5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19M8 7h7M8 10.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          <span class="door-title">I want to understand it</span>
+          <span class="door-desc">From the address map to PPU dot timing, from Klaus to DiffTest — the docs record every decision, command and sharp edge.</span>
+          <span class="door-link">Read the docs <span class="arrow" aria-hidden="true">→</span></span>
+        </a>
+        <a class="door reveal" href="#contribute">
+          <span class="door-icon">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 6.5 17.5 3.5a3.5 3.5 0 0 1 5 5l-3 3M9.5 17.5l-3 3a3.5 3.5 0 0 1-5-5l3-3M8 16l8-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m14 10 2.5-2.5M10 14l-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+          <span class="door-title">I want to help build it</span>
+          <span class="door-desc">PPU pipeline, DMC arbitration, FPGA timing, 55nm backend — current blockers and approachable issues live here.</span>
+          <span class="door-link">How to contribute <span class="arrow" aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ================= QUICKSTART ================= -->
+    <section class="section" id="play" aria-labelledby="play-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">01</span>Quickstart</span>
+          <h2 id="play-title">Play first. <em>Then build the chip.</em></h2>
+          <p>No FPGA, no dev board. A Mac or Linux machine, three commands, about two minutes. The repo ships six MIT-licensed open-source ROMs, so you don't have to hunt for a game.</p>
+        </div>
+
+        <div class="quick-top reveal">
+          <div class="tabs" role="tablist" aria-label="Choose your operating system">
+            <button class="tab" type="button" role="tab" id="tab-mac" aria-selected="true" aria-controls="panel-mac" data-os-tab="mac">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16.4 12.7c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.7-3.2.7-.7 0-1.7-.7-2.8-.7-1.4 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.5 2.2 2.6 2.1 1-.1 1.4-.7 2.7-.7s1.6.7 2.7.7c1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.3 1.1-2.3s-2-.8-2-3.6ZM14.3 6.4c.6-.7 1-1.7.9-2.7-.9.1-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.6 1 .1 1.9-.5 2.5-1.2Z" fill="currentColor"/></svg>
+              macOS
+            </button>
+            <button class="tab" type="button" role="tab" id="tab-linux" aria-selected="false" aria-controls="panel-linux" data-os-tab="linux">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3c-2.2 0-3.5 1.8-3.5 4.2 0 1.6-.5 2.6-1.3 3.8-.9 1.3-1.7 2.6-1.7 4.4 0 3.4 2.9 5.6 6.5 5.6s6.5-2.2 6.5-5.6c0-1.8-.8-3.1-1.7-4.4-.8-1.2-1.3-2.2-1.3-3.8C15.5 4.8 14.2 3 12 3Z" stroke="currentColor" stroke-width="1.5"/><path d="M10 15.5c1.2.8 2.8.8 4 0M9.5 9.2h.01M14.5 9.2h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Linux
+            </button>
+          </div>
+          <span class="quick-time"><span class="dot" aria-hidden="true"></span>~2 min · first build ~1 min</span>
+        </div>
+
+        <div class="quick-grid">
+          <div class="reveal">
+            <div role="tabpanel" id="panel-mac" aria-labelledby="tab-mac" data-os-panel="mac">
+              <ol class="steps">
+                <li class="step">
+                  <span class="step-num" aria-hidden="true"></span>
+                  <h3 class="step-title">Get the code <span>6 ROMs included</span></h3>
+                  <p class="step-desc">All you need is Git. The games and their licences live in <code>roms/</code>.</p>
+                  <div class="cmd">
+                    <div class="cmd-bar">
+                      <span class="dot"></span>shell
+                      <button class="cmd-copy" type="button" data-copy="git clone https://github.com/OneDayOneApp/Open6502.git
+cd Open6502">
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg>
+                        <span class="copy-label">Copy</span>
+                      </button>
+                    </div>
+                    <pre><span class="p">$</span> git clone https://github.com/OneDayOneApp/Open6502.git
+<span class="p">$</span> cd Open6502</pre>
+                  </div>
+                </li>
+                <li class="step">
+                  <span class="step-num" aria-hidden="true"></span>
+                  <h3 class="step-title">Build the emulator <span>SDL2 + clang</span></h3>
+                  <p class="step-desc">Install SDL2, then build NEMU's 6502 frontend. Works on Apple Silicon and Intel.</p>
+                  <div class="cmd">
+                    <div class="cmd-bar">
+                      <span class="dot"></span>shell
+                      <button class="cmd-copy" type="button" data-copy="brew install sdl2
+make -C NEMU m6502_defconfig
+make -C NEMU -j8">
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg>
+                        <span class="copy-label">Copy</span>
+                      </button>
+                    </div>
+                    <pre><span class="p">$</span> brew install sdl2
+<span class="p">$</span> make -C NEMU m6502_defconfig
+<span class="p">$</span> make -C NEMU -j8</pre>
+                  </div>
+                </li>
+                <li class="step">
+                  <span class="step-num" aria-hidden="true"></span>
+                  <h3 class="step-title">Play <span>Press V to start</span></h3>
+                  <p class="step-desc">FALLING is a vertical platformer. Press <span class="keycap">V</span> to start, <span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span> to move, <span class="keycap">Space</span> to jump.</p>
+                  <div class="cmd">
+                    <div class="cmd-bar">
+                      <span class="dot"></span>shell
+                      <button class="cmd-copy" type="button" data-copy="./roms/play.sh falling">
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg>
+                        <span class="copy-label">Copy</span>
+                      </button>
+                    </div>
+                    <pre><span class="p">$</span> ./roms/play.sh falling</pre>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div role="tabpanel" id="panel-linux" aria-labelledby="tab-linux" data-os-panel="linux" hidden>
+              <ol class="steps">
+                <li class="step">
+                  <span class="step-num" aria-hidden="true"></span>
+                  <h3 class="step-title">Get the code <span>6 ROMs included</span></h3>
+                  <p class="step-desc">All you need is Git. The games and their licences live in <code>roms/</code>.</p>
+                  <div class="cmd">
+                    <div class="cmd-bar">
+                      <span class="dot"></span>shell
+                      <button class="cmd-copy" type="button" data-copy="git clone https://github.com/OneDayOneApp/Open6502.git
+cd Open6502">
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg>
+                        <span class="copy-label">Copy</span>
+                      </button>
+                    </div>
+                    <pre><span class="p">$</span> git clone https://github.com/OneDayOneApp/Open6502.git
+<span class="p">$</span> cd Open6502</pre>
+                  </div>
+                </li>
+                <li class="step">
+                  <span class="step-num" aria-hidden="true"></span>
+                  <h3 class="step-title">Install dependencies and build <span>Ubuntu / Debian</span></h3>
+                  <p class="step-desc">Needs a C compiler, make and SDL2 headers. Use your distro's package manager elsewhere.</p>
+                  <div class="cmd">
+                    <div class="cmd-bar">
+                      <span class="dot"></span>shell
+                      <button class="cmd-copy" type="button" data-copy="sudo apt install -y build-essential clang libsdl2-dev
+make -C NEMU m6502_defconfig
+make -C NEMU -j8">
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg>
+                        <span class="copy-label">Copy</span>
+                      </button>
+                    </div>
+                    <pre><span class="p">$</span> sudo apt install -y build-essential clang libsdl2-dev
+<span class="p">$</span> make -C NEMU m6502_defconfig
+<span class="p">$</span> make -C NEMU -j8</pre>
+                  </div>
+                </li>
+                <li class="step">
+                  <span class="step-num" aria-hidden="true"></span>
+                  <h3 class="step-title">Play <span>Press V to start</span></h3>
+                  <p class="step-desc">FALLING is a vertical platformer. Press <span class="keycap">V</span> to start, <span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span> to move, <span class="keycap">Space</span> to jump.</p>
+                  <div class="cmd">
+                    <div class="cmd-bar">
+                      <span class="dot"></span>shell
+                      <button class="cmd-copy" type="button" data-copy="./roms/play.sh falling">
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 5.5v-2a1.2 1.2 0 0 0-1.2-1.2H3.7A1.2 1.2 0 0 0 2.5 3.5v5.6a1.2 1.2 0 0 0 1.2 1.2h1.8" stroke="currentColor" stroke-width="1.2"/></svg>
+                        <span class="copy-label">Copy</span>
+                      </button>
+                    </div>
+                    <pre><span class="p">$</span> ./roms/play.sh falling</pre>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <p class="keymap-hint">On Windows, use WSL2 and follow the Linux steps. Full keymap, headless screenshots and RTL frame capture are in <a href="docs.en.html#quickstart" style="color:var(--red-bright)">Docs · Quickstart</a>.</p>
+          </div>
+
+          <div class="side-stack">
+            <div class="side-card reveal">
+              <h3 class="side-title">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.4" stroke="currentColor" stroke-width="1.3"/><path d="M5 6.5h3M5 9h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                What you need
+              </h3>
+              <ul class="req-list">
+                <li><span class="k">OS</span><span class="v">macOS 13+ / Ubuntu 22.04+</span></li>
+                <li><span class="k">RAM</span><span class="v">4 GB is enough</span></li>
+                <li><span class="k">Dependencies</span><span class="v">clang · make · SDL2</span></li>
+                <li><span class="k">Network</span><span class="v">first clone only</span></li>
+                <li><span class="k">GPU</span><span class="v">anything that opens an SDL window</span></li>
+              </ul>
+            </div>
+
+            <div class="side-card reveal">
+              <h3 class="side-title">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1.5" y="4" width="13" height="8" rx="2.4" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 7v2M3.5 8h2M11 7.2h.01M12.6 8.8h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                Your keyboard is a 1P pad
+              </h3>
+              <div class="keymap">
+                <div class="keymap-row">
+                  <span class="keymap-label">Move</span>
+                  <span class="keys"><span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span></span>
+                </div>
+                <div class="keymap-row">
+                  <span class="keymap-label">A / jump</span>
+                  <span class="keys"><span class="keycap">Space</span><span class="keycap">Z</span></span>
+                </div>
+                <div class="keymap-row">
+                  <span class="keymap-label">B</span>
+                  <span class="keys"><span class="keycap">X</span></span>
+                </div>
+                <div class="keymap-row">
+                  <span class="keymap-label">Select / Start</span>
+                  <span class="keys"><span class="keycap">C</span><span class="keycap">V</span></span>
+                </div>
+                <div class="keymap-row">
+                  <span class="keymap-label">Quit</span>
+                  <span class="keys"><span class="keycap">Esc</span></span>
+                </div>
+              </div>
+              <p class="keymap-hint">Player 2 uses the arrow keys, <span class="keycap">,</span> <span class="keycap">.</span> and <span class="keycap">/</span> <span class="keycap">'</span>.</p>
+            </div>
+
+            <div class="side-card reveal" data-checklist>
+              <h3 class="side-title">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m2.5 8.5 3 3 8-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                First-run checklist
+              </h3>
+              <div class="checklist">
+                <label class="check">
+                  <input type="checkbox">
+                  <span class="check-box"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span class="check-text">Repo cloned locally<small>git clone succeeded</small></span>
+                </label>
+                <label class="check">
+                  <input type="checkbox">
+                  <span class="check-box"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span class="check-text">NEMU built<small>build/6502EMU exists</small></span>
+                </label>
+                <label class="check">
+                  <input type="checkbox">
+                  <span class="check-box"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span class="check-text">First game running<small>title screen, press V</small></span>
+                </label>
+              </div>
+              <div class="check-progress">
+                <span class="bar"><span class="bar-fill" data-checklist-bar></span></span>
+                <span data-checklist-count>0 / 3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= GAMES ================= -->
+    <section class="section" id="games" aria-labelledby="games-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">02</span>Games</span>
+          <h2 id="games-title">Six games. <em>All open source.</em></h2>
+          <p>Everything ships in <code>roms/</code> — clone and play. Hover or focus a card for a live capture. These are homebrew ROMs, each under its own MIT licence.</p>
+        </div>
+
+        <div class="gallery">
+          <article class="game reveal">
+            <div class="game-shot">
+              <span class="chip chip--red game-flag">NROM · 0</span>
+              <img class="is-title" src="assets/img/title-falling.png" width="256" height="240" alt="FALLING title screen" loading="lazy">
+              <img class="is-play" src="assets/img/play-falling.png" width="256" height="240" alt="FALLING gameplay" loading="lazy">
+              <span class="hint">HOVER · LIVE</span>
+            </div>
+            <div class="game-body">
+              <h3 class="game-name">FALLING</h3>
+              <p class="game-desc">Vertical platformer. Hop clouds, dodge spikes, climb. Also the project's golden test frame.</p>
+              <div class="game-meta">
+                <span class="chip">MIT</span>
+                <span class="chip">1P</span>
+                <span class="chip chip--green">Golden frame</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="game reveal">
+            <div class="game-shot">
+              <span class="chip chip--amber game-flag">Known rendering gap</span>
+              <img class="is-title" src="assets/img/title-galaxypatrol.png" width="256" height="240" alt="Galaxy Patrol title screen" loading="lazy">
+              <span class="hint">NROM · 0</span>
+            </div>
+            <div class="game-body">
+              <h3 class="game-name">GALAXY PATROL</h3>
+              <p class="game-desc">Space shooter. It runs, but the starfield still has a known rendering gap — a PPU issue, not a ROM issue.</p>
+              <div class="game-meta">
+                <span class="chip">MIT</span>
+                <span class="chip">1P</span>
+                <span class="chip chip--amber">Partial</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="game reveal">
+            <div class="game-shot">
+              <span class="chip chip--red game-flag">NROM · 0</span>
+              <img class="is-title" src="assets/img/title-hanoi.png" width="256" height="240" alt="Tower of Hanoi title screen" loading="lazy">
+              <img class="is-play" src="assets/img/play-hanoi.png" width="256" height="240" alt="Tower of Hanoi gameplay" loading="lazy">
+              <span class="hint">HOVER · LIVE</span>
+            </div>
+            <div class="game-body">
+              <h3 class="game-name">TOWER OF HANOI</h3>
+              <p class="game-desc">The classic puzzle. Great for exercising input, menus and static backgrounds — and for a break at work.</p>
+              <div class="game-meta">
+                <span class="chip">MIT</span>
+                <span class="chip">1P</span>
+                <span class="chip">Puzzle</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="game reveal">
+            <div class="game-shot">
+              <span class="chip chip--red game-flag">NROM · 0</span>
+              <img class="is-title" src="assets/img/title-table_tennis.png" width="256" height="240" alt="8-Bit Table Tennis title screen" loading="lazy">
+              <img class="is-play" src="assets/img/play-table_tennis.png" width="256" height="240" alt="8-Bit Table Tennis gameplay" loading="lazy">
+              <span class="hint">HOVER · LIVE</span>
+            </div>
+            <div class="game-body">
+              <h3 class="game-name">8-BIT TABLE TENNIS</h3>
+              <p class="game-desc">Two-player pong. Two people hunched over one keyboard is the correct 8-bit experience.</p>
+              <div class="game-meta">
+                <span class="chip">MIT</span>
+                <span class="chip">2P</span>
+                <span class="chip">Versus</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="game reveal">
+            <div class="game-shot">
+              <span class="chip chip--blue game-flag">MMC3 · 4</span>
+              <img class="is-title" src="assets/img/title-file-fixers.png" width="256" height="240" alt="File Fixers title screen" loading="lazy">
+              <img class="is-play" src="assets/img/play-file-fixers.png" width="256" height="240" alt="File Fixers gameplay" loading="lazy">
+              <span class="hint">HOVER · LIVE</span>
+            </div>
+            <div class="game-body">
+              <h3 class="game-name">FILE FIXERS</h3>
+              <p class="game-desc">A puzzle game inside a file manager. MMC3 CHR banking and IRQ are exercised for real here.</p>
+              <div class="game-meta">
+                <span class="chip">MIT</span>
+                <span class="chip">1P</span>
+                <span class="chip chip--blue">Mapper 4</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="game reveal">
+            <div class="game-shot">
+              <span class="chip chip--blue game-flag">MMC3 · 4</span>
+              <img class="is-title" src="assets/img/title-stallar.png" width="256" height="240" alt="Stallar title screen" loading="lazy">
+              <img class="is-play" src="assets/img/play-stallar.png" width="256" height="240" alt="Stallar gameplay" loading="lazy">
+              <span class="hint">HOVER · LIVE</span>
+            </div>
+            <div class="game-body">
+              <h3 class="game-name">STALLAR</h3>
+              <p class="game-desc">Side-scrolling platformer. Scrolling, sprites and MMC3 all at once — the busiest regression sample.</p>
+              <div class="game-meta">
+                <span class="chip">MIT</span>
+                <span class="chip">1P</span>
+                <span class="chip chip--blue">Mapper 4</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="license-note reveal">
+          <span><strong>About ROMs:</strong> no commercial ROMs are included or linked. All six games are MIT-licensed; the licence texts are in <a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms/LICENSES" target="_blank" rel="noopener">roms/LICENSES</a>.</span>
+          <span>Super Mario Bros. and other commercial games are not in the repo, and compatibility is not guaranteed.</span>
+        </div>
+
+        <div class="nesearch-cta reveal">
+          <span class="ico">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6" stroke="currentColor" stroke-width="1.6"/><path d="m15 15 4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 10.5h5M10.5 8v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </span>
+          <div>
+            <strong>Out of games? Find more with nesearch.</strong>
+            <p>A C++20 tool in the same repo. It aggregates GitHub homebrew, Homebrew Hub, PDRoms and Internet Archive, supports resumable downloads and SHA-256 checks, and can launch GEM6502 or NEMU.</p>
+          </div>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/OneDayOneApp/Open6502/blob/main/nesearch/README.en.md" target="_blank" rel="noopener">Explore nesearch ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STATUS ================= -->
+    <section class="section" id="status" aria-labelledby="status-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">03</span>Status</span>
+          <h2 id="status-title">Honestly, <em>here's where it stands</em>.</h2>
+          <p>Numbers from the last verification (2026-11-11). This is not a finished chip — but every “passed” has reproducible evidence, and every “not yet” is listed too.</p>
+        </div>
+
+        <div class="status-panel reveal">
+          <div class="status-top">
+            <span class="dot" aria-hidden="true"></span>
+            <span>Verified · 2026-11-11</span>
+            <span class="right">Evidence-based · no marketing math</span>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-v">28 <small>PASS</small></div>
+              <div class="stat-k">RTL unit / integration tests</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">6 <small>games</small></div>
+              <div class="stat-k">Open-source ROMs playable</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">1 <small>frame</small></div>
+              <div class="stat-k">Byte-identical RTL vs NEMU</div>
+            </div>
+            <div class="stat">
+              <div class="stat-v">0x3469</div>
+              <div class="stat-k">RTL Klaus end PC</div>
+            </div>
+          </div>
+
+          <div class="stage-list">
+            <div class="stage-row">
+              <span class="stage-name">NEMU<small>software reference</small></span>
+              <span class="stage-bar"><i style="--w:90%"></i></span>
+              <span class="stage-pct">90%</span>
+            </div>
+            <div class="stage-row">
+              <span class="stage-name">RTL SoC<small>SystemVerilog</small></span>
+              <span class="stage-bar"><i style="--w:60%"></i></span>
+              <span class="stage-pct">60%</span>
+            </div>
+            <div class="stage-row">
+              <span class="stage-name">FPGA<small>board validation</small></span>
+              <span class="stage-bar"><i style="--w:10%"></i></span>
+              <span class="stage-pct">10%</span>
+            </div>
+            <div class="stage-row">
+              <span class="stage-name">55 nm ASIC<small>long-term target</small></span>
+              <span class="stage-bar"><i style="--w:5%"></i></span>
+              <span class="stage-pct">5%</span>
+            </div>
+          </div>
+
+          <div class="status-cols">
+            <div class="status-col">
+              <h3>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Works today
+              </h3>
+              <ul class="li-list li-list--ok">
+                <li>Play all six open-source games in NEMU, including two MMC3 titles</li>
+                <li>RTL CPU passes the Klaus functional test, ending at <span class="m">PC=0x3469</span></li>
+                <li>RTL renders the FALLING title frame with the same SHA-256 as NEMU</li>
+                <li>START enters gameplay; <span class="m">$00=1</span> is stable and the palette is retained</li>
+                <li>NEMU/RTL final-state, PC trace and ALU/stack DiffTest pass</li>
+              </ul>
+            </div>
+            <div class="status-col">
+              <h3>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3.6l2.2 1.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                Not yet
+              </h3>
+              <ul class="li-list li-list--no">
+                <li>RTL PPU is not cycle-exact: no full fetch/shift pipeline or exact sprite evaluation</li>
+                <li>DMC bus arbitration and CPU DMA alignment are incomplete</li>
+                <li>No FPGA bitstream and no board validation</li>
+                <li>No multi-game lockstep DiffTest; compatibility is partial</li>
+                <li>Root licence not published; no commercial-ROM compatibility guarantee</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="status-foot">
+            <span>Full verification matrix, golden hashes and repro commands live in the docs.</span>
+            <a class="btn--link" href="docs.en.html#verification">Verification →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PARITY ================= -->
+    <section class="section" id="parity" aria-labelledby="parity-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">04</span>Parity</span>
+          <h2 id="parity-title">One frame. <em>Two worlds.</em></h2>
+          <p>On one side the NEMU software reference; on the other the SystemVerilog RTL. Drag the divider — you can't see a difference. That's the point.</p>
+        </div>
+
+        <div class="parity-grid">
+          <div class="reveal">
+            <p style="color:var(--muted);font-size:0.94rem">
+              NEMU is <strong style="color:var(--text)">REF</strong>; RTL is <strong style="color:var(--text)">DUT</strong>. Same ROM, same frame, same 256×240 NTSC image. RTL's SHA-256 is identical to NEMU's. That means the chain from CPU fetch to PPU pixels agrees — at least for this frame.
+            </p>
+            <div class="sha-block">
+              <div class="sha-row">
+                <span class="k">RTL / DUT</span>
+                <span class="v ok">41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</span>
+              </div>
+              <div class="sha-row">
+                <span class="k">NEMU / REF</span>
+                <span class="v ok">41e8ebc137e3b8ede2f0adf915956fb9454346e9454e358c6dad2ee5a58f5a33</span>
+              </div>
+              <div class="sha-row">
+                <span class="k">CPU Klaus</span>
+                <span class="v">PASS · PC=0x3469</span>
+              </div>
+              <div class="sha-row">
+                <span class="k">DiffTest</span>
+                <span class="v">Final state · PC trace · ALU/stack PASS</span>
+              </div>
+            </div>
+            <div class="doc-actions" style="margin-top:20px">
+              <a class="btn btn--ghost btn--sm" href="docs.en.html#difftest">DiffTest protocol →</a>
+              <a class="btn btn--ghost btn--sm" href="https://github.com/OneDayOneApp/Open6502/tree/main/sim/difftest" target="_blank" rel="noopener">Repro scripts ↗</a>
+            </div>
+          </div>
+
+          <div class="reveal">
+            <div class="compare" style="--pos:50%">
+              <img class="compare-img" src="assets/img/frame-nemu-title.png" width="256" height="240" alt="FALLING title frame rendered by NEMU">
+              <div class="compare-top">
+                <img class="compare-img" src="assets/img/frame-rtl-title.png" width="256" height="240" alt="FALLING title frame rendered by the RTL SoC">
+              </div>
+              <span class="compare-tag compare-tag--l">NEMU / REF</span>
+              <span class="compare-tag compare-tag--r">RTL / DUT</span>
+              <span class="compare-line" aria-hidden="true"><span class="compare-grip">↔</span></span>
+              <input class="compare-range" type="range" min="0" max="100" value="50" step="1" data-compare-range aria-label="Drag to compare the NEMU and RTL FALLING title frames">
+            </div>
+            <div class="compare-hint">
+              <span>← drag the divider →</span>
+              <span>256 × 240 · pixel-identical</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ARCHITECTURE ================= -->
+    <section class="section" id="architecture" aria-labelledby="arch-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">05</span>Architecture</span>
+          <h2 id="arch-title">One NES, <em>twelve modules</em>.</h2>
+          <p>A single 21.477272 MHz clock with enable phases for CPU, PPU and APU — no multi-clock CDC. Every peripheral exposes observable bus events for DiffTest against NEMU.</p>
+        </div>
+
+        <div class="arch-panel reveal">
+          <div class="arch-scroll">
+            <svg class="arch-svg" viewBox="0 0 1200 580" role="img" aria-labelledby="arch-svg-title arch-svg-desc" xmlns="http://www.w3.org/2000/svg">
+              <title id="arch-svg-title">Open6502 SoC block diagram</title>
+              <desc id="arch-svg-desc">The CPU connects through the system bus to the PPU, WRAM, APU, cartridge mapper and IO. The PPU outputs RGB444 video; clocks and reset generate the phase enables; the debug bridge sends events to the NEMU reference model.</desc>
+              <defs>
+                <marker id="arw" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10z" fill="#8a99ad"/>
+                </marker>
+                <marker id="arwR" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10z" fill="#ff6a72"/>
+                </marker>
+                <style>
+                  .bx { fill: #0d141e; stroke: rgba(214,228,247,.17); stroke-width: 1; }
+                  .bx-hot { fill: #141d29; stroke: rgba(255,77,87,.38); stroke-width: 1; }
+                  .t { fill: #e9eff8; font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; letter-spacing: .02em; }
+                  .s { fill: #8a99ad; font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 10.5px; }
+                  .tag { fill: #aab8cb; font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 9px; }
+                  .tagbg { fill: rgba(255,255,255,.045); stroke: rgba(214,228,247,.12); }
+                  .ln { stroke: rgba(214,228,247,.26); stroke-width: 1.2; fill: none; }
+                  .ln-dash { stroke: rgba(255,106,114,.5); stroke-width: 1.2; stroke-dasharray: 5 5; fill: none; }
+                  .jl { fill: #8a99ad; }
+                  .hdr { fill: #6d7c91; font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 10px; letter-spacing: .18em; }
+                  .red { fill: #ff6a72; font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+                  .clk { fill: #f4c66a; font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 9.5px; }
+                </style>
+              </defs>
+
+              <text x="40" y="34" class="hdr">OPEN6502_TOP · SOC BLOCK DIAGRAM</text>
+              <text x="1160" y="34" class="hdr" text-anchor="end">NTSC · SINGLE CLOCK + ENABLES</text>
+
+              <!-- clocks -->
+              <rect class="bx" x="40" y="64" width="260" height="62" rx="8"/>
+              <text x="56" y="90" class="t" font-size="13">CLOCKS / RESET</text>
+              <text x="56" y="109" class="s">21.477272 MHz · ÷12 · ÷4 · ÷24</text>
+              <line class="ln" x1="170" y1="126" x2="170" y2="200" marker-end="url(#arw)"/>
+              <line class="ln-dash" x1="300" y1="95" x2="865" y2="95" marker-end="url(#arwR)"/>
+              <line class="ln-dash" x1="865" y1="95" x2="865" y2="180" marker-end="url(#arwR)"/>
+              <text x="620" y="88" class="clk">clk_en phases</text>
+
+              <!-- cpu -->
+              <rect class="bx" x="40" y="200" width="260" height="112" rx="8"/>
+              <text x="56" y="228" class="t">6502 CPU</text>
+              <text x="56" y="250" class="s">2A03 profile · official ISA</text>
+              <rect class="tagbg" x="56" y="266" width="46" height="18" rx="4"/><text x="66" y="279" class="tag">NMI</text>
+              <rect class="tagbg" x="108" y="266" width="46" height="18" rx="4"/><text x="118" y="279" class="tag">IRQ</text>
+              <rect class="tagbg" x="160" y="266" width="76" height="18" rx="4"/><text x="170" y="279" class="tag">DMA STALL</text>
+
+              <!-- bus -->
+              <rect class="bx-hot" x="360" y="210" width="320" height="92" rx="8"/>
+              <text x="376" y="238" class="t">SYSTEM BUS</text>
+              <text x="376" y="260" class="s">address decode · OAM DMA · arbitration</text>
+              <rect class="tagbg" x="376" y="274" width="132" height="18" rx="4"/><text x="386" y="287" class="tag">CPU / PPU / APU</text>
+
+              <!-- ppu -->
+              <rect class="bx" x="740" y="180" width="250" height="128" rx="8"/>
+              <text x="756" y="208" class="t">2C02 PPU</text>
+              <text x="756" y="230" class="s">341 × 262 · per-dot pixels</text>
+              <rect class="tagbg" x="756" y="246" width="66" height="18" rx="4"/><text x="766" y="259" class="tag">VRAM 2K</text>
+              <rect class="tagbg" x="828" y="246" width="62" height="18" rx="4"/><text x="838" y="259" class="tag">OAM 256</text>
+              <rect class="tagbg" x="896" y="246" width="58" height="18" rx="4"/><text x="906" y="259" class="tag">PAL 32</text>
+              <text x="756" y="288" class="s">BG fetch · sprites · scroll · NMI</text>
+
+              <!-- video -->
+              <rect class="bx" x="1030" y="200" width="130" height="88" rx="8"/>
+              <text x="1046" y="228" class="t" font-size="13">VIDEO</text>
+              <text x="1046" y="248" class="s">RGB444</text>
+              <text x="1046" y="264" class="s">VGA / HDMI</text>
+              <line class="ln" x1="990" y1="244" x2="1030" y2="244" marker-end="url(#arw)"/>
+              <line class="ln" x1="300" y1="256" x2="360" y2="256" marker-end="url(#arw)"/>
+              <line class="ln" x1="360" y1="268" x2="300" y2="268" marker-end="url(#arw)"/>
+              <line class="ln" x1="680" y1="256" x2="740" y2="256" marker-end="url(#arw)"/>
+              <line class="ln" x1="740" y1="268" x2="680" y2="268" marker-end="url(#arw)"/>
+
+              <!-- bottom rail -->
+              <line class="ln" x1="520" y1="302" x2="520" y2="340"/>
+              <line class="ln" x1="170" y1="340" x2="1095" y2="340"/>
+              <circle class="jl" cx="520" cy="340" r="3"/>
+              <circle class="jl" cx="170" cy="340" r="3"/>
+              <circle class="jl" cx="855" cy="340" r="3"/>
+              <circle class="jl" cx="1095" cy="340" r="3"/>
+              <line class="ln" x1="170" y1="340" x2="170" y2="380" marker-end="url(#arw)"/>
+              <line class="ln" x1="510" y1="340" x2="510" y2="380" marker-end="url(#arw)"/>
+              <line class="ln" x1="855" y1="340" x2="855" y2="380" marker-end="url(#arw)"/>
+              <line class="ln" x1="1095" y1="340" x2="1095" y2="380" marker-end="url(#arw)"/>
+              <text x="540" y="333" class="s">address / data / control</text>
+
+              <!-- bottom row -->
+              <rect class="bx" x="40" y="380" width="260" height="104" rx="8"/>
+              <text x="56" y="408" class="t" font-size="13">2 KB WRAM</text>
+              <text x="56" y="430" class="s">four-way mirror $0000–$1FFF</text>
+              <text x="56" y="448" class="s">CPU read/write · no wait</text>
+
+              <rect class="bx" x="360" y="380" width="300" height="104" rx="8"/>
+              <text x="376" y="408" class="t" font-size="13">2A03 APU + DMC</text>
+              <text x="376" y="430" class="s">2× pulse · triangle · noise</text>
+              <rect class="tagbg" x="376" y="444" width="74" height="18" rx="4"/><text x="386" y="457" class="tag">44.1 kHz</text>
+              <rect class="tagbg" x="456" y="444" width="82" height="18" rx="4"/><text x="466" y="457" class="tag">σΔ / PCM</text>
+
+              <rect class="bx" x="720" y="380" width="270" height="104" rx="8"/>
+              <text x="736" y="408" class="t" font-size="13">CARTRIDGE / MAPPER</text>
+              <text x="736" y="430" class="s">PRG · CHR · mirroring · IRQ</text>
+              <rect class="tagbg" x="736" y="444" width="146" height="18" rx="4"/><text x="746" y="457" class="tag">0 1 2 3 4 7</text>
+
+              <rect class="bx" x="1030" y="380" width="130" height="104" rx="8"/>
+              <text x="1046" y="408" class="t" font-size="13">I/O</text>
+              <text x="1046" y="430" class="s">OAM DMA</text>
+              <text x="1046" y="448" class="s">2 controllers</text>
+
+              <!-- diff bridge -->
+              <line class="ln-dash" x1="320" y1="340" x2="320" y2="512"/>
+              <text x="330" y="470" class="clk">dbg</text>
+              <rect class="bx" x="40" y="512" width="1120" height="42" rx="8"/>
+              <text x="56" y="538" class="red">DBG / DIFFTEST BRIDGE</text>
+              <text x="238" y="538" class="s">CPU · BUS · PPU · APU events → NEMU REF (simulation only; FPGA exports summaries / hashes)</text>
+              <line class="ln-dash" x1="320" y1="512" x2="320" y2="498" marker-end="url(#arwR)"/>
+            </svg>
+          </div>
+          <div class="arch-legend">
+            <span class="chip chip--red">single clock + enables</span>
+            <span class="chip chip--blue">CPU / PPU / APU / Mapper</span>
+            <span class="chip chip--green">DiffTest observable</span>
+            <span class="chip">12 RTL modules</span>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card reveal">
+            <h3><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 4.5V8l2.4 1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Clock domains</h3>
+            <div class="kv">
+              <div><span class="k">clk_21m</span><span class="v">21.477272 MHz</span></div>
+              <div><span class="k">cpu_en</span><span class="v">1.789773 MHz</span></div>
+              <div><span class="k">ppu_en</span><span class="v">5.369318 MHz</span></div>
+              <div><span class="k">aud_en</span><span class="v">44.1 kHz</span></div>
+            </div>
+          </div>
+          <div class="info-card reveal">
+            <h3><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 4.5h11v7h-11z" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Address map</h3>
+            <div class="kv">
+              <div><span class="k">$0000–$1FFF</span><span class="v">2KB WRAM ×4</span></div>
+              <div><span class="k">$2000–$3FFF</span><span class="v">PPU registers</span></div>
+              <div><span class="k">$4000–$4017</span><span class="v">APU / DMA / pad</span></div>
+              <div><span class="k">$8000–$FFFF</span><span class="v">cartridge PRG</span></div>
+            </div>
+          </div>
+          <div class="info-card reveal">
+            <h3><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1.4" stroke="currentColor" stroke-width="1.3"/><path d="M6 1.5v1.5M10 1.5v1.5M6 13v1.5M10 13v1.5M1.5 6H3M1.5 10H3M13 6h1.5M13 10h1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Top-level ports</h3>
+            <pre>input  clk_21m, rst_n;
+output vid_pclk, vid_de;
+output vid_hsync, vid_vsync;
+output [11:0] vid_rgb;
+output aud_valid;
+output signed [15:0] aud_sample;
+input  [7:0] joy1, joy2;
+// cart bus + dbg event</pre>
+          </div>
+        </div>
+
+        <div class="section-foot reveal">
+          <span>Full block diagram, clock and port definitions, and module boundaries.</span>
+          <a class="btn--link" href="docs.en.html#architecture">Docs · Architecture →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SILICON ================= -->
+    <section class="section" id="silicon" aria-labelledby="silicon-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">06</span>Silicon</span>
+          <h2 id="silicon-title">From a million gates, <em>to 1.5 mm²</em>.</h2>
+          <p>These are Yosys generic-cell estimates, not silicon area. They say one thing: the CPU is small, the PPU is the elephant. Next step: replace the PPU register arrays with BRAM / SRAM.</p>
+        </div>
+
+        <div class="numbers">
+          <div class="number-card reveal">
+            <div class="number-v">1,021,421</div>
+            <div class="number-k">Yosys generic cells</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="number-v">975,919 <span>cells</span></div>
+            <div class="number-k">PPU alone: 95.5% of area</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="number-v">1.2–2.0 <span>mm²</span></div>
+            <div class="number-k">Planned 55nm die after SRAM + PPU refactor</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="number-v">$0.3–0.7</div>
+            <div class="number-k">Unit cost at volume (planning estimate)</div>
+          </div>
+        </div>
+
+        <div class="area-chart reveal">
+          <div class="area-chart-head">
+            <h3>Generic-cell area split</h3>
+            <span>YOSYS 0.60 · -flatten -noabc · per-module sum</span>
+          </div>
+          <div class="stack-bar" role="img" aria-label="PPU is 95.5%, WRAM 3.6%, remaining modules 0.8%">
+            <div class="stack-seg stack-seg--ppu">PPU 95.5%</div>
+            <div class="stack-seg stack-seg--wram"><span>3.6%</span></div>
+            <div class="stack-seg stack-seg--rest"><span>0.8%</span></div>
+          </div>
+          <div class="stack-legend">
+            <span><i class="ppu"></i>PPU · 975,919</span>
+            <span><i class="wram"></i>WRAM · 37,003</span>
+            <span><i class="rest"></i>Remaining modules · 8,499</span>
+          </div>
+          <div class="caveat">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Generic cells ≠ FPGA LUTs ≠ ASIC µm². Full top-level flatten did not finish within 600 s; the table is a per-module sum. No timing closure, BRAM mapping or standard-cell mapping yet.</span>
+          </div>
+        </div>
+
+        <div class="section-foot reveal">
+          <span>Per-module area, PPU breakdown and cost assumptions.</span>
+          <a class="btn--link" href="docs.en.html#synthesis">Docs · Synthesis &amp; area →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ROADMAP ================= -->
+    <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">07</span>Roadmap</span>
+          <h2 id="roadmap-title">Four gates. <em>No skipping.</em></h2>
+          <p>A later stage may not hide a failure in an earlier one. This is both the roadmap and the acceptance rule: NEMU → RTL → FPGA → 55nm ASIC.</p>
+        </div>
+
+        <div class="roadmap reveal">
+          <div class="gate gate--done">
+            <span class="gate-step"><span class="dot"></span>01 · NEMU</span>
+            <h3>Software reference</h3>
+            <p>Prove the game runs correctly first. Six ROMs playable, CPU Klaus PASS, screenshots reproducible.</p>
+            <span class="gate-status">status <b>WORKING · 90%</b></span>
+          </div>
+          <div class="gate gate--active">
+            <span class="gate-step"><span class="dot"></span>02 · RTL</span>
+            <h3>SystemVerilog SoC</h3>
+            <p>28 tests, Klaus PASS, golden frame SHA match, START frame rendered. Missing cycle accuracy.</p>
+            <span class="gate-status">status <b>PROTOTYPE · 60%</b></span>
+          </div>
+          <div class="gate gate--plan">
+            <span class="gate-step"><span class="dot"></span>03 · FPGA</span>
+            <h3>First light on a board</h3>
+            <p>Needs full synthesis, BRAM inference, timing constraints, VGA/HDMI and audio, plus board bring-up.</p>
+            <span class="gate-status">status <b>NEXT · 10%</b></span>
+          </div>
+          <div class="gate gate--plan">
+            <span class="gate-step"><span class="dot"></span>04 · 55 nm</span>
+            <h3>An open, verifiable chip</h3>
+            <p>55nm standard cells and SRAM, DFT/scan, timing/power, DRC/LVS, package and shuttle.</p>
+            <span class="gate-status">status <b>PLANNING · 5%</b></span>
+          </div>
+        </div>
+
+        <div class="section-foot reveal">
+          <span>Exit criteria, current blockers and next work for every stage.</span>
+          <a class="btn--link" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/55nm-tapeout-roadmap.md" target="_blank" rel="noopener">Full roadmap ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONTRIBUTE ================= -->
+    <section class="section" id="contribute" aria-labelledby="contribute-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">08</span>Contribute</span>
+          <h2 id="contribute-title">It needs more than <em>a star</em>.</h2>
+          <p>This project spans software, RTL, FPGA and ASIC. If any layer stalls, 55nm never happens. If you only know one slice, that's enough.</p>
+        </div>
+
+        <div class="contribute">
+          <div class="reveal">
+            <div class="roles">
+              <span class="role">CPU / bus timing</span>
+              <span class="role">PPU pipeline</span>
+              <span class="role">APU / DMC</span>
+              <span class="role">Cartridge / mapper</span>
+              <span class="role">DiffTest / CI</span>
+              <span class="role">FPGA synthesis &amp; timing</span>
+              <span class="role">55nm backend / DFT</span>
+              <span class="role">Docs &amp; test ROMs</span>
+            </div>
+            <h3 class="side-title" style="margin-top:26px">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/></svg>
+              A few approachable starting points
+            </h3>
+            <div class="issues">
+              <a class="issue" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">
+                <span class="issue-num">01</span>
+                <span><p>Add a unit test for PPU <code>$2007</code> palette reads</p><small>SystemVerilog · a good first RTL task</small></span>
+              </a>
+              <a class="issue" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">
+                <span class="issue-num">02</span>
+                <span><p>Add frame-index assertions to <code>sim/game</code> and pin the golden frame</p><small>C++ / scripts · make regressions reproducible</small></span>
+              </a>
+              <a class="issue" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">
+                <span class="issue-num">03</span>
+                <span><p>Add a controller A/B/Select/Start order test</p><small>Verification · input order is the easiest compatibility bug to miss</small></span>
+              </a>
+              <a class="issue" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">
+                <span class="issue-num">04</span>
+                <span><p>Rewrite PPU sprite selection as a sequential scan and drop the big mux</p><small>PPU / FPGA · directly targets area and board bring-up</small></span>
+              </a>
+            </div>
+            <div class="doc-actions" style="margin-top:20px">
+              <a class="btn btn--primary btn--sm" href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing guide ↗</a>
+              <a class="btn btn--ghost btn--sm" href="https://github.com/OneDayOneApp/Open6502/issues" target="_blank" rel="noopener">Browse all issues ↗</a>
+            </div>
+          </div>
+
+          <aside class="rules reveal">
+            <h3>
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.8 13.5 4v4.2c0 3-2.3 5.3-5.5 6-3.2-.7-5.5-3-5.5-6V4L8 1.8Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="m5.5 8 1.8 1.8L11 6.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Read this before contributing
+            </h3>
+            <ol>
+              <li>Add or update tests before changing RTL behaviour.</li>
+              <li>Run <code>cd rtl &amp;&amp; make lint &amp;&amp; make sim</code> and DiffTest before a PR.</li>
+              <li>Golden hashes don't change casually; changes need review and a record.</li>
+              <li>Don't delete tests to make a change “pass”.</li>
+              <li>No commercial ROMs, BIOS files or proprietary PDK data.</li>
+            </ol>
+            <p class="muted">The root licence is not published yet. <strong style="color:var(--amber)">Until the maintainers publish the licence and contribution terms, please do not contribute code.</strong> ROM licences are in roms/LICENSES.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">09</span>FAQ</span>
+          <h2 id="faq-title">The unpleasant truths, <em>up front</em>.</h2>
+          <p>The questions visitors ask most, answered without polish. Deeper fixes are in the docs' Troubleshooting section.</p>
+        </div>
+
+        <div class="faq reveal">
+          <details class="faq-item">
+            <summary>Can I play in the browser?</summary>
+            <div class="faq-body">No. NEMU is a local SDL app; RTL frames are captured through Verilator. There is no WASM or web frontend. This site explains how to run it locally instead of pretending to offer an online emulator.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Do you support commercial ROMs like Super Mario Bros.?</summary>
+            <div class="faq-body">Not bundled, not linked. Compatibility is still improving, and no commercial ROM is promised to work. Only use ROMs you legally own.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Why is there no FPGA bitstream yet?</summary>
+            <div class="faq-body">Full synthesis, BRAM mapping, timing constraints and board bring-up are not done. The PPU currently expands CHR/VRAM/OAM/palette into flip-flops, which won't fit a board; storage must move to BRAM and sprite scanning must become sequential first.</div>
+          </details>
+          <details class="faq-item">
+            <summary>When is the 55nm tapeout?</summary>
+            <div class="faq-body">No date. It's a long-term goal; this is a functional prototype. The roadmap requires FPGA validation before timing, DFT, DRC/LVS and a shuttle. The root licence isn't even published.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Should I start with NEMU or RTL?</summary>
+            <div class="faq-body">Want to play or verify behaviour: start with NEMU. Want to build a chip: start with RTL and <code>docs/open6502-chip/</code>. Just want a fast C model: GEM6502 — but note it's still a legacy instruction-driven model, not a complete chip timing platform.</div>
+          </details>
+          <details class="faq-item">
+            <summary>What's the licence? Can I reuse it?</summary>
+            <div class="faq-body">No root licence yet. The six ROMs are MIT, and brand assets are in <code>docs/images/</code>. Until the maintainers publish the root licence and contribution terms, don't assume the code is redistributable; read <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING.md</a> first.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FINAL CTA ================= -->
+    <section class="section" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="cta-band reveal">
+          <div>
+            <span class="eyebrow eyebrow--plain">Next step</span>
+            <h2 id="cta-title">Play a round, or read the code.</h2>
+            <p>Both roads lead to the same chip. The only difference is where you enter.</p>
+          </div>
+          <div class="cta-actions">
+            <a class="btn btn--primary" href="#play">Play in 2 minutes</a>
+            <a class="btn btn--ghost" href="docs.en.html">Open the docs</a>
+            <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="index.en.html" aria-label="Open6502 home">
+            <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+            <span class="brand-text">
+              <span class="brand-name">OPEN6502</span>
+              <span class="brand-sub">Open silicon · from emulator to silicon</span>
+            </span>
+          </a>
+          <p>An open-source 6502/NES-compatible SoC: first a playable software reference, then the same chip in SystemVerilog, then 55nm.</p>
+          <div class="footer-links">
+            <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.md" target="_blank" rel="noopener">English README</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Start</h4>
+          <ul>
+            <li><a href="#play">Play in 2 minutes</a></li>
+            <li><a href="#games">Six games</a></li>
+            <li><a href="docs.en.html#quickstart">Build &amp; run</a></li>
+            <li><a href="docs.en.html#troubleshooting">Troubleshooting</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Deep dive</h4>
+          <ul>
+            <li><a href="docs.en.html#architecture">Architecture</a></li>
+            <li><a href="docs.en.html#verification">Verification</a></li>
+            <li><a href="docs.en.html#difftest">DiffTest</a></li>
+            <li><a href="docs.en.html#synthesis">Synthesis &amp; area</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Project</h4>
+          <ul>
+            <li><a href="#roadmap">Roadmap</a></li>
+            <li><a href="#status">Current status</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROMs &amp; licences ↗</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/nesearch" target="_blank" rel="noopener">nesearch ↗</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> Open6502 · open-source 6502/NES SoC project</span>
+        <span>Last verified · 2026-11-11</span>
+        <span class="right">Source in <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · plain HTML/CSS/JS · GitHub Pages</span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="to-top" type="button" data-to-top aria-label="Back to top">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</body>
+</html>

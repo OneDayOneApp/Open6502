@@ -9,6 +9,30 @@
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* ---------- Locale ---------- */
+  const LANG = document.documentElement.lang.toLowerCase().startsWith("en") ? "en" : "zh";
+  const STRINGS = {
+    zh: {
+      copied: "已复制",
+      copiedToast: "已复制到剪贴板",
+      copyFail: "复制失败，请手动选择文本",
+      searchEmpty: "没有找到相关章节，试试 “PPU”、“Verilator” 或 “Klaus”。",
+      compare: (value) => `${value}% 显示 RTL，${100 - value}% 显示 NEMU`,
+      navOpen: "打开导航菜单",
+      navClose: "关闭导航菜单",
+    },
+    en: {
+      copied: "Copied",
+      copiedToast: "Copied to clipboard",
+      copyFail: "Copy failed. Please select the text manually.",
+      searchEmpty: "No matching section. Try “PPU”, “Verilator” or “Klaus”.",
+      compare: (value) => `${value}% RTL, ${100 - value}% NEMU`,
+      navOpen: "Open navigation menu",
+      navClose: "Close navigation menu",
+    },
+  };
+  const t = STRINGS[LANG];
+
   /* ---------- Toast ---------- */
   let toastEl = null;
   let toastTimer = 0;
@@ -68,13 +92,13 @@
     }
     const ok = await copyText(text.trim());
     if (!ok) {
-      toast("复制失败，请手动选择文本");
+      toast(t.copyFail);
       return;
     }
     const label = $(".copy-label", button);
     if (label) {
       const previous = label.textContent;
-      label.textContent = "已复制";
+      label.textContent = t.copied;
       button.classList.add("is-copied");
       window.setTimeout(() => {
         label.textContent = previous;
@@ -84,7 +108,7 @@
       button.classList.add("is-copied");
       window.setTimeout(() => button.classList.remove("is-copied"), 1600);
     }
-    toast("已复制到剪贴板");
+    toast(t.copiedToast);
   });
 
   /* ---------- Mobile navigation ---------- */
@@ -94,7 +118,7 @@
     const setNav = (open) => {
       navMobile.classList.toggle("is-open", open);
       navToggle.setAttribute("aria-expanded", String(open));
-      navToggle.setAttribute("aria-label", open ? "关闭导航菜单" : "打开导航菜单");
+      navToggle.setAttribute("aria-label", open ? t.navClose : t.navOpen);
     };
     navToggle.addEventListener("click", () =>
       setNav(!navMobile.classList.contains("is-open"))
@@ -210,10 +234,7 @@
     const stage = range.closest(".compare");
     const update = () => {
       stage.style.setProperty("--pos", `${range.value}%`);
-      range.setAttribute(
-        "aria-valuetext",
-        `${range.value}% 显示 RTL，${100 - Number(range.value)}% 显示 NEMU`
-      );
+      range.setAttribute("aria-valuetext", t.compare(Number(range.value)));
     };
     range.addEventListener("input", update);
     update();
@@ -412,7 +433,7 @@
               </a>`
             )
             .join("")
-        : `<div class="search-empty">没有找到相关章节，试试 “PPU”、“Verilator” 或 “Klaus”。</div>`;
+        : `<div class="search-empty">${t.searchEmpty}</div>`;
     };
 
     let lastFocus = null;
@@ -482,6 +503,20 @@
       })
     );
   }
+
+  /* ---------- Language switch ---------- */
+  $$("[data-lang-switch]").forEach((link) => {
+    link.addEventListener("click", () => {
+      try {
+        const target = (link.getAttribute("hreflang") || "").toLowerCase();
+        localStorage.setItem("open6502:lang", target.startsWith("en") ? "en" : "zh");
+      } catch (_) {}
+      if (location.hash) {
+        const base = link.getAttribute("href").split("#")[0];
+        link.setAttribute("href", `${base}${location.hash}`);
+      }
+    });
+  });
 
   /* ---------- Platform shortcut labels ---------- */
   const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
