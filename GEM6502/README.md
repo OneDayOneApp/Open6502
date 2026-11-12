@@ -121,6 +121,24 @@ serialization, mouse buttons, focus loss, pause/help/reset/quit, texture upload,
 and rendering. Both MMC3 games receive START press/release events and run for
 240 frames. `make test difftest games mmc3` covers the headless regressions.
 
+## Browser player (WebAssembly)
+
+The functional core also runs in the browser as a ~30 KB freestanding
+WebAssembly module. Rendering, input and audio scheduling live in
+`web/player.js`; the module itself has no Emscripten or WASI imports.
+
+```sh
+cd web
+./build.sh
+python3 -m http.server 8000   # open http://localhost:8000/
+```
+
+Frames are byte-identical to the native `game` command, and `make web-test`
+checks that with `cmp`. The same player is embedded in the project website's
+Play section (`site/index.html`), refreshed with `./site/sync-play.sh`.
+See [web/README.md](web/README.md) for the module ABI, build requirements and
+known limits.
+
 ## Run a game
 
 GEM6502 can load an iNES mapper-0 ROM, run the CPU/PPU and render a PPM frame:

@@ -71,3 +71,12 @@ tests/test_kernel: src/sim/kernel.c tests/test_kernel.c include/gem/kernel.h
 	$(CC) $(CFLAGS) -Werror -o $@ src/sim/kernel.c tests/test_kernel.c $(LDFLAGS)
 
 .PHONY: test-kernel
+
+# Browser (WebAssembly) player; see web/README.md.
+web:
+	./web/build.sh
+
+web-test: web
+	./web/test/compare.sh ../roms/falling.nes 60
+
+.PHONY: web web-test

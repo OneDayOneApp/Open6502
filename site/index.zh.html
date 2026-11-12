@@ -27,6 +27,7 @@
   <meta name="twitter:description" content="一个今天就能玩的 NES 模拟器，和一颗正在生长的开源 6502/NES SoC。">
   <meta name="twitter:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
   <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/play.css">
   <script src="assets/js/site.js" defer></script>
   <script type="application/ld+json">
   {
@@ -88,7 +89,7 @@
       <a href="#contribute">参与</a>
       <a href="index.en.html" hreflang="en" lang="en" data-lang-switch>English</a>
       <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
-      <a class="btn btn--primary" href="#play">2 分钟玩起来</a>
+      <a class="btn btn--primary" href="#play">直接在浏览器试玩</a>
     </div>
   </header>
 
@@ -108,7 +109,7 @@
           </p>
           <div class="hero-cta">
             <a class="btn btn--primary" href="#play">
-              2 分钟玩起来
+              直接在浏览器试玩
               <svg class="arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
             <a class="btn btn--ghost" href="docs.zh.html">
@@ -206,10 +207,70 @@
         <div class="section-head reveal">
           <span class="eyebrow"><span class="sec-index">01</span>Quickstart</span>
           <h2 id="play-title">先玩起来，<em>再谈造芯</em>。</h2>
-          <p>不需要 FPGA，不需要开发板。一台 Mac 或 Linux，三条命令，大约两分钟。仓库自带六款 MIT 协议的开源 ROM，不用去别处找游戏。</p>
+          <p>先直接在浏览器里玩：下面运行的就是同一颗 GEM6502 核心，编译成了 WebAssembly。想本地构建也可以——一台 Mac 或 Linux，三条命令，大约两分钟；仓库自带六款 MIT 协议的开源 ROM。</p>
         </div>
 
-        <div class="quick-top reveal">
+                <div class="emu" id="emulator" tabindex="-1" aria-label="GEM6502 浏览器演示">
+          <div class="emu-head">
+            <div>
+              <span class="emu-kicker">立即试玩 · WEBASSEMBLY</span>
+              <h3 class="emu-title">同一颗 6502 核心，<em>就在这个标签页</em>。</h3>
+            </div>
+            <p class="emu-meta">GEM6502 · 约 30 KB wasm · 60 fps · 无需安装</p>
+          </div>
+          <div class="emu-body">
+            <div class="emu-screen" id="screen-wrap">
+              <canvas id="screen" width="256" height="240" aria-label="NES game screen"></canvas>
+              <div class="emu-overlay" id="overlay" hidden>
+                <div>
+                  <p class="emu-overlay-title" id="overlay-title">点击开始</p>
+                  <p class="emu-overlay-sub" id="overlay-sub">CLICK TO START · 音频需要一次用户操作</p>
+                </div>
+              </div>
+              <div class="emu-toast" id="toast" hidden></div>
+            </div>
+            <div class="emu-touch" id="touch" aria-label="Touch controls">
+              <div class="emu-dpad">
+                <button type="button" data-bit="16" class="t-up" aria-label="Up">▲</button>
+                <button type="button" data-bit="64" class="t-left" aria-label="Left">◀</button>
+                <button type="button" data-bit="128" class="t-right" aria-label="Right">▶</button>
+                <button type="button" data-bit="32" class="t-down" aria-label="Down">▼</button>
+              </div>
+              <div class="emu-touch-center">
+                <button type="button" data-bit="4" aria-label="Select">SELECT</button>
+                <button type="button" data-bit="8" aria-label="Start">START</button>
+              </div>
+              <div class="emu-touch-actions">
+                <button type="button" data-bit="2" class="t-b" aria-label="B">B</button>
+                <button type="button" data-bit="1" class="t-a" aria-label="A">A</button>
+              </div>
+            </div>
+            <div class="emu-side">
+              <label class="emu-field"><span>游戏</span>
+                <select id="game-select"></select>
+              </label>
+              <div class="emu-actions">
+                <button class="btn btn--primary" id="btn-start" type="button">开始</button>
+                <button class="btn btn--ghost" id="btn-pause" type="button">暂停</button>
+                <button class="btn btn--ghost" id="btn-reset" type="button">重置</button>
+                <button class="btn btn--ghost" id="btn-sound" type="button">声音：开</button>
+              </div>
+              <dl class="emu-stats">
+                <div><dt>状态</dt><dd id="stat-state">加载中</dd></div>
+                <div><dt>游戏</dt><dd id="stat-game">—</dd></div>
+                <div><dt>帧率</dt><dd id="stat-fps">—</dd></div>
+                <div><dt>帧数</dt><dd id="stat-frames">—</dd></div>
+                <div><dt>CPU 周期</dt><dd id="stat-cycles">—</dd></div>
+                <div><dt>声音</dt><dd id="stat-audio">点击后启用</dd></div>
+              </dl>
+              <p class="emu-hint">方向键 / WASD 移动 · <kbd>Z</kbd> 或 <kbd>空格</kbd> 跳跃 · <kbd>X</kbd> B 键 · <kbd>Enter</kbd> Start · <kbd>P</kbd> 暂停 · <kbd>R</kbd> 重置。先点一下画面，键盘才会交给模拟器。</p>
+              <label class="emu-file">载入本地 .nes 文件<input id="file-input" type="file" accept=".nes,application/octet-stream" hidden></label>
+              
+            </div>
+          </div>
+        </div>
+
+<div class="quick-top reveal">
           <div class="tabs" role="tablist" aria-label="选择操作系统">
             <button class="tab" type="button" role="tab" id="tab-mac" aria-selected="true" aria-controls="panel-mac" data-os-tab="mac">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16.4 12.7c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.7-3.2.7-.7 0-1.7-.7-2.8-.7-1.4 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.5 2.2 2.6 2.1 1-.1 1.4-.7 2.7-.7s1.6.7 2.7.7c1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.3 1.1-2.3s-2-.8-2-3.6ZM14.3 6.4c.6-.7 1-1.7.9-2.7-.9.1-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.6 1 .1 1.9-.5 2.5-1.2Z" fill="currentColor"/></svg>
@@ -1093,7 +1154,7 @@ input  [7:0] joy1, joy2;
             <p>两条路都通向同一颗芯片。区别只是你从哪一端进入。</p>
           </div>
           <div class="cta-actions">
-            <a class="btn btn--primary" href="#play">2 分钟玩起来</a>
+            <a class="btn btn--primary" href="#play">直接在浏览器试玩</a>
             <a class="btn btn--ghost" href="docs.zh.html">打开技术文档</a>
             <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
           </div>
@@ -1160,5 +1221,9 @@ input  [7:0] joy1, joy2;
   <button class="to-top" type="button" data-to-top aria-label="回到顶部">
     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
+  <script>
+    window.GEM_PLAYER_BASE = "assets/play/";
+  </script>
+  <script src="assets/play/player.js" defer></script>
 </body>
 </html>

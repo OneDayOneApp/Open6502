@@ -128,6 +128,8 @@ Gem *gem_create(void);
 void gem_destroy(Gem *gem);
 void gem_reset(Gem *gem);
 int gem_load_game(Gem *gem, const char *path);
+/* Same as gem_load_game(), but the iNES image is already in memory. */
+int gem_load_game_memory(Gem *gem, const uint8_t *data, size_t size);
 int gem_load_prg(Gem *gem, const char *path);
 int gem_run(Gem *gem, uint64_t max_cycles);
 int gem_step(Gem *gem);

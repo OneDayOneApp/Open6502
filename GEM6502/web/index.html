@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM6502 · 浏览器中的 6502/NES 模拟器</title>
+<meta name="description" content="GEM6502 的 WebAssembly 版本：Open6502 项目中的 6502/NES 周期模型直接运行在浏览器里。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23ff4d57'/><text x='16' y='23' font-size='18' font-family='monospace' text-anchor='middle' fill='%2306080c'>G</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noreferrer">
+    <span class="brand-mark">G</span>
+    <span class="brand-text">
+      <strong>GEM6502</strong>
+      <small>WebAssembly 6502/NES emulator</small>
+    </span>
+  </a>
+  <nav class="topnav">
+    <a href="https://github.com/OneDayOneApp/Open6502/blob/main/GEM6502/README.md" target="_blank" rel="noreferrer">项目说明</a>
+    <a href="README.md">构建文档</a>
+    <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noreferrer">GitHub</a>
+  </nav>
+</header>
+
+<main class="layout" id="emulator" tabindex="-1" data-autofocus="true">
+  <section class="stage">
+    <div class="screen-wrap" id="screen-wrap">
+      <canvas id="screen" width="256" height="240" aria-label="NES 画面"></canvas>
+      <div class="overlay" id="overlay" hidden>
+        <div class="overlay-card">
+          <p class="overlay-title" id="overlay-title">点击开始</p>
+          <p class="overlay-sub" id="overlay-sub">CLICK TO START · 声音需要一次用户操作</p>
+        </div>
+      </div>
+      <div class="toast" id="toast" hidden></div>
+    </div>
+
+    <div class="toolbar">
+      <label class="field">
+        <span>游戏</span>
+        <select id="game-select"></select>
+      </label>
+      <button class="btn" id="btn-start" type="button">开始</button>
+      <button class="btn" id="btn-pause" type="button">暂停</button>
+      <button class="btn" id="btn-reset" type="button">重置</button>
+      <button class="btn" id="btn-sound" type="button">声音：开</button>
+      <label class="btn btn-file">
+        载入 ROM
+        <input id="file-input" type="file" accept=".nes,application/octet-stream" hidden>
+      </label>
+    </div>
+
+    <p class="hint">
+      拖入 <code>.nes</code> 文件也可以直接运行 · 仅支持已实现的 mapper（0/1/2/3/4/7）
+    </p>
+
+    <div class="touch" id="touch" aria-label="触摸控制">
+      <div class="touch-dpad">
+        <button type="button" data-bit="16" class="t-up" aria-label="上">▲</button>
+        <button type="button" data-bit="64" class="t-left" aria-label="左">◀</button>
+        <button type="button" data-bit="128" class="t-right" aria-label="右">▶</button>
+        <button type="button" data-bit="32" class="t-down" aria-label="下">▼</button>
+      </div>
+      <div class="touch-center">
+        <button type="button" data-bit="4" class="t-small" aria-label="Select">SELECT</button>
+        <button type="button" data-bit="8" class="t-small" aria-label="Start">START</button>
+      </div>
+      <div class="touch-actions">
+        <button type="button" data-bit="2" class="t-b" aria-label="B">B</button>
+        <button type="button" data-bit="1" class="t-a" aria-label="A">A</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <h1>浏览器里的 GEM6502</h1>
+      <p>核心编译为 WebAssembly，渲染、输入和音频由 JavaScript 负责。</p>
+    </div>
+
+    <dl class="stats">
+      <div><dt>状态</dt><dd id="stat-state">加载中</dd></div>
+      <div><dt>游戏</dt><dd id="stat-game">—</dd></div>
+      <div><dt>帧率</dt><dd id="stat-fps">—</dd></div>
+      <div><dt>帧数</dt><dd id="stat-frames">—</dd></div>
+      <div><dt>CPU 周期</dt><dd id="stat-cycles">—</dd></div>
+      <div><dt>声音</dt><dd id="stat-audio">未启用</dd></div>
+    </dl>
+
+    <details class="keys" open>
+      <summary>按键</summary>
+      <table>
+        <tbody>
+          <tr><td>方向</td><td>方向键 / WASD</td></tr>
+          <tr><td>A</td><td>Z / 空格</td></tr>
+          <tr><td>B</td><td>X</td></tr>
+          <tr><td>Start</td><td>Enter</td></tr>
+          <tr><td>Select</td><td>Backspace / Shift</td></tr>
+          <tr><td>暂停</td><td>P</td></tr>
+          <tr><td>重置</td><td>R</td></tr>
+          <tr><td>静音</td><td>M</td></tr>
+        </tbody>
+      </table>
+      <p class="keys-note">也支持标准布局手柄（Gamepad API）。</p>
+    </details>
+
+    <div class="note">
+      <strong>同源验证</strong>
+      <p>本页运行的 wasm 与原生 <code>gem6502 game</code> 对同一 ROM 输出逐字节一致的帧；详见 <a href="README.md">README</a>。</p>
+    </div>
+  </aside>
+</main>
+
+<footer class="footer">
+  <span>Open6502 · GEM6502 <span id="version">v0.2.0-dev</span></span>
+  <span>MIT licensed ROMs bundled for testing</span>
+</footer>
+
+<script src="player.js" defer></script>
+</body>
+</html>

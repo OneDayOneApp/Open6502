@@ -27,6 +27,7 @@
   <meta name="twitter:description" content="A playable NES emulator today, and an open-source 6502/NES SoC in progress.">
   <meta name="twitter:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
   <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/play.css">
   <script src="assets/js/site.js" defer></script>
   <script type="application/ld+json">
   {
@@ -88,7 +89,7 @@
       <a href="#contribute">Contribute</a>
       <a href="index.zh.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch>简体中文</a>
       <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
-      <a class="btn btn--primary" href="#play">Play in 2 minutes</a>
+      <a class="btn btn--primary" href="#play">Play in your browser</a>
     </div>
   </header>
 
@@ -108,7 +109,7 @@
           </p>
           <div class="hero-cta">
             <a class="btn btn--primary" href="#play">
-              Play in 2 minutes
+              Play in your browser
               <svg class="arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
             <a class="btn btn--ghost" href="docs.en.html">
@@ -205,10 +206,70 @@
         <div class="section-head reveal">
           <span class="eyebrow"><span class="sec-index">01</span>Quickstart</span>
           <h2 id="play-title">Play first. <em>Then build the chip.</em></h2>
-          <p>No FPGA, no dev board. A Mac or Linux machine, three commands, about two minutes. The repo ships six MIT-licensed open-source ROMs, so you don't have to hunt for a game.</p>
+          <p>Play instantly in your browser below — the same GEM6502 core, compiled to WebAssembly. Or build it locally: a Mac or Linux machine, three commands, about two minutes. Six MIT-licensed ROMs are included.</p>
         </div>
 
-        <div class="quick-top reveal">
+                <div class="emu" id="emulator" tabindex="-1" aria-label="GEM6502 browser demo">
+          <div class="emu-head">
+            <div>
+              <span class="emu-kicker">Play now · WebAssembly</span>
+              <h3 class="emu-title">The same 6502 core, <em>right in this tab</em>.</h3>
+            </div>
+            <p class="emu-meta">GEM6502 · ~30 KB wasm · 60 fps · no install</p>
+          </div>
+          <div class="emu-body">
+            <div class="emu-screen" id="screen-wrap">
+              <canvas id="screen" width="256" height="240" aria-label="NES game screen"></canvas>
+              <div class="emu-overlay" id="overlay" hidden>
+                <div>
+                  <p class="emu-overlay-title" id="overlay-title">Click to start</p>
+                  <p class="emu-overlay-sub" id="overlay-sub">CLICK TO START · AUDIO NEEDS ONE GESTURE</p>
+                </div>
+              </div>
+              <div class="emu-toast" id="toast" hidden></div>
+            </div>
+            <div class="emu-touch" id="touch" aria-label="Touch controls">
+              <div class="emu-dpad">
+                <button type="button" data-bit="16" class="t-up" aria-label="Up">▲</button>
+                <button type="button" data-bit="64" class="t-left" aria-label="Left">◀</button>
+                <button type="button" data-bit="128" class="t-right" aria-label="Right">▶</button>
+                <button type="button" data-bit="32" class="t-down" aria-label="Down">▼</button>
+              </div>
+              <div class="emu-touch-center">
+                <button type="button" data-bit="4" aria-label="Select">SELECT</button>
+                <button type="button" data-bit="8" aria-label="Start">START</button>
+              </div>
+              <div class="emu-touch-actions">
+                <button type="button" data-bit="2" class="t-b" aria-label="B">B</button>
+                <button type="button" data-bit="1" class="t-a" aria-label="A">A</button>
+              </div>
+            </div>
+            <div class="emu-side">
+              <label class="emu-field"><span>Game</span>
+                <select id="game-select"></select>
+              </label>
+              <div class="emu-actions">
+                <button class="btn btn--primary" id="btn-start" type="button">Start</button>
+                <button class="btn btn--ghost" id="btn-pause" type="button">Pause</button>
+                <button class="btn btn--ghost" id="btn-reset" type="button">Reset</button>
+                <button class="btn btn--ghost" id="btn-sound" type="button">Sound: on</button>
+              </div>
+              <dl class="emu-stats">
+                <div><dt>State</dt><dd id="stat-state">Loading</dd></div>
+                <div><dt>Game</dt><dd id="stat-game">—</dd></div>
+                <div><dt>FPS</dt><dd id="stat-fps">—</dd></div>
+                <div><dt>Frames</dt><dd id="stat-frames">—</dd></div>
+                <div><dt>CPU cycles</dt><dd id="stat-cycles">—</dd></div>
+                <div><dt>Audio</dt><dd id="stat-audio">needs a click</dd></div>
+              </dl>
+              <p class="emu-hint">Arrows / WASD move · <kbd>Z</kbd> or <kbd>Space</kbd> jump · <kbd>X</kbd> B · <kbd>Enter</kbd> Start · <kbd>P</kbd> pause · <kbd>R</kbd> reset. Click the screen once to give the emulator keyboard focus.</p>
+              <label class="emu-file">Load a local .nes ROM<input id="file-input" type="file" accept=".nes,application/octet-stream" hidden></label>
+              
+            </div>
+          </div>
+        </div>
+
+<div class="quick-top reveal">
           <div class="tabs" role="tablist" aria-label="Choose your operating system">
             <button class="tab" type="button" role="tab" id="tab-mac" aria-selected="true" aria-controls="panel-mac" data-os-tab="mac">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16.4 12.7c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.7-3.2.7-.7 0-1.7-.7-2.8-.7-1.4 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.5 2.2 2.6 2.1 1-.1 1.4-.7 2.7-.7s1.6.7 2.7.7c1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.3 1.1-2.3s-2-.8-2-3.6ZM14.3 6.4c.6-.7 1-1.7.9-2.7-.9.1-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.6 1 .1 1.9-.5 2.5-1.2Z" fill="currentColor"/></svg>
@@ -1092,7 +1153,7 @@ input  [7:0] joy1, joy2;
             <p>Both roads lead to the same chip. The only difference is where you enter.</p>
           </div>
           <div class="cta-actions">
-            <a class="btn btn--primary" href="#play">Play in 2 minutes</a>
+            <a class="btn btn--primary" href="#play">Play in your browser</a>
             <a class="btn btn--ghost" href="docs.en.html">Open the docs</a>
             <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
           </div>
@@ -1123,7 +1184,7 @@ input  [7:0] joy1, joy2;
         <div class="footer-col">
           <h4>Start</h4>
           <ul>
-            <li><a href="#play">Play in 2 minutes</a></li>
+            <li><a href="#play">Play in your browser</a></li>
             <li><a href="#games">Six games</a></li>
             <li><a href="docs.en.html#quickstart">Build &amp; run</a></li>
             <li><a href="docs.en.html#troubleshooting">Troubleshooting</a></li>
@@ -1159,5 +1220,33 @@ input  [7:0] joy1, joy2;
   <button class="to-top" type="button" data-to-top aria-label="Back to top">
     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
+  <script>
+    window.GEM_PLAYER_BASE = "assets/play/";
+    window.GEM_PLAYER_I18N = {
+      loading: "Loading",
+      running: "Running",
+      paused: "Paused",
+      loadFailed: "Load failed",
+      initFailed: "Init failed",
+      halted: "CPU stopped",
+      clickStart: "Click to start",
+      clickStartSub: "CLICK TO START · AUDIO NEEDS ONE GESTURE",
+      pausedSub: "PRESS P OR CLICK TO RESUME",
+      haltedSub: "PRESS R OR CLICK TO RELOAD",
+      loadingSub: "Instantiating the WebAssembly module",
+      pause: "Pause",
+      resume: "Resume",
+      soundOn: "Sound: on",
+      soundOff: "Sound: off",
+      soundUnavailable: "Sound: n/a",
+      soundPending: "needs a click",
+      muted: "muted",
+      audioOn: "on",
+      romTooLarge: (size, cap) => `ROM too large: ${size} bytes (limit ${cap})`,
+      wasmHttp: (status) => `Cannot load gem6502.wasm (HTTP ${status})`,
+      romHttp: (file, status) => `Cannot load ${file} (HTTP ${status})`,
+    };
+  </script>
+  <script src="assets/play/player.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,416 @@
+/*
+ * GEM6502 browser demo embedded in the site.
+ *
+ * Scoped to .emu / .emu-* so it can sit inside the landing page without
+ * touching the site's global components. Design tokens come from site.css.
+ */
+
+/* The hidden attribute must beat the display rules below. */
+.emu [hidden] {
+  display: none !important;
+}
+
+.emu {
+  margin: 28px 0 36px;
+  padding: clamp(16px, 2.2vw, 26px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(700px 300px at 0% 0%, rgba(255, 77, 87, 0.07), transparent 60%),
+    linear-gradient(180deg, var(--panel), var(--panel-2));
+  outline: none;
+}
+
+.emu:focus-visible {
+  border-color: var(--red-line);
+}
+
+.emu-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.emu-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 650 11px/1 var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red-bright);
+}
+
+.emu-kicker::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+}
+
+.emu-title {
+  margin: 7px 0 0;
+  font-size: clamp(19px, 2.2vw, 25px);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.emu-title em {
+  font-style: normal;
+  color: var(--red-bright);
+}
+
+.emu-meta {
+  margin: 0;
+  font: 500 11.5px/1.6 var(--font-mono, ui-monospace, monospace);
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.emu-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: clamp(16px, 2vw, 24px);
+  align-items: start;
+}
+
+.emu-screen {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
+  aspect-ratio: 1.219;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: #000;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 18px 50px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(255, 77, 87, 0.06);
+}
+
+.emu-screen.dragover {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px var(--red-dim);
+}
+
+#screen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #000;
+}
+
+.emu-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  text-align: center;
+  background: rgba(4, 6, 10, 0.62);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emu-overlay-title {
+  margin: 0 0 6px;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 650;
+  color: var(--text);
+}
+
+.emu-overlay-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.emu-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 28px);
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 77, 87, 0.4);
+  border-radius: 10px;
+  background: rgba(24, 8, 10, 0.94);
+  color: #ffd7d9;
+  font-size: 12.5px;
+  z-index: 4;
+}
+
+.emu-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.emu-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font: 600 10.5px/1 var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.emu-field select {
+  height: 40px;
+  padding: 0 30px 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel-3);
+  color: var(--text);
+  font: 500 13px/1 var(--font-sans, inherit);
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.emu-field select:hover {
+  border-color: rgba(214, 228, 247, 0.32);
+}
+
+.emu-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.emu .btn {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+}
+
+.emu .btn--primary {
+  color: #160407;
+}
+
+.emu-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.emu-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  background: var(--panel-2);
+}
+
+.emu-stats dt {
+  font: 600 9.5px/1 var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.emu-stats dd {
+  margin: 0;
+  font: 500 12.5px/1.3 var(--font-mono, ui-monospace, monospace);
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.emu-hint {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+.emu-hint kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--panel-3);
+  color: var(--text-soft);
+  font: 500 10.5px/1.5 var(--font-mono, ui-monospace, monospace);
+}
+
+.emu-file {
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 8px;
+  color: var(--text-soft);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.18s var(--ease, ease), color 0.18s var(--ease, ease);
+}
+
+.emu-file:hover {
+  border-color: var(--red-line);
+  color: var(--text);
+}
+
+.emu-file:focus-within {
+  border-color: var(--red);
+}
+
+/* Touch controls: only for coarse pointers. */
+
+.emu-touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .emu-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .emu-touch {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 116px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .emu-touch button {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--panel-3);
+    color: var(--text-soft);
+    font: 650 12px/1 var(--font-mono, ui-monospace, monospace);
+    touch-action: none;
+  }
+
+  .emu-touch button.active {
+    border-color: var(--red);
+    background: var(--red-dim);
+    color: var(--red-bright);
+  }
+
+  .emu-dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 38px);
+    grid-template-rows: repeat(3, 38px);
+    gap: 1px;
+  }
+
+  .emu-dpad .t-up { grid-area: 1 / 2; }
+  .emu-dpad .t-left { grid-area: 2 / 1; }
+  .emu-dpad .t-right { grid-area: 2 / 3; }
+  .emu-dpad .t-down { grid-area: 3 / 2; }
+
+  .emu-touch-center {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .emu-touch-center button {
+    width: 100%;
+    max-width: 92px;
+    height: 28px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+
+  .emu-touch-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .emu-touch-actions button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  .emu-touch-actions .t-a { margin-bottom: 16px; }
+}
+
+@media (max-width: 960px) {
+  .emu-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .emu-screen {
+    max-width: 100%;
+  }
+
+  .emu-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 14px;
+  }
+
+  .emu-field,
+  .emu-actions,
+  .emu-hint,
+  .emu-file {
+    grid-column: span 1;
+  }
+
+  .emu-field {
+    grid-column: 1 / -1;
+  }
+
+  .emu-actions {
+    grid-column: 1 / -1;
+  }
+
+  .emu-stats,
+  .emu-file {
+    grid-column: 1 / -1;
+  }
+
+  .emu-hint {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .emu {
+    padding: 14px;
+  }
+
+  .emu-head {
+    margin-bottom: 14px;
+  }
+
+  .emu-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

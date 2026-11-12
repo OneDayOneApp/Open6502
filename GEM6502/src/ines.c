@@ -6,6 +6,9 @@
  * into malloc'ed buffers.  NES 2.0 headers are understood for the size and
  * mapper fields, but the same mapper-0 restriction applies.  Trainer images
  * are rejected.
+ *
+ * The parser works on a byte range so that hosts without a filesystem (the
+ * WebAssembly player, for example) can load a ROM straight from memory.
  */
 #include "ines.h"
 
@@ -44,50 +47,32 @@ static int ines_rom_size(size_t bank_size, int banks, int exponent,
   return 0;
 }
 
-int gem_ines_load(const char *path, GemInes *out) {
-  uint8_t header[GEM_INES_HEADER_SIZE];
-  FILE *fp = NULL;
+/*
+ * Parse a complete image held in memory.  out must already be zeroed by the
+ * caller; on failure it stays zeroed apart from error[].
+ */
+static int ines_parse(const uint8_t *data, size_t size, GemInes *out) {
+  const uint8_t *header;
   uint8_t *prg = NULL;
   uint8_t *chr = NULL;
   size_t prg_size = 0;
   size_t chr_size = 0;
-  size_t got;
+  size_t payload_size;
   int mapper, prg_banks, chr_banks;
   int prg_exponent = 0, chr_exponent = 0;
   int nes2;
   uint8_t flags6, flags7;
 
-  if (out == NULL) return -1;
-  memset(out, 0, sizeof(*out));
-
-  if (path == NULL || path[0] == '\0') {
-    ines_set_error(out, "no ROM path given");
+  if (size < GEM_INES_HEADER_SIZE) {
+    ines_set_error(out, "truncated iNES header: got %zu of %u bytes", size,
+                   (unsigned)GEM_INES_HEADER_SIZE);
     return -1;
   }
 
-  fp = fopen(path, "rb");
-  if (fp == NULL) {
-    ines_set_error(out, "cannot open '%s': %s", path, strerror(errno));
-    return -1;
-  }
-
-  got = fread(header, 1, sizeof(header), fp);
-  if (got != sizeof(header)) {
-    if (ferror(fp)) {
-      ines_set_error(out, "read error on '%s' header: %s", path,
-                     strerror(errno));
-    } else {
-      ines_set_error(out, "truncated iNES header: got %zu of %u bytes",
-                     got, (unsigned)sizeof(header));
-    }
-    fclose(fp);
-    return -1;
-  }
-
+  header = data;
   if (header[0] != 'N' || header[1] != 'E' || header[2] != 'S' ||
       header[3] != 0x1A) {
     ines_set_error(out, "not an iNES image: bad magic (expected NES\\x1A)");
-    fclose(fp);
     return -1;
   }
 
@@ -97,7 +82,6 @@ int gem_ines_load(const char *path, GemInes *out) {
   if ((flags6 & 0x04u) != 0) {
     ines_set_error(out,
                    "trainer is not supported (iNES header trainer bit set)");
-    fclose(fp);
     return -1;
   }
 
@@ -130,7 +114,6 @@ int gem_ines_load(const char *path, GemInes *out) {
 
   if (prg_banks == 0) {
     ines_set_error(out, "invalid iNES header: PRG bank count is 0");
-    fclose(fp);
     return -1;
   }
 
@@ -139,29 +122,27 @@ int gem_ines_load(const char *path, GemInes *out) {
       ines_rom_size(INES_CHR_BANK_SIZE, chr_banks, chr_exponent, &chr_size) !=
           0) {
     ines_set_error(out, "iNES header declares an impossible ROM size");
-    fclose(fp);
+    return -1;
+  }
+
+  payload_size = size - GEM_INES_HEADER_SIZE;
+  if (payload_size < prg_size) {
+    ines_set_error(out, "truncated PRG ROM: got %zu of %zu bytes",
+                   payload_size, prg_size);
+    return -1;
+  }
+  if (payload_size - prg_size < chr_size) {
+    ines_set_error(out, "truncated CHR ROM: got %zu of %zu bytes",
+                   payload_size - prg_size, chr_size);
     return -1;
   }
 
   prg = malloc(prg_size);
   if (prg == NULL) {
     ines_set_error(out, "out of memory allocating %zu-byte PRG ROM", prg_size);
-    fclose(fp);
     return -1;
   }
-
-  got = fread(prg, 1, prg_size, fp);
-  if (got != prg_size) {
-    if (ferror(fp)) {
-      ines_set_error(out, "read error on PRG ROM: %s", strerror(errno));
-    } else {
-      ines_set_error(out, "truncated PRG ROM: got %zu of %zu bytes", got,
-                     prg_size);
-    }
-    free(prg);
-    fclose(fp);
-    return -1;
-  }
+  memcpy(prg, data + GEM_INES_HEADER_SIZE, prg_size);
 
   if (chr_size != 0) {
     chr = malloc(chr_size);
@@ -169,32 +150,11 @@ int gem_ines_load(const char *path, GemInes *out) {
       ines_set_error(out, "out of memory allocating %zu-byte CHR ROM",
                      chr_size);
       free(prg);
-      fclose(fp);
       return -1;
     }
-
-    got = fread(chr, 1, chr_size, fp);
-    if (got != chr_size) {
-      if (ferror(fp)) {
-        ines_set_error(out, "read error on CHR ROM: %s", strerror(errno));
-      } else {
-        ines_set_error(out, "truncated CHR ROM: got %zu of %zu bytes", got,
-                       chr_size);
-      }
-      free(chr);
-      free(prg);
-      fclose(fp);
-      return -1;
-    }
+    memcpy(chr, data + GEM_INES_HEADER_SIZE + prg_size, chr_size);
   }
   /* chr_size == 0 means CHR RAM: leave chr NULL by design. */
-
-  if (fclose(fp) != 0) {
-    ines_set_error(out, "error closing '%s': %s", path, strerror(errno));
-    free(chr);
-    free(prg);
-    return -1;
-  }
 
   out->prg = prg;
   out->prg_size = prg_size;
@@ -202,6 +162,73 @@ int gem_ines_load(const char *path, GemInes *out) {
   out->chr_size = chr_size;
   out->error[0] = '\0';
   return 0;
+}
+
+int gem_ines_parse(const uint8_t *data, size_t size, GemInes *out) {
+  if (out == NULL) return -1;
+  memset(out, 0, sizeof(*out));
+
+  if (data == NULL) {
+    ines_set_error(out, "no ROM data given");
+    return -1;
+  }
+
+  return ines_parse(data, size, out);
+}
+
+int gem_ines_load(const char *path, GemInes *out) {
+  FILE *fp = NULL;
+  uint8_t *image = NULL;
+  size_t size = 0;
+  size_t got;
+  long length;
+  int rc;
+
+  if (out == NULL) return -1;
+  memset(out, 0, sizeof(*out));
+
+  if (path == NULL || path[0] == '\0') {
+    ines_set_error(out, "no ROM path given");
+    return -1;
+  }
+
+  fp = fopen(path, "rb");
+  if (fp == NULL) {
+    ines_set_error(out, "cannot open '%s': %s", path, strerror(errno));
+    return -1;
+  }
+
+  if (fseek(fp, 0, SEEK_END) != 0 || (length = ftell(fp)) < 0 ||
+      fseek(fp, 0, SEEK_SET) != 0) {
+    ines_set_error(out, "cannot read '%s': %s", path, strerror(errno));
+    fclose(fp);
+    return -1;
+  }
+
+  size = (size_t)length;
+  image = malloc(size ? size : 1u);
+  if (image == NULL) {
+    ines_set_error(out, "out of memory reading %zu-byte image", size);
+    fclose(fp);
+    return -1;
+  }
+
+  got = fread(image, 1, size, fp);
+  if (got != size) {
+    if (ferror(fp)) {
+      ines_set_error(out, "read error on '%s': %s", path, strerror(errno));
+    } else {
+      ines_set_error(out, "truncated image: got %zu of %zu bytes", got, size);
+    }
+    free(image);
+    fclose(fp);
+    return -1;
+  }
+  fclose(fp);
+
+  rc = ines_parse(image, size, out);
+  free(image);
+  return rc;
 }
 
 void gem_ines_free(GemInes *ines) {

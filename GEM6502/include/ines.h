@@ -42,6 +42,15 @@ typedef struct GemInes {
  */
 int gem_ines_load(const char *path, GemInes *out);
 
+/*
+ * Parse an iNES image that is already in memory.
+ *
+ * data must point to the complete image (header + PRG + CHR).  This is the
+ * entry point for embedding the model in hosts without a filesystem, such as
+ * a WebAssembly build.  Ownership rules are identical to gem_ines_load().
+ */
+int gem_ines_parse(const uint8_t *data, size_t size, GemInes *out);
+
 /* Free PRG/CHR buffers and zero the descriptor.  Safe on NULL and on a
  * descriptor whose load failed. */
 void gem_ines_free(GemInes *ines);

@@ -33,6 +33,10 @@ jobs:
           test -f site/docs.html
           test -f site/assets/css/site.css
           test -f site/assets/js/site.js
+          test -f site/assets/css/play.css
+          test -f site/assets/play/player.js
+          test -f site/assets/play/gem6502.wasm
+          test -f site/assets/play/roms/falling.nes
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
