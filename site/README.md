@@ -37,7 +37,8 @@ declares `hreflang` alternates and a matching canonical URL.
 
 ## Interactive WebAssembly demo
 
-The `#play` section of both landing pages is a working GEM6502 emulator. It
+The `#play` section of both landing pages is a working GEM6502 emulator;
+Play links jump straight to its `#emulator` card so the whole demo is visible. It
 loads a ~30 KB freestanding WebAssembly build of the same core used by the
 desktop player; rendering, input and audio scheduling are handled by
 `assets/play/player.js`. No Emscripten runtime, no CDN, no network calls after

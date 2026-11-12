@@ -114,6 +114,23 @@ function focusEmulator() {
   }
 }
 
+/* Play links target #emulator; centre the card when it fits the viewport. */
+function scrollToEmulator() {
+  if (!root) return;
+  const rect = root.getBoundingClientRect();
+  const nav = document.querySelector("header.site-nav, .topbar");
+  const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+  const fits = rect.height + navHeight + 24 <= window.innerHeight;
+  const target = fits
+    ? Math.max(navHeight + 12, (window.innerHeight - rect.height) / 2)
+    : navHeight + 12;
+  const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({
+    top: Math.max(0, window.scrollY + rect.top - target),
+    behavior: smooth ? "smooth" : "auto",
+  });
+}
+
 const ctx2d = dom.canvas.getContext("2d", { alpha: false });
 const imageData = ctx2d.createImageData(WIDTH, HEIGHT);
 
@@ -482,6 +499,14 @@ function bindUi() {
 
   dom.overlay.addEventListener("click", beginPlay);
 
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest('a[href="#emulator"]');
+    if (!link) return;
+    event.preventDefault();
+    history.pushState(null, "", "#emulator");
+    scrollToEmulator();
+  });
+
   if (root) {
     root.addEventListener(
       "pointerdown",
@@ -577,6 +602,9 @@ async function boot() {
     state.wasm.gem_web_set_buttons(0, 0);
     setSound(true);
     await loadGame(GAMES[0]);
+    if (location.hash === "#emulator") {
+      requestAnimationFrame(() => requestAnimationFrame(scrollToEmulator));
+    }
     state.rafId = requestAnimationFrame(loop);
   } catch (err) {
     console.error(err);

@@ -25,6 +25,7 @@
   border-color: var(--red-line);
 }
 
+
 .emu-head {
   display: flex;
   align-items: flex-end;
@@ -82,7 +83,7 @@
 
 .emu-screen {
   position: relative;
-  width: 100%;
+  width: min(100%, max(280px, calc((100vh - 300px) * 1.219)));
   max-width: 640px;
   margin-inline: auto;
   aspect-ratio: 1.219;
