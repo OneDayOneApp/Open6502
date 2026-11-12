@@ -16,6 +16,9 @@ title frame is byte-identical to the NEMU title frame.
 
 ## nesearch: NES search & download tool / NES 游戏搜索与下载工具
 
+> **把童年，跑进一颗芯片。**  
+> *Put childhood back into a chip.*
+
 **English** — `nesearch` is a C++20 NES game discovery and download tool in this
 repository, available as both a **CLI** and a **local Web UI**. It aggregates
 GitHub homebrew catalogs, Homebrew Hub, PDRoms and Internet Archive, supports

@@ -4,6 +4,8 @@ NES game search and download tool written in C++20, with both a **CLI** and a **
 
 [中文 README](README.md)
 
+> **Put childhood back into a chip.**
+
 Current status: **runnable MVP** — GitHub catalog + Homebrew Hub + PDRoms RSS + custom JSON sources, download/verify/local library, local Web UI, and GEM6502/NEMU launch support.
 
 ![nesearch UI](ui/screenshots/running.png)
