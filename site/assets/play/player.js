@@ -221,25 +221,43 @@ function applyRom(bytes, title) {
   const rc = wasm.gem_web_load_rom(wasm.gem_web_rom_buffer(), bytes.length);
   if (rc !== 0) throw new Error(readCString(wasm.gem_web_error()));
 
+  // Keep the previous running state, but start paused on first load so the
+  // page does not burn CPU emulating frames behind an overlay.
+  const wasRunning = state.loaded && state.started && !state.paused && !state.halted;
+
   state.lastRom = bytes.slice();
   state.gameTitle = title;
   state.loaded = true;
   state.halted = false;
-  state.paused = false;
+  state.paused = !wasRunning;
   state.frameAcc = 0;
   state.lastTs = 0;
   state.pulseFrames = 0;
   stopAudio();
   hideOverlay();
-  setState(TEXT.running);
-  dom.buttonPause.textContent = TEXT.pause;
+  setState(state.paused ? TEXT.paused : TEXT.running);
+  dom.buttonPause.textContent = state.paused ? TEXT.resume : TEXT.pause;
   dom.statGame.textContent = title;
   dom.statFrames.textContent = "0";
   dom.statCycles.textContent = "0";
   dom.statFps.textContent = "—";
 
+  // One-off warm-up: advance a handful of frames so the paused card shows the
+  // game instead of a black canvas, then stay idle until the user resumes.
+  if (state.paused) {
+    for (let i = 0; i < 30; i++) {
+      if (!wasm.gem_web_run_frame()) break;
+    }
+    dom.statFrames.textContent = String(wasm.gem_web_frames());
+    dom.statCycles.textContent = Number(wasm.gem_web_cycles()).toLocaleString("en-US");
+  }
+
+  drawFrame(); // show the first frame even when paused
+
   if (!state.started) {
     showOverlay(TEXT.clickStart, TEXT.clickStartSub);
+  } else if (state.paused) {
+    showOverlay(TEXT.paused, TEXT.pausedSub);
   }
 }
 
@@ -380,6 +398,7 @@ function reloadRom() {
     applyRom(state.lastRom, state.gameTitle);
     ensureAudio();
     state.started = true;
+    if (state.paused) togglePause();
     hideOverlay();
   } catch (err) {
     toast(String(err.message || err));
