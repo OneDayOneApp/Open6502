@@ -638,6 +638,56 @@
     });
   }
 
+
+  /* ---------- GitHub star count ---------- */
+  const starNodes = $$("[data-gh-stars]");
+  if (starNodes.length) {
+    const CACHE_KEY = "open6502:stars";
+    const HOUR = 60 * 60 * 1000;
+
+    const renderStars = (count) => {
+      if (typeof count !== "number" || count < 0) return;
+      const label =
+        count >= 10000
+          ? `${Math.round(count / 1000)}k`
+          : count >= 1000
+            ? `${(count / 1000).toFixed(1)}k`
+            : String(count);
+      starNodes.forEach((node) => {
+        node.textContent = label;
+        node.title = `${count} GitHub stars`;
+        node.hidden = false;
+      });
+    };
+
+    let cached = null;
+    try {
+      cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+    } catch (_) {
+      cached = null;
+    }
+
+    if (cached && typeof cached.count === "number" && Date.now() - cached.at < HOUR) {
+      renderStars(cached.count);
+    } else {
+      fetch("https://api.github.com/repos/OneDayOneApp/Open6502", {
+        headers: { Accept: "application/vnd.github+json" },
+      })
+        .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+        .then((repo) => {
+          const count = repo.stargazers_count;
+          if (typeof count !== "number") return;
+          renderStars(count);
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ count, at: Date.now() }));
+          } catch (_) {}
+        })
+        .catch(() => {
+          /* Offline or rate limited: keep the plain Star label. */
+        });
+    }
+  }
+
   /* ---------- Footer year ---------- */
   $$("[data-year]").forEach((el) => {
     el.textContent = String(new Date().getFullYear());

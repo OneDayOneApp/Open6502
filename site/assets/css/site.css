@@ -501,6 +501,23 @@ a:hover > .arrow,
   transition: color 0.16s, background 0.16s;
 }
 
+
+.nav-gh-stars {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--text-soft);
+  font-size: 0.62rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.nav-gh-stars[hidden] {
+  display: none;
+}
+
 .nav-gh:hover {
   color: var(--text);
   background: rgba(255, 255, 255, 0.05);
