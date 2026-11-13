@@ -52,6 +52,7 @@ ctest --test-dir nesearch/build --output-on-failure
 ./nesearch/build/nesearch list
 ./nesearch/build/nesearch verify
 ./nesearch/build/nesearch sources
+./nesearch/build/nesearch export --out build/catalog.json   # 静态站点用的目录快照
 
 # UI：启动 loopback 服务并打开浏览器
 ./nesearch/build/nesearch ui
@@ -71,6 +72,25 @@ ctest --test-dir nesearch/build --output-on-failure
 ~/Library/Caches/nesearch/catalog.json
 ~/Library/Application Support/nesearch/library.json
 ```
+
+## 静态目录（GitHub Pages 演示）
+
+GitHub Pages 只能托管静态文件，跑不了 `nesearch ui` 的 C++ 服务。站点上的在线目录因此是「导出快照 + 浏览器端 shim」：
+
+![静态目录](ui/screenshots/static-demo.png)
+
+```sh
+cmake --build nesearch/build -j
+bash nesearch/scripts/build-static-site.sh          # 生成 site/nesearch/（--refresh 先联网更新）
+python3 -m http.server -d site 8000                 # 预览 http://127.0.0.1:8000/nesearch/
+node nesearch/scripts/test-static-site.mjs          # 校验查询引擎 / fetch shim / WASM 播放
+```
+
+- `nesearch export` 把当前目录写成 `site/nesearch/data/catalog.json`，字段与本地 UI 的 `/api/v1/games` 一致。
+- [ui/static-api.js](ui/static-api.js) 在浏览器里接管 `/api/v1/*`：搜索、过滤、排序逐条对齐 `CatalogService::search`；下载退化为浏览器 fetch + 保存；播放交给 [ui/play.html](ui/play.html)，直接跑 `site/assets/play/gem6502.wasm`。
+- 页面仍是 [ui/mockup.html](ui/mockup.html)，构建时只注入一行 `window.NESEARCH_STATIC`，所以本地 UI 与静态站共用同一份前端。
+- 静态版**没有**本地库、断点续传、落盘 SHA-256 校验和本地模拟器启动——这些仍然需要本机 `nesearch ui`。
+- [.github/workflows/pages.yml](../.github/workflows/pages.yml) 在部署前构建 nesearch、`--refresh` 导出并跑上面的 node 校验；导出失败时回落到 [data/catalog.snapshot.json](data/catalog.snapshot.json)。
 
 ## 已实现
 
@@ -100,6 +120,7 @@ ctest --test-dir nesearch/build --output-on-failure
 - 下载暂停依赖中断回调；极小的文件可能在暂停生效前完成。
 - UI 使用轮询（约 900ms）而非 SSE；后续可替换。
 - 代码签名、`.app`/`.exe` 包装、Windows 构建尚未验证。
+- 静态目录快照随 Pages 部署更新，不是实时数据；浏览器播放依赖 ROM 源站允许跨域（GitHub raw 允许，archive.org 视情况），失败时会提示直接下载。
 
 ## 设计决策
 

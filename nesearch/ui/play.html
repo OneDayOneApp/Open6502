@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nesearch — 在线试玩</title>
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<style>
+  :root { color-scheme: dark; --bg:#0e1014; --panel:#151922; --line:#262c38; --text:#e8ecf4; --muted:#8b94a7; --accent:#ffb454; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+  header h1 { font-size:17px; margin:0; font-weight:600; letter-spacing:.2px; }
+  header h1 span { color:var(--muted); font-weight:400; }
+  .links { display:flex; gap:12px; font-size:13px; }
+  .links a { color:var(--muted); text-decoration:none; }
+  .links a:hover { color:var(--text); }
+  .stage { position:relative; background:#000; border:1px solid var(--line); border-radius:12px; overflow:hidden; aspect-ratio:256/240; }
+  #screen { width:100%; height:100%; display:block; image-rendering: pixelated; background:#000; }
+  .overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; padding:24px; background:rgba(6,8,12,.72); backdrop-filter: blur(2px); }
+  .overlay[hidden] { display:none; }
+  .overlay b { font-size:18px; }
+  .overlay small { color:var(--muted); max-width:460px; word-break:break-word; }
+  .overlay .hint { margin-top:10px; font-size:12px; color:var(--muted); }
+  .bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .bar button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; }
+  .bar button:hover { border-color:#3a4356; }
+  .bar .spacer { flex:1; }
+  .bar .stat { color:var(--muted); font-size:12px; font-variant-numeric: tabular-nums; }
+  .bar .stat b { color:#c9d2e3; font-weight:500; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#20262f; border:1px solid var(--line); color:var(--text); border-radius:10px; padding:9px 16px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .18s ease; max-width:80vw; }
+  .toast.show { opacity:1; }
+  .note { margin-top:18px; color:var(--muted); font-size:12px; line-height:1.7; }
+  kbd { background:#1b2029; border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-size:11px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>nesearch <span>· 在线试玩</span></h1>
+    <div class="links">
+      <a href="index.html">← 返回目录</a>
+      <a id="downloadLink" href="#" target="_blank" rel="noopener">下载 ROM</a>
+    </div>
+  </header>
+
+  <div class="stage">
+    <canvas id="screen" width="256" height="240"></canvas>
+    <div class="overlay" id="overlay">
+      <b id="overlayTitle">加载中</b>
+      <small id="overlayText">正在实例化 WebAssembly 模块</small>
+      <div class="hint" id="overlayHint">点击开始 · 音频需要一次用户操作</div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <button id="startBtn" type="button">开始</button>
+    <button id="pauseBtn" type="button" disabled>暂停</button>
+    <button id="reloadBtn" type="button" disabled>重载</button>
+    <button id="soundBtn" type="button" disabled>声音：开</button>
+    <div class="spacer"></div>
+    <div class="stat" id="stats">—</div>
+  </div>
+
+  <p class="note" id="note">
+    方向键 / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动，<kbd>Z</kbd> 或 <kbd>空格</kbd> A 键，<kbd>X</kbd> B 键，
+    <kbd>Enter</kbd> Start，<kbd>Shift</kbd> Select，<kbd>P</kbd> 暂停，<kbd>R</kbd> 重载。
+    画面与声音由 GEM6502 的 WebAssembly 核心实时模拟；ROM 直接来自目录中的下载地址。
+  </p>
+</div>
+<div class="toast" id="toast"></div>
+<script src="play.js"></script>
+</body>
+</html>

@@ -83,6 +83,7 @@ cd /path/to/Open6502
 ./nesearch/build/nesearch list
 ./nesearch/build/nesearch verify
 ./nesearch/build/nesearch sources
+./nesearch/build/nesearch export --out build/catalog.json   # snapshot for the static site
 
 # Local Web UI
 ./nesearch/build/nesearch ui
@@ -134,6 +135,36 @@ NESEARCH_DATA_DIR=/path/data
 NESEARCH_UI_TOKEN=local-dev
 NESEARCH_UI_NO_OPEN=1
 ```
+
+## Static catalog (GitHub Pages demo)
+
+GitHub Pages can only serve static files, so it cannot host the `nesearch ui`
+process. The online catalog is therefore an exported snapshot plus a browser
+shim:
+
+![Static catalog](ui/screenshots/static-demo.png)
+
+```sh
+cmake --build nesearch/build -j
+bash nesearch/scripts/build-static-site.sh          # writes site/nesearch/ (--refresh hits the network first)
+python3 -m http.server -d site 8000                 # preview http://127.0.0.1:8000/nesearch/
+node nesearch/scripts/test-static-site.mjs          # checks query engine, fetch shim, WASM player
+```
+
+- `nesearch export` writes the catalog to `site/nesearch/data/catalog.json`.
+  Field shapes match the local `/api/v1/games` payload.
+- [ui/static-api.js](ui/static-api.js) answers `/api/v1/*` in the browser.
+  Search, filtering and sorting mirror `CatalogService::search`; downloads
+  become `fetch` + browser save; play is delegated to [ui/play.html](ui/play.html),
+  which runs `site/assets/play/gem6502.wasm` directly.
+- The page is still [ui/mockup.html](ui/mockup.html); the build only injects a
+  `window.NESEARCH_STATIC` line, so the local UI and the Pages demo share one
+  frontend.
+- The static build has **no** local library, resumable transfers, on-disk
+  SHA-256 verification or local emulator launch — those stay in `nesearch ui`.
+- [.github/workflows/pages.yml](../.github/workflows/pages.yml) builds nesearch,
+  exports with `--refresh` and runs the node checks before deploying; if the
+  export fails it falls back to [data/catalog.snapshot.json](data/catalog.snapshot.json).
 
 ## Custom JSON source
 

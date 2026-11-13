@@ -25,6 +25,7 @@ add_library(nesearch_core
   src/download.cpp
   src/ui_server.cpp
   src/emulator.cpp
+  src/export.cpp
 )
 target_include_directories(nesearch_core PUBLIC src third_party)
 target_link_libraries(nesearch_core PUBLIC CURL::libcurl Threads::Threads)
