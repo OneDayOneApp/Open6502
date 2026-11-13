@@ -18,6 +18,7 @@
 #include "catalog.hpp"
 #include "config.hpp"
 #include "download.hpp"
+#include "export.hpp"
 #include "http.hpp"
 #include "library.hpp"
 #include "sha256.hpp"
@@ -62,6 +63,7 @@ Usage:
   nesearch list [--json]
   nesearch verify [--json]
   nesearch sources [--json]
+  nesearch export [--out FILE] [--refresh]
   nesearch config [path|show|init]
   nesearch --help | --version
 
@@ -129,6 +131,61 @@ int cmd_update(nes::Config& config, nes::CatalogService& catalog, const Globals&
     std::cerr << "nesearch: error: " << exception.what() << "\n";
     return 3;
   }
+}
+
+int cmd_export(nes::Config& config, nes::CatalogService& catalog, const std::vector<std::string>& args,
+               const Globals& globals) {
+  fs::path out = "site/nesearch/data/catalog.json";
+  bool refresh = false;
+  for (std::size_t i = 0; i < args.size(); ++i) {
+    const std::string& arg = args[i];
+    if (arg == "--out" && i + 1 < args.size()) {
+      out = nes::expand_user(args[++i]);
+    } else if (arg == "--refresh") {
+      refresh = true;
+    } else {
+      std::cerr << "nesearch: error: unknown export option: " << arg << "\n";
+      return 2;
+    }
+  }
+
+  if ((refresh || catalog.total() == 0) && !globals.offline) {
+    try {
+      catalog.refresh();
+    } catch (const std::exception& exception) {
+      std::cerr << "nesearch: warning: " << exception.what() << "\n";
+    }
+  }
+  if (catalog.total() == 0) {
+    std::cerr << "nesearch: error: catalog is empty; run `nesearch update` first "
+                 "(or pass --offline with a warm cache)\n";
+    return 3;
+  }
+
+  const json payload = nes::catalog_export_json(config, catalog);
+  std::string error;
+  const fs::path parent = out.parent_path();
+  if (!parent.empty() && !nes::ensure_dir(parent, &error)) {
+    std::cerr << "nesearch: error: cannot create " << parent.string() << ": " << error << "\n";
+    return 1;
+  }
+  if (!nes::write_file_atomic(out, payload.dump(2, ' ', false, json::error_handler_t::replace) + "\n", &error)) {
+    std::cerr << "nesearch: error: cannot write " << out.string() << ": " << error << "\n";
+    return 1;
+  }
+
+  if (globals.json) {
+    std::cout << json({{"ok", true},
+                       {"out", out.string()},
+                       {"games", catalog.total()},
+                       {"sources", payload["sources"].size()},
+                       {"fetched_at", catalog.fetched_at()}})
+                     .dump(2, ' ', false, json::error_handler_t::replace)
+              << "\n";
+  } else {
+    std::cout << "Exported " << catalog.total() << " entries to " << out.string() << "\n";
+  }
+  return 0;
 }
 
 int cmd_search(nes::CatalogService& catalog, std::vector<std::string> args, const Globals& globals) {
@@ -520,6 +577,10 @@ int main(int argc, char** argv) {
   }
   if (command == "sources") {
     return cmd_sources(catalog, globals);
+  }
+
+  if (command == "export") {
+    return cmd_export(config, catalog, rest, globals);
   }
 
   if (command == "ui" || command.empty()) {

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - "nesearch/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -37,6 +38,24 @@ jobs:
           test -f site/assets/play/player.js
           test -f site/assets/play/gem6502.wasm
           test -f site/assets/play/roms/falling.nes
+
+      # The static catalog demo is generated at deploy time. It reuses the same
+      # C++ catalog code as the CLI, so the Pages copy can never drift from
+      # `nesearch search`. When the network is unavailable the build script
+      # falls back to nesearch/data/catalog.snapshot.json.
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev
+      - name: Build nesearch
+        run: |
+          cmake -S nesearch -B nesearch/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build nesearch/build -j"$(nproc)"
+          ctest --test-dir nesearch/build --output-on-failure
+      - name: Build static catalog demo
+        run: bash nesearch/scripts/build-static-site.sh --refresh
+      - name: Verify static catalog demo
+        run: node nesearch/scripts/test-static-site.mjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

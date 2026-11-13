@@ -216,6 +216,9 @@ const state = {
 const PAGE_SIZE = 8;
 
 let LIVE_MODE = false;
+/* Static demo (GitHub Pages): GEM6502 runs in the browser, so play buttons do
+   not need a downloaded ROM in a local library. */
+const BROWSER_PLAY = Boolean(window.NESEARCH_STATIC);
 let TOTAL_GAMES = 221;
 let LIVE_SOURCE_COUNT = 3;
 let EMULATORS = { gem6502: { available: false }, nemu: { available: false } };
@@ -495,7 +498,7 @@ function renderDetail() {
         <button class="btn icon-only" data-cli title="Copy CLI command" aria-label="Copy CLI command"><svg class="icon"><use href="#i-command"/></svg></button>
         <a class="btn icon-only" href="${g.page}" target="_blank" rel="noopener" title="Open source page" aria-label="Open source page"><svg class="icon"><use href="#i-external"/></svg></a>
       </div>
-      ${isDone && LIVE_MODE ? playButtonsHtml(g.id) : ""}
+      ${(isDone || BROWSER_PLAY) && LIVE_MODE ? playButtonsHtml(g.id) : ""}
       ${isDownloading ? `
         <div class="detail-progress">
           <div class="progress-track"><span style="width:${pct}%"></span></div>
