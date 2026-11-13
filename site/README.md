@@ -128,7 +128,9 @@ site/
     └── img/                # logo, favicon, screenshots, frames
 ```
 
-No build step, no external CDN, no tracking. Open `index.html` directly, or
+No build step. Every page loads the Google Tag Manager container
+(`GTM-WGT7D54Q`); everything else is served from the same origin. Open
+`index.html` directly, or
 serve the directory locally:
 
 ```sh
@@ -163,6 +165,8 @@ Actions tab (`workflow_dispatch`) after the workflow exists on `main`.
   ROMs with the NEMU headless frontend. `frame-rtl-title.png` comes from
   `docs/images/rtl-title.png`; it is pixel-identical to the NEMU title frame.
 - The site is Chinese-first. Technical terms and commands stay in English.
+- Analytics lives in the GTM container `GTM-WGT7D54Q` (head snippet plus the
+  noscript iframe). Keep both halves on every page; do not add other trackers.
 - Root project licence is not published yet; do not add assets that require a
   different redistribution grant without checking `CONTRIBUTING.md`.
 - The WebAssembly demo is rebuilt from `GEM6502/web/`; never edit
