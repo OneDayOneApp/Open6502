@@ -87,7 +87,14 @@ echo "package-release: nesearch $VERSION ($ARCH)"
 
 if [ "$DO_BUILD" = "1" ]; then
   echo "  building nesearch"
-  cmake -S "$NES" -B "$NES/build" -DCMAKE_BUILD_TYPE=Release >/dev/null
+  # Match the documented build recipe: Apple clang from the Command Line Tools.
+  # Without the explicit compiler CMake may pick a clang whose libc++ headers do
+  # not line up with the installed SDK, which breaks <filesystem>/<math.h>.
+  CMAKE_ARGS=(-S "$NES" -B "$NES/build" -DCMAKE_BUILD_TYPE=Release)
+  if [ -x /usr/bin/clang++ ]; then
+    CMAKE_ARGS+=(-DCMAKE_CXX_COMPILER=/usr/bin/clang++)
+  fi
+  cmake "${CMAKE_ARGS[@]}" >/dev/null
   cmake --build "$NES/build" -j"$(sysctl -n hw.ncpu)" >/dev/null
   echo "  building GEM6502"
   make -C "$ROOT/GEM6502" >/dev/null
