@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>nesearch — 在线试玩</title>
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Play an open-source NES homebrew game in the browser, powered by the GEM6502 WebAssembly core.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open6502">
+<meta property="og:title" content="nesearch — play NES homebrew in the browser">
+<meta property="og:description" content="Play an open-source NES homebrew game right in the browser, powered by the GEM6502 WebAssembly core.">
+<meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/nesearch/discover.png">
+<meta property="og:url" content="https://onedayoneapp.github.io/Open6502/nesearch/play.html">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root { color-scheme: dark; --bg:#0e1014; --panel:#151922; --line:#262c38; --text:#e8ecf4; --muted:#8b94a7; --accent:#ffb454; }
   * { box-sizing: border-box; }
@@ -32,6 +40,12 @@
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#20262f; border:1px solid var(--line); color:var(--text); border-radius:10px; padding:9px 16px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .18s ease; max-width:80vw; }
   .toast.show { opacity:1; }
   .note { margin-top:18px; color:var(--muted); font-size:12px; line-height:1.7; }
+  .share { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:14px; }
+  .share[hidden] { display:none; }
+  .share-label { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-right:2px; }
+  .share-btn { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:6px 11px; font-size:12px; cursor:pointer; }
+  .share-btn:hover { border-color:#3a4356; }
+  .share-btn:active { transform: translateY(1px); }
   kbd { background:#1b2029; border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-size:11px; }
 </style>
 </head>
@@ -63,6 +77,17 @@
     <div class="stat" id="stats">—</div>
   </div>
 
+  <div class="share" id="shareBar" hidden>
+    <span class="share-label">分享</span>
+    <button class="share-btn" data-share="native" hidden>系统分享</button>
+    <button class="share-btn" data-share="x">X</button>
+    <button class="share-btn" data-share="facebook">Facebook</button>
+    <button class="share-btn" data-share="reddit">Reddit</button>
+    <button class="share-btn" data-share="telegram">Telegram</button>
+    <button class="share-btn" data-share="hackernews">HN</button>
+    <button class="share-btn" data-share="copy">复制链接</button>
+  </div>
+
   <p class="note" id="note">
     方向键 / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动，<kbd>Z</kbd> 或 <kbd>空格</kbd> A 键，<kbd>X</kbd> B 键，
     <kbd>Enter</kbd> Start，<kbd>Shift</kbd> Select，<kbd>P</kbd> 暂停，<kbd>R</kbd> 重载。
@@ -70,6 +95,7 @@
   </p>
 </div>
 <div class="toast" id="toast"></div>
+<script src="share.js"></script>
 <script src="play.js"></script>
 </body>
 </html>

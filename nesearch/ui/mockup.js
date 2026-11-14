@@ -452,6 +452,48 @@ function actionButton(item, id) {
   return `<button class="row-btn" data-pause="${id}" title="Pause"><svg class="icon"><use href="#i-pause"/></svg></button>`;
 }
 
+function shareBlockHtml(g) {
+  if (typeof NEShare === "undefined" || !NEShare.enabled()) return "";
+  const nativeButton = NEShare.canNative()
+    ? '<button class="share-btn" data-share="native" title="Open the system share sheet">Share…</button>'
+    : "";
+  return `
+      <div class="share-block">
+        <span class="share-label">Share this game</span>
+        <div class="share-row">
+          ${nativeButton}
+          <button class="share-btn" data-share="x">X</button>
+          <button class="share-btn" data-share="facebook">Facebook</button>
+          <button class="share-btn" data-share="reddit">Reddit</button>
+          <button class="share-btn" data-share="telegram">Telegram</button>
+          <button class="share-btn" data-share="hackernews">HN</button>
+          <button class="share-btn" data-share="copy">Copy link</button>
+        </div>
+      </div>`;
+}
+
+function handleShare(button) {
+  if (typeof NEShare === "undefined") return;
+  const game = gameById(state.selected);
+  if (!game) return;
+  const kind = button.dataset.share;
+  const url = NEShare.gameUrl(game.id);
+  if (!url) return;
+  if (kind === "copy") {
+    NEShare.copy(url).then((ok) => showToast(ok ? "Link copied to clipboard" : url, !ok));
+    return;
+  }
+  if (kind === "native") {
+    NEShare.native({ url, title: game.title, text: NEShare.shareText(game.title) }).then((ok) => {
+      if (!ok) showToast("System share is not available here", true);
+    });
+    return;
+  }
+  if (!NEShare.share(kind, { url, title: game.title })) {
+    showToast("Sharing is not available here", true);
+  }
+}
+
 function renderDetail() {
   const g = gameById(state.selected);
   const detail = $("#detail");
@@ -498,6 +540,7 @@ function renderDetail() {
         <button class="btn icon-only" data-cli title="Copy CLI command" aria-label="Copy CLI command"><svg class="icon"><use href="#i-command"/></svg></button>
         <a class="btn icon-only" href="${g.page}" target="_blank" rel="noopener" title="Open source page" aria-label="Open source page"><svg class="icon"><use href="#i-external"/></svg></a>
       </div>
+      ${shareBlockHtml(g)}
       ${(isDone || BROWSER_PLAY) && LIVE_MODE ? playButtonsHtml(g.id) : ""}
       ${isDownloading ? `
         <div class="detail-progress">
@@ -1406,6 +1449,10 @@ function bindEvents() {
     if (sw) sw.classList.toggle("on");
   });
   $$(".source-card .btn").forEach((b) => b.addEventListener("click", () => showToast("Source configuration is a design preview")));
+  $("#detail").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-share]");
+    if (button) handleShare(button);
+  });
   $("#trayItems").addEventListener("click", (event) => {
     const item = event.target.closest("[data-select]");
     if (item) { selectGame(item.dataset.select); setView("discover"); }
@@ -1456,4 +1503,14 @@ if (params.get("detail") === "1") $("#detail").classList.add("open");
 if (params.get("source") === "1") openSourceModal();
 if (params.get("cli") === "1") openCli();
 
-initLive();
+function applyDeepLink() {
+  const id = params.get("game");
+  if (!id) return;
+  const game = gameById(id);
+  if (!game) return;
+  selectGame(game.id);
+  $("#detail").classList.add("open");
+  renderDetail();
+}
+
+initLive().then(() => applyDeepLink());

@@ -626,3 +626,18 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appe
 .library-empty h2 { color: var(--text-2); font-size: 14px; margin: 0 0 5px; }
 .library-empty p { margin: 0 0 12px; font-size: 10px; }
 @media (max-width: 900px) { .library-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } }
+
+/* ---------------------------------------------------------------- sharing */
+.share-block { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.share-label {
+  display: block; margin-bottom: 7px;
+  font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text-3);
+}
+.share-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.share-btn {
+  height: 27px; padding: 0 10px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2);
+  font: 10.5px var(--mono); cursor: pointer; transition: color .15s ease, border-color .15s ease;
+}
+.share-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.share-btn:active { transform: translateY(1px); }
