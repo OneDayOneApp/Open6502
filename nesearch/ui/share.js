@@ -68,8 +68,9 @@
   }
 
   function shareText(title) {
-    if (!title) return "nesearch — an open catalogue of NES homebrew games you can play in the browser";
-    return title + " — NES homebrew you can play right in the browser";
+    if (!title) return "nesearch — an open catalogue of NES games you can play right in the browser";
+    /* "an NES game": NES starts with a vowel sound, and the subject is one title. */
+    return title + " — an NES game you can play right in the browser";
   }
 
   /* Opens the network dialog in a popup. Returns false when unsupported. */
