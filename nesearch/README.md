@@ -105,7 +105,7 @@ node nesearch/scripts/test-static-site.mjs          # 校验查询引擎 / fetch
 - `nesearch export` 把当前目录写成 `site/nesearch/data/catalog.json`，字段与本地 UI 的 `/api/v1/games` 一致。
 - [ui/static-api.js](ui/static-api.js) 在浏览器里接管 `/api/v1/*`：搜索、过滤、排序逐条对齐 `CatalogService::search`；下载退化为浏览器 fetch + 保存；播放交给 [ui/play.html](ui/play.html)，直接跑 `site/assets/play/gem6502.wasm`。
 - 页面仍是 [ui/mockup.html](ui/mockup.html)，构建时只注入一行 `window.NESEARCH_STATIC`，所以本地 UI 与静态站共用同一份前端。
-- 游戏详情和播放页都有分享按钮（X / Facebook / Reddit / Telegram / Hacker News / 复制链接 / 系统分享），`?game=<id>` 深链可直接打开对应条目。
+- 游戏详情和播放页都有分享按钮（X / Facebook / Reddit / Telegram / Hacker News / 复制链接 / 系统分享），播放页的分享按钮在标题栏同一行。分享链接指向 `game/<id>.html`：这是构建时为每个条目生成的落地页，带该游戏自己的 `og:image`（标题画面），所以转发预览用的是这款游戏的图。
 - 静态版**没有**本地库、断点续传、落盘 SHA-256 校验和本地模拟器启动——这些仍然需要本机 `nesearch ui`。
 - [.github/workflows/pages.yml](../.github/workflows/pages.yml) 在部署前构建 nesearch、`--refresh` 导出并跑上面的 node 校验；导出失败时回落到 [data/catalog.snapshot.json](data/catalog.snapshot.json)。
 

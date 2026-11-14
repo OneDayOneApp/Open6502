@@ -179,7 +179,9 @@ node nesearch/scripts/test-static-site.mjs          # checks query engine, fetch
   `window.NESEARCH_STATIC` line, so the local UI and the Pages demo share one
   frontend.
 - Game details and the player page can share to X, Facebook, Reddit, Telegram,
-  Hacker News, or copy the link; `?game=<id>` deep links open a single entry.
+  Hacker News, or copy the link (the player keeps the share row in its title bar).
+  Shares point at `game/<id>.html`, a per-entry landing page generated at build
+  time with that game's own `og:image` (its title screen).
 - The static build has **no** local library, resumable transfers, on-disk
   SHA-256 verification or local emulator launch — those stay in `nesearch ui`.
 - [.github/workflows/pages.yml](../.github/workflows/pages.yml) builds nesearch,

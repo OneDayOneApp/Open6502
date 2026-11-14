@@ -218,7 +218,8 @@
 
     function playHref(game) {
       var base = opts.playUrl || "play.html";
-      var query = "?rom=" + encodeURIComponent(game.url || "") + "&title=" + encodeURIComponent(game.title || game.id);
+      var query = "?rom=" + encodeURIComponent(game.url || "") + "&title=" + encodeURIComponent(game.title || game.id) +
+        "&id=" + encodeURIComponent(game.id);
       return base + query;
     }
 

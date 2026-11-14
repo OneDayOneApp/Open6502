@@ -4,6 +4,7 @@
 - Added the root MIT license, `THIRD_PARTY_NOTICES.md` and `NEMU/NOTICE`; `NEMU/` stays under Mulan PSL v2.
 - Added `nesearch/scripts/package-release.sh` (bundles MIT/NEMU/SDL2/license texts and re-signs the Mach-O binaries) and tracked the missing `NEMU/LICENSE` (Mulan PSL v2).
 - Added social sharing (X, Facebook, Reddit, Telegram, Hacker News, copy link, native share) to the catalog details and the browser player, plus `?game=<id>` deep links and social preview meta tags.
+- Share links now point at per-game landing pages (`game/<id>.html`) with that game's own title-screen `og:image`; the player's share row moved into the title bar.
 
 - Added Space as a 1P A/jump alias (Z remains an alias).
 - Added dot-level sprite 0 hit check and unit test.
