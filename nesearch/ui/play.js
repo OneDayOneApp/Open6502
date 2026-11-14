@@ -95,7 +95,7 @@ function ensureAudio() {
     const Ctor = window.AudioContext || window.webkitAudioContext;
     if (!Ctor) {
       state.sound = false;
-      dom.soundBtn.textContent = "声音：不可用";
+      dom.soundBtn.textContent = "Sound: unavailable";
       return;
     }
     const audioCtx = new Ctor();
@@ -140,7 +140,7 @@ function stopAudio() {
 
 function setSound(on) {
   state.sound = on;
-  dom.soundBtn.textContent = on ? "声音：开" : "声音：关";
+  dom.soundBtn.textContent = on ? "Sound: on" : "Sound: off";
   if (!on) stopAudio();
 }
 
@@ -156,7 +156,7 @@ function readString(pointer) {
 function loadRomBytes(bytes) {
   const wasm = state.wasm;
   const capacity = wasm.gem_web_rom_capacity();
-  if (bytes.length > capacity) throw new Error(`ROM 太大：${bytes.length} 字节（上限 ${capacity}）`);
+  if (bytes.length > capacity) throw new Error(`ROM is too large: ${bytes.length} bytes (limit ${capacity})`);
   if (bytes.length > 0) {
     new Uint8Array(wasm.memory.buffer).set(bytes, wasm.gem_web_rom_buffer());
   }
@@ -194,7 +194,7 @@ function stepFrame() {
     state.halted = true;
     state.running = false;
     dom.pauseBtn.disabled = true;
-    showOverlay("CPU 已停止", title, "按 R 或点击「重载」重新载入");
+    showOverlay("CPU halted", title, "Press R or click Reload to restart");
     return false;
   }
   return true;
@@ -243,7 +243,7 @@ function startRunning() {
   state.lastTs = 0;
   state.frameAcc = 0;
   dom.pauseBtn.disabled = false;
-  dom.pauseBtn.textContent = "暂停";
+  dom.pauseBtn.textContent = "Pause";
   state.rafId = requestAnimationFrame(loop);
 }
 
@@ -253,9 +253,9 @@ function pauseRunning() {
   state.paused = true;
   cancelAnimationFrame(state.rafId);
   stopAudio();
-  dom.pauseBtn.textContent = "继续";
+  dom.pauseBtn.textContent = "Resume";
   dom.pauseBtn.disabled = false;
-  showOverlay("已暂停", title, "点击「继续」或按 P 恢复");
+  showOverlay("Paused", title, "Click Resume or press P to continue");
 }
 
 function beginPlay() {
@@ -267,24 +267,24 @@ function beginPlay() {
 
 async function loadRom() {
   if (!romUrl) {
-    showOverlay("没有 ROM", "缺少 ?rom= 参数", "回到目录选择一款游戏");
+    showOverlay("No ROM", "The ?rom= parameter is missing", "Pick a game from the catalog");
     return false;
   }
-  showOverlay("加载中", "正在读取 ROM", romUrl.length > 90 ? romUrl.slice(0, 88) + "…" : romUrl);
+  showOverlay("Loading", "Reading the ROM", romUrl.length > 90 ? romUrl.slice(0, 88) + "…" : romUrl);
   try {
     const response = await fetch(romUrl);
-    if (!response.ok) throw new Error(`无法读取 ROM（HTTP ${response.status}）`);
+    if (!response.ok) throw new Error(`Cannot read the ROM (HTTP ${response.status})`);
     state.romBytes = new Uint8Array(await response.arrayBuffer());
   } catch (error) {
     const message = String((error && error.message) || error);
-    showOverlay("加载失败", message, "若为跨域限制，可点击右上角「下载 ROM」在本机播放");
+    showOverlay("Load failed", message, "If this is a cross-origin block, use Download ROM and play it locally");
     dom.overlayText.style.userSelect = "text";
     return false;
   }
   try {
     loadRomBytes(state.romBytes);
   } catch (error) {
-    showOverlay("无法载入", String((error && error.message) || error), "该 ROM 可能不在 GEM6502 支持的 mapper 范围内");
+    showOverlay("Cannot load", String((error && error.message) || error), "This ROM may use a mapper GEM6502 does not support");
     return false;
   }
   // Warm up a few frames so the paused card shows the title screen.
@@ -293,7 +293,7 @@ async function loadRom() {
   }
   drawFrame();
   state.paused = true;
-  showOverlay("点击开始", `${title} · 音频需要一次用户操作`, "点击「开始」或按任意键");
+  showOverlay("Click to start", `${title} · audio needs one user gesture`, "Click Start or press any key");
   dom.pauseBtn.disabled = true;
   dom.reloadBtn.disabled = false;
   updateStats();
@@ -307,7 +307,7 @@ async function boot() {
 
   try {
     const response = await fetch(`${BASE}gem6502.wasm`);
-    if (!response.ok) throw new Error(`无法读取 gem6502.wasm（HTTP ${response.status}）`);
+    if (!response.ok) throw new Error(`Cannot read gem6502.wasm (HTTP ${response.status})`);
     const instance = WebAssembly.instantiateStreaming
       ? await WebAssembly.instantiateStreaming(response.clone(), {}).catch(async () => {
           const bytes = await response.arrayBuffer();
@@ -315,13 +315,13 @@ async function boot() {
         })
       : await WebAssembly.instantiate(await response.arrayBuffer(), {});
     state.wasm = instance.instance.exports;
-    if (!state.wasm.gem_web_init()) throw new Error("gem_web_init 失败");
+    if (!state.wasm.gem_web_init()) throw new Error("gem_web_init failed");
     state.wasm.gem_web_set_buttons(0, 0);
     state.sound = true;
     dom.soundBtn.disabled = false;
     await loadRom();
   } catch (error) {
-    showOverlay("初始化失败", String((error && error.message) || error), "请检查网络后刷新页面");
+    showOverlay("Initialisation failed", String((error && error.message) || error), "Check your network and reload the page");
     toast(String((error && error.message) || error));
   }
 }
@@ -366,12 +366,12 @@ function reloadRom() {
   try {
     loadRomBytes(state.romBytes);
   } catch (error) {
-    showOverlay("无法载入", String((error && error.message) || error), "");
+    showOverlay("Cannot load", String((error && error.message) || error), "");
     return;
   }
   state.started = true;
   dom.pauseBtn.disabled = false;
-  dom.pauseBtn.textContent = "暂停";
+  dom.pauseBtn.textContent = "Pause";
   startRunning();
 }
 
@@ -390,12 +390,12 @@ function bindShare() {
     const url = shared && gameId ? NEShare.gameUrl(gameId) : location.href;
     const kind = button.dataset.share;
     if (kind === "copy") {
-      NEShare.copy(url).then((ok) => toast(ok ? "链接已复制" : url));
+      NEShare.copy(url).then((ok) => toast(ok ? "Link copied" : url));
       return;
     }
     if (kind === "native") {
       NEShare.native({ url, title, text: NEShare.shareText(title) }).then((ok) => {
-        if (!ok) toast("系统分享不可用");
+        if (!ok) toast("System share is not available");
       });
       return;
     }

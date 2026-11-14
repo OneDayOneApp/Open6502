@@ -15,7 +15,7 @@ import os
 import sys
 
 FALLBACK_IMAGE = "https://onedayoneapp.github.io/Open6502/assets/img/nesearch/discover.png"
-FALLBACK_DESCRIPTION = "nesearch — 开源 NES 游戏目录，浏览器里直接试玩。"
+FALLBACK_DESCRIPTION = "nesearch — an open catalogue of NES games you can play in the browser."
 
 
 def esc(value):
@@ -30,7 +30,7 @@ def safe_url(value, schemes=("https://",)):
 def page(game, base):
     game_id = esc(game.get("id", ""))
     title = esc(game.get("title") or game.get("id") or "NES game")
-    author = esc(game.get("author") or "未知作者")
+    author = esc(game.get("author") or "Unknown author")
     license_name = esc(game.get("license") or "Unknown")
     license_kind = game.get("license_kind") or "unknown"
     size = esc(game.get("size_label") or "")
@@ -55,7 +55,7 @@ def page(game, base):
     if mapper:
         summary_parts.append("mapper " + mapper)
     summary = " · ".join(part for part in summary_parts if part)
-    og_description = esc(f"{summary} — 开源 NES 自制游戏，浏览器里直接试玩。")
+    og_description = esc(f"{summary} — an open-source NES game you can play right in the browser.")
 
     chips = "".join(
         f'<span class="chip{" amber" if license_kind == "unknown" else ""}">{esc(text)}</span>'
@@ -64,21 +64,21 @@ def page(game, base):
     )
     if shot and rom:
         hero = (
-            f'<a class="shot-link" href="{esc(play_url)}" title="在浏览器试玩 {title}" aria-label="在浏览器试玩 {title}">'
-            f'<img class="shot" src="{esc(shot)}" alt="{title} 标题画面" onerror="this.style.display=\'none\'">'
-            '<span class="play-hint">▶ 点击试玩</span>'
+            f'<a class="shot-link" href="{esc(play_url)}" title="Play {title} in the browser" aria-label="Play {title} in the browser">'
+            f'<img class="shot" src="{esc(shot)}" alt="{title} title screen" onerror="this.style.display=\'none\'">'
+            '<span class="play-hint">▶ Click to play</span>'
             "</a>"
         )
     elif shot:
-        hero = f'<img class="shot" src="{esc(shot)}" alt="{title} 标题画面" onerror="this.style.display=\'none\'">'
+        hero = f'<img class="shot" src="{esc(shot)}" alt="{title} title screen" onerror="this.style.display=\'none\'">'
     else:
         hero = ""
     play_button = (
-        f'<a class="btn primary" href="{esc(play_url)}">▶ 在浏览器试玩</a>' if rom else ""
+        f'<a class="btn primary" href="{esc(play_url)}">▶ Play in browser</a>' if rom else ""
     )
 
     return f"""<!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -132,7 +132,7 @@ def page(game, base):
 <body>
 <div class="wrap">
   <div class="top">
-    <a href="../">← nesearch 目录</a>
+    <a href="../">← nesearch catalog</a>
     <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">Open6502 ↗</a>
   </div>
   <div class="card">
@@ -144,11 +144,11 @@ def page(game, base):
       {f'<p class="desc">{description}</p>' if description else ''}
       <div class="actions">
         {play_button}
-        <a class="btn" href="{catalog_url}">在目录中查看</a>
+        <a class="btn" href="{catalog_url}">View in catalog</a>
       </div>
     </div>
   </div>
-  <p class="note">这是 nesearch 的分享落地页：预览图来自该游戏自己的标题画面。</p>
+  <p class="note">This is the nesearch share page for {title}: the preview image is the game's own title screen.</p>
 </div>
 </body>
 </html>
