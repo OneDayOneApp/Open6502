@@ -385,7 +385,18 @@ docs/                 Design, verification, area and cost documents
 
 ---
 
-## Third-party licenses
+## License
 
-Bundled ROM licenses are in [roms/LICENSES](roms/LICENSES). The repository
-does not yet declare a root project license; add one before redistribution.
+- **Open6502 code** — `rtl/`, `sim/`, `tb/`, `GEM6502/`, `nesearch/`, `site/`,
+  `docs/` and the repository scripts are released under the
+  [MIT License](LICENSE), © 2026 OneDayOneApp.
+- **`NEMU/`** is a fork of [NJU-ProjectN/nemu](https://github.com/NJU-ProjectN/nemu)
+  and stays under [Mulan PSL v2](NEMU/LICENSE); the 6502 ISA port and the NES
+  frontend follow the same license. See [NEMU/NOTICE](NEMU/NOTICE).
+- **Bundled ROMs** are MIT licensed; per-ROM texts are in
+  [roms/LICENSES](roms/LICENSES) (the site copy ships the same texts under
+  `site/assets/play/roms/LICENSES/`).
+- **Third-party components** (SDL2, libcurl, nlohmann/json, cpp-httplib,
+  msbasic, the GPL kconfig and qemu-diff build tools) and the readline/GPL
+  caveat for Linux binaries are documented in
+  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
