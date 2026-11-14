@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased v1.5 (in progress)
+- Added the root MIT license, `THIRD_PARTY_NOTICES.md` and `NEMU/NOTICE`; `NEMU/` stays under Mulan PSL v2.
 
 - Added Space as a 1P A/jump alias (Z remains an alias).
 - Added dot-level sprite 0 hit check and unit test.

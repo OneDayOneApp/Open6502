@@ -1,0 +1,47 @@
+NEMU (6502EMU)
+==============
+
+This directory is a fork of NEMU (NJU Emulator), originally developed by the
+NJU-ProjectN team:
+
+    https://github.com/NJU-ProjectN/nemu
+
+NEMU is licensed under the Mulan Permissive Software License, Version 2
+(Mulan PSL v2). The complete license text is in LICENSE next to this file.
+You may obtain a copy of Mulan PSL v2 at:
+
+    http://license.coscl.org.cn/MulanPSL2
+
+The MOS 6502/65C02 ISA port, the NES/Famicom frontend (PPU, APU, controller,
+iNES mappers), the 6502EMU launcher and the demo ROM builder in this tree were
+written for Open6502 and are released under the same license.
+
+Redistribution, in source or binary form, must include a copy of the Mulan
+PSL v2 text and retain the copyright and disclaimer statements of the
+components below.
+
+Third-party components inside this tree
+---------------------------------------
+
+  tools/kconfig/          Linux kernel kconfig, GPL-2.0.
+                          Build-time only: compiles the `conf` tool. The tool
+                          is not linked into the emulator.
+
+  tools/qemu-diff/        GDB remote protocol client, Copyright (C) 2015
+                          Red Hat Inc., GPL-3.0-or-later. Development-only
+                          difftest helper; not built by default.
+
+  src/device/mmc.h        Copyright 2002 Hewlett-Packard Company. "Use
+                          consistent with the GNU GPL is permitted, provided
+                          that this copyright notice is preserved in its
+                          entirety in all copies and derived works."
+
+  basic/                  Microsoft BASIC 1.1 disassembly (KIM-1 build) from
+                          Michael Steil's msbasic project, BSD-2-Clause.
+                          See basic/README.md for the full text.
+
+  nesgame/                Open6502 demo game, MIT (part of Open6502).
+
+Runtime dependencies are resolved from the system and are not redistributed
+here: SDL2 (zlib) when built with the SDL frontend, and libedit (BSD) or GNU
+readline (GPL-3.0) for the interactive monitor.

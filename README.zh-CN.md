@@ -339,8 +339,15 @@ docs/                 设计、验证、面积与成本文档
 
 ---
 
-## 第三方许可证
+## 许可证
 
-内置 ROM 的许可证见 [roms/LICENSES](roms/LICENSES)。
-
-仓库暂未声明根项目许可证，再分发前需要补充。
+- **Open6502 自身代码** —— `rtl/`、`sim/`、`tb/`、`GEM6502/`、`nesearch/`、
+  `site/`、`docs/` 与仓库脚本采用 [MIT 许可证](LICENSE)，© 2026 OneDayOneApp。
+- **`NEMU/`** 是 [NJU-ProjectN/nemu](https://github.com/NJU-ProjectN/nemu) 的
+  fork，继续保持 [Mulan PSL v2](NEMU/LICENSE)；6502 ISA 移植与 NES 前端沿用同一许可证，
+  详见 [NEMU/NOTICE](NEMU/NOTICE)。
+- **内置 ROM** 为 MIT 许可证，逐条文本见 [roms/LICENSES](roms/LICENSES)
+  （站点播放器随包副本在 `site/assets/play/roms/LICENSES/`）。
+- **第三方组件**（SDL2、libcurl、nlohmann/json、cpp-httplib、msbasic，
+  以及 GPL 的 kconfig / qemu-diff 构建工具，和 Linux 二进制链接 readline 的注意事项）
+  见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
