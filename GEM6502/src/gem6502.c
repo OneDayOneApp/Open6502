@@ -820,8 +820,11 @@ void gem_ppu_advance(Gem *g, uint32_t cpu_cycles) {
     }
     /* NEMU reference clocks MMC3 once at the start of each visible
      * scanline; use the same callback point instead of synthetic pattern
-     * addresses for this fast-cycle model. */
-    if (p->cycle == 0 && p->scanline < 240 && g->bus.mapper == 4) {
+     * addresses for this fast-cycle model. A12 edges cannot occur while
+     * the PPU is blanked, so do not clock blanked scanlines: doing so
+     * drifts the counter and SMB3 halts on an illegal opcode. */
+    if (p->cycle == 0 && p->scanline < 240 && g->bus.mapper == 4 &&
+        (p->mask & 0x18)) {
       if (g->bus.m4_irq_counter == 0 || g->bus.m4_irq_reload) {
         g->bus.m4_irq_counter = g->bus.m4_irq_latch;
         g->bus.m4_irq_reload = 0;
