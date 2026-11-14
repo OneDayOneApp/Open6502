@@ -152,9 +152,13 @@ void UiServer::run(int port, bool open_browser_flag) {
     for (const auto& item : downloads) {
       if (item.state == "queued" || item.state == "downloading" || item.state == "verifying") ++active;
     }
+    std::size_t github_sources = 0;
+    for (const auto& source : config_.github_sources) {
+      if (source.enabled) ++github_sources;
+    }
     send_json(res, {{"version", NESEARCH_VERSION},
                     {"games", catalog_.total()},
-                    {"sources", 1 + (config_.homebrew_hub_enabled ? 1 : 0) +
+                    {"sources", github_sources + (config_.homebrew_hub_enabled ? 1 : 0) +
                                     (config_.pdroms_enabled ? 1 : 0) +
                                     (config_.archive_org_enabled ? 1 : 0) +
                                     (config_.tuxnes_mapper_enabled ? 1 : 0) +

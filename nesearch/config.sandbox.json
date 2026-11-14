@@ -12,6 +12,22 @@
     "ref": "master",
     "repo": "retrobrews/nes-games"
   },
+  "github_sources": [
+    {
+      "enabled": true,
+      "name": "GitHub",
+      "path": "",
+      "ref": "master",
+      "repo": "retrobrews/nes-games"
+    },
+    {
+      "enabled": true,
+      "name": "GitHub · my6502",
+      "path": "games",
+      "ref": "tinybasic",
+      "repo": "redoop/my6502"
+    }
+  ],
   "homebrew_hub_enabled": true,
   "jobs": 4,
   "nemu_path": "",

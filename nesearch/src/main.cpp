@@ -257,8 +257,9 @@ int cmd_search(nes::CatalogService& catalog, std::vector<std::string> args, cons
               << nes::human_size(game.size) << std::string(10 - std::min<std::size_t>(9, nes::human_size(game.size).size()), ' ')
               << (game.mapper_name.empty() ? "-" : game.mapper_name) << "\n";
   }
-  std::cout << "\n" << games.size() << " shown of " << total << " (source: " << catalog.config().github_repo
-            << ")\n";
+  std::cout << "\n" << games.size() << " shown of " << total << " (sources: "
+            << catalog.config().github_sources.size() << " GitHub + "
+            << catalog.config().sources.size() << " custom)\n";
   return 0;
 }
 
@@ -402,10 +403,17 @@ int cmd_sources(nes::CatalogService& catalog, const Globals& globals) {
 
   if (globals.json) {
     json list = json::array();
-    list.push_back({{"id", "github:" + catalog.config().github_repo},
-                    {"name", "GitHub"},
-                    {"type", "github"},
-                    {"entries", counts["github:" + catalog.config().github_repo]}});
+    for (const auto& github : catalog.config().github_sources) {
+      const std::string id = nes::github_source_id(github);
+      list.push_back({{"id", id},
+                      {"name", github.name.empty() ? "GitHub · " + github.repo : github.name},
+                      {"type", "github"},
+                      {"repo", github.repo},
+                      {"ref", github.ref},
+                      {"path", github.path},
+                      {"enabled", github.enabled},
+                      {"entries", counts[id]}});
+    }
     if (catalog.config().homebrew_hub_enabled) {
       list.push_back({{"id", "homebrew-hub"}, {"name", "Homebrew Hub"}, {"type", "homebrew"},
                       {"entries", counts["homebrew-hub"]}});
@@ -437,7 +445,13 @@ int cmd_sources(nes::CatalogService& catalog, const Globals& globals) {
     std::cout << json({{"sources", list}}).dump(2, ' ', false, json::error_handler_t::replace) << "\n";
     return 0;
   }
-  std::cout << "GitHub  (" << catalog.config().github_repo << ")  " << counts["github:" + catalog.config().github_repo] << " entries\n";
+  for (const auto& github : catalog.config().github_sources) {
+    const std::string id = nes::github_source_id(github);
+    std::string label = github.repo + "@" + github.ref;
+    if (!github.path.empty()) label += "/" + github.path;
+    std::cout << "GITHUB  " << label << "  " << counts[id] << " entries  "
+              << (github.enabled ? "enabled" : "disabled") << "\n";
+  }
   if (catalog.config().homebrew_hub_enabled) {
     std::cout << "HUB     Homebrew Hub  " << counts["homebrew-hub"] << " entries\n";
   }
@@ -479,7 +493,10 @@ int cmd_config(const nes::Config& config, const std::vector<std::string>& args) 
   std::cout << "cache    " << nes::Config::cache_path().string() << "\n";
   std::cout << "library  " << nes::Config::library_path().string() << "\n";
   std::cout << "download " << nes::expand_user(config.download_dir).string() << "\n";
-  std::cout << "repo     " << config.github_repo << "@" << config.github_ref << "\n";
+  for (const auto& github : config.github_sources) {
+    std::cout << "repo     " << github.repo << "@" << github.ref
+              << (github.path.empty() ? "" : "/" + github.path) << "\n";
+  }
   std::cout << "jobs     " << config.jobs << "\n";
   return 0;
 }

@@ -113,6 +113,7 @@ node nesearch/scripts/test-static-site.mjs          # 校验查询引擎 / fetch
 
 - 内置源（自动合并、去重）：
   - GitHub `retrobrews/nes-games`：82 条，含 README 标题/作者与 `.png` 截图。
+  - GitHub `redoop/my6502`（`tinybasic` 分支 `games/` 子目录）：5 条 mapper 测试 ROM，标题取自文件名，许可证标记为 Unknown。
   - Homebrew Hub / `nesdev-org/homebrew-db`：24 条，带逐条许可证、截图与部分 SHA-256。
   - PDRoms NES RSS：最新 10 条，ZIP 下载后自动解出 `.nes`。
   - Internet Archive：Advanced Search + Metadata API，默认 query `(collection:softwarelibrary_nes OR collection:nes-homebrew) AND mediatype:software`；可在 Settings 修改。当前网络不可达时显示 offline，不阻塞其他源。
@@ -132,6 +133,8 @@ node nesearch/scripts/test-static-site.mjs          # 校验查询引擎 / fetch
 - itch.io 当前网络不可达，尚未接入；Homebrew Hub 部分条目无许可证字段，按 Unknown 展示。
 - TuxNES 列表是旧版商业 ROM 标题/mapper 表，不含 URL/许可证/哈希；只用于未知 mapper 的元数据补全，不应当作 ROM 来源。
 - Fogleman 页面是商业 NES 标题截图库，不含 ROM/许可证/下载链接；只用于封面补全，截图版权归各自权利人。
+- GitHub 源现在由 `github_sources` 数组配置（`name`/`repo`/`ref`/`path`/`enabled`），新增仓库、分支或子目录不需要改代码；旧配置里的 `github` 对象仍会被读成单一源。
+- `redoop/my6502` 的 `games/` 是常见商业游戏的 mapper 冒烟测试 ROM，按 Unknown 许可证收录；下载前请自行确认使用权。
 - 首次 `update` 需要请求多个源，约 1 分钟；之后走本地缓存。
 - 截图 URL 来自 GitHub raw，网络不可达时 UI 使用像素占位图。
 - 下载暂停依赖中断回调；极小的文件可能在暂停生效前完成。

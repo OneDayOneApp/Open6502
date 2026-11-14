@@ -46,14 +46,19 @@ json source_export_json(const Config& config, const CatalogService& catalog) {
   for (const auto& game : games) counts[game.source_id] += 1;
 
   json sources = json::array();
-  sources.push_back({{"id", "github:" + config.github_repo},
-                     {"name", "GitHub"},
-                     {"type", "github"},
-                     {"url", "https://github.com/" + config.github_repo},
-                     {"enabled", true},
-                     {"entries", counts["github:" + config.github_repo]},
-                     {"last_sync", catalog.fetched_at()},
-                     {"status", "online"}});
+  for (const auto& github : config.github_sources) {
+    const std::string id = github_source_id(github);
+    std::string url = "https://github.com/" + github.repo + "/tree/" + github.ref;
+    if (!github.path.empty()) url += "/" + github.path;
+    sources.push_back({{"id", id},
+                       {"name", github.name.empty() ? "GitHub · " + github.repo : github.name},
+                       {"type", "github"},
+                       {"url", url},
+                       {"enabled", github.enabled},
+                       {"entries", counts[id]},
+                       {"last_sync", catalog.fetched_at()},
+                       {"status", github.enabled ? "online" : "disabled"}});
+  }
   if (config.homebrew_hub_enabled) {
     sources.push_back({{"id", "homebrew-hub"},
                        {"name", "Homebrew Hub"},

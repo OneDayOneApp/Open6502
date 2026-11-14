@@ -37,19 +37,19 @@ class CatalogService {
   std::string fetched_at() const;
   std::size_t mapper_entries() const;
   std::size_t screenshot_entries() const;
-  std::string raw_base() const;
   Config& config();
 
  private:
   void save_cache() const;
   void apply_mapper_metadata(std::vector<Game>& games);
   void apply_screenshot_metadata(std::vector<Game>& games);
-  std::vector<Game> fetch_github(std::string* error) const;
+  std::string github_raw_base(const GithubSource& source) const;
+  std::vector<Game> fetch_github(const GithubSource& source, std::string* error) const;
   std::vector<Game> fetch_homebrew_hub(std::string* error) const;
   std::vector<Game> fetch_pdroms(std::string* error) const;
   std::vector<Game> fetch_archive_org(std::string* error) const;
   std::vector<Game> fetch_custom(const CustomSource& source, std::string* error) const;
-  void apply_readme_metadata(std::vector<Game>& games) const;
+  void apply_readme_metadata(std::vector<Game>& games, const GithubSource& source) const;
 
   Config& config_;
   HttpClient& http_;

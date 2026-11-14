@@ -27,6 +27,7 @@ Current status: **runnable MVP** — GitHub catalog + Homebrew Hub + PDRoms RSS 
 | Source | Type | Entries | Notes |
 |---|---|---:|---|
 | GitHub `retrobrews/nes-games` | Download catalog | 82 | Tree API + raw ROM assets; README title/author metadata |
+| GitHub `redoop/my6502` (`tinybasic/games`) | Download catalog | 5 | Tree API on the `tinybasic` branch, scoped to the `games/` subdirectory; mapper test ROMs (`Unknown` license) |
 | Homebrew Hub / `nesdev-org/homebrew-db` | Download catalog | 24 | Per-entry license/screenshot and optional SHA-256; ROMs via GitHub raw |
 | PDRoms NES RSS | Download catalog | 10 | Latest RSS entries; ZIP downloads are extracted to a single `.nes` |
 | Internet Archive | Download catalog | 0 in this network | Advanced Search + Metadata API; provider reports `offline` when unreachable |
@@ -40,6 +41,19 @@ Internet Archive is configurable from **Settings → Internet Archive**:
 ```
 
 Archive entries are enriched with TuxNES mapper data and Fogleman screenshots by normalized title.
+
+GitHub sources are configured with a `github_sources` array (`name`, `repo`, `ref`, `path`, `enabled`), so a single repo, branch, or subdirectory can be added without code changes:
+
+```json
+{
+  "github_sources": [
+    {"name": "GitHub", "repo": "retrobrews/nes-games", "ref": "master", "path": ""},
+    {"name": "GitHub · my6502", "repo": "redoop/my6502", "ref": "tinybasic", "path": "games"}
+  ]
+}
+```
+
+The `redoop/my6502` entries are mapper smoke-test dumps of well-known commercial titles. They are indexed with `Unknown` license and shown as such in the UI; make sure you have the rights to use them before downloading.
 
 ## Build
 

@@ -76,4 +76,21 @@ struct CustomSource {
   bool enabled = true;
 };
 
+// A GitHub repository (optionally a branch + subdirectory) scanned for .nes
+// files through the tree API. Multiple sources may coexist; each one becomes
+// its own entry in `nesearch sources`.
+struct GithubSource {
+  std::string name;
+  std::string repo;  // "owner/name"
+  std::string ref = "master";
+  std::string path;  // optional subdirectory inside the repo, e.g. "games"
+  bool enabled = true;
+};
+
+inline std::string github_source_id(const GithubSource& source) {
+  std::string id = "github:" + source.repo;
+  if (!source.path.empty()) id += "/" + source.path;
+  return id;
+}
+
 }  // namespace nes

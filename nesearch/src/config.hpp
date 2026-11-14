@@ -13,8 +13,12 @@ struct Config {
   int jobs = 4;
   int timeout_seconds = 30;
   std::string proxy;
-  std::string github_repo = "retrobrews/nes-games";
-  std::string github_ref = "master";
+  // Built-in GitHub catalogs. The first entry is the primary repo used by the
+  // legacy `github` config block and by cached source ids.
+  std::vector<GithubSource> github_sources = {
+      {"GitHub", "retrobrews/nes-games", "master", "", true},
+      {"GitHub · my6502", "redoop/my6502", "tinybasic", "games", true},
+  };
   std::string github_api_base = "https://api.github.com";
   std::string github_raw_base = "https://raw.githubusercontent.com";
   std::string gem6502_path;

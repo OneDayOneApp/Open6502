@@ -27,10 +27,31 @@ Config Config::load(const fs::path& path) {
     config.ui_open = data.value("ui_open", config.ui_open);
     if (data.contains("github") && data["github"].is_object()) {
       const auto& gh = data["github"];
-      config.github_repo = gh.value("repo", config.github_repo);
-      config.github_ref = gh.value("ref", config.github_ref);
       config.github_api_base = gh.value("api_base", config.github_api_base);
       config.github_raw_base = gh.value("raw_base", config.github_raw_base);
+      // Legacy single-repo configs (no `github_sources` array) map onto one
+      // source so existing installs keep working after an upgrade.
+      if (!data.contains("github_sources") || !data["github_sources"].is_array()) {
+        GithubSource source;
+        source.name = "GitHub";
+        source.repo = gh.value("repo", config.github_sources.front().repo);
+        source.ref = gh.value("ref", "master");
+        config.github_sources = {source};
+      }
+    }
+    if (data.contains("github_sources") && data["github_sources"].is_array()) {
+      config.github_sources.clear();
+      for (const auto& item : data["github_sources"]) {
+        if (!item.is_object()) continue;
+        GithubSource source;
+        source.repo = item.value("repo", "");
+        if (source.repo.empty()) continue;
+        source.name = item.value("name", "GitHub · " + source.repo);
+        source.ref = item.value("ref", "master");
+        source.path = item.value("path", "");
+        source.enabled = item.value("enabled", true);
+        config.github_sources.push_back(std::move(source));
+      }
     }
     config.gem6502_path = data.value("gem6502_path", config.gem6502_path);
     config.nemu_path = data.value("nemu_path", config.nemu_path);
@@ -93,12 +114,22 @@ bool Config::save(const fs::path& path, std::string* error) const {
   data["tuxnes_mapper_url"] = tuxnes_mapper_url;
   data["fogleman_screenshots_enabled"] = fogleman_screenshots_enabled;
   data["fogleman_screenshots_url"] = fogleman_screenshots_url;
+  const GithubSource primary = github_sources.empty() ? GithubSource{"GitHub", "retrobrews/nes-games", "master", "", true}
+                                                      : github_sources.front();
   data["github"] = {
-      {"repo", github_repo},
-      {"ref", github_ref},
+      {"repo", primary.repo},
+      {"ref", primary.ref},
       {"api_base", github_api_base},
       {"raw_base", github_raw_base},
   };
+  data["github_sources"] = json::array();
+  for (const auto& source : github_sources) {
+    data["github_sources"].push_back({{"name", source.name},
+                                      {"repo", source.repo},
+                                      {"ref", source.ref},
+                                      {"path", source.path},
+                                      {"enabled", source.enabled}});
+  }
   data["sources"] = json::array();
   for (const auto& source : sources) {
     data["sources"].push_back({{"id", source.id},

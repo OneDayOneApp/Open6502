@@ -198,6 +198,35 @@ std::string github_token() {
   return token ? token : "";
 }
 
+std::string github_game_title(const std::string& stem) {
+  static const std::regex mapper_suffix_re(R"((?:^|[_-])mapper[ _-]?\d+$)", std::regex::icase);
+  const std::string clean = std::regex_replace(stem, mapper_suffix_re, "");
+  // Split CamelCase file names ("SuperMarioBros3" -> "Super Mario Bros3") so
+  // the fallback title is readable even when the README is unavailable.
+  std::string spaced;
+  spaced.reserve(clean.size() + 4);
+  for (std::size_t i = 0; i < clean.size(); ++i) {
+    const char ch = clean[i];
+    if (i > 0 && std::isupper(static_cast<unsigned char>(ch)) &&
+        std::islower(static_cast<unsigned char>(clean[i - 1]))) {
+      spaced.push_back(' ');
+    }
+    spaced.push_back(ch);
+  }
+  const std::string title = title_from_slug(spaced);
+  return title.empty() ? title_from_slug(stem) : title;
+}
+
+// Stable de-duplication suffix. The long-standing primary repo keeps the
+// original "gh" suffix so cached ids do not change after this refactor.
+std::string github_suffix(const GithubSource& source) {
+  if (source.repo == "retrobrews/nes-games") return "gh";
+  std::string tail = source.repo;
+  if (const std::size_t slash = tail.find('/'); slash != std::string::npos) tail = tail.substr(slash + 1);
+  tail = slugify(tail);
+  return tail.empty() ? "gh" : tail;
+}
+
 }  // namespace
 
 CatalogService::CatalogService(Config& config, HttpClient& http, fs::path cache_path)
@@ -239,14 +268,16 @@ void CatalogService::save_cache() const {
   }
 }
 
-std::string CatalogService::raw_base() const {
-  return config_.github_raw_base + "/" + config_.github_repo + "/" + config_.github_ref + "/";
+std::string CatalogService::github_raw_base(const GithubSource& source) const {
+  std::string base = config_.github_raw_base + "/" + source.repo + "/" + source.ref + "/";
+  if (!source.path.empty()) base += source.path + "/";
+  return base;
 }
 
-std::vector<Game> CatalogService::fetch_github(std::string* error) const {
+std::vector<Game> CatalogService::fetch_github(const GithubSource& source, std::string* error) const {
   std::vector<Game> games;
-  const std::string url = config_.github_api_base + "/repos/" + config_.github_repo + "/git/trees/" +
-                          config_.github_ref + "?recursive=1";
+  const std::string url = config_.github_api_base + "/repos/" + source.repo + "/git/trees/" +
+                          source.ref + "?recursive=1";
   std::vector<std::string> headers = {"Accept: application/vnd.github+json"};
   const std::string token = github_token();
   if (!token.empty()) headers.push_back("Authorization: Bearer " + token);
@@ -262,15 +293,21 @@ std::vector<Game> CatalogService::fetch_github(std::string* error) const {
 
   try {
     const json tree = json::parse(response.body);
-    const std::string base = raw_base();
+    // ROM URLs keep the full repo-relative path, while README lookups are
+    // scoped to the subdirectory (github_raw_base()).
+    const std::string base = config_.github_raw_base + "/" + source.repo + "/" + source.ref + "/";
+    const std::string prefix = source.path.empty() ? "" : source.path + "/";
+    static const std::regex mapper_re(R"((?:^|[_-])mapper[ _-]?(\d+)$)", std::regex::icase);
     std::set<std::string> used;
     std::set<std::string> images;
     for (const auto& item : tree.value("tree", json::array())) {
       const std::string path = item.value("path", "");
+      if (!prefix.empty() && !starts_with(path, prefix)) continue;
       if (item.value("type", "") == "blob" && ends_with(path, ".png")) images.insert(path);
     }
     for (const auto& item : tree.value("tree", json::array())) {
       const std::string path = item.value("path", "");
+      if (!prefix.empty() && !starts_with(path, prefix)) continue;
       if (item.value("type", "") != "blob" || !ends_with(path, ".nes")) continue;
       const std::string stem = fs::path(path).stem().string();
       std::string id = slugify(stem);
@@ -281,16 +318,25 @@ std::vector<Game> CatalogService::fetch_github(std::string* error) const {
       }
       Game game;
       game.id = id;
-      game.title = title_from_slug(stem);
+      game.title = github_game_title(stem);
       game.author = "";
       game.license = "Unknown";
-      game.source = "GitHub";
-      game.source_id = "github:" + config_.github_repo;
+      std::smatch mapper_match;
+      if (std::regex_search(stem, mapper_match, mapper_re)) {
+        try { game.mapper = std::stoi(mapper_match[1].str()); } catch (const std::exception&) {}
+        if (game.mapper >= 0) game.mapper_name = mapper_name_for(game.mapper, "");
+      }
+      game.source = source.name.empty() ? "GitHub · " + source.repo : source.name;
+      game.source_id = github_source_id(source);
+      game.page_url = "https://github.com/" + source.repo + "/blob/" + source.ref + "/" + path;
       game.file = path;
       game.url = base + url_encode_path(path);
       game.size = item.value("size", 0ULL);
-      const std::string image_path = fs::path(path).stem().string() + ".png";
-      if (images.count(image_path)) game.screenshot_url = base + url_encode_path(image_path);
+      fs::path image_path = path;
+      image_path.replace_extension(".png");
+      if (images.count(image_path.string())) {
+        game.screenshot_url = base + url_encode_path(image_path.string());
+      }
       games.push_back(std::move(game));
     }
   } catch (const std::exception& exception) {
@@ -299,12 +345,12 @@ std::vector<Game> CatalogService::fetch_github(std::string* error) const {
     return games;
   }
 
-  apply_readme_metadata(games);
+  apply_readme_metadata(games, source);
   return games;
 }
 
-void CatalogService::apply_readme_metadata(std::vector<Game>& games) const {
-  const std::string url = raw_base() + "README.md";
+void CatalogService::apply_readme_metadata(std::vector<Game>& games, const GithubSource& source) const {
+  const std::string url = github_raw_base(source) + "README.md";
   const HttpResponse response = http_.get(url);
   if (!response.ok()) return;
 
@@ -313,15 +359,30 @@ void CatalogService::apply_readme_metadata(std::vector<Game>& games) const {
     std::string author;
   };
   std::map<std::string, Meta> by_title;
+  std::map<std::string, std::string> by_file;
   const std::regex line_re(R"(^\s*-\s*<b>(.*?)</b>\s+by\s+(.+?)\s*$)", std::regex::icase);
+  // Markdown tables such as "| `Zelda_mapper1.nes` | The Legend of Zelda | 1 |".
+  const std::regex table_re(R"(^\|\s*`?([^|`]+\.nes)`?\s*\|\s*([^|]+?)\s*\|)", std::regex::icase);
   for (const std::string& line : split_lines(response.body)) {
     std::smatch match;
-    if (!std::regex_match(line, match, line_re)) continue;
-    Meta meta{html_unescape(strip_tags(match[1].str())), html_unescape(strip_tags(match[2].str()))};
-    by_title[normalize_title(meta.title)] = meta;
+    if (std::regex_match(line, match, line_re)) {
+      Meta meta{html_unescape(strip_tags(match[1].str())), html_unescape(strip_tags(match[2].str()))};
+      by_title[normalize_title(meta.title)] = meta;
+      continue;
+    }
+    if (std::regex_search(line, match, table_re)) {
+      std::string file = lower(trim(match[1].str()));
+      const std::string title = trim(html_unescape(strip_tags(match[2].str())));
+      if (!file.empty() && !title.empty()) by_file.emplace(file, title);
+    }
   }
 
   for (auto& game : games) {
+    const auto by_name = by_file.find(lower(fs::path(game.file).filename().string()));
+    if (by_name != by_file.end()) {
+      game.title = by_name->second;
+      continue;
+    }
     const auto it = by_title.find(normalize_title(game.title));
     if (it != by_title.end()) {
       game.title = it->second.title;
@@ -851,9 +912,13 @@ void CatalogService::refresh() {
     }
   };
 
-  std::string github_error;
-  std::vector<Game> github = fetch_github(&github_error);
-  append(std::move(github), "gh");
+  for (const auto& source : config_.github_sources) {
+    if (!source.enabled) continue;
+    std::string github_error;
+    std::vector<Game> github = fetch_github(source, &github_error);
+    if (!github_error.empty()) error = github_error;
+    append(std::move(github), github_suffix(source));
+  }
 
   if (config_.homebrew_hub_enabled) {
     std::string hub_error;
@@ -1032,8 +1097,11 @@ void CatalogService::enrich(Game& game) {
   if (!starts_with(game.source_id, "github:")) return;
   if (!game.description.empty() && lower(game.license) != "unknown") return;
 
-  const std::string stem = fs::path(game.file).stem().string();
-  const std::string url = raw_base() + url_encode_path(stem) + ".txt";
+  // Sidecar metadata lives next to the ROM, so build the .txt URL from the
+  // game URL instead of a single global raw base (multiple GitHub sources).
+  std::string url = game.url;
+  if (ends_with(lower(url), ".nes")) url.resize(url.size() - 4);
+  url += ".txt";
   const HttpResponse response = http_.get(url);
   if (!response.ok()) return;
 
