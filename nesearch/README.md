@@ -73,6 +73,22 @@ ctest --test-dir nesearch/build --output-on-failure
 ~/Library/Application Support/nesearch/library.json
 ```
 
+## 发布打包（macOS）
+
+```sh
+bash nesearch/scripts/package-release.sh              # 构建 + 打包
+bash nesearch/scripts/package-release.sh --no-build   # 复用已构建的二进制
+# → dist/nesearch-<version>-macos-<arch>.zip 与同名 .sha256
+```
+
+- 包内布局：`nesearch`、`ui/`、`emulators/{gem6502,6502EMU}`、
+  `lib/libSDL2-2.0.0.dylib`、`LICENSE`、`LICENSES/`、`README.md`、`run-ui.command`。
+- 打包时把模拟器对 Homebrew SDL2 的依赖改写到 `@loader_path/../lib/`，并做 ad-hoc
+  签名——`install_name_tool` 会让原签名失效，arm64 上不重签会直接被系统杀掉。
+- 许可证随包：根 `LICENSE`（MIT），`LICENSES/` 内含 NEMU Mulan PSL v2 与 NOTICE、
+  SDL2 zlib、nlohmann/json 与 cpp-httplib 的 MIT 文本、`THIRD_PARTY_NOTICES.md`。
+- 依赖 `brew install sdl2`；`SDL2_PREFIX=/path/to/sdl2` 可覆盖探测。
+
 ## 静态目录（GitHub Pages 演示）
 
 GitHub Pages 只能托管静态文件，跑不了 `nesearch ui` 的 C++ 服务。站点上的在线目录因此是「导出快照 + 浏览器端 shim」：
