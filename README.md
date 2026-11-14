@@ -66,6 +66,40 @@ cmake --build nesearch/build -j
 - English documentation / 英文文档: [nesearch/README.en.md](nesearch/README.en.md)
 - Screenshots / 截图: [nesearch/ui/screenshots](nesearch/ui/screenshots)
 
+## labs/jit6502: 6502 -> AArch64 JIT lab / 6502 JIT 实验
+
+`labs/jit6502/` is a self-contained experiment (no NEMU, no RTL): a 6502
+interpreter, an AArch64 JIT that translates basic blocks to machine code, block
+chaining, self-modifying-code invalidation, and a NES frontend that reuses this
+project's PPU/APU/mapper so every frame can be compared byte-for-byte.
+
+Measured on an Apple M2 (`clang -O2`), `roms/falling.nes`, 600 frames = 10 s of
+game time = 5,815,511 guest instructions (numbers move with machine load):
+
+| Engine | 600 frames | FPS | Realtime |
+|---|---:|---:|---:|
+| JIT6502 (JIT, default no-chain) | 0.44 s | 1379 | 23.0x |
+| JIT6502 (interpreter) | 0.64 s | 942 | 15.7x |
+| NEMU (`6502EMU`, headless) | 1.92 s | 312 | 5.2x |
+| GEM6502 (legacy cycle model) | 2.21 s | 272 | 4.5x |
+
+CPU-only (Klaus functional test, 30,646,176 instructions): JIT6502 713 MIPS,
+the lab's own interpreter 72 MIPS, NEMU 37 MIPS (2.8 MIPS with its default
+ITRACE debug build).
+
+The game-workload gap is far smaller than the CPU-only gap because PPU stepping
+dominates every engine. The lab documents the profile and the four changes that
+took `falling.nes` from 1.37 s to 0.44 s: tile-cached PPU fetches, direct CHR
+indexing, batched scanline drawing and a cached `getenv` in the dispatcher.
+
+- Documentation: [labs/jit6502/README.md](labs/jit6502/README.md)
+- Play:
+
+```sh
+cd labs/jit6502 && make
+./bin/jit6502 nes ../../roms/falling.nes --engine=jit --window --scale=3
+```
+
 ## Project goal: 55nm tapeout
 
 The long-term goal is a **55nm tapeout** of an open, verifiable 6502/NES-compatible
