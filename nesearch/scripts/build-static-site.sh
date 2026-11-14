@@ -116,6 +116,8 @@ if marker in html:
 open(destination, "w", encoding="utf-8").write(html)
 PY
 
+python3 "$NES/scripts/build-share-pages.py" "$OUT/data/catalog.json" "$OUT" "https://onedayoneapp.github.io/Open6502/nesearch/"
+
 python3 - "$OUT/data/catalog.json" <<'PY'
 import json, sys
 payload = json.load(open(sys.argv[1], encoding="utf-8"))

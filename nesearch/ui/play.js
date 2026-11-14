@@ -31,6 +31,7 @@ const KEYMAP = {
 const params = new URLSearchParams(location.search);
 const romUrl = params.get("rom") || "";
 const title = params.get("title") || "ROM";
+const gameId = params.get("id") || "";
 
 const dom = {
   canvas: document.getElementById("screen"),
@@ -384,7 +385,9 @@ function bindShare() {
   bar.addEventListener("click", (event) => {
     const button = event.target.closest("[data-share]");
     if (!button) return;
-    const url = location.href;
+    // Prefer the per-game landing page: it carries that game's own preview image.
+    const shared = typeof NEShare !== "undefined" && NEShare.enabled();
+    const url = shared && gameId ? NEShare.gameUrl(gameId) : location.href;
     const kind = button.dataset.share;
     if (kind === "copy") {
       NEShare.copy(url).then((ok) => toast(ok ? "链接已复制" : url));

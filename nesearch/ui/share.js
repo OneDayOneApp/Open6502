@@ -60,11 +60,11 @@
     return base() !== "";
   }
 
-  /* Catalog deep link: <base>?game=<id> */
+  /* Per-game landing page, so link previews can carry that game's own image. */
   function gameUrl(id) {
     var rootUrl = base();
     if (!rootUrl) return "";
-    return rootUrl + (id ? "?game=" + encodeURIComponent(id) : "");
+    return id ? rootUrl + "game/" + encodeURIComponent(id) + ".html" : rootUrl;
   }
 
   function shareText(title) {
