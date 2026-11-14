@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>nesearch — 在线试玩</title>
+<title>nesearch — play in the browser</title>
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <meta name="description" content="Play an open-source NES homebrew game in the browser, powered by the GEM6502 WebAssembly core.">
 <meta property="og:type" content="website">
@@ -53,46 +53,47 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>nesearch <span>· 在线试玩</span></h1>
+    <h1>nesearch <span>· play in the browser</span></h1>
     <div class="share" id="shareBar" hidden>
-      <span class="share-label">分享</span>
-      <button class="share-btn" data-share="native" hidden>系统分享</button>
+      <span class="share-label">Share</span>
+      <button class="share-btn" data-share="native" hidden>System</button>
       <button class="share-btn" data-share="x">X</button>
       <button class="share-btn" data-share="facebook">Facebook</button>
       <button class="share-btn" data-share="reddit">Reddit</button>
       <button class="share-btn" data-share="telegram">Telegram</button>
       <button class="share-btn" data-share="hackernews">HN</button>
-      <button class="share-btn" data-share="copy">复制链接</button>
+      <button class="share-btn" data-share="copy">Copy link</button>
     </div>
     <div class="links">
-      <a href="index.html">← 返回目录</a>
-      <a id="downloadLink" href="#" target="_blank" rel="noopener">下载 ROM</a>
+      <a href="index.html">← Back to catalog</a>
+      <a id="downloadLink" href="#" target="_blank" rel="noopener">Download ROM</a>
     </div>
   </header>
 
   <div class="stage">
     <canvas id="screen" width="256" height="240"></canvas>
     <div class="overlay" id="overlay">
-      <b id="overlayTitle">加载中</b>
-      <small id="overlayText">正在实例化 WebAssembly 模块</small>
-      <div class="hint" id="overlayHint">点击开始 · 音频需要一次用户操作</div>
+      <b id="overlayTitle">Loading</b>
+      <small id="overlayText">Instantiating the WebAssembly module</small>
+      <div class="hint" id="overlayHint">Click to start · audio needs one user gesture</div>
     </div>
   </div>
 
   <div class="bar">
-    <button id="startBtn" type="button">开始</button>
-    <button id="pauseBtn" type="button" disabled>暂停</button>
-    <button id="reloadBtn" type="button" disabled>重载</button>
-    <button id="soundBtn" type="button" disabled>声音：开</button>
+    <button id="startBtn" type="button">Start</button>
+    <button id="pauseBtn" type="button" disabled>Pause</button>
+    <button id="reloadBtn" type="button" disabled>Reload</button>
+    <button id="soundBtn" type="button" disabled>Sound: on</button>
     <div class="spacer"></div>
     <div class="stat" id="stats">—</div>
   </div>
 
 
   <p class="note" id="note">
-    方向键 / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动，<kbd>Z</kbd> 或 <kbd>空格</kbd> A 键，<kbd>X</kbd> B 键，
-    <kbd>Enter</kbd> Start，<kbd>Shift</kbd> Select，<kbd>P</kbd> 暂停，<kbd>R</kbd> 重载。
-    画面与声音由 GEM6502 的 WebAssembly 核心实时模拟；ROM 直接来自目录中的下载地址。
+    Arrows or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to move, <kbd>Z</kbd> or <kbd>Space</kbd> for A,
+    <kbd>X</kbd> for B, <kbd>Enter</kbd> for Start, <kbd>Shift</kbd> for Select, <kbd>P</kbd> to pause,
+    <kbd>R</kbd> to reload. Picture and sound come from the GEM6502 WebAssembly core in real time;
+    the ROM is loaded straight from the catalog's download URL.
   </p>
 </div>
 <div class="toast" id="toast"></div>
