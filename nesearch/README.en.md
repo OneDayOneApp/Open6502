@@ -136,6 +136,24 @@ NESEARCH_UI_TOKEN=local-dev
 NESEARCH_UI_NO_OPEN=1
 ```
 
+## Release packaging (macOS)
+
+```sh
+bash nesearch/scripts/package-release.sh              # build + stage + zip
+bash nesearch/scripts/package-release.sh --no-build   # reuse existing binaries
+# -> dist/nesearch-<version>-macos-<arch>.zip plus a matching .sha256
+```
+
+- Layout: `nesearch`, `ui/`, `emulators/{gem6502,6502EMU}`,
+  `lib/libSDL2-2.0.0.dylib`, `LICENSE`, `LICENSES/`, `README.md`, `run-ui.command`.
+- The script rewrites the emulators' Homebrew SDL2 dependency to
+  `@loader_path/../lib/` and ad-hoc signs every Mach-O file: `install_name_tool`
+  invalidates the signature, and arm64 refuses to run unsigned binaries.
+- Licenses travel with the archive: root `LICENSE` (MIT), and `LICENSES/` with
+  NEMU's Mulan PSL v2 text plus NOTICE, SDL2 (zlib), MIT texts for
+  nlohmann/json and cpp-httplib, and `THIRD_PARTY_NOTICES.md`.
+- Needs `brew install sdl2`; override discovery with `SDL2_PREFIX=/path/to/sdl2`.
+
 ## Static catalog (GitHub Pages demo)
 
 GitHub Pages can only serve static files, so it cannot host the `nesearch ui`
