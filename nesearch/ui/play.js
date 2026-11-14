@@ -374,6 +374,34 @@ function reloadRom() {
   startRunning();
 }
 
+function bindShare() {
+  const bar = document.getElementById("shareBar");
+  if (!bar) return;
+  if (typeof NEShare === "undefined" || !NEShare.enabled()) return;
+  bar.hidden = false;
+  const nativeButton = bar.querySelector('[data-share="native"]');
+  if (nativeButton) nativeButton.hidden = !NEShare.canNative();
+  bar.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-share]");
+    if (!button) return;
+    const url = location.href;
+    const kind = button.dataset.share;
+    if (kind === "copy") {
+      NEShare.copy(url).then((ok) => toast(ok ? "链接已复制" : url));
+      return;
+    }
+    if (kind === "native") {
+      NEShare.native({ url, title, text: NEShare.shareText(title) }).then((ok) => {
+        if (!ok) toast("系统分享不可用");
+      });
+      return;
+    }
+    NEShare.share(kind, { url, title });
+  });
+}
+
+bindShare();
+
 dom.startBtn.addEventListener("click", () => beginPlay());
 dom.pauseBtn.addEventListener("click", () => togglePause());
 dom.reloadBtn.addEventListener("click", () => reloadRom());
