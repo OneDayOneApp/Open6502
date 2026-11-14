@@ -23,6 +23,37 @@ RTL 与模拟器互相验证：CPU 通过 Klaus，RTL 标题帧与 NEMU 标题�
 默认页面会根据操作系统/浏览器的主语言自动选择中文，其他情况回退到英文。
 双语静态站点源码在 [`site/`](site/)，由 GitHub Pages 自动发布。
 
+## JIT 实验：6502 → AArch64
+
+`labs/jit6502/` 是一份独立的实验（不依赖 NEMU/RTL）：6502 解释器、把基本块翻译成
+AArch64 机器码的 JIT、块链接、自修改代码失效处理，以及复用本项目 PPU/APU/mapper
+的 NES 前端——所以帧可以和 NEMU 逐字节对照。
+
+实测（Apple M2，`clang -O2`，`roms/falling.nes`，600 帧 = 10 秒游戏时间 =
+5,815,511 条 6502 指令；会随机器负载波动）：
+
+| 引擎 | 600 帧耗时 | 帧率 | 实时倍数 |
+|---|---:|---:|---:|
+| JIT6502（JIT，默认不链接） | 0.44 s | 1379 fps | 23.0× |
+| JIT6502（自带解释器） | 0.64 s | 942 fps | 15.7× |
+| NEMU（`6502EMU` headless） | 1.92 s | 312 fps | 5.2× |
+| GEM6502（当前 legacy 周期模型） | 2.21 s | 272 fps | 4.5× |
+
+纯 CPU（Klaus 功能测试 30,646,176 条指令）：JIT6502 713 MIPS、实验自带解释器
+72 MIPS、NEMU 37 MIPS（默认带 ITRACE 的构建只有 2.8 MIPS）。
+
+跑游戏时的差距远小于纯 CPU，因为三个引擎的帧时间都被 PPU 步进主导；实验里记录了
+profile 过程，以及把 `falling.nes` 从 1.37 s 压到 0.44 s 的四处改动：PPU 图块缓存、
+CHR 直取、扫描线批量绘制、派发器 `getenv` 缓存。
+
+- 文档：[labs/jit6502/README.md](labs/jit6502/README.md)
+- 直接玩：
+
+```sh
+cd labs/jit6502 && make
+./bin/jit6502 nes ../../roms/falling.nes --engine=jit --window --scale=3
+```
+
 ## 项目目标：55nm 流片
 
 长期目标是完成一颗**开放、可验证的 6502/NES 兼容 SoC 的 55nm 流片**。
