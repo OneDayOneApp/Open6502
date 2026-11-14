@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-14T14:48:21Z",
+  "fetched_at": "2026-11-14T16:23:37Z",
   "games": [
     {
       "author": "",
@@ -2162,6 +2162,32 @@
     {
       "author": "",
       "battery": false,
+      "chr_kb": 128,
+      "date": "",
+      "description": "",
+      "file": "games/Super Mario Bros. 3 (USA).nes",
+      "id": "super-mario-bros-3-usa",
+      "license": "Unknown",
+      "license_kind": "unknown",
+      "mapper": "MMC3",
+      "mapper_name": "MMC3",
+      "mapper_num": 4,
+      "mirroring": "H",
+      "page_url": "https://github.com/redoop/my6502/blob/tinybasic/games/Super Mario Bros. 3 (USA).nes",
+      "prg_kb": 256,
+      "screenshot": "https://www.michaelfogleman.com/static/nes/bb5c4b6d4d78c101f94bdb360af502f3.png",
+      "sha256": "",
+      "size": 393232,
+      "size_label": "384 KiB",
+      "source": "GitHub · my6502",
+      "source_id": "github:redoop/my6502/games",
+      "title": "Super Mario Bros. 3 (USA)",
+      "url": "https://raw.githubusercontent.com/redoop/my6502/tinybasic/games/Super%20Mario%20Bros.%203%20%28USA%29.nes",
+      "year": 0
+    },
+    {
+      "author": "",
+      "battery": false,
       "chr_kb": 0,
       "date": "",
       "description": "",
@@ -3148,7 +3174,7 @@
       "year": 2016
     }
   ],
-  "generated_at": "2026-11-14T14:48:21Z",
+  "generated_at": "2026-11-14T16:23:37Z",
   "generator": "nesearch 0.2.0",
   "schema": 1,
   "sources": [
@@ -3156,7 +3182,7 @@
       "enabled": true,
       "entries": 82,
       "id": "github:retrobrews/nes-games",
-      "last_sync": "2026-11-14T14:48:21Z",
+      "last_sync": "2026-11-14T16:23:37Z",
       "name": "GitHub",
       "status": "online",
       "type": "github",
@@ -3164,9 +3190,9 @@
     },
     {
       "enabled": true,
-      "entries": 5,
+      "entries": 6,
       "id": "github:redoop/my6502/games",
-      "last_sync": "2026-11-14T14:48:21Z",
+      "last_sync": "2026-11-14T16:23:37Z",
       "name": "GitHub · my6502",
       "status": "online",
       "type": "github",
@@ -3176,7 +3202,7 @@
       "enabled": true,
       "entries": 24,
       "id": "homebrew-hub",
-      "last_sync": "2026-11-14T14:48:21Z",
+      "last_sync": "2026-11-14T16:23:37Z",
       "name": "Homebrew Hub",
       "status": "online",
       "type": "homebrew",
@@ -3186,7 +3212,7 @@
       "enabled": true,
       "entries": 10,
       "id": "pdroms",
-      "last_sync": "2026-11-14T14:48:21Z",
+      "last_sync": "2026-11-14T16:23:37Z",
       "name": "PDRoms",
       "status": "online",
       "type": "pdroms",
@@ -3196,7 +3222,7 @@
       "enabled": true,
       "entries": 0,
       "id": "archive-org",
-      "last_sync": "2026-11-14T14:48:21Z",
+      "last_sync": "2026-11-14T16:23:37Z",
       "name": "Internet Archive",
       "status": "offline",
       "type": "archive",
@@ -3206,7 +3232,7 @@
       "enabled": true,
       "entries": 1436,
       "id": "tuxnes-mapper",
-      "last_sync": "2026-11-14T14:48:21Z",
+      "last_sync": "2026-11-14T16:23:37Z",
       "name": "TuxNES Mapper List",
       "status": "online",
       "type": "metadata",
@@ -3216,7 +3242,7 @@
       "enabled": true,
       "entries": 630,
       "id": "fogleman-screens",
-      "last_sync": "2026-11-14T14:48:21Z",
+      "last_sync": "2026-11-14T16:23:37Z",
       "name": "Fogleman Title Screens",
       "status": "online",
       "type": "metadata",
@@ -3224,7 +3250,7 @@
     }
   ],
   "totals": {
-    "games": 121,
+    "games": 122,
     "sources": 7
   }
 }
