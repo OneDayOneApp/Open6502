@@ -41,7 +41,12 @@ def page(game, base):
     image = shot or FALLBACK_IMAGE
     rom = safe_url(game.get("url"))
     page_url = base + "game/" + game_id + ".html"
-    play_url = "play.html?rom=" + esc(rom) + "&title=" + esc(game.get("title") or game.get("id")) + "&id=" + game_id
+    from urllib.parse import quote
+
+    def q(value):
+        return quote(str(value or ""), safe="")
+
+    play_url = "../play.html?rom=" + q(rom) + "&title=" + q(game.get("title") or game.get("id")) + "&id=" + q(game.get("id"))
     catalog_url = "../?game=" + game_id
 
     summary_parts = [author, license_name]
@@ -57,13 +62,19 @@ def page(game, base):
         for text in (license_name, mapper, size, year)
         if text
     )
-    hero = (
-        f'<img class="shot" src="{esc(shot)}" alt="{title} 标题画面" onerror="this.style.display=\'none\'">'
-        if shot
-        else ""
-    )
+    if shot and rom:
+        hero = (
+            f'<a class="shot-link" href="{esc(play_url)}" title="在浏览器试玩 {title}" aria-label="在浏览器试玩 {title}">'
+            f'<img class="shot" src="{esc(shot)}" alt="{title} 标题画面" onerror="this.style.display=\'none\'">'
+            '<span class="play-hint">▶ 点击试玩</span>'
+            "</a>"
+        )
+    elif shot:
+        hero = f'<img class="shot" src="{esc(shot)}" alt="{title} 标题画面" onerror="this.style.display=\'none\'">'
+    else:
+        hero = ""
     play_button = (
-        f'<a class="btn primary" href="{play_url}">▶ 在浏览器试玩</a>' if rom else ""
+        f'<a class="btn primary" href="{esc(play_url)}">▶ 在浏览器试玩</a>' if rom else ""
     )
 
     return f"""<!doctype html>
@@ -95,6 +106,15 @@ def page(game, base):
   .top a:hover {{ color:var(--text); }}
   .card {{ border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--panel); }}
   .shot {{ display:block; width:100%; background:#000; image-rendering:pixelated; }}
+  .shot-link {{ display:block; position:relative; text-decoration:none; }}
+  .shot-link .play-hint {{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    padding:10px 18px; border-radius:999px; background:rgba(255,77,87,.92); color:#19080b;
+    font-weight:700; font-size:14px; opacity:0; transition:opacity .15s ease; pointer-events:none;
+  }}
+  .shot-link:hover .play-hint, .shot-link:focus-visible .play-hint {{ opacity:1; }}
+  .shot-link:hover .shot {{ filter:brightness(1.08); }}
+  .shot-link:focus-visible {{ outline:2px solid var(--red); outline-offset:-2px; }}
   .body {{ padding:18px 18px 20px; }}
   h1 {{ margin:0 0 4px; font-size:22px; letter-spacing:.2px; }}
   .author {{ margin:0 0 12px; color:var(--muted); font-size:13px; }}
