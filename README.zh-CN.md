@@ -46,7 +46,7 @@ AArch64 机器码的 JIT、块链接、自修改代码失效处理，以及复�
 profile 过程，以及把 `falling.nes` 从 1.37 s 压到 0.44 s 的四处改动：PPU 图块缓存、
 CHR 直取、扫描线批量绘制、派发器 `getenv` 缓存。
 
-- 文档：[labs/jit6502/README.md](labs/jit6502/README.md)
+- 文档：[labs/jit6502/README.zh-CN.md](labs/jit6502/README.zh-CN.md)（中文） · [English](labs/jit6502/README.md)
 - 直接玩：
 
 ```sh
