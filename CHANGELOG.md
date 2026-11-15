@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased v1.5 (in progress)
+- Added `labs/am6502` design documents: an AM-style (nexus-am-inspired) image contract, `ARCH=mos6502-{nemu,nes}` matrix and TRM+IOE-only scope for 6502/NES, with M0–M3 milestones. Design stage only; no code yet.
+- Implemented `labs/am6502` M1: `mos6502-nemu` platform (crt0, TRM, ld65 flat layout), `hello` and a Klaus wrapper, `tools/mkimage.py` + `tools/run.py`, and `make test`. Images are byte-reproducible (same SHA-256 across builds) and Klaus passes at `PC=$3469` with the build's own reset vector; `_io_*` and `am_mainargs` are stubs.
 - Added the root MIT license, `THIRD_PARTY_NOTICES.md` and `NEMU/NOTICE`; `NEMU/` stays under Mulan PSL v2.
 - Added `nesearch/scripts/package-release.sh` (bundles MIT/NEMU/SDL2/license texts and re-signs the Mach-O binaries) and tracked the missing `NEMU/LICENSE` (Mulan PSL v2).
 - Added social sharing (X, Facebook, Reddit, Telegram, Hacker News, copy link, native share) to the catalog details and the browser player, plus `?game=<id>` deep links and social preview meta tags.

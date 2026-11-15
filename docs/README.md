@@ -51,6 +51,14 @@ The docs are grouped by the loop they serve: inner (minutes), middle (every comm
 | [../NEMU/6502EMU.md](../NEMU/6502EMU.md) | The NEMU-based 6502EMU frontend and its options |
 | [aot-acceleration-analysis.zh-CN.md](aot-acceleration-analysis.zh-CN.md) | Why AOT/JIT cannot replace the golden reference (Chinese) |
 
+## Labs — self-contained experiments
+
+| Doc | What it answers |
+|---|---|
+| [../labs/am6502/README.md](../labs/am6502/README.md) | Abstract-Machine-style packaging for 6502/NES: one image contract and one command per program (M1: `mos6502-nemu`) |
+| [../labs/am6502/docs/design.md](../labs/am6502/docs/design.md) | Artifacts, ABI, host ports, ARCH matrix, milestones and risks for am6502 |
+| [../labs/jit6502/README.md](../labs/jit6502/README.md) | 6502 → AArch64 JIT lab: interpreter, block JIT, NES frame comparison |
+
 ## Status
 
 - [../README.md](../README.md) — project overview and current gate status
