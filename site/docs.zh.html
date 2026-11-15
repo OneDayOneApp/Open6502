@@ -56,6 +56,7 @@
         <a class="nav-link" href="index.zh.html#status">进度</a>
         <a class="nav-link" href="index.zh.html#architecture">架构</a>
         <a class="nav-link" href="docs.zh.html" aria-current="page">技术文档</a>
+        <a class="nav-link" href="learn.zh.html">学习路径</a>
         <a class="nav-link" href="nesearch.zh.html">nesearch</a>
         <a class="nav-link" href="index.zh.html#contribute">参与</a>
       </nav>
@@ -81,6 +82,7 @@
       <a href="index.zh.html#status">进度</a>
       <a href="index.zh.html#architecture">架构</a>
       <a href="docs.zh.html">技术文档</a>
+      <a href="learn.zh.html">学习路径</a>
       <a href="nesearch.zh.html">nesearch</a>
       <a href="index.zh.html#contribute">参与</a>
       <a href="docs.en.html" hreflang="en" lang="en" data-lang-switch>English</a>
@@ -136,13 +138,13 @@
             <a href="#video" data-spy><span class="n">09</span>视频、输入与时钟</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">验证</div>
+            <div class="nav-group-title">内环 · 验证</div>
             <a href="#verification" data-spy><span class="n">10</span>验证体系</a>
             <a href="#difftest" data-spy><span class="n">11</span>DiffTest 协议</a>
             <a href="#goldens" data-spy><span class="n">12</span>黄金帧与哈希</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">走向芯片</div>
+            <div class="nav-group-title">外环 · 走向芯片</div>
             <a href="#gem6502" data-spy><span class="n">13</span>GEM6502 模型</a>
             <a href="#synthesis" data-spy><span class="n">14</span>综合与面积</a>
             <a href="#tapeout" data-spy><span class="n">15</span>55nm 路线</a>
@@ -172,14 +174,19 @@
           <h2><span>概览：这是什么，从哪里读起</span></h2>
           <p class="doc-lead">这是一份“可以照着做”的文档：每条命令都在仓库里，每个结论都有测试或哈希对应。它也明确写清楚哪些事情还没做到——这不是一颗已经完成的芯片。</p>
 
-          <h3>三条阅读路线</h3>
+          <h3>四条阅读路线</h3>
+          <div class="callout callout--ok">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><strong>为学流程而来：</strong>先读 <a href="learn.zh.html">学习路径</a>（内环 → 中环 → 外环），再按下面的路线读文档。核心只有一句话：改一行 RTL，一条命令，分钟级看到 PASS 或首个差异。</span>
+          </div>
           <div class="table-wrap">
             <table class="doc-table">
               <thead><tr><th>你是谁</th><th>从这里开始</th><th>然后</th></tr></thead>
               <tbody>
+                <tr><td>我想练香山式流程</td><td><a href="#verification">10 验证体系</a></td><td><a href="#difftest">11 DiffTest</a> → <a href="#goldens">12 黄金帧</a> → <a href="#synthesis">14 综合</a> → <a href="#tapeout">15 路线</a></td></tr>
                 <tr><td>我只想跑起来玩</td><td><a href="#quickstart">01 快速开始</a></td><td>遇到报错看 <a href="#troubleshooting">16 故障排查</a></td></tr>
                 <tr><td>我想读懂设计</td><td><a href="#architecture">03 系统架构</a></td><td><a href="#cpu">04 CPU</a> → <a href="#ppu">05 PPU</a> → <a href="#verification">10 验证</a></td></tr>
-                <tr><td>我想参与或推动流片</td><td><a href="#repo">02 仓库地图</a></td><td><a href="#verification">10 验证</a> → <a href="#synthesis">14 综合</a> → <a href="#tapeout">15 55nm</a> → <a href="#contributing">17 贡献</a></td></tr>
+                <tr><td>我想参与或推动后端</td><td><a href="#repo">02 仓库地图</a></td><td><a href="#verification">10 验证</a> → <a href="#synthesis">14 综合</a> → <a href="#tapeout">15 路线</a> → <a href="#contributing">17 贡献</a></td></tr>
               </tbody>
             </table>
           </div>

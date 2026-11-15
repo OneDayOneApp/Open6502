@@ -56,6 +56,7 @@
         <a class="nav-link" href="index.en.html#status">Status</a>
         <a class="nav-link" href="index.en.html#architecture">Architecture</a>
         <a class="nav-link" href="docs.en.html" aria-current="page">Docs</a>
+        <a class="nav-link" href="learn.html">Learning path</a>
         <a class="nav-link" href="nesearch.en.html">nesearch</a>
         <a class="nav-link" href="index.en.html#contribute">Contribute</a>
       </nav>
@@ -81,6 +82,7 @@
       <a href="index.en.html#status">Status</a>
       <a href="index.en.html#architecture">Architecture</a>
       <a href="docs.en.html">Docs</a>
+      <a href="learn.html">Learning path</a>
       <a href="nesearch.en.html">nesearch</a>
       <a href="index.en.html#contribute">Contribute</a>
       <a href="docs.zh.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch>简体中文</a>
@@ -136,13 +138,13 @@
             <a href="#video" data-spy><span class="n">09</span>Video, input &amp; clocks</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">Verification</div>
+            <div class="nav-group-title">Inner loop · Verification</div>
             <a href="#verification" data-spy><span class="n">10</span>Verification</a>
             <a href="#difftest" data-spy><span class="n">11</span>DiffTest protocol</a>
             <a href="#goldens" data-spy><span class="n">12</span>Golden frames</a>
           </div>
           <div class="nav-group">
-            <div class="nav-group-title">Toward silicon</div>
+            <div class="nav-group-title">Outer loop · Toward silicon</div>
             <a href="#gem6502" data-spy><span class="n">13</span>GEM6502 model</a>
             <a href="#synthesis" data-spy><span class="n">14</span>Synthesis &amp; area</a>
             <a href="#tapeout" data-spy><span class="n">15</span>55nm path</a>
@@ -172,14 +174,19 @@
           <h2><span>Overview: what this is and where to start</span></h2>
           <p class="doc-lead">This is a document you can follow: every command is in the repo, and every conclusion has a test or a hash behind it. It also says plainly what has not been done yet — this is not a finished chip.</p>
 
-          <h3>Three reading paths</h3>
+          <h3>Four reading paths</h3>
+          <div class="callout callout--ok">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.5 3 3 7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><strong>Here to practice the flow:</strong> start with the <a href="learn.html">learning path</a> (inner → middle → outer loop), then follow the route below. The core is one sentence: change a line of RTL, run one command, see PASS or the first divergence within minutes.</span>
+          </div>
           <div class="table-wrap">
             <table class="doc-table">
               <thead><tr><th>Who you are</th><th>Start here</th><th>Then</th></tr></thead>
               <tbody>
+                <tr><td>I am here to practice the flow</td><td><a href="#verification">10 Verification</a></td><td><a href="#difftest">11 DiffTest</a> → <a href="#goldens">12 Golden frames</a> → <a href="#synthesis">14 Synthesis</a> → <a href="#tapeout">15 Roadmap</a></td></tr>
                 <tr><td>I just want to run it</td><td><a href="#quickstart">01 Quickstart</a></td><td>If it breaks: <a href="#troubleshooting">16 Troubleshooting</a></td></tr>
                 <tr><td>I want to understand the design</td><td><a href="#architecture">03 Architecture</a></td><td><a href="#cpu">04 CPU</a> → <a href="#ppu">05 PPU</a> → <a href="#verification">10 Verification</a></td></tr>
-                <tr><td>I want to contribute or push tapeout</td><td><a href="#repo">02 Repository map</a></td><td><a href="#verification">10 Verification</a> → <a href="#synthesis">14 Synthesis</a> → <a href="#tapeout">15 55nm</a> → <a href="#contributing">17 Contributing</a></td></tr>
+                <tr><td>I want to contribute or push the backend</td><td><a href="#repo">02 Repository map</a></td><td><a href="#verification">10 Verification</a> → <a href="#synthesis">14 Synthesis</a> → <a href="#tapeout">15 Roadmap</a> → <a href="#contributing">17 Contributing</a></td></tr>
               </tbody>
             </table>
           </div>

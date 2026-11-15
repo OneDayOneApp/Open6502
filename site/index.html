@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Open6502 — Put childhood back into a chip</title>
-  <meta name="description" content="Open6502 is a playable NES emulator today and an open-source 6502/NES SoC in progress. Six open-source games, 28 RTL tests, and a frame-level SHA that matches NEMU exactly.">
+  <meta name="description" content="Open6502 is a playable NES emulator today and an open-source 6502/NES SoC in progress. It is also a trainer aircraft for rehearsing the XiangShan-style lockstep verification, CI gates and backend flow on a small chip.">
   <meta name="theme-color" content="#06080c">
   <meta name="color-scheme" content="dark">
   <!-- Google Tag Manager -->
@@ -95,6 +95,7 @@
         <a class="nav-link" href="#status">Status</a>
         <a class="nav-link" href="#architecture">Architecture</a>
         <a class="nav-link" href="docs.html">Docs</a>
+        <a class="nav-link" href="learn.html">Learning path</a>
         <a class="nav-link" href="nesearch.html">nesearch</a>
         <a class="nav-link" href="#contribute">Contribute</a>
       </nav>
@@ -120,6 +121,7 @@
       <a href="#status">Status</a>
       <a href="#architecture">Architecture</a>
       <a href="docs.html">Docs</a>
+      <a href="learn.html">Learning path</a>
       <a href="nesearch.html">nesearch</a>
       <a href="#contribute">Contribute</a>
       <a href="index.zh.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch>简体中文</a>
@@ -141,7 +143,8 @@
           </h1>
           <p class="hero-lede">
             A NES emulator you can <strong>play today</strong>, and an open-source 6502 chip growing its own
-            CPU, PPU, APU and bus. The same FALLING frame runs in software and in RTL — byte for byte.
+            CPU, PPU, APU and bus. It is also a trainer aircraft: rehearse the XiangShan-style lockstep
+            verification, CI gates and backend flow on a chip small enough to finish.
           </p>
           <div class="hero-cta">
             <a class="btn btn--primary" href="#emulator">
@@ -214,31 +217,31 @@
     </section>
 
     <!-- ================= DOORS ================= -->
-    <section class="section section--flush" aria-label="Choose your entry point">
+    <section class="section section--flush" aria-label="Choose your loop">
       <div class="container doors">
-        <a class="door reveal" href="#emulator">
+        <a class="door reveal" href="docs.html#difftest">
           <span class="door-icon">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
           </span>
-          <span class="door-title">I just want to play</span>
-          <span class="door-desc">Three steps, six open-source games, keyboard as gamepad. No 6502 knowledge, no dev board required.</span>
-          <span class="door-link">Start in 2 minutes <span class="arrow" aria-hidden="true">→</span></span>
+          <span class="door-title">I want the inner loop first</span>
+          <span class="door-desc">Lockstep DiffTest: change one line of RTL, one command, PASS or the first divergence. Minute-level feedback is the most transferable part of the XiangShan method.</span>
+          <span class="door-link">Start with DiffTest <span class="arrow" aria-hidden="true">→</span></span>
         </a>
-        <a class="door reveal" href="docs.html">
+        <a class="door reveal" href="learn.html">
           <span class="door-icon">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16.5H6.5A2.5 2.5 0 0 0 4 22V5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19M8 7h7M8 10.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </span>
-          <span class="door-title">I want to understand it</span>
-          <span class="door-desc">From the address map to PPU dot timing, from Klaus to DiffTest — the docs record every decision, command and sharp edge.</span>
-          <span class="door-link">Read the docs <span class="arrow" aria-hidden="true">→</span></span>
+          <span class="door-title">I want to understand the method</span>
+          <span class="door-desc">Reference model, verification plan, gate checklist, performance model — the XiangShan flow broken into steps you can follow.</span>
+          <span class="door-link">Read the learning path <span class="arrow" aria-hidden="true">→</span></span>
         </a>
-        <a class="door reveal" href="#contribute">
+        <a class="door reveal" href="#roadmap">
           <span class="door-icon">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 6.5 17.5 3.5a3.5 3.5 0 0 1 5 5l-3 3M9.5 17.5l-3 3a3.5 3.5 0 0 1-5-5l3-3M8 16l8-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m14 10 2.5-2.5M10 14l-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           </span>
-          <span class="door-title">I want to help build it</span>
-          <span class="door-desc">PPU pipeline, DMC arbitration, FPGA timing, 55nm backend — current blockers and approachable issues live here.</span>
-          <span class="door-link">How to contribute <span class="arrow" aria-hidden="true">→</span></span>
+          <span class="door-title">I want to push it to the backend</span>
+          <span class="door-desc">Synthesis, FPGA, open-PDK PPA drills. Skip the 55nm chase; make the flow work end to end.</span>
+          <span class="door-link">See the outer loop <span class="arrow" aria-hidden="true">→</span></span>
         </a>
       </div>
     </section>
@@ -1175,7 +1178,7 @@ input  [7:0] joy1, joy2;
         <div class="faq reveal">
           <details class="faq-item">
             <summary>Can I play in the browser?</summary>
-            <div class="faq-body">No. NEMU is a local SDL app; RTL frames are captured through Verilator. There is no WASM or web frontend. This site explains how to run it locally instead of pretending to offer an online emulator.</div>
+            <div class="faq-body">Yes. The demo on this page is the GEM6502 core compiled to WebAssembly, with the six open-source ROMs. NEMU and the RTL SoC remain local programs; RTL frames are captured through Verilator. The site only runs the reference-model side and does not pretend to offer online RTL. Commercial ROMs are neither bundled nor promised.</div>
           </details>
           <details class="faq-item">
             <summary>Do you support commercial ROMs like Super Mario Bros.?</summary>

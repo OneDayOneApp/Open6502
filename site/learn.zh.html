@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>学习路径 · 香山对齐评分 — Open6502</title>
+  <meta name="description" content="用 Open6502 练香山式芯片开发流程：三个环、八个维度的香山对齐评分（当前 34/100）、12 周路线，以及能迁移与不能迁移的能力边界。">
+  <meta name="theme-color" content="#06080c">
+  <meta name="color-scheme" content="dark">
+  <!-- Google Tag Manager -->
+  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-WGT7D54Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  </script>
+
+  <link rel="canonical" href="https://onedayoneapp.github.io/Open6502/learn.zh.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/learn.zh.html">
+  <link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/learn.html">
+  <link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/learn.html">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Open6502">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:title" content="学习路径 · 香山对齐评分 — Open6502">
+  <meta property="og:description" content="用一颗 6502 练香山式流程：三个环、八维评分（34/100）、12 周路线与能力迁移边界。">
+  <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/learn.zh.html">
+  <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/site.js" defer></script>
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WGT7D54Q"
+    height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
+
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="page-bg" aria-hidden="true"></div>
+
+  <header class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.zh.html" aria-label="Open6502 首页">
+        <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+        <span class="brand-text">
+          <span class="brand-name">OPEN6502</span>
+          <span class="brand-sub">6502 / NES SoC</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="主导航">
+        <a class="nav-link" href="index.zh.html#emulator">试玩</a>
+        <a class="nav-link" href="index.zh.html#games">游戏</a>
+        <a class="nav-link" href="index.zh.html#status">进度</a>
+        <a class="nav-link" href="index.zh.html#architecture">架构</a>
+        <a class="nav-link" href="docs.zh.html">技术文档</a>
+        <a class="nav-link" href="learn.zh.html" aria-current="page">学习路径</a>
+        <a class="nav-link" href="nesearch.zh.html">nesearch</a>
+        <a class="nav-link" href="index.zh.html#contribute">参与</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="nav-lang" href="learn.html" hreflang="en" lang="en" data-lang-switch aria-label="View this page in English">EN</a>
+        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="在 GitHub 上查看 Open6502">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+          <span>Star</span>
+          <span class="nav-gh-stars" data-gh-stars hidden></span>
+        </a>
+        <a class="btn btn--primary btn--sm nav-learn-cta" href="docs.zh.html#difftest">从 DiffTest 开始</a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="打开导航菜单">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-mobile" id="mobile-nav">
+      <a href="index.zh.html#emulator">试玩</a>
+      <a href="index.zh.html#games">游戏</a>
+      <a href="index.zh.html#status">进度</a>
+      <a href="index.zh.html#architecture">架构</a>
+      <a href="docs.zh.html">技术文档</a>
+      <a href="learn.zh.html">学习路径</a>
+      <a href="nesearch.zh.html">nesearch</a>
+      <a href="index.zh.html#contribute">参与</a>
+      <a href="learn.html" hreflang="en" lang="en" data-lang-switch>English</a>
+      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub 仓库 ↗ <span class="nav-gh-stars" data-gh-stars hidden></span></a>
+      <a class="btn btn--primary" href="docs.zh.html#difftest">从 DiffTest 开始</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Learning path · 香山对齐</span>
+          <h1 class="hero-title" id="hero-title">
+            把 6502 当<span class="hl">教练机</span>。
+            <span class="hero-en">Rehearse the XiangShan-style flow</span>
+          </h1>
+          <p class="hero-lede">
+            目标不是把 NES 做得更完整，而是用一颗<strong>足够小、能端到端跑通</strong>的芯片，
+            把香山的验证内环、CI 门禁和后端流程练成肌肉记忆。
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn--primary" href="docs.zh.html#difftest">
+              从 DiffTest 开始
+              <svg class="arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn--ghost" href="#route">看 12 周路线</a>
+            <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/learning-path.zh-CN.md" target="_blank" rel="noopener">读学习文档 ↗</a>
+          </div>
+          <div class="hero-proof">
+            <div class="proof-item">
+              <span class="proof-v">3 个环</span>
+              <span class="proof-k">内环 / 中环 / 外环</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-v">8 个维度</span>
+              <span class="proof-k">香山式能力对照</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-v">34 / 100</span>
+              <span class="proof-k">当前对齐分</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-stage">
+          <div class="stage score-stage">
+            <div class="stage-top">
+              <span class="stage-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="stage-title">XIANGSHAN ALIGNMENT</span>
+            </div>
+            <div class="score-body">
+              <div class="score-head">
+                <span class="score-num">34<span>/100</span></span>
+                <span class="score-tag">D+ · 原型期</span>
+              </div>
+              <p class="score-note">有参考模型和文档，缺锁步验证、CI 与生成化这三根支柱。</p>
+              <ul class="score-bars">
+                <li><span>参考模型</span><i style="--v:85%"></i><b>8.5</b></li>
+                <li><span>差分验证</span><i style="--v:40%"></i><b>4.0</b></li>
+                <li><span>生成化</span><i style="--v:2%"></i><b>0.0</b></li>
+                <li><span>CI 门禁</span><i style="--v:15%"></i><b>1.5</b></li>
+                <li><span>检查点</span><i style="--v:40%"></i><b>4.0</b></li>
+                <li><span>性能评估</span><i style="--v:25%"></i><b>2.5</b></li>
+                <li><span>后端闭环</span><i style="--v:20%"></i><b>2.0</b></li>
+                <li><span>开源协作</span><i style="--v:50%"></i><b>5.0</b></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WHY ================= -->
+    <section class="section" id="why" aria-labelledby="why-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">01</span>Why 6502</span>
+          <h2 id="why-title">一个故事，<em>三个环</em>。</h2>
+          <p>香山官方把目标写成“探索高性能处理器的敏捷开发流程”：参考模型、差分验证、生成化描述、持续回归，再加上约半年的迭代与流片周期。6502 足够小，能让你一个人把整条链路走完。</p>
+        </div>
+
+        <div class="doors">
+          <a class="door reveal" href="docs.zh.html#difftest">
+            <span class="door-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="door-title">内环 · 分钟</span>
+            <span class="door-desc">锁步 DiffTest：改一行 RTL，一条命令看到 PASS 或首个差异。这是香山方法论里最值钱、也最难自学的一块。</span>
+            <span class="door-link">从差分验证开始 <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="door reveal" href="docs.zh.html#verification">
+            <span class="door-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16.5H6.5A2.5 2.5 0 0 0 4 22V5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19M8 7h7M8 10.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+            <span class="door-title">中环 · 每次提交</span>
+            <span class="door-desc">CI 回归、黄金哈希、确定性双跑、失败上传 trace。没有中环，内环只是脚本，不是门禁。</span>
+            <span class="door-link">看验证体系 <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="door reveal" href="docs.zh.html#tapeout">
+            <span class="door-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 6.5 17.5 3.5a3.5 3.5 0 0 1 5 5l-3 3M9.5 17.5l-3 3a3.5 3.5 0 0 1-5-5l3-3M8 16l8-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m14 10 2.5-2.5M10 14l-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </span>
+            <span class="door-title">外环 · 每次迭代</span>
+            <span class="door-desc">综合、FPGA、开放 PDK 的 PPA 演练。不追 55nm，先把“从 RTL 到面积报告”的流程走通。</span>
+            <span class="door-link">看外环门禁 <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCORE ================= -->
+    <section class="section" id="score" aria-labelledby="score-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">02</span>Scorecard</span>
+          <h2 id="score-title">对齐香山：<em>34 / 100</em></h2>
+          <p>八个维度，权重按“香山式流程”里的实际重要性分配。只认可复现的证据：能跑、能查、能重复。计划、口号和百分比进度都不计分。</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table class="doc-table score-table">
+            <thead>
+              <tr><th>维度</th><th>权重</th><th>得分</th><th>仓库里的证据</th><th>缺口</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>参考模型</td><td>15%</td><td>8.5</td><td>NEMU 6502EMU、golden-reference 设计/清单、帧与音频哈希、快照与输入回放</td><td>DiffTest 只到 CPU 层，PPU/APU/mapper 未进协议</td></tr>
+              <tr><td>锁步差分验证</td><td>25%</td><td>4.0</td><td><code>sim/difftest</code> 有 final-state 和 PC trace 冒烟</td><td>无逐指令 retire、无总线/PPU 事务比对、无首个差异定位</td></tr>
+              <tr><td>生成化描述</td><td>15%</td><td>0.0</td><td>—</td><td>全仓 0 个 <code>.scala</code>，纯手写 SystemVerilog</td></tr>
+              <tr><td>CI 门禁</td><td>15%</td><td>1.5</td><td><code>pages.yml</code> 部署站点；CONTRIBUTING 有回归规则</td><td>没有跑测试的 workflow，没有覆盖率与确定性双跑</td></tr>
+              <tr><td>检查点 / 回放</td><td>10%</td><td>4.0</td><td>REF 侧有 snapshot、状态哈希、输入回放</td><td>RTL 侧没有状态导出/恢复，无法从第 N 周期复现分歧</td></tr>
+              <tr><td>性能评估</td><td>10%</td><td>2.5</td><td>GEM6502 事件内核、时序总线实验、面积报告</td><td>G0–G2 仍 partial，无计数器、无“改动→收益”报告</td></tr>
+              <tr><td>后端闭环</td><td>7%</td><td>2.0</td><td>Yosys 逐模块面积、55nm 成本模型</td><td>无 bitstream、无 PDK、无 DFT/时序收敛</td></tr>
+              <tr><td>开源协作</td><td>3%</td><td>5.0</td><td>README、技术文档、贡献指南、golden 清单完整</td><td>根许可证未发布，贡献流程事实上被阻断</td></tr>
+              <tr class="score-total"><td>总分</td><td>100%</td><td>34.4</td><td colspan="2">D+ · 有参考模型和文档，缺三根支柱</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--info">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v4M8 5.1h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span><strong>口径：</strong>得分 = 维度分（0–10）× 权重；权重体现“对香山式流程的重要性”，不是对项目价值的评价。评分是工程判断，不是认证；证据会过期，复核时以 <code>git log</code>、<code>rtl/</code>、<code>sim/difftest/</code> 与 CI 实际输出为准。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ROUTE ================= -->
+    <section class="section" id="route" aria-labelledby="route-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">03</span>12 weeks</span>
+          <h2 id="route-title">12 周，<em>把分数练上去</em>。</h2>
+          <p>顺序按学习回报排：先把内环跑通，再补门禁，最后才碰生成化和后端。节奏是建议，不是承诺。</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table class="doc-table">
+            <thead>
+              <tr><th>周</th><th>做什么</th><th>验收产出</th><th>预估增益</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1–2</td><td>Difftest 升级为锁步：逐指令 retire + 总线事务比对</td><td><code>make difftest</code> 一条命令，失败打印首个差异</td><td>+10</td></tr>
+              <tr><td>3–4</td><td>CI 门禁：lint / sim / difftest / golden，同种子双跑验确定性</td><td>PR 不绿不能合，失败自动上传 trace</td><td>+9.8</td></tr>
+              <tr><td>5–6</td><td>检查点：任意周期 snapshot → restore → 继续锁步</td><td>从第 N 周期复现同一分歧</td><td>+2</td></tr>
+              <tr><td>7–9</td><td>用 Chisel 重写一个模块（建议 ALU 或 PPU 子模块），与 SV 版本 co-sim</td><td>两版等价 + 参数化 demo</td><td>+7.5</td></tr>
+              <tr><td>10–11</td><td>给 GEM6502 加计数器，做一次“改总线延迟 → cycles/阻塞”的实验</td><td>一页可复现报告</td><td>+1.5</td></tr>
+              <tr><td>12</td><td>Yosys → OpenROAD/SKY130 跑一个小模块的 PPA</td><td>一页面积/时序报告</td><td>+2.1</td></tr>
+              <tr class="score-total"><td>目标</td><td colspan="2">12 周后把对齐分从 34 拉到 60–65</td><td>≈ +33</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--warn">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span><strong>不要跳步：</strong>先做 Chisel 再补 Difftest，会得到两个都不可信的实现；先做后端再补门禁，会把“能综合”误当成“正确”。内环没通之前，外环的每一分都不算数。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TRANSFER ================= -->
+    <section class="section" id="transfer" aria-labelledby="transfer-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">04</span>What transfers</span>
+          <h2 id="transfer-title">什么能带走，<em>什么带不走</em>。</h2>
+          <p>6502 给的是流程肌肉，不是微架构品味。想清楚这一点，才不会在 NES 外设上越走越远。</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table class="doc-table">
+            <thead><tr><th>能迁移到香山</th><th>迁移不了</th></tr></thead>
+            <tbody>
+              <tr><td>参考模型 + 差分验证的完整心智</td><td>OoO、推测执行、分支预测</td></tr>
+              <tr><td>生成化 / 参数化的硬件构建方式</td><td>Cache 一致性、多核、NoC</td></tr>
+              <tr><td>CI、回归、黄金哈希、确定性复现</td><td>真实 PPA 优化经验（6502 太小）</td></tr>
+              <tr><td>检查点、回放、首个差异定位</td><td>高性能微架构的设计品味</td></tr>
+              <tr><td>后端流程与流片门禁的检查单思维</td><td>商业 PDK / DFT / 签核的工程强度</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="doc-lead reveal" style="margin-top:22px">下一阶段：把载体换成 RISC-V 小核（果壳 NutShell 就是香山的前身），或者直接读香山的 Chisel 源码。6502 的任务是让你在换载体之前，已经把环跑短。</p>
+      </div>
+    </section>
+
+    <!-- ================= CTA ================= -->
+    <section class="section" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="cta-band reveal">
+          <div>
+            <span class="eyebrow eyebrow--plain">Next step</span>
+            <h2 id="cta-title">先把内环跑通，再谈别的。</h2>
+            <p>一条命令、一个 PASS、一个差异——从这里开始。</p>
+          </div>
+          <div class="cta-actions">
+            <a class="btn btn--primary" href="docs.zh.html#difftest">看 DiffTest 协议</a>
+            <a class="btn btn--ghost" href="docs.zh.html">打开技术文档</a>
+            <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub 仓库 ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="index.zh.html" aria-label="Open6502 首页">
+            <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+            <span class="brand-text">
+              <span class="brand-name">OPEN6502</span>
+              <span class="brand-sub">Open silicon · from emulator to silicon</span>
+            </span>
+          </a>
+          <p>一个 6502/NES 兼容的开源 SoC 项目：先做一个能玩的软件参考模型，再把同一颗芯片写进 SystemVerilog，最后走向 55nm。</p>
+          <div class="footer-links">
+            <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.zh-CN.md" target="_blank" rel="noopener">中文 README</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">更新日志</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">贡献指南</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>学习</h4>
+          <ul>
+            <li><a href="#why">三个环</a></li>
+            <li><a href="#score">香山对齐评分</a></li>
+            <li><a href="#route">12 周路线</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/learning-path.zh-CN.md" target="_blank" rel="noopener">学习文档 ↗</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>深入</h4>
+          <ul>
+            <li><a href="docs.zh.html#architecture">系统架构</a></li>
+            <li><a href="docs.zh.html#verification">验证体系</a></li>
+            <li><a href="docs.zh.html#difftest">DiffTest</a></li>
+            <li><a href="docs.zh.html#synthesis">综合与面积</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>项目</h4>
+          <ul>
+            <li><a href="index.zh.html#roadmap">路线图</a></li>
+            <li><a href="index.zh.html#status">当前进度</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROM 与许可证 ↗</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/nesearch" target="_blank" rel="noopener">nesearch ↗</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> Open6502 · 开源 6502/NES SoC 项目</span>
+        <span>Last verified · 2026-11-15</span>
+        <span class="right">站点源码在 <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · 纯 HTML/CSS/JS · GitHub Pages</span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</body>
+</html>

@@ -16,6 +16,10 @@ Pages from the `site/` directory on `main`.
   contributing and further reading. It auto-detects Chinese locales and
   redirects to `docs.zh.html`.
 - `docs.zh.html` — Chinese technical documentation with the same section IDs.
+- `learn.html` — **English default** learning path: the three loops, the
+  eight-dimension XiangShan alignment scorecard (34/100), a 12-week route and
+  the transfer boundaries. Redirects Chinese locales to `learn.zh.html`.
+- `learn.zh.html` — Chinese learning path with the same structure.
 - `nesearch.html` — **English default** product page for the nesearch desktop
   app: feature tour, screenshots, data sources, quick start, requirements and
   the macOS Apple Silicon download. Redirects Chinese locales to
@@ -110,6 +114,8 @@ site/
 ├── docs.html           # English docs (default, auto-detects zh)
 ├── docs.zh.html        # Chinese docs
 ├── docs.en.html        # explicit English docs alias (no auto-detect)
+├── learn.html          # learning path + XiangShan scorecard (default, auto-detects zh)
+├── learn.zh.html       # Chinese learning path
 ├── nesearch.html       # nesearch product page (default, auto-detects zh)
 ├── nesearch.zh.html    # Chinese nesearch product page
 ├── nesearch.en.html    # explicit English nesearch alias

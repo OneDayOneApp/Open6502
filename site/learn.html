@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning path · XiangShan scorecard — Open6502</title>
+  <meta name="description" content="Rehearse the XiangShan-style chip flow on Open6502: three loops, an eight-dimension XiangShan alignment scorecard (currently 34/100), a 12-week route, and what does and does not transfer.">
+  <meta name="theme-color" content="#06080c">
+  <meta name="color-scheme" content="dark">
+  <!-- Google Tag Manager -->
+  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-WGT7D54Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  </script>
+
+  <link rel="canonical" href="https://onedayoneapp.github.io/Open6502/learn.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/learn.zh.html">
+  <link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/learn.html">
+  <link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/learn.html">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Open6502">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta property="og:title" content="Learning path · XiangShan scorecard — Open6502">
+  <meta property="og:description" content="Use a small 6502 to rehearse the XiangShan flow: three loops, eight dimensions (34/100), a 12-week route and transfer boundaries.">
+  <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/learn.html">
+  <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    // Choose the default language from the OS/browser locale. English is the
+    // fallback; an explicit language choice (localStorage) always wins.
+    (function () {
+      try {
+        var saved = localStorage.getItem("open6502:lang");
+        if (saved === "zh") {
+          location.replace("learn.zh.html" + location.search + location.hash);
+          return;
+        }
+        if (saved === "en") return;
+      } catch (_) {}
+      var primary = (navigator.languages && navigator.languages[0])
+        || navigator.language || "";
+      if (/^zh(\b|[-_])/i.test(primary)) {
+        location.replace("learn.zh.html" + location.search + location.hash);
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/site.js" defer></script>
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WGT7D54Q"
+    height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="page-bg" aria-hidden="true"></div>
+
+  <header class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.html" aria-label="Open6502 home">
+        <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+        <span class="brand-text">
+          <span class="brand-name">OPEN6502</span>
+          <span class="brand-sub">6502 / NES SoC</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-link" href="index.html#emulator">Play</a>
+        <a class="nav-link" href="index.html#games">Games</a>
+        <a class="nav-link" href="index.html#status">Status</a>
+        <a class="nav-link" href="index.html#architecture">Architecture</a>
+        <a class="nav-link" href="docs.html">Docs</a>
+        <a class="nav-link" href="learn.html" aria-current="page">Learning path</a>
+        <a class="nav-link" href="nesearch.html">nesearch</a>
+        <a class="nav-link" href="index.html#contribute">Contribute</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="nav-lang" href="learn.zh.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch aria-label="查看中文版">中文</a>
+        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="Open6502 on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+          <span>Star</span>
+          <span class="nav-gh-stars" data-gh-stars hidden></span>
+        </a>
+        <a class="btn btn--primary btn--sm nav-learn-cta" href="docs.html#difftest">Start with DiffTest</a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-mobile" id="mobile-nav">
+      <a href="index.html#emulator">Play</a>
+      <a href="index.html#games">Games</a>
+      <a href="index.html#status">Status</a>
+      <a href="index.html#architecture">Architecture</a>
+      <a href="docs.html">Docs</a>
+      <a href="learn.html">Learning path</a>
+      <a href="nesearch.html">nesearch</a>
+      <a href="index.html#contribute">Contribute</a>
+      <a href="learn.zh.html" hreflang="zh-CN" lang="zh-CN" data-lang-switch>中文</a>
+      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗ <span class="nav-gh-stars" data-gh-stars hidden></span></a>
+      <a class="btn btn--primary" href="docs.html#difftest">Start with DiffTest</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Learning path · XiangShan alignment</span>
+          <h1 class="hero-title" id="hero-title">
+            Treat the 6502 as a<span class="hl">trainer aircraft</span>.
+            <span class="hero-en">A 12-week practice plan</span>
+          </h1>
+          <p class="hero-lede">
+            The goal is not a more complete NES. It is to take a chip <strong>small enough to
+            finish, end to end</strong>, and turn XiangShan's verification inner loop, CI gates and
+            backend flow into muscle memory.
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn--primary" href="docs.html#difftest">
+              Start with DiffTest
+              <svg class="arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn--ghost" href="#route">See the 12-week route</a>
+            <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/learning-path.zh-CN.md" target="_blank" rel="noopener">Read the learning doc ↗</a>
+          </div>
+          <div class="hero-proof">
+            <div class="proof-item">
+              <span class="proof-v">3 loops</span>
+              <span class="proof-k">inner / middle / outer</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-v">8 dimensions</span>
+              <span class="proof-k">XiangShan-style checklist</span>
+            </div>
+            <div class="proof-item">
+              <span class="proof-v">34 / 100</span>
+              <span class="proof-k">current alignment score</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-stage">
+          <div class="stage score-stage">
+            <div class="stage-top">
+              <span class="stage-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="stage-title">XIANGSHAN ALIGNMENT</span>
+            </div>
+            <div class="score-body">
+              <div class="score-head">
+                <span class="score-num">34<span>/100</span></span>
+                <span class="score-tag">D+ · prototype</span>
+              </div>
+              <p class="score-note">A solid reference model and docs, but the three pillars — lockstep verification, CI and generation — are missing.</p>
+              <ul class="score-bars">
+                <li><span>Reference</span><i style="--v:85%"></i><b>8.5</b></li>
+                <li><span>DiffTest</span><i style="--v:40%"></i><b>4.0</b></li>
+                <li><span>Generation</span><i style="--v:2%"></i><b>0.0</b></li>
+                <li><span>CI gates</span><i style="--v:15%"></i><b>1.5</b></li>
+                <li><span>Checkpoints</span><i style="--v:40%"></i><b>4.0</b></li>
+                <li><span>Perf model</span><i style="--v:25%"></i><b>2.5</b></li>
+                <li><span>Backend</span><i style="--v:20%"></i><b>2.0</b></li>
+                <li><span>Collaboration</span><i style="--v:50%"></i><b>5.0</b></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WHY ================= -->
+    <section class="section" id="why" aria-labelledby="why-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">01</span>Why 6502</span>
+          <h2 id="why-title">One story, <em>three loops</em>.</h2>
+          <p>XiangShan states its goal as "an agile development process for high-performance processors": a reference model, differential verification, generated descriptions, continuous regression, plus a roughly six-month iteration and tapeout cycle. The 6502 is small enough that one person can walk the whole chain.</p>
+        </div>
+
+        <div class="doors">
+          <a class="door reveal" href="docs.html#difftest">
+            <span class="door-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="door-title">Inner loop · minutes</span>
+            <span class="door-desc">Lockstep DiffTest: change one line of RTL, run one command, see PASS or the first divergence. The most valuable — and hardest to self-teach — part of the method.</span>
+            <span class="door-link">Start with DiffTest <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="door reveal" href="docs.html#verification">
+            <span class="door-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16.5H6.5A2.5 2.5 0 0 0 4 22V5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19M8 7h7M8 10.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+            <span class="door-title">Middle loop · every commit</span>
+            <span class="door-desc">CI regression, golden hashes, deterministic double runs, trace upload on failure. Without the middle loop the inner loop is just a script, not a gate.</span>
+            <span class="door-link">See verification <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+          <a class="door reveal" href="docs.html#tapeout">
+            <span class="door-icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 6.5 17.5 3.5a3.5 3.5 0 0 1 5 5l-3 3M9.5 17.5l-3 3a3.5 3.5 0 0 1-5-5l3-3M8 16l8-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m14 10 2.5-2.5M10 14l-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </span>
+            <span class="door-title">Outer loop · every iteration</span>
+            <span class="door-desc">Synthesis, FPGA and open-PDK PPA drills. Skip the 55nm chase; get from RTL to an area report first.</span>
+            <span class="door-link">See the outer loop <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCORE ================= -->
+    <section class="section" id="score" aria-labelledby="score-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">02</span>Scorecard</span>
+          <h2 id="score-title">XiangShan alignment: <em>34 / 100</em></h2>
+          <p>Eight dimensions, weighted by how much each matters in the XiangShan-style flow. Only reproducible evidence counts: it must run, be checkable, and repeat. Plans, slogans and percentage-complete bars earn nothing.</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table class="doc-table score-table">
+            <thead>
+              <tr><th>Dimension</th><th>Weight</th><th>Score</th><th>Evidence in this repo</th><th>Gap</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Reference model</td><td>15%</td><td>8.5</td><td>NEMU 6502EMU; golden-reference design and checklist; frame/audio hashes; snapshots and input replay</td><td>DiffTest is CPU-only; PPU/APU/mapper are outside the protocol</td></tr>
+              <tr><td>Lockstep DiffTest</td><td>25%</td><td>4.0</td><td><code>sim/difftest</code> final-state and PC-trace smoke test</td><td>No per-instruction retire, no bus/PPU transaction compare, no first-divergence report</td></tr>
+              <tr><td>Generation</td><td>15%</td><td>0.0</td><td>—</td><td>Zero <code>.scala</code> files; hand-written SystemVerilog only</td></tr>
+              <tr><td>CI gates</td><td>15%</td><td>1.5</td><td><code>pages.yml</code> deploys the site; CONTRIBUTING defines the rules</td><td>No test workflow, no coverage, no deterministic double runs</td></tr>
+              <tr><td>Checkpoints</td><td>10%</td><td>4.0</td><td>REF side has snapshots, state hashes, input replay</td><td>RTL side has no export/restore; cannot replay from cycle N</td></tr>
+              <tr><td>Performance evaluation</td><td>10%</td><td>2.5</td><td>GEM6502 event kernel, timing-bus experiment, area report</td><td>G0–G2 still partial; no counters, no change-to-benefit report</td></tr>
+              <tr><td>Backend loop</td><td>7%</td><td>2.0</td><td>Yosys per-module area, 55nm cost model</td><td>No bitstream, no PDK, no DFT or timing closure</td></tr>
+              <tr><td>Open collaboration</td><td>3%</td><td>5.0</td><td>README, technical docs, contributing guide, golden checklist</td><td>Root licence unpublished; contribution is effectively blocked</td></tr>
+              <tr class="score-total"><td>Total</td><td>100%</td><td>34.4</td><td colspan="2">D+ · a good reference model and docs, missing three pillars</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--info">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v4M8 5.1h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span><strong>Method:</strong> dimension score (0–10) × weight. The weight reflects importance to the XiangShan-style flow, not the value of the project. This is an engineering judgement, not a certification; evidence expires, so re-check against <code>git log</code>, <code>rtl/</code>, <code>sim/difftest/</code> and the actual CI output.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ROUTE ================= -->
+    <section class="section" id="route" aria-labelledby="route-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">03</span>12 weeks</span>
+          <h2 id="route-title">Twelve weeks, <em>raise the score</em>.</h2>
+          <p>Ordered by learning return: close the inner loop first, then add gates, then touch generation and backend. The pace is a suggestion, not a promise.</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table class="doc-table">
+            <thead>
+              <tr><th>Week</th><th>What to do</th><th>Acceptance output</th><th>Projected gain</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1–2</td><td>Upgrade DiffTest to lockstep: per-instruction retire + bus transaction compare</td><td><code>make difftest</code>, one command, first divergence on failure</td><td>+10</td></tr>
+              <tr><td>3–4</td><td>CI gates: lint / sim / difftest / golden, same-seed double run for determinism</td><td>Red PR cannot merge; traces uploaded on failure</td><td>+9.8</td></tr>
+              <tr><td>5–6</td><td>Checkpoints: snapshot at any cycle → restore → continue lockstep</td><td>Reproduce the same divergence from cycle N</td><td>+2</td></tr>
+              <tr><td>7–9</td><td>Rewrite one module in Chisel (ALU or a PPU submodule) and co-sim against the SV version</td><td>Equivalent versions + a parameterised demo</td><td>+7.5</td></tr>
+              <tr><td>10–11</td><td>Add counters to GEM6502 and run a "bus latency → cycles/stall" experiment</td><td>A one-page reproducible report</td><td>+1.5</td></tr>
+              <tr><td>12</td><td>Yosys → OpenROAD/SKY130 PPA on a small module</td><td>A one-page area/timing report</td><td>+2.1</td></tr>
+              <tr class="score-total"><td>Target</td><td colspan="2">Move the alignment score from 34 to 60–65 in 12 weeks</td><td>≈ +33</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout--warn">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2 1.5 13.5h13L8 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11.7h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span><strong>Do not skip steps:</strong> Chisel before DiffTest gives you two implementations you cannot trust; backend before gates mistakes "synthesises" for "correct". Until the inner loop closes, no outer-loop point counts.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TRANSFER ================= -->
+    <section class="section" id="transfer" aria-labelledby="transfer-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow"><span class="sec-index">04</span>What transfers</span>
+          <h2 id="transfer-title">What you keep, <em>what you don't</em>.</h2>
+          <p>The 6502 gives you process muscle, not microarchitecture taste. Knowing the difference keeps you from drifting into NES peripherals.</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table class="doc-table">
+            <thead><tr><th>Transfers to XiangShan</th><th>Does not transfer</th></tr></thead>
+            <tbody>
+              <tr><td>The full mental model of reference + differential verification</td><td>OoO, speculation, branch prediction</td></tr>
+              <tr><td>Generated / parameterised hardware construction</td><td>Cache coherence, multi-core, NoC</td></tr>
+              <tr><td>CI, regression, golden hashes, deterministic replay</td><td>Real PPA optimisation (the 6502 is too small)</td></tr>
+              <tr><td>Checkpoints, replay, first-divergence localisation</td><td>Design taste for high-performance microarchitecture</td></tr>
+              <tr><td>Checklist thinking for backend and tapeout gates</td><td>Commercial PDK / DFT / sign-off engineering</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="doc-lead reveal" style="margin-top:22px">Next stage: switch the vehicle to a small RISC-V core (NutShell is XiangShan's predecessor) or read XiangShan's Chisel source directly. The 6502's job is to shorten the loop before you switch.</p>
+      </div>
+    </section>
+
+    <!-- ================= CTA ================= -->
+    <section class="section" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="cta-band reveal">
+          <div>
+            <span class="eyebrow eyebrow--plain">Next step</span>
+            <h2 id="cta-title">Close the inner loop first.</h2>
+            <p>One command, one PASS, one divergence — start there.</p>
+          </div>
+          <div class="cta-actions">
+            <a class="btn btn--primary" href="docs.html#difftest">Read the DiffTest protocol</a>
+            <a class="btn btn--ghost" href="docs.html">Open the docs</a>
+            <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub repository ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Open6502 home">
+            <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+            <span class="brand-text">
+              <span class="brand-name">OPEN6502</span>
+              <span class="brand-sub">Open silicon · from emulator to silicon</span>
+            </span>
+          </a>
+          <p>An open-source 6502/NES-compatible SoC: first a playable software reference, then the same chip in SystemVerilog, then 55nm.</p>
+          <div class="footer-links">
+            <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.md" target="_blank" rel="noopener">README</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Learn</h4>
+          <ul>
+            <li><a href="#why">Three loops</a></li>
+            <li><a href="#score">XiangShan scorecard</a></li>
+            <li><a href="#route">12-week route</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/learning-path.zh-CN.md" target="_blank" rel="noopener">Learning doc ↗</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Deep dive</h4>
+          <ul>
+            <li><a href="docs.html#architecture">Architecture</a></li>
+            <li><a href="docs.html#verification">Verification</a></li>
+            <li><a href="docs.html#difftest">DiffTest</a></li>
+            <li><a href="docs.html#synthesis">Synthesis &amp; area</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Project</h4>
+          <ul>
+            <li><a href="index.html#roadmap">Roadmap</a></li>
+            <li><a href="index.html#status">Current status</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROMs &amp; licences ↗</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/nesearch" target="_blank" rel="noopener">nesearch ↗</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> Open6502 · open-source 6502/NES SoC project</span>
+        <span>Last verified · 2026-11-15</span>
+        <span class="right">Source in <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · plain HTML/CSS/JS · GitHub Pages</span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="to-top" type="button" data-to-top aria-label="Back to top">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</body>
+</html>

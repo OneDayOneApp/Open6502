@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Open6502 — 把童年，跑进一颗芯片</title>
-  <meta name="description" content="Open6502 是一个今天就能玩的 NES 模拟器，也是一颗正在生长的开源 6502/NES SoC。六款开源游戏、28 项 RTL 测试、帧级 SHA 与 NEMU 完全一致。">
+  <meta name="description" content="Open6502 是一个今天就能玩的 NES 模拟器，也是一颗正在生长的开源 6502/NES SoC。它同时是一架教练机：用这颗小芯片练习香山式的锁步验证、CI 门禁与后端流程。">
   <meta name="theme-color" content="#06080c">
   <meta name="color-scheme" content="dark">
   <!-- Google Tag Manager -->
@@ -75,6 +75,7 @@
         <a class="nav-link" href="#status">进度</a>
         <a class="nav-link" href="#architecture">架构</a>
         <a class="nav-link" href="docs.zh.html">技术文档</a>
+        <a class="nav-link" href="learn.zh.html">学习路径</a>
         <a class="nav-link" href="nesearch.zh.html">nesearch</a>
         <a class="nav-link" href="#contribute">参与</a>
       </nav>
@@ -100,6 +101,7 @@
       <a href="#status">进度</a>
       <a href="#architecture">架构</a>
       <a href="docs.zh.html">技术文档</a>
+      <a href="learn.zh.html">学习路径</a>
       <a href="nesearch.zh.html">nesearch</a>
       <a href="#contribute">参与</a>
       <a href="index.en.html" hreflang="en" lang="en" data-lang-switch>English</a>
@@ -121,7 +123,7 @@
           </h1>
           <p class="hero-lede">
             一个<strong>今天就能玩</strong>的 NES 模拟器，和一颗正在长出 CPU、PPU、APU 与总线的开源 6502 芯片。
-            同一款《FALLING》，软件里跑一帧，RTL 里也跑一帧——逐字节对齐。
+            它也是一架教练机：拿这颗小芯片，把香山式的锁步验证、CI 门禁和后端流程练一遍。
           </p>
           <div class="hero-cta">
             <a class="btn btn--primary" href="#emulator">
@@ -195,31 +197,31 @@
     </section>
 
     <!-- ================= DOORS ================= -->
-    <section class="section section--flush" aria-label="选择你的入口">
+    <section class="section section--flush" aria-label="选择你的练习路线">
       <div class="container doors">
-        <a class="door reveal" href="#emulator">
+        <a class="door reveal" href="docs.zh.html#difftest">
           <span class="door-icon">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
           </span>
-          <span class="door-title">我只是想玩两把</span>
-          <span class="door-desc">两条命令编译模拟器，六款开源游戏，键盘就是手柄。不用懂 6502，也不用买开发板。</span>
-          <span class="door-link">2 分钟开一局 <span class="arrow" aria-hidden="true">→</span></span>
+          <span class="door-title">我想先跑通内环</span>
+          <span class="door-desc">锁步 DiffTest：改一行 RTL，一条命令看到 PASS 或首个差异。分钟级反馈，是香山方法论里最值钱的一块。</span>
+          <span class="door-link">从差分验证开始 <span class="arrow" aria-hidden="true">→</span></span>
         </a>
-        <a class="door reveal" href="docs.zh.html">
+        <a class="door reveal" href="learn.zh.html">
           <span class="door-icon">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v16.5H6.5A2.5 2.5 0 0 0 4 22V5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19M8 7h7M8 10.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </span>
-          <span class="door-title">我想看懂它</span>
-          <span class="door-desc">从地址映射到 PPU 点时序，从 Klaus 到 DiffTest，技术文档把每个决定、每条命令和每个坑都写下来。</span>
-          <span class="door-link">读技术文档 <span class="arrow" aria-hidden="true">→</span></span>
+          <span class="door-title">我想看懂整套方法</span>
+          <span class="door-desc">参考模型、验证计划、门禁清单、性能模型——把香山的流程拆成能照着做的步骤。</span>
+          <span class="door-link">读学习路径 <span class="arrow" aria-hidden="true">→</span></span>
         </a>
-        <a class="door reveal" href="#contribute">
+        <a class="door reveal" href="#roadmap">
           <span class="door-icon">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 6.5 17.5 3.5a3.5 3.5 0 0 1 5 5l-3 3M9.5 17.5l-3 3a3.5 3.5 0 0 1-5-5l3-3M8 16l8-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="m14 10 2.5-2.5M10 14l-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           </span>
-          <span class="door-title">我想一起把它造出来</span>
-          <span class="door-desc">PPU 管线、DMC 仲裁、FPGA 时序、55nm 后端——当前卡点和好上手的 issue 都在这里，挑一块就行。</span>
-          <span class="door-link">看怎么参与 <span class="arrow" aria-hidden="true">→</span></span>
+          <span class="door-title">我想把它推到后端</span>
+          <span class="door-desc">综合、FPGA、开放 PDK 的 PPA 演练。不追 55nm，先把流程走通。</span>
+          <span class="door-link">看外环门禁 <span class="arrow" aria-hidden="true">→</span></span>
         </a>
       </div>
     </section>
@@ -1156,7 +1158,7 @@ input  [7:0] joy1, joy2;
         <div class="faq reveal">
           <details class="faq-item">
             <summary>能在浏览器里直接玩吗？</summary>
-            <div class="faq-body">不能。当前 NEMU 是本地 SDL 窗口程序，RTL 通过 Verilator 抓帧，没有 WASM 或 Web 前端。这个网站负责讲清楚怎么在本地跑起来，不假装提供在线模拟器。</div>
+            <div class="faq-body">可以。页面上方的试玩区就是 GEM6502 核心编译成的 WebAssembly，自带六款开源 ROM。NEMU 与 RTL SoC 仍是本地程序，RTL 通过 Verilator 抓帧；网站只跑参考模型这一侧，不假装提供在线 RTL。商业 ROM 不提供下载，兼容性也不做承诺。</div>
           </details>
           <details class="faq-item">
             <summary>支持《超级马里奥兄弟》这类商业 ROM 吗？</summary>
