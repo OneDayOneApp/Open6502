@@ -18,6 +18,23 @@ Open6502 is two things in one repository:
 The RTL is verified against the emulator: the CPU passes Klaus, and the RTL
 title frame is byte-identical to the NEMU title frame.
 
+## Learning path: use it as a trainer aircraft
+
+This repository has a second use: **treat it as a trainer aircraft, not a
+product**. The goal is not to make the 6502 more complete, but to rehearse the
+XiangShan-style flow on a chip small enough to finish:
+
+```text
+reference model -> lockstep DiffTest -> CI gates -> performance evaluation -> open-PDK backend
+```
+
+- Start here: [docs/learning-path.zh-CN.md](docs/learning-path.zh-CN.md)
+  (Chinese) — core story, three loops, 12-week route, what transfers and what
+  does not.
+- Index: [docs/README.md](docs/README.md).
+- The three gaps that matter most: lockstep DiffTest, a CI that runs tests, and
+  one Chisel module.
+
 ## nesearch: NES search & download tool / NES 游戏搜索与下载工具
 
 > **把童年，跑进一颗芯片。**  
@@ -333,6 +350,8 @@ docs/                 Design, verification, area and cost documents
 
 ### Start here
 
+- [Documentation index](docs/README.md)
+- [Learning path: rehearse the XiangShan-style flow](docs/learning-path.zh-CN.md)
 - [Game testing: NEMU and RTL](docs/game-testing.md)
 - [Synthesis and cost](docs/synthesis-and-cost.md)
 
