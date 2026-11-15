@@ -98,6 +98,9 @@ typedef struct GemBus {
   uint8_t m4_irq_latch, m4_irq_counter, m4_irq_reload;
   bool m4_irq_enable, m4_irq_pending;
   bool cart_irq;
+  /* am6502 host console: $4018 putc, $4019 halt (real hardware ignores both) */
+  bool host_halt;
+  uint8_t host_exit;
   uint64_t reads;
   uint64_t writes;
 } GemBus;

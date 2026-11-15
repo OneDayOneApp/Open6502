@@ -19,6 +19,10 @@ static uint8_t controller_state[2];
 static uint8_t controller_shift[2];
 static uint8_t controller_strobe;
 static bool g_quit;
+/* am6502 host console: $4018 writes a character, $4019 halts with a status.
+ * $4018-$401F are test registers on real hardware, so cartridges stay valid. */
+static bool host_halt;
+static int host_exit;
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
@@ -276,6 +280,18 @@ void nes_cpu_write(uint16_t addr, uint8_t value) {
   }
   if (addr == 0x4015 || addr == 0x4017) {
     apu_write(&apu, addr, value);
+    return;
+  }
+  if (addr == 0x4018) {
+    putchar((int)(value & 0xFF));
+    fflush(stdout);
+    return;
+  }
+  if (addr == 0x4019) {
+    host_halt = true;
+    host_exit = (int)(value & 0x7F);
+    fprintf(stderr, "am6502: halt code %d\n", host_exit);
+    set_nemu_state(NEMU_END, cpu.pc, host_exit);
     return;
   }
   if (addr < 0x4020) return;
@@ -634,6 +650,8 @@ int nes_main(int argc, char **argv) {
   controller_shift[0] = controller_shift[1] = 0;
   controller_strobe = 0;
   g_quit = false;
+  host_halt = false;
+  host_exit = 0;
   nemu_state.state = NEMU_RUNNING;
   nemu_state.halt_pc = 0;
   nemu_state.halt_ret = 0;
@@ -715,5 +733,8 @@ int nes_main(int argc, char **argv) {
   wav_samples = NULL;
   cart_free(&cart);
   nes_active = false;
-  return (nemu_state.state == NEMU_ABORT) ? 1 : 0;
+  if (nemu_state.state == NEMU_ABORT) return 1;
+  if (nemu_state.state == NEMU_END && nemu_state.halt_ret != 0) return 1;
+  (void)host_halt;
+  return 0;
 }

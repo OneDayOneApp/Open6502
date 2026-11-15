@@ -48,7 +48,7 @@ static int run_game(Gem *g, const char *rom, int frames, const char *out, bool p
   uint64_t input_frame = UINT64_MAX;
   uint64_t start_cycles = g->cpu.cycles;
   int target = frames > 0 ? frames : 60;
-  while (!g->cpu.halted && g->stats.ppu_frames < (uint64_t)target) {
+  while (!g->cpu.halted && !g->bus.host_halt && g->stats.ppu_frames < (uint64_t)target) {
     if (input && input_frame != g->stats.ppu_frames) {
       int p1 = fgetc(input), p2 = fgetc(input);
       g->apu.joy1 = p1 == EOF ? 0 : (uint8_t)p1;
@@ -73,6 +73,7 @@ static int run_game(Gem *g, const char *rom, int frames, const char *out, bool p
          (unsigned long long)g->stats.ppu_frames,
          (unsigned long long)(g->cpu.cycles - start_cycles), out ? out : "(none)");
   free(rgb);
+  if (g->bus.host_halt) return (int)g->bus.host_exit;
   return g->cpu.halted ? 1 : 0;
 }
 

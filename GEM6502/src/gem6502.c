@@ -734,6 +734,17 @@ void gem_bus_write(Gem *g, uint16_t addr, uint8_t value) {
   if (addr < 0x2000) { g->bus.ram[addr & 0x07FF] = value; return; }
   if (addr < 0x4000) { ppu_register_write(g, (uint8_t)(addr & 7), value); return; }
   if (addr < 0x4020) {
+    if (addr == 0x4018) {
+      fputc((int)(value & 0xFF), stdout);
+      fflush(stdout);
+      return;
+    }
+    if (addr == 0x4019) {
+      g->bus.host_halt = true;
+      g->bus.host_exit = (uint8_t)(value & 0x7F);
+      fprintf(stderr, "am6502: halt code %d\n", g->bus.host_exit);
+      return;
+    }
     if (addr == 0x4014) {
       uint16_t page = (uint16_t)(value << 8);
       for (int i = 0; i < 256; i++)
@@ -892,6 +903,8 @@ void gem_reset(Gem *g) {
   g->apu.sound.dmc_read = sound_dmc_read;
   g->apu.sound.dmc_bus = g;
   memset(&g->stats, 0, sizeof(g->stats));
+  g->bus.host_halt = false;
+  g->bus.host_exit = 0;
   g->cpu.sp = 0xFD;
   g->cpu.p = F_U | F_I;
   g->now = 0;

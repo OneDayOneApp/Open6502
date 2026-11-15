@@ -2,10 +2,11 @@
 
 # am6502: a small Abstract Machine for 6502/NES
 
-**Status: M1 works.** The `mos6502-nemu` platform builds, runs and verifies:
-`make run` prints `hello from am6502` on the golden reference and exits 0, and
-`RUN_KLAUS=1 make test` runs the Klaus functional test **with the reset vector
-the build produced**, not one patched in by a bench.
+**Status: M1 and M2 work.** Flat images run on the golden reference; the same
+cartridge image runs on NEMU, GEM6502 and the RTL SoC. `make run` prints
+`hello from am6502` and exits 0, `RUN_KLAUS=1 make test` passes Klaus **with
+the reset vector the build produced** (not one patched in by a bench), and
+`hello.nes` renders the same white frame on all three cartridge backends.
 
 This is the 6502 subset of [nexus-am](https://github.com/OpenXiangShan/nexus-am)'s
 idea: one abstraction to link against, one `make ARCH=<isa>-<platform>` matrix,
@@ -13,12 +14,18 @@ one image convention that every backend consumes.
 
 ```sh
 cd labs/am6502
-make                      # build/hello-mos6502-nemu.bin (+ .hex, .map, .lst)
-make run                  # 6502EMU -a 0 -r: PASS, exit 0
-RUN_KLAUS=1 make test     # hello + Klaus (downloads ~64 KiB unless KLAUS_BIN is set)
+make                               # flat image for mos6502-nemu
+make run                           # 6502EMU -a 0 -r: PASS, exit 0
+RUN_KLAUS=1 make test              # hello + Klaus (downloads unless KLAUS_BIN is set)
+
+make ARCH=mos6502-nes              # iNES cartridge: hello-mos6502-nes.nes
+make ARCH=mos6502-nes run DUT=nemu # NEMU NES mode
+make ARCH=mos6502-nes run DUT=gem  # GEM6502
+make ARCH=mos6502-nes run DUT=rtl  # iverilog + tb/open6502_am6502_tb.sv
 ```
 
-Needs `ca65`/`ld65` (cc65), `python3`, and a built `NEMU/build/6502EMU`.
+Needs `ca65`/`ld65` (cc65), `python3`, a built `NEMU/build/6502EMU`, and for
+the cartridge backends a built `GEM6502/gem6502` and `iverilog`/`vvp`.
 
 ## Why this exists
 
@@ -39,8 +46,8 @@ same SHA-256), which is the precondition for a golden hash.
 
 | ARCH | Image | Entry | Host output / exit | Backends |
 |---|---|---|---|---|
-| `mos6502-nemu` (M1) | flat 65,536-byte `.bin` + derived `.hex` | reset vector at `$FFFC`, written by the build | `$F001` / `$F002` (existing 6502EMU ports) | `6502EMU -a 0 -r` |
-| `mos6502-nes` (M2) | iNES `.nes` + derived `.prg.hex`/`.chr.hex` | reset vector in the last PRG bank | `$4018` / `$4019` (host-side only) | `6502EMU`, `gem6502`, RTL `tb` |
+| `mos6502-nemu` | flat 65,536-byte `.bin` + derived `.hex` | reset vector at `$FFFC`, written by the build | `$F001` / `$F002` (existing 6502EMU ports) | `6502EMU -a 0 -r` |
+| `mos6502-nes` | iNES `.nes` (NROM) + derived `.prg.hex`/`.chr.hex` | reset vector in the last PRG bank | `$4018` / `$4019`, decoded by NEMU, GEM6502 and the RTL bench | `6502EMU`, `gem6502`, RTL `tb` |
 
 Every app declares how success looks, so `make test` means the same thing for a
 compiled program and for a prebuilt `.bin`:
@@ -55,25 +62,33 @@ compiled program and for a prebuilt `.bin`:
 | Path | Purpose |
 |---|---|
 | `am/am.h`, `am/include/amdev.h` | the contract: TRM + IOE subset, `_DEV_*` ids |
-| `am/arch/mos6502-nemu.mk` | platform: image kind, load address, sources |
-| `am/src/nemu/{crt0.s,trm.s,flat.cfg}` | startup, host ports, ld65 layout |
-| `apps/hello/` | smoke test: `_putc` + `_halt(0)` |
+| `am/arch/{mos6502-nemu,mos6502-nes}.mk` | platform: image kind, load address, sources |
+| `am/src/nemu/{crt0.s,trm.s,flat.cfg}` | flat startup, host ports, ld65 layout |
+| `am/src/nes/{crt0.s,trm.s,nes.cfg}` | cartridge startup, `$4018/$4019`, NROM layout |
+| `apps/hello/` | smoke test: `_putc` + `_halt(0)`, plus a white PPU frame on NES |
 | `apps/klaus/` | external functional test wrapped as an image (`CHECK=pc`) |
-| `tools/mkimage.py` | pad to 64 KiB, fill/verify the reset vector, emit hex |
-| `tools/run.py` | DUT dispatch, `CHECK` predicates, failure diagnosis |
+| `tools/mkimage.py` | pad to 64 KiB or wrap in iNES, verify vectors, emit hex |
+| `tools/ines.py` | inspect/extract third-party `.nes` images |
+| `tools/run.py` | DUT dispatch, `CHECK` predicates, RTL bench compile, failure diagnosis |
+| `../../tb/open6502_am6502_tb.sv` | RTL bench: boots the cartridge, decodes `$4018/$4019` |
 | `docs/design.md` | full specification, milestones, risks |
 
-## What M1 does and does not do
+## What M1/M2 do and do not do
 
 | Done | Not yet |
 |---|---|
-| `mos6502-nemu` platform, crt0 + TRM, reproducible images | `mos6502-nes` (iNES, `$4018/$4019`, PPU/APU) |
-| `hello` and Klaus through `make run` / `make test` | C toolchain (llvm-mos), `mainargs`, `_heap` |
-| `_putc`, `_halt`, `_io_read`/`_io_write` stubs, `am_mainargs` ("") | real IOE drivers (input, timer, PPU, cart) |
-| `.hex`, `.map`, `.lst` artifacts | `.elf`/`.sym`, `DUT=gem`, `DUT=rtl`, lockstep DiffTest, CI |
+| `mos6502-nemu` and `mos6502-nes` platforms, crt0 + TRM | C toolchain (llvm-mos), `mainargs`, `_heap` |
+| One image on NEMU, GEM6502 and RTL (cartridge), byte-reproducible | real IOE drivers (input, timer, PPU, cart) |
+| `hello` and Klaus through `make run` / `make test` | `.elf`/`.sym` artifacts |
+| `$4018`/`$4019` decoded by NEMU and GEM6502; bench decodes them on the bus | lockstep DiffTest (M3), CI gate |
+| `.hex`, `.map`, `.lst` artifacts | migrating `sim/game` to `tools/ines.py` |
 
 `_io_read`/`_io_write` return 0 rather than trapping — the design's "one app,
 many platforms" rule — until the NES platform gives them devices to talk to.
+
+Measured today (`make ARCH=mos6502-nes test DUT=...`): `hello.nes` halts with
+code 0 and renders a full white frame on all three backends — NEMU 3 frames,
+GEM6502 3 frames, RTL 4 frames (61,440 pixels each).
 
 ## Read next
 

@@ -1,9 +1,9 @@
 # am6502: an Abstract Machine for 6502/NES
 
-**Status: M1 implemented.** The `mos6502-nemu` platform, the image tools and the
-`hello`/`klaus` apps exist and pass on `NEMU/build/6502EMU`; the rest of this
-document is still the target, not current behaviour. See README for the
-implemented/deferred split.
+**Status: M1 and M2 implemented.** Flat images run on `NEMU/build/6502EMU`;
+cartridges boot on NEMU, GEM6502 and the RTL bench with the same image and the
+same verdict. The rest of this document is still the target, not current
+behaviour; see README for the implemented/deferred split.
 
 Last updated: 2026-11-16.
 
@@ -232,19 +232,18 @@ allocations are configured (via linker config) to stay inside `$00-$EF`.
 unused registers and the program simply spins; that is the correct behaviour for
 a bare-metal `halt`.
 
-**Implementation status:** `$4018/$4019` are decoded by nobody today. M2 adds
-the decode in three places, each a small, local change:
+**Implementation status (M2):** decoded in two hosts and observed in the bench:
 
-1. `tb/open6502_game_tb.sv` — no RTL change needed: watch
-   `dut.u_cpu.bus_we && dut.u_cpu.bus_addr == 16'h4018/16'h4019`, exactly as the
-   bench already watches `$2002`.
-2. `NEMU/src/nes/` — 10 lines in the bus path of NES mode (Mulan PSL v2, fine).
-3. `rtl/bus/open6502_bus.sv` + `rtl/dbg/open6502_difftest_bridge.sv` — only when
-   an FPGA/debug probe needs it; not required for simulation.
+1. `NEMU/src/nes/nes.c` — `nes_cpu_write()` turns `$4018` into a character and
+   `$4019` into `NEMU_END` with that status.
+2. `GEM6502/src/gem6502.c` + `main.c` — same ports, same halt semantics, process
+   exit code follows the halt code.
+3. `tb/open6502_am6502_tb.sv` — no RTL change needed: it watches
+   `dut.u_cpu.bus_we && dut.u_cpu.bus_addr == 16'h4018/16'h4019`, prints the
+   characters, and fails the run on a non-zero halt or a blank frame.
 
-Until step 1 and 2 land, `_putc` on `mos6502-nes` is a no-op on the host and the
-app must render to the PPU. That is acceptable for M1 (nemu platform only) and
-is called out in the M2 exit criteria.
+`rtl/bus/open6502_bus.sv` + `rtl/dbg/open6502_difftest_bridge.sv` still do not
+decode the ports; that is only needed when an FPGA/debug probe wants them.
 
 ### 6.5 Exit status
 
@@ -357,8 +356,8 @@ labs/am6502/
 │   │   └── mos6502-nes.mk
 │   └── src/
 │       ├── common/           # string/mem helpers, printf-lite over _putc, am_mainargs
-│       ├── nemu/             # crt0, $F001-$F003 drivers, trivial linker script
-│       └── nes/              # crt0, PPU/APU/pad drivers, NROM linker script, iNES header
+│       ├── nemu/             # crt0, $F001-$F003 drivers, flat linker script
+│       └── nes/              # crt0, $4018/$4019, NROM linker script
 ├── apps/
 │   ├── hello/                # prints a line and halts with 0 — the smoke test
 │   ├── klaus/                # downloads the external binary, patches vectors, no compile
@@ -410,7 +409,7 @@ touch C.
 |---|---|---|---|
 | **M0** | this document + directory + index entries | reviewed, no code claimed | done with this commit |
 | **M1** | `mos6502-nemu` end to end: `hello`, `klaus` wrapper, `tools/run.py` | `make test ARCH=mos6502-nemu` green on `6502EMU`; Klaus passes at `PC=$3469` **with the build's own reset vector** — **landed 2026-11-16** | 1-2 weeks |
-| **M2** | `mos6502-nes`: iNES output, `ines.py`, `$4018/$4019` observation in tb, NEMU NES-mode decode | the same `hello.nes` runs on `6502EMU`, `gem6502` and RTL, frame non-blank, exit code 0 | 2-3 weeks |
+| **M2** | `mos6502-nes`: iNES output, `ines.py`, `$4018/$4019` observation in tb, NEMU NES-mode decode | the same `hello.nes` runs on `6502EMU`, `gem6502` and RTL, frame non-blank, exit code 0 — **landed 2026-11-16** (3/3/4 frames, full white screen) | 2-3 weeks |
 | **M3** | DiffTest + CI: retire-level compare, failure report, workflow | `make difftest APP=hello` prints the first differing instruction; CI runs the three lines in §10 | 2 weeks |
 | stretch | `mos65c02-nemu`, `nes-mmc3` (mapper 4), `printf`/`malloc` shims, move `NEMU/nesgame` onto the same CRT | each independently useful; none blocks another | - |
 

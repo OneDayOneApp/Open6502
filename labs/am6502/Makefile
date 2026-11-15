@@ -8,7 +8,8 @@
 # ARCH comes from am/arch/<ARCH>.mk (the platform), the program from
 # apps/<APP>/app.mk.  Nothing here touches NEMU/, GEM6502/ or rtl/.
 #
-# The design this implements: docs/design.md.  M1 scope: mos6502-nemu only.
+# The design this implements: docs/design.md.  M1: mos6502-nemu (flat image).
+# M2: mos6502-nes (iNES cartridge) on NEMU, GEM6502 and the RTL bench.
 
 AM6502_HOME := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 OPEN6502_ROOT ?= $(abspath $(AM6502_HOME)/../..)
@@ -16,7 +17,6 @@ OPEN6502_ROOT ?= $(abspath $(AM6502_HOME)/../..)
 ARCH ?= mos6502-nemu
 APP  ?= hello
 DUT  ?= nemu
-APPS ?= hello klaus
 
 # External tests are opt-in (they download), mirroring NEMU/tests/run.sh.
 RUN_KLAUS ?= 0
@@ -30,12 +30,18 @@ AS   := ca65
 LD   := ld65
 PYTHON ?= python3
 NEMU ?= $(OPEN6502_ROOT)/NEMU/build/6502EMU
+GEM6502 ?= $(OPEN6502_ROOT)/GEM6502/gem6502
+IVERILOG ?= iverilog
+VVP ?= vvp
 
 BUILD   := $(AM6502_HOME)/build/$(APP)-$(ARCH)
 APP_DIR := $(AM6502_HOME)/apps/$(APP)
 
 include $(AM6502_HOME)/am/arch/$(ARCH).mk
 include $(AM6502_HOME)/apps/$(APP)/app.mk
+
+# Which apps make sense on this platform (Klaus is a flat 64 KiB image).
+APPS ?= $(AM_APPS)
 
 .SUFFIXES:
 .DELETE_ON_ERROR:
@@ -45,7 +51,7 @@ IMAGE   := $(BUILD)/$(APP)-$(ARCH).$(AM_IMAGE_EXT)
 SEGMENT := $(BUILD)/$(APP)-$(ARCH).seg
 MAP     := $(BUILD)/$(APP)-$(ARCH).map
 
-ASFLAGS := --cpu 6502 -I $(AM6502_HOME)/am -I $(AM6502_HOME)/am/include
+ASFLAGS := --cpu 6502 -I $(AM6502_HOME)/am -I $(AM6502_HOME)/am/include $(AM_ASFLAGS)
 
 vpath %.s $(APP_DIR) $(AM_SRC_DIR)
 
@@ -75,17 +81,26 @@ OBJS := $(addprefix $(BUILD)/,$(addsuffix .o,$(notdir $(basename $(APP_SRCS) $(A
 $(SEGMENT): $(OBJS) $(AM_CFG) | $(BUILD)
 	$(LD) -C $(AM_CFG) -m $(MAP) -o $@ $(OBJS)
 
+ifeq ($(AM_IMAGE_KIND),cartridge)
+$(IMAGE): $(SEGMENT)
+	$(PYTHON) $(AM6502_HOME)/tools/mkimage.py \
+	    --prg $(SEGMENT) --chr-size $(AM_CHR_SIZE) --mapper $(AM_MAPPER) \
+	    --mirroring $(AM_MIRRORING) --out $@ \
+	    --hex-dir $(BUILD) --hex-prefix $(APP)-$(ARCH) --check
+else
 $(IMAGE): $(SEGMENT)
 	$(PYTHON) $(AM6502_HOME)/tools/mkimage.py \
 	    --segment $(SEGMENT) --load-addr $(AM_LOAD_ADDR) \
 	    --out $@ --hex $(BUILD)/$(APP)-$(ARCH).hex --check
+endif
 endif
 
 run: $(IMAGE)
 	$(PYTHON) $(AM6502_HOME)/tools/run.py \
 	    --arch $(ARCH) --app $(APP) --dut $(DUT) \
 	    --image $(IMAGE) --check '$(APP_CHECK)' --max-inst $(APP_MAX_INST) \
-	    --nemu $(NEMU)
+	    --nemu $(NEMU) --gem $(GEM6502) --root $(OPEN6502_ROOT) \
+	    --iverilog $(IVERILOG) --vvp $(VVP)
 
 test:
 	@set -e; for app in $(APPS); do \
@@ -103,9 +118,10 @@ clean:
 help:
 	@echo "am6502: make [ARCH=<arch>] [APP=<app>] [DUT=<dut>] <target>"
 	@echo
-	@echo "  ARCH  mos6502-nemu (M1)   platform, from am/arch/<ARCH>.mk"
+	@echo "  ARCH  mos6502-nemu        flat 64 KiB image (M1)"
+	@echo "        mos6502-nes         iNES cartridge (M2)"
 	@echo "  APP   hello klaus         program, from apps/<APP>/app.mk"
-	@echo "  DUT   nemu                execution backend (gem/rtl land in M2/M3)"
+	@echo "  DUT   nemu gem rtl        execution backend (gem/rtl for *.nes)"
 	@echo
 	@echo "targets: all (default), run, test, clean, help"
 	@echo "vars:    RUN_KLAUS=1 enables the external Klaus test"

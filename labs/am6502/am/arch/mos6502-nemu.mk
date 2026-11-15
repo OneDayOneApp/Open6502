@@ -12,6 +12,9 @@ AM_SRC_DIR    := $(AM6502_HOME)/am/src/nemu
 AM_SRCS       := crt0.s trm.s
 AM_CFG        := $(AM_SRC_DIR)/flat.cfg
 
+# Apps that make sense on a flat 64 KiB machine (Klaus is one of them).
+AM_APPS       := hello klaus
+
 # Host I/O ports this platform implements (see docs/design.md §6.4).
 AM_HOST_PUTC  := $F001
 AM_HOST_EXIT  := $F002

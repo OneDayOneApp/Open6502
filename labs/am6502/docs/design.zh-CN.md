@@ -1,8 +1,8 @@
 # am6502：给 6502/NES 的抽象机
 
-**状态：M1 已实现。** `mos6502-nemu` 平台、镜像工具和 `hello`/`klaus` 两个 app
-已经存在，并在 `NEMU/build/6502EMU` 上通过；本文其余部分仍是目标而不是现状。
-已完成/未完成的划分见 README。
+**状态：M1、M2 已实现。** 平坦镜像能跑 `NEMU/build/6502EMU`；卡带镜像在 NEMU、
+GEM6502 和 RTL bench 上用同一份镜像、同一套判定启动。本文其余部分仍是目标而不是
+现状，已完成/未完成的划分见 README。
 
 最后更新：2026-11-16。
 
@@ -212,16 +212,17 @@ app 和工具链用 `$00-$EF`。`cc65`/`llvm-mos` 默认的零页分配通过链
 `$4019`（nes），随后 `SEI; JMP *` 自旋。真机上这两个写落在未用寄存器上，程序就
 自旋——对裸机 `halt` 来说这就是正确行为。
 
-**实现现状：** 今天没有任何一方解码 `$4018/$4019`。M2 在三处补，每处都是局部小改：
+**实现现状（M2）：** 两个宿主已解码，bench 已观察：
 
-1. `tb/open6502_game_tb.sv`——**不用改 RTL**：像现在盯 `$2002` 那样盯
-   `dut.u_cpu.bus_we && dut.u_cpu.bus_addr == 16'h4018/16'h4019` 即可；
-2. `NEMU/src/nes/`——NES 模式总线路径里约 10 行（Mulan PSL v2，可用）；
-3. `rtl/bus/open6502_bus.sv` + `rtl/dbg/open6502_difftest_bridge.sv`——只在
-   FPGA/调试探针需要时做，仿真不需要。
+1. `NEMU/src/nes/nes.c`——`nes_cpu_write()` 把 `$4018` 变成字符、把 `$4019` 变成
+   带状态的 `NEMU_END`；
+2. `GEM6502/src/gem6502.c` + `main.c`——同样的端口与停机语义，进程退出码跟随停机码；
+3. `tb/open6502_am6502_tb.sv`——**不用改 RTL**：盯
+   `dut.u_cpu.bus_we && dut.u_cpu.bus_addr == 16'h4018/16'h4019`，打印字符，停机码
+   非零或画面全黑就判失败。
 
-在这两步（1、2）落地之前，`mos6502-nes` 上的 `_putc` 对宿主是空操作，app 必须
-自己画到 PPU。这对 M1（只有 nemu 平台）可以接受，已写进 M2 的验收条件。
+`rtl/bus/open6502_bus.sv` + `rtl/dbg/open6502_difftest_bridge.sv` 仍未解码这两个端口，
+只有在 FPGA/调试探针需要时才做。
 
 ### 6.5 退出状态
 
@@ -326,8 +327,8 @@ labs/am6502/
 │   │   └── mos6502-nes.mk
 │   └── src/
 │       ├── common/           # string/mem 辅助、基于 _putc 的 printf-lite、am_mainargs
-│       ├── nemu/             # crt0、$F001-$F003 驱动、极简链接脚本
-│       └── nes/              # crt0、PPU/APU/手柄驱动、NROM 链接脚本、iNES 头
+│       ├── nemu/             # crt0、$F001-$F003 驱动、平坦链接脚本
+│       └── nes/              # crt0、$4018/$4019、NROM 链接脚本
 ├── apps/
 │   ├── hello/                # 输出一行、以 0 退出——冒烟测试
 │   ├── klaus/                # 下载外部二进制、补向量，不编译
@@ -375,7 +376,7 @@ make -C labs/am6502 test ARCH=mos6502-nes DUT=rtl # 需要 iverilog
 |---|---|---|---|
 | **M0** | 本文档 + 目录 + 索引条目 | 评审通过，不声称任何代码 | 随本次提交完成 |
 | **M1** | `mos6502-nemu` 打通：`hello`、`klaus` 包装、`tools/run.py` | `make test ARCH=mos6502-nemu` 在 `6502EMU` 上全绿；Klaus 在 `PC=$3469` 通过，且**用的是构建自己的 reset 向量**——**2026-11-16 已落地** | 1-2 周 |
-| **M2** | `mos6502-nes`：iNES 产出、`ines.py`、tb 观察 `$4018/$4019`、NEMU NES 模式解码 | 同一个 `hello.nes` 跑通 `6502EMU`、`gem6502`、RTL，画面非空，退出码 0 | 2-3 周 |
+| **M2** | `mos6502-nes`：iNES 产出、`ines.py`、tb 观察 `$4018/$4019`、NEMU NES 模式解码 | 同一个 `hello.nes` 跑通 `6502EMU`、`gem6502`、RTL，画面非空，退出码 0——**2026-11-16 已落地**（3/3/4 帧，整屏白） | 2-3 周 |
 | **M3** | DiffTest + CI：逐指令比对、失败报告、workflow | `make difftest APP=hello` 打印首个不同的指令；CI 跑 §10 的三行 | 2 周 |
 | 加分 | `mos65c02-nemu`、`nes-mmc3`（mapper 4）、`printf`/`malloc` 兼容层、把 `NEMU/nesgame` 迁到同一套 CRT | 各自独立有用，互不阻塞 | - |
 
