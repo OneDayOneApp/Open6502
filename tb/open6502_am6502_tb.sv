@@ -52,15 +52,19 @@ module open6502_am6502_tb;
   logic vsync_d = 1;
   logic [7:0] halt_code = 0;
   logic halt_seen = 0;
+  // The CPU holds bus_we for several clocks per store, so the host ports are
+  // edge-detected: one character per write, not one per clock.
+  logic putc_d = 0, halt_wr_d = 0;
 
   always @(posedge clk) begin
     cycles = cycles + 1;
-    if (dut.u_cpu.bus_we) begin
-      if (dut.u_cpu.bus_addr == 16'h4018) $write("%c", dut.u_cpu.bus_wdata);
-      if (dut.u_cpu.bus_addr == 16'h4019) begin
-        halt_code = dut.u_cpu.bus_wdata;
-        halt_seen = 1;
-      end
+    putc_d <= dut.u_cpu.bus_we && (dut.u_cpu.bus_addr == 16'h4018);
+    halt_wr_d <= dut.u_cpu.bus_we && (dut.u_cpu.bus_addr == 16'h4019);
+    if (dut.u_cpu.bus_we && !putc_d && dut.u_cpu.bus_addr == 16'h4018)
+      $write("%c", dut.u_cpu.bus_wdata);
+    if (dut.u_cpu.bus_we && !halt_wr_d && dut.u_cpu.bus_addr == 16'h4019) begin
+      halt_code = dut.u_cpu.bus_wdata;
+      halt_seen = 1;
     end
     if (vid_de) begin
       pixels = pixels + 1;
