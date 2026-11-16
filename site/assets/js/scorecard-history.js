@@ -69,21 +69,21 @@
       (lang === "zh" ? "香山对齐评分历史曲线" : "XiangShan alignment score history") + '">');
 
     [0, 20, 40, 60, 80, 100].forEach(function (v) {
-      out.push('<line class="history-grid" x1="' + L + '" y1="' + y(v) +
+      out.push('<line class="history-grid" stroke="#26303f" stroke-width="1" x1="' + L + '" y1="' + y(v) +
         '" x2="' + (W - R) + '" y2="' + y(v) + '"/>');
-      out.push('<text class="history-axis" x="' + (L - 10) + '" y="' + (y(v) + 3) +
+      out.push('<text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="' + (L - 10) + '" y="' + (y(v) + 3) +
         '" text-anchor="end">' + v + '</text>');
     });
 
-    out.push('<line class="history-target" x1="' + L + '" y1="' + y(HISTORY.target) +
+    out.push('<line class="history-target" stroke="#f4c66a" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.7" x1="' + L + '" y1="' + y(HISTORY.target) +
       '" x2="' + (W - R) + '" y2="' + y(HISTORY.target) + '"/>');
-    out.push('<text class="history-target-label" x="' + (W - R) + '" y="' +
+    out.push('<text class="history-target-label" fill="#f4c66a" font-size="9" font-family="Menlo,ui-monospace,monospace" x="' + (W - R) + '" y="' +
       (y(HISTORY.target) - 7) + '" text-anchor="end">' +
       (lang === "zh" ? "12 周目标 65–68" : "12-week target 65–68") + '</text>');
 
     if (points.length > 1) {
       var line = points.map(function (p, i) { return x(i) + "," + y(p.total); }).join(" ");
-      out.push('<polyline class="history-line" points="' + line + '"/>');
+      out.push('<polyline class="history-line" fill="none" stroke="#ff4d57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="' + line + '"/>');
     }
 
     points.forEach(function (p, i) {
@@ -94,10 +94,12 @@
       var scoreAnchor = first && !last ? "start" : last && !first ? "end" : "middle";
       var dateAnchor = first && !last ? "start" : last && !first ? "end" : "middle";
       out.push('<circle class="history-dot' + (last ? " history-dot--last" : "") +
-        '" cx="' + x(i) + '" cy="' + y(p.total) + '" r="' + (last ? 6.5 : 4.8) + '"/>');
-      out.push('<text class="history-score" x="' + scoreX + '" y="' + (y(p.total) - 13) +
+        '" fill="' + (last ? "#f4c66a" : "#06080c") + '" stroke="' +
+        (last ? "#f4c66a" : "#ff4d57") + '" stroke-width="2" cx="' + x(i) +
+        '" cy="' + y(p.total) + '" r="' + (last ? 6.5 : 4.8) + '"/>');
+      out.push('<text class="history-score" fill="#e9eff8" font-size="11" font-weight="600" font-family="Menlo,ui-monospace,monospace" x="' + scoreX + '" y="' + (y(p.total) - 13) +
         '" text-anchor="' + scoreAnchor + '">' + p.total.toFixed(1) + '</text>');
-      out.push('<text class="history-date" x="' + x(i) + '" y="' + (H - 20) +
+      out.push('<text class="history-date" fill="#7e8da2" font-size="10" font-family="Menlo,ui-monospace,monospace" x="' + x(i) + '" y="' + (H - 20) +
         '" text-anchor="' + dateAnchor + '">' + p.date + '</text>');
     });
 

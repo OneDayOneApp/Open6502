@@ -4430,10 +4430,16 @@ html[lang="en"] .section-head h2 em {
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
 }
 
+.history-chart {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .history-chart svg {
   display: block;
   width: 100%;
   height: auto;
+  forced-color-adjust: none;
 }
 
 .history-grid {
