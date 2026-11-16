@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased v1.5 (in progress)
+- Added a share row to every site page footer: native share sheet, X, Facebook, Reddit, Telegram, Hacker News and copy link. Links are real anchors built from each page's canonical URL (so they work without JavaScript), keep the current `#section`, and fall back to the canonical URL on localhost.
 - Added `skills/xiangshan-chip-flow`, a reusable XiangShan-style chip-design playbook distilled from Open6502: three loops, S0–S6 gates, one-image/multi-backend contract, lockstep DiffTest, CI/checkpoint discipline, FPGA/PDK checklists, 22 anti-patterns and copy-ready templates. Linked from both READMEs, `docs/README.md` and the site docs/learning pages.
 - Refreshed the XiangShan alignment scorecard on the site (34 → 46.8/100) after am6502 M1–M3, and added a score-history curve plus a per-update log (`docs/scorecard-history.md`). The chart is generated as static inline SVG by `site/tools/render-scorecard.js`, so it needs no page script and cannot be hidden by a stale cache. Corrected the stale "root licence unpublished" claim in `CONTRIBUTING.md` and the README gap summary.
 - Added `labs/am6502` design documents: an AM-style (nexus-am-inspired) image contract, `ARCH=mos6502-{nemu,nes}` matrix and TRM+IOE-only scope for 6502/NES, with M0–M3 milestones. Design stage only; no code yet.

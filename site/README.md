@@ -123,6 +123,23 @@ The wasm build is verified byte-for-byte against the native renderer with
 "Click to start", the frame counter advances at ~60 fps, `P` pauses only when
 the demo has focus, and the ROM selector can switch to the MMC3 titles.
 
+## Share buttons
+
+Every page footer carries a share row (`data-share`): the native share sheet
+where the browser supports one, X, Facebook, Reddit, Telegram, Hacker News and
+“copy link”. The current `#section` is kept in the shared URL.
+
+The row is plain `<a>` markup built from each page's canonical URL, so the
+network links still work with JavaScript off. `assets/js/site.js` re-points
+them at the live URL and page title, reveals the script-only native/copy
+buttons, and falls back to the canonical URL on localhost so a preview never
+shares `127.0.0.1`. Visible labels are localized in the markup; the toast and
+native-button strings live in the `STRINGS` table in `site.js`.
+
+To add a network, add a `data-share-network="<id>"` anchor to the footer block
+on every page and a URL builder to the `TARGETS` map in `site.js`. Keep the
+English and Chinese rows in sync.
+
 ## Structure
 
 ```text

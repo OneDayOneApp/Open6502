@@ -20,6 +20,8 @@
       compare: (value) => `${value}% 显示 RTL，${100 - value}% 显示 NEMU`,
       navOpen: "打开导航菜单",
       navClose: "关闭导航菜单",
+      shareNative: "更多分享",
+      shareCopied: "页面链接已复制",
     },
     en: {
       copied: "Copied",
@@ -29,6 +31,8 @@
       compare: (value) => `${value}% RTL, ${100 - value}% NEMU`,
       navOpen: "Open navigation menu",
       navClose: "Close navigation menu",
+      shareNative: "Share…",
+      shareCopied: "Page link copied",
     },
   };
   const t = STRINGS[LANG];
@@ -686,6 +690,83 @@
           /* Offline or rate limited: keep the plain Star label. */
         });
     }
+  }
+
+  /* ---------- Share this page ---------- */
+  /* The share links are real anchors in the markup, so they keep working if
+     this script fails; here they are re-pointed at the live URL (including the
+     current #section) and the page title. On localhost the canonical URL is
+     used instead, because sharing 127.0.0.1 would be useless. */
+  const shareWidgets = $$("[data-share]");
+  if (shareWidgets.length) {
+    const canonical = $('link[rel="canonical"]');
+    const isLocalHost = /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/.test(
+      location.hostname
+    );
+    const pageUrl = () =>
+      /^https?:$/.test(location.protocol) && !isLocalHost
+        ? location.href
+        : (canonical && canonical.href) || location.href;
+    const pageTitle = () => document.title.replace(/\s+/g, " ").trim();
+    const TARGETS = {
+      x: (url, text) =>
+        `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+      facebook: (url) =>
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      reddit: (url, text) =>
+        `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`,
+      telegram: (url, text) =>
+        `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+      hackernews: (url, text) =>
+        `https://news.ycombinator.com/submitlink?u=${encodeURIComponent(url)}&t=${encodeURIComponent(text)}`,
+    };
+
+    const refresh = (widget) => {
+      const url = pageUrl();
+      const text = pageTitle();
+      $$("[data-share-network]", widget).forEach((link) => {
+        const build = TARGETS[link.dataset.shareNetwork];
+        if (build) link.href = build(url, text);
+      });
+      return { url, text };
+    };
+
+    shareWidgets.forEach((widget) => {
+      refresh(widget);
+
+      const copyBtn = $("[data-share-copy]", widget);
+      if (copyBtn) {
+        copyBtn.hidden = false;
+        copyBtn.addEventListener("click", async () => {
+          const ok = await copyText(pageUrl());
+          toast(ok ? t.shareCopied : t.copyFail);
+          if (!ok) return;
+          const label = $(".share-copy-label", copyBtn);
+          if (!label) return;
+          const previous = label.textContent;
+          label.textContent = t.copied;
+          copyBtn.classList.add("is-copied");
+          window.setTimeout(() => {
+            label.textContent = previous;
+            copyBtn.classList.remove("is-copied");
+          }, 1600);
+        });
+      }
+
+      const nativeBtn = $("[data-share-native]", widget);
+      if (nativeBtn && typeof navigator.share === "function") {
+        nativeBtn.hidden = false;
+        nativeBtn.textContent = t.shareNative;
+        nativeBtn.addEventListener("click", () => {
+          const { url, text } = refresh(widget);
+          navigator.share({ title: text, text, url }).catch(() => {
+            /* The reader dismissed the sheet, or the host declined the share. */
+          });
+        });
+      }
+    });
+
+    window.addEventListener("hashchange", () => shareWidgets.forEach(refresh));
   }
 
   /* ---------- Footer year ---------- */
