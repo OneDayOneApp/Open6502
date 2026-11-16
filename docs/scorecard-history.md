@@ -1,8 +1,10 @@
 # 香山对齐评分：分数记录
 
-> 网页版曲线与下表同源：[site/assets/js/scorecard-history.js](../site/assets/js/scorecard-history.js)
-> 里的 `HISTORY` 数组驱动 [site/learn.zh.html](../site/learn.zh.html) 与
-> [site/learn.html](../site/learn.html) 的曲线和记录表。**改分时两处一起改，并核对八维表。**
+> 网页版曲线与下表同源：[site/tools/scorecard-history.js](../site/tools/scorecard-history.js)
+> 里的 `HISTORY` 数组，经 [site/tools/render-scorecard.js](../site/tools/render-scorecard.js)
+> 生成**静态 SVG + HTML**，写进 [site/learn.zh.html](../site/learn.zh.html) 与
+> [site/learn.html](../site/learn.html) 的 `score-history` 标记之间。
+> **改分时：改数据 → 跑生成器 → 更新本文件 → 核对八维表。**
 
 ## 口径
 
@@ -39,8 +41,9 @@
 
 ## 怎么加一个点
 
-1. 在 `site/assets/js/scorecard-history.js` 的 `HISTORY.points` 末尾追加：
+1. 在 `site/tools/scorecard-history.js` 的 `HISTORY.points` 末尾追加：
    `{ date, total, grade, summary: {zh,en}, changes: {zh:[...], en:[...]} }`；
-2. 同步本文件的「记录」表与明细；
-3. 更新 `site/learn.zh.html` / `site/learn.html` 的英雄区分数、八维表与 `<title>`/meta；
-4. `node -e` 冒烟一次图表（见仓库提交里的用法），再提交。
+2. 运行 `node site/tools/render-scorecard.js`，重新生成两页的静态曲线与记录表；
+3. 同步本文件的「记录」表与明细；
+4. 更新 `site/learn.zh.html` / `site/learn.html` 的英雄区分数、八维表与 `<title>`/meta；
+5. 打开页面（或 `node` 冒烟）确认曲线与表格，再提交。

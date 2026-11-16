@@ -1,9 +1,9 @@
-/* XiangShan alignment score history.
+/* XiangShan alignment score history: data + builders.
  *
- * Shared by site/learn.html and site/learn.zh.html: renders the curve and the
- * per-update log from one data array.  Add a point here, and in
- * docs/scorecard-history.md, whenever the scorecard is re-reviewed.  Keep the
- * numbers identical to the eight-dimension table on the pages.
+ * Build-time tool, not page script: site/tools/render-scorecard.js writes the
+ * static SVG and table into site/learn.html and site/learn.zh.html between the
+ * `score-history` markers.  Add a point here, run the renderer, and update
+ * docs/scorecard-history.md whenever the scorecard is re-reviewed.
  */
 (function (root) {
   "use strict";
@@ -127,32 +127,9 @@
       '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
-  function render() {
-    var nodes = document.querySelectorAll("[data-score-history]");
-    for (var i = 0; i < nodes.length; i++) {
-      var box = nodes[i];
-      var lang = box.getAttribute("data-lang") === "zh" ? "zh" : "en";
-      box.innerHTML =
-        '<div class="history-chart">' + chartSvg(HISTORY.points, lang) + '</div>' +
-        '<div class="table-wrap">' + tableHtml(HISTORY.points, lang) + '</div>';
-    }
-  }
-
-  if (typeof document === "undefined") {
-    // Node smoke test: require() gives the pure builders without touching the DOM.
-    if (typeof module !== "undefined") {
-      module.exports = {
-        HISTORY: HISTORY,
-        chartSvg: chartSvg,
-        tableHtml: tableHtml
-      };
-    }
-    return;
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", render);
-  } else {
-    render();
-  }
+  module.exports = {
+    HISTORY: HISTORY,
+    chartSvg: chartSvg,
+    tableHtml: tableHtml
+  };
 })(typeof globalThis !== "undefined" ? globalThis : this);

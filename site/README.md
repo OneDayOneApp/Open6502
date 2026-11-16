@@ -49,16 +49,19 @@ declares `hreflang` alternates and a matching canonical URL.
 ### Scorecard history
 
 The XiangShan alignment scorecard on `learn.html` / `learn.zh.html` carries a
-score-history curve and a per-update log. The data and the SVG/table builders
-live in `assets/js/scorecard-history.js`; the human-readable log is
-`../docs/scorecard-history.md`. To add a review point, append to
-`HISTORY.points` there and update both pages' hero number and eight-dimension
-table. The script also exports its builders, so a quick check is:
+score-history curve and a per-update log. It is **static**: `tools/scorecard-history.js`
+holds the data and the SVG/table builders, and `tools/render-scorecard.js`
+writes the result into both pages between the `score-history` markers. No page
+script is involved, so a stale JS cache cannot hide the chart.
+
+To add a review point: append to `HISTORY.points`, then
 
 ```sh
-node -e 'const m = require("./site/assets/js/scorecard-history.js");
-console.log(m.chartSvg(m.HISTORY.points, "zh").length)'
+node site/tools/render-scorecard.js
 ```
+
+and update both pages' hero number, eight-dimension table and
+`../docs/scorecard-history.md`.
 
 ## Interactive WebAssembly demo
 
