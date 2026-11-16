@@ -20,6 +20,14 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/"/>
   </url>
   <url>
+    <loc>https://onedayoneapp.github.io/Open6502/chip-lab.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/chip-lab.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/chip-lab.html"/>
+  </url>
+  <url>
     <loc>https://onedayoneapp.github.io/Open6502/learn.html</loc>
     <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>

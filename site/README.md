@@ -22,6 +22,10 @@ Pages from the `site/` directory on `main`.
   a 12-week route, the transfer boundaries and a link to the reusable
   chip-flow skill. Redirects Chinese locales to `learn.zh.html`.
 - `learn.zh.html` — Chinese learning path with the same structure.
+- `chip-lab.html` — **Chinese-only** classroom deck for primary school
+  students: 16 web slides from “what is a chip” to RTL, verification,
+  tapeout and the Open6502 case, plus speaker notes, a quiz bank, a mini
+  glossary. No build step and no external JS dependencies.
 - `nesearch.html` — **English default** product page for the nesearch desktop
   app: feature tour, screenshots, data sources, quick start, requirements and
   the macOS Apple Silicon download. Redirects Chinese locales to
@@ -182,6 +186,7 @@ site/
 ├── docs.en.html        # explicit English docs alias (no auto-detect)
 ├── learn.html          # learning path + XiangShan scorecard (default, auto-detects zh)
 ├── learn.zh.html       # Chinese learning path
+├── chip-lab.html       # Chinese-only primary-school chip-lab slide deck
 ├── nesearch.html       # nesearch product page (default, auto-detects zh)
 ├── nesearch.zh.html    # Chinese nesearch product page
 ├── nesearch.en.html    # explicit English nesearch alias
@@ -194,7 +199,10 @@ site/
     ├── css/site.css
     ├── css/play.css        # styles for the in-page emulator
     ├── css/nesearch.css    # styles for the nesearch product page
+    ├── css/chip-lab.css    # styles for the chip-lab web deck
+    ├── chip-lab/           # OG cover for the chip-lab deck
     ├── js/site.js          # progressive enhancement only
+    ├── js/chip-lab.js      # web-deck navigation, notes, overview, quiz
     ├── play/               # wasm, player.js, bundled ROMs
     ├── img/nesearch/       # product screenshots
     └── img/                # logo, favicon, screenshots, frames

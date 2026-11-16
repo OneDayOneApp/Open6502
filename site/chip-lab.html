@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>一颗芯片是怎么长大的？| Open6502 芯片小课堂</title>
+  <meta name="description" content="给小学生的一堂芯片研发科普课：从沙子到晶圆，从 RTL 到流片，用 16 页网页幻灯片讲清楚芯片是怎么设计、验证和制造出来的。">
+  <meta name="theme-color" content="#06080c">
+  <meta name="color-scheme" content="dark">
+  <!-- Google Tag Manager -->
+  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-WGT7D54Q"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    document.documentElement.classList.add('js');
+  </script>
+
+  <link rel="canonical" href="https://onedayoneapp.github.io/Open6502/chip-lab.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/chip-lab.html">
+  <link rel="alternate" hreflang="x-default" href="https://onedayoneapp.github.io/Open6502/chip-lab.html">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Open6502">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="一颗芯片是怎么长大的？| Open6502 芯片小课堂">
+  <meta property="og:description" content="用 16 页网页幻灯片，给小学生讲清楚芯片是什么、怎么设计、怎么验证，以及 Open6502 正在做什么。">
+  <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/chip-lab.html">
+  <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/chip-lab/og-cover.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="720">
+  <meta property="og:image:alt" content="芯片小课堂封面：一颗芯片，是怎么长大的？">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一颗芯片是怎么长大的？| Open6502 芯片小课堂">
+  <meta name="twitter:description" content="给小学生的一堂芯片研发科普课：从沙子到晶圆，从 RTL 到流片。">
+  <meta name="twitter:image" content="https://onedayoneapp.github.io/Open6502/assets/chip-lab/og-cover.png">
+  <meta name="twitter:image:alt" content="芯片小课堂封面：一颗芯片，是怎么长大的？">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/chip-lab.css">
+  <script src="assets/js/site.js" defer></script>
+  <script src="assets/js/chip-lab.js" defer></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": "一颗芯片是怎么长大的？",
+    "description": "给小学生的一堂芯片研发科普课：从沙子到晶圆，从 RTL 到流片，用 16 页网页幻灯片讲清楚芯片是怎么设计、验证和制造出来的。",
+    "inLanguage": "zh-CN",
+    "educationalLevel": "小学 4–6 年级",
+    "learningResourceType": "Presentation",
+    "teaches": ["芯片是什么", "芯片研发流程", "验证与流片", "Open6502 开源芯片案例"],
+    "url": "https://onedayoneapp.github.io/Open6502/chip-lab.html",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Open6502",
+      "url": "https://onedayoneapp.github.io/Open6502/"
+    }
+  }
+  </script>
+</head>
+<body class="chip-lab-page">
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WGT7D54Q"
+    height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>
+
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="page-bg" aria-hidden="true"></div>
+
+  <header class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.zh.html" aria-label="Open6502 首页">
+        <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+        <span class="brand-text">
+          <span class="brand-name">OPEN6502</span>
+          <span class="brand-sub">6502 / NES SoC</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="主导航">
+        <a class="nav-link" href="index.zh.html#emulator">试玩</a>
+        <a class="nav-link" href="index.zh.html#games">游戏</a>
+        <a class="nav-link" href="index.zh.html#status">进度</a>
+        <a class="nav-link" href="index.zh.html#architecture">架构</a>
+        <a class="nav-link" href="docs.zh.html">技术文档</a>
+        <a class="nav-link" href="learn.zh.html">学习路径</a>
+        <a class="nav-link" href="chip-lab.html" aria-current="page">芯片课堂</a>
+        <a class="nav-link" href="nesearch.zh.html">nesearch</a>
+        <a class="nav-link" href="index.zh.html#contribute">参与</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="nav-lang" href="index.en.html" hreflang="en" lang="en" data-lang-switch aria-label="View the English site">EN</a>
+        <a class="nav-gh" href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener" aria-label="在 GitHub 上查看 Open6502">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.79 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></svg>
+          <span>Star</span>
+          <span class="nav-gh-stars" data-gh-stars hidden></span>
+        </a>
+        <a class="btn btn--ghost btn--sm nav-download" href="https://github.com/OneDayOneApp/Open6502/releases/download/nesearch-v0.2.0/nesearch-0.2.0-macos-arm64.zip" aria-label="下载 nesearch macOS 版（Apple Silicon）">下载</a>
+        <a class="btn btn--primary btn--sm" href="nesearch/">搜索游戏</a>
+        <button class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="打开导航菜单">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="nav-mobile" id="mobile-nav">
+      <a href="index.zh.html#emulator">试玩</a>
+      <a href="index.zh.html#games">游戏</a>
+      <a href="index.zh.html#status">进度</a>
+      <a href="index.zh.html#architecture">架构</a>
+      <a href="docs.zh.html">技术文档</a>
+      <a href="learn.zh.html">学习路径</a>
+      <a href="chip-lab.html" aria-current="page">芯片课堂</a>
+      <a href="nesearch.zh.html">nesearch</a>
+      <a href="index.zh.html#contribute">参与</a>
+      <a href="index.en.html" hreflang="en" lang="en" data-lang-switch>English</a>
+      <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub 仓库 ↗ <span class="nav-gh-stars" data-gh-stars hidden></span></a>
+      <a class="btn btn--ghost" href="https://github.com/OneDayOneApp/Open6502/releases/download/nesearch-v0.2.0/nesearch-0.2.0-macos-arm64.zip">下载 macOS 版</a>
+      <a class="btn btn--primary" href="nesearch/">搜索游戏</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="lab-hero" aria-labelledby="lab-title">
+      <div class="container lab-hero-grid">
+        <div>
+          <span class="eyebrow">Open6502 · 芯片小课堂</span>
+          <h1 id="lab-title">一颗芯片，<br>是怎么<span class="hl">长大</span>的？</h1>
+          <p class="lab-lede">
+            给小学生的一堂芯片研发科普课。我们不背名词，而是把芯片想成一座小城市：
+            看它怎么从一粒沙、一张图纸，长成会玩游戏、会画画、会发声的“小脑瓜”。
+          </p>
+          <div class="lab-meta" aria-label="课程信息">
+            <span class="lab-pill lab-pill--red"><i class="dot"></i>16 页网页幻灯片</span>
+            <span class="lab-pill">约 30 分钟</span>
+            <span class="lab-pill">建议 4–6 年级</span>
+            <span class="lab-pill">可全屏演示</span>
+          </div>
+          <div class="lab-actions">
+            <a class="btn btn--primary" href="#deck" data-start-deck>
+              开始播放
+              <svg class="arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <aside class="lab-hero-aside" aria-label="课堂速览">
+          <div class="mini-label"><span class="dot"></span>CLASS OVERVIEW</div>
+          <h2>这堂课，我们只回答四个问题。</h2>
+          <p>每个问题都配一张图、一个比喻，还有一道可以讨论的小问题。</p>
+          <div class="lab-goals">
+            <div class="lab-goal"><b>01</b><span><strong>芯片是什么？</strong> 把几亿个“小开关”装进指甲盖。</span></div>
+            <div class="lab-goal"><b>02</b><span><strong>芯片怎么设计？</strong> 从想法、规格书，到 RTL 和仿真。</span></div>
+            <div class="lab-goal"><b>03</b><span><strong>怎么证明它没做错？</strong> 让软件模型和硬件设计逐帧“找不同”。</span></div>
+            <div class="lab-goal"><b>04</b><span><strong>你能做什么？</strong> 从二进制、Scratch 和一颗好奇心开始。</span></div>
+          </div>
+          <div class="lab-hero-note">老师 / 家长：每页都带“讲稿”，点工具栏的“讲稿”即可展开。</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="lab-deck-section" id="deck" aria-label="芯片小课堂幻灯片">
+      <div class="container">
+        <div class="deck" data-deck>
+          <div class="deck-toolbar">
+            <div class="deck-brand"><i></i><span>OPEN6502 · 芯片小课堂</span></div>
+            <div class="deck-tools">
+              <button class="deck-btn" type="button" data-deck-prev aria-label="上一页">←</button>
+              <span class="deck-counter" data-deck-counter aria-live="polite">01 / 16</span>
+              <button class="deck-btn" type="button" data-deck-next aria-label="下一页">→</button>
+              <button class="deck-btn" type="button" data-deck-overview-open aria-haspopup="dialog">目录</button>
+              <button class="deck-btn" type="button" data-deck-notes-toggle aria-pressed="false">讲稿</button>
+              <button class="deck-btn" type="button" data-deck-fullscreen aria-pressed="false">全屏</button>
+            </div>
+          </div>
+
+          <div class="deck-stage" data-deck-stage>
+            <!-- 01 · Cover -->
+            <section class="slide slide--cover is-active" data-slide-title="封面：一颗芯片是怎么长大的？" aria-label="第 1 页：封面">
+              <div class="slide-inner">
+                <div class="cover-copy">
+                  <div class="slide-topline"><span>OPEN6502 · 芯片小课堂</span><span class="slide-index">01 / 16</span></div>
+                  <div class="slide-kicker">CHIP LAB · 给小小工程师</div>
+                  <h1>一颗芯片，<br>是怎么<span class="hl">长大</span>的？</h1>
+                  <p class="cover-sub">给小学生的一堂芯片研发课</p>
+                  <p class="cover-desc">从一粒沙，到一座会思考的小城市。</p>
+                  <div class="cover-meta">
+                    <span>16 页</span><span>约 30 分钟</span><span>4–6 年级</span><span>← → 翻页</span>
+                  </div>
+                </div>
+
+                <div class="chip-art" aria-hidden="true">
+                  <span class="float-tag tag-a">CPU · PPU · APU · RAM</span>
+                  <span class="float-tag tag-b">OPEN SILICON / 6502</span>
+                  <svg viewBox="0 0 440 440" role="img" aria-label="一颗芯片的示意图：中间是芯片裸片，四周是引脚">
+                    <defs>
+                      <filter id="chipGlow" x="-40%" y="-40%" width="180%" height="180%">
+                        <feGaussianBlur stdDeviation="7" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                      </filter>
+                      <linearGradient id="chipDieGradient" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#0b1018"/>
+                        <stop offset="1" stop-color="#06080c"/>
+                      </linearGradient>
+                    </defs>
+                    <g transform="rotate(-7 220 220)">
+                      <g fill="#f4c66a" opacity=".62">
+                        <rect x="80" y="42" width="12" height="26" rx="2"/><rect x="116" y="42" width="12" height="26" rx="2"/><rect x="152" y="42" width="12" height="26" rx="2"/><rect x="188" y="42" width="12" height="26" rx="2"/><rect x="224" y="42" width="12" height="26" rx="2"/><rect x="260" y="42" width="12" height="26" rx="2"/><rect x="296" y="42" width="12" height="26" rx="2"/><rect x="332" y="42" width="12" height="26" rx="2"/>
+                        <rect x="80" y="372" width="12" height="26" rx="2"/><rect x="116" y="372" width="12" height="26" rx="2"/><rect x="152" y="372" width="12" height="26" rx="2"/><rect x="188" y="372" width="12" height="26" rx="2"/><rect x="224" y="372" width="12" height="26" rx="2"/><rect x="260" y="372" width="12" height="26" rx="2"/><rect x="296" y="372" width="12" height="26" rx="2"/><rect x="332" y="372" width="12" height="26" rx="2"/>
+                        <rect x="42" y="80" width="26" height="12" rx="2"/><rect x="42" y="116" width="26" height="12" rx="2"/><rect x="42" y="152" width="26" height="12" rx="2"/><rect x="42" y="188" width="26" height="12" rx="2"/><rect x="42" y="224" width="26" height="12" rx="2"/><rect x="42" y="260" width="26" height="12" rx="2"/><rect x="42" y="296" width="26" height="12" rx="2"/><rect x="42" y="332" width="26" height="12" rx="2"/>
+                        <rect x="372" y="80" width="26" height="12" rx="2"/><rect x="372" y="116" width="26" height="12" rx="2"/><rect x="372" y="152" width="26" height="12" rx="2"/><rect x="372" y="188" width="26" height="12" rx="2"/><rect x="372" y="224" width="26" height="12" rx="2"/><rect x="372" y="260" width="26" height="12" rx="2"/><rect x="372" y="296" width="26" height="12" rx="2"/><rect x="372" y="332" width="26" height="12" rx="2"/>
+                      </g>
+                      <rect x="70" y="70" width="300" height="300" rx="30" fill="#101722" stroke="#2a3444" stroke-width="2"/>
+                      <rect x="102" y="102" width="236" height="236" rx="14" fill="url(#chipDieGradient)" stroke="#ff4d57" stroke-width="2" filter="url(#chipGlow)"/>
+                      <g stroke="#2a3444" stroke-width=".8" opacity=".85">
+                        <path d="M102 140h236M102 180h236M102 220h236M102 260h236M102 300h236M140 102v236M180 102v236M220 102v236M260 102v236M300 102v236"/>
+                      </g>
+                      <rect x="120" y="120" width="86" height="72" rx="6" fill="#ff4d57"/>
+                      <rect x="234" y="120" width="86" height="72" rx="6" fill="#8fb7ff"/>
+                      <rect x="120" y="248" width="86" height="72" rx="6" fill="#6ee7a8"/>
+                      <rect x="234" y="248" width="86" height="72" rx="6" fill="#f4c66a"/>
+                      <path d="M206 156h28M206 284h28M220 192v56" stroke="#e9eff8" stroke-width="2" opacity=".5"/>
+                      <text x="163" y="162" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#160407">CPU</text>
+                      <text x="277" y="162" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#06080c">PPU</text>
+                      <text x="163" y="290" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#06080c">APU</text>
+                      <text x="277" y="290" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#160407">RAM</text>
+                      <text x="220" y="226" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#e9eff8" letter-spacing="2">OPEN6502</text>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+              <div class="slide-note" hidden>先别急着讲定义。可以问孩子：你见过的“会动、会亮、会响”的东西里，哪些可能藏着芯片？这页只负责抛出一个大问题：一颗芯片到底是怎么被做出来的？</div>
+            </section>
+
+            <!-- 02 · Where -->
+            <section class="slide" data-slide-title="芯片藏在哪里？" aria-label="第 2 页：芯片藏在哪里">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>01 · 先找一找</span><span class="slide-index">02 / 16</span></div>
+                <div class="slide-kicker">EVERYWHERE</div>
+                <h2 class="slide-title">芯片，藏在哪里？</h2>
+                <p class="slide-lead">如果没有芯片，世界会怎样？先别急着回答。找一找：你身边哪些东西会“思考”、会“控制”、会“记住”？</p>
+                <div class="slide-body">
+                  <div class="where-grid">
+                    <div class="where-card lab-card lab-card--blue">
+                      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10.5 18.5h3"/></svg></div>
+                      <div><h3>手机</h3><p>拍照、上网、导航</p></div>
+                    </div>
+                    <div class="where-card lab-card lab-card--green">
+                      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="7" width="8" height="10" rx="2"/><path d="M9 7V4h6v3M9 17v3h6v-3"/></svg></div>
+                      <div><h3>手表</h3><p>看时间、测心跳</p></div>
+                    </div>
+                    <div class="where-card lab-card lab-card--red">
+                      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15h16M5 15l1.4-4.5A2 2 0 0 1 8.3 9h7.4a2 2 0 0 1 1.9 1.5L19 15v3H5v-3Z"/><circle cx="7.5" cy="18" r="1.3"/><circle cx="16.5" cy="18" r="1.3"/></svg></div>
+                      <div><h3>汽车</h3><p>控制发动机、刹车</p></div>
+                    </div>
+                    <div class="where-card lab-card lab-card--amber">
+                      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M5 10h14M8 6h2M8 14h2"/></svg></div>
+                      <div><h3>冰箱</h3><p>调温度、省电</p></div>
+                    </div>
+                    <div class="where-card lab-card lab-card--red">
+                      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.9 4.9l-1 4.2a2.2 2.2 0 0 1-3.8 1L14 16h-4l-2.1 2.1a2.2 2.2 0 0 1-3.8-1l-1-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="16" cy="11.5" r=".7"/><circle cx="18" cy="13.5" r=".7"/></svg></div>
+                      <div><h3>游戏机</h3><p>画面、声音、手柄</p></div>
+                    </div>
+                    <div class="where-card lab-card lab-card--green">
+                      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M4 12h16M8 8V6a4 4 0 0 1 8 0v2M10 15h4"/></svg></div>
+                      <div><h3>电饭煲</h3><p>控制火候</p></div>
+                    </div>
+                  </div>
+                  <div class="lab-note"><strong>芯片不神秘：</strong>它只是把“开关”做得非常非常小。小到一根头发丝里，能放下成千上万个开关。</div>
+                </div>
+                <div class="slide-footnote">小问题：如果把这些东西里的芯片都拿走，哪一个会最先“罢工”？</div>
+              </div>
+              <div class="slide-note" hidden>让孩子先列举，不要急着纠正。手机、手表、汽车、冰箱、游戏机、电饭煲只是引子。重点是把“芯片”从神秘的黑盒子，拉回到日常物品里。</div>
+            </section>
+
+            <!-- 03 · What is a chip -->
+            <section class="slide" data-slide-title="一座“指甲盖上的城市”" aria-label="第 3 页：芯片是什么">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>02 · 芯片是什么</span><span class="slide-index">03 / 16</span></div>
+                <div class="slide-kicker">A CITY ON A FINGERNAIL</div>
+                <h2 class="slide-title">一座“指甲盖上的城市”</h2>
+                <p class="slide-lead">把芯片放大，你会看到一座规划得整整齐齐的城市：有指挥中心、仓库、画家、音乐家，还有无数条道路。</p>
+                <div class="slide-body">
+                  <div class="chip-city">
+                    <div class="chip-city-art">
+                      <svg viewBox="0 0 420 340" role="img" aria-label="芯片内部示意图：CPU、PPU、APU、RAM 四个模块由总线连接">
+                        <defs>
+                          <filter id="cityGlow" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur stdDeviation="6" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                          </filter>
+                        </defs>
+                        <rect x="54" y="34" width="312" height="272" rx="22" fill="#101722" stroke="#2a3444" stroke-width="2"/>
+                        <rect x="84" y="64" width="252" height="212" rx="10" fill="#06080c" stroke="#ff4d57" stroke-width="2" filter="url(#cityGlow)"/>
+                        <g stroke="#2a3444" stroke-width=".8" opacity=".8">
+                          <path d="M84 104h252M84 144h252M84 184h252M84 224h252M124 64v212M164 64v212M204 64v212M244 64v212M284 64v212"/>
+                        </g>
+                        <rect x="100" y="82" width="86" height="58" rx="5" fill="#ff4d57"/>
+                        <rect x="234" y="82" width="86" height="58" rx="5" fill="#8fb7ff"/>
+                        <rect x="100" y="190" width="86" height="58" rx="5" fill="#6ee7a8"/>
+                        <rect x="234" y="190" width="86" height="58" rx="5" fill="#f4c66a"/>
+                        <path d="M186 111h48M186 219h48M210 140v50M210 170v20" stroke="#e9eff8" stroke-width="2" opacity=".45"/>
+                        <text x="143" y="116" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#160407">CPU</text>
+                        <text x="143" y="132" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#160407">指挥中心</text>
+                        <text x="277" y="116" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#06080c">PPU</text>
+                        <text x="277" y="132" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#06080c">画家</text>
+                        <text x="143" y="224" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#06080c">RAM</text>
+                        <text x="143" y="240" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#06080c">仓库</text>
+                        <text x="277" y="224" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#160407">APU</text>
+                        <text x="277" y="240" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#160407">音乐家</text>
+                        <text x="210" y="286" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="8" fill="#7e8da2" letter-spacing="1">BUS · 0 / 1</text>
+                      </svg>
+                    </div>
+                    <div class="chip-city-cards">
+                      <div class="chip-feature">
+                        <span class="n">01</span>
+                        <div><h3>晶体管 = 小开关</h3><p>现代芯片里有几十亿个开关；每个只有“开”和“关”两种状态。开就是 1，关就是 0。</p></div>
+                      </div>
+                      <div class="chip-feature">
+                        <span class="n">02</span>
+                        <div><h3>导线 = 道路</h3><p>把 0 和 1 的信号，送到需要它的地方。路修得越好，信号跑得越快。</p></div>
+                      </div>
+                      <div class="chip-feature">
+                        <span class="n">03</span>
+                        <div><h3>模块 = 街区</h3><p>CPU、内存、图形、声音，各有各的工作，又通过总线互相说话。</p></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="binary-strip"><span>开 = 1，关 = 0：</span><b>1</b><b>0</b><b>1</b><b>0</b><span>两个数字，就能写出游戏、音乐和整座城市。</span></div>
+                </div>
+                <div class="slide-footnote">芯片不是“画”出来的，而是用一层层材料“做”出来的。下一站：从沙子开始。</div>
+              </div>
+              <div class="slide-note" hidden>晶体管不用讲得太深，先把它当成“电控小开关”。可以让孩子用手指比划：开是 1，关是 0。很多开关排在一起，就能表示数字、文字、图片和声音。补充一个对比：现代处理器有几十亿个晶体管，而 6502 只有几千个，但已经足够跑游戏。</div>
+            </section>
+
+            <!-- 04 · Sand to wafer -->
+            <section class="slide" data-slide-title="从一粒沙，到一片“硅圆饼”" aria-label="第 4 页：从沙到晶圆">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>03 · 从沙到硅</span><span class="slide-index">04 / 16</span></div>
+                <div class="slide-kicker">FROM SAND TO SILICON</div>
+                <h2 class="slide-title">从一粒沙，到一片“硅圆饼”</h2>
+                <p class="slide-lead">芯片的“地基”是硅。硅藏在沙子里，但要先提纯、拉成硅锭、切成薄片，才能变成晶圆。</p>
+                <div class="slide-body">
+                  <div class="sand-flow" aria-label="从沙子到晶圆的五个步骤">
+                    <div class="sand-step"><span class="sn">01</span><h3>沙子</h3><p>主要成分是二氧化硅</p></div>
+                    <div class="sand-step"><span class="sn">02</span><h3>提纯硅</h3><p>纯度做到 99.9999999%</p></div>
+                    <div class="sand-step"><span class="sn">03</span><h3>硅锭</h3><p>拉成一根圆柱</p></div>
+                    <div class="sand-step"><span class="sn">04</span><h3>切片</h3><p>切成薄薄的圆片</p></div>
+                    <div class="sand-step"><span class="sn">05</span><h3>晶圆</h3><p>像一张大披萨</p></div>
+                  </div>
+                  <div class="sand-bottom">
+                    <div class="wafer-art" aria-hidden="true">
+                      <svg viewBox="0 0 260 260">
+                        <defs><clipPath id="waferClip"><circle cx="130" cy="130" r="96"/></clipPath></defs>
+                        <circle cx="130" cy="130" r="108" fill="#101722" stroke="#2a3444" stroke-width="2"/>
+                        <g clip-path="url(#waferClip)">
+                          <rect x="20" y="20" width="220" height="220" fill="#0a1018"/>
+                          <g stroke="#2a3444" stroke-width="1">
+                            <path d="M34 34h192v192H34zM58 34v192M82 34v192M106 34v192M130 34v192M154 34v192M178 34v192M202 34v192M34 58h192M34 82h192M34 106h192M34 130h192M34 154h192M34 178h192M34 202h192"/>
+                          </g>
+                          <g fill="#ff4d57" opacity=".22">
+                            <rect x="58" y="58" width="24" height="24"/><rect x="106" y="82" width="24" height="24"/><rect x="154" y="58" width="24" height="24"/><rect x="82" y="130" width="24" height="24"/><rect x="178" y="154" width="24" height="24"/>
+                          </g>
+                        </g>
+                        <circle cx="130" cy="130" r="96" fill="none" stroke="#ff4d57" stroke-width="2"/>
+                        <circle cx="196" cy="196" r="5" fill="#06080c" stroke="#f4c66a" stroke-width="2"/>
+                        <text x="130" y="246" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#97a5b9" letter-spacing="1">300 mm WAFER</text>
+                      </svg>
+                    </div>
+                    <div class="fact-list">
+                      <div class="fact-item"><i></i><p><strong>硅是地壳里第二多的元素。</strong>沙子、石头里都有它，但要做芯片，必须提纯到非常非常干净。</p></div>
+                      <div class="fact-item"><i></i><p><strong>一片晶圆，能切出几百到几千颗芯片。</strong>每颗芯片只占晶圆上一个小小的方格。</p></div>
+                      <div class="fact-item"><i></i><p><strong>为什么要在无尘室？</strong>一粒灰尘落在晶圆上，就可能毁掉一颗芯片。</p></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="slide-footnote">小问题：如果一颗灰尘就能毁掉芯片，工程师进车间前要穿什么？</div>
+              </div>
+              <div class="slide-note" hidden>沙子的主要成分是二氧化硅，硅是地壳中第二多的元素。电子级硅的纯度可以做到 99.9999999%（9 个 9）。晶圆像一张大披萨，每一小块就是一颗芯片。可以让孩子猜猜：为什么要穿无尘服？</div>
+            </section>
+
+            <!-- 05 · SoC map -->
+            <section class="slide" data-slide-title="一颗芯片里，住着一支“乐队”" aria-label="第 5 页：芯片里的模块">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>04 · 芯片里的乐队</span><span class="slide-index">05 / 16</span></div>
+                <div class="slide-kicker">INSIDE THE SOC</div>
+                <h2 class="slide-title">一颗芯片里，住着一支“乐队”</h2>
+                <p class="slide-lead">每个模块都有自己的工作。它们通过“总线”交换消息，就像乐队看着同一个节拍。</p>
+                <div class="slide-body">
+                  <div class="soc-map" aria-label="Open6502 SoC 模块示意图">
+                    <div class="soc-node soc-node--cpu"><h3>CPU</h3><p>读指令、做计算、发号施令</p><span class="tag">指挥</span></div>
+                    <div class="soc-node"><h3>卡带</h3><p>装着游戏程序和数据</p><span class="tag">故事书</span></div>
+                    <div class="soc-node"><h3>手柄</h3><p>把“上、下、A、B”告诉芯片</p><span class="tag">感官</span></div>
+                    <div class="soc-bus">总线 BUS · 大家一起走同一条路</div>
+                    <div class="soc-node soc-node--ram"><h3>RAM</h3><p>临时记住正在用的数据</p><span class="tag">仓库</span></div>
+                    <div class="soc-node soc-node--ppu"><h3>PPU</h3><p>把图块拼成 256×240 的画面</p><span class="tag">画家</span></div>
+                    <div class="soc-node soc-node--apu"><h3>APU</h3><p>发出方波、三角波和噪声</p><span class="tag">音乐家</span></div>
+                  </div>
+                  <div class="soc-roles" aria-label="一句话记住每个模块">
+                    <span>CPU 指挥</span><span>PPU 画画</span><span>APU 配乐</span><span>RAM 记台词</span><span>卡带讲故事</span><span>手柄听你的</span>
+                  </div>
+                  <div class="lab-note"><strong>8 位是什么意思？</strong>CPU 一次处理 8 个二进制位，能表示 0–255。别小看它，1980 年代的游戏机就是用它跑出整个童年。</div>
+                </div>
+                <div class="slide-footnote">小问题：如果 CPU 是指挥，PPU 是画家，那“总线”更像什么？</div>
+              </div>
+              <div class="slide-note" hidden>可以把 SoC 想成一支乐队：CPU 是指挥，PPU 是画家，APU 是音乐家，RAM 是仓库，卡带是故事书，手柄是感官。总线就是大家共用的排练厅和节拍。8 位 CPU 一次处理 0–255，这个数字可以让孩子记住。</div>
+            </section>
+
+            <!-- 06 · Six steps -->
+            <section class="slide" data-slide-title="做一颗芯片，像盖一座城市" aria-label="第 6 页：芯片研发六步">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>05 · 研发流程</span><span class="slide-index">06 / 16</span></div>
+                <div class="slide-kicker">THE SIX STEPS</div>
+                <h2 class="slide-title">做一颗芯片，像盖一座城市</h2>
+                <p class="slide-lead">先想清楚要盖什么，再画图纸、写说明书、做模型、反复检查，最后才交给工厂。芯片研发，也是这六步。</p>
+                <div class="slide-body">
+                  <div class="step-grid">
+                    <div class="step-card"><span class="num">01</span><h3>想法</h3><p>它要解决什么问题？给谁用？先有一个好问题。</p></div>
+                    <div class="step-card"><span class="num">02</span><h3>规格</h3><p>要会什么、不能做什么、花多少成本，都写清楚。</p></div>
+                    <div class="step-card"><span class="num">03</span><h3>写 RTL</h3><p>用硬件语言描述电路：谁和谁连、什么时候动。</p></div>
+                    <div class="step-card"><span class="num">04</span><h3>仿真</h3><p>先在电脑里“虚拟制造”，跑几百万次也不花钱。</p></div>
+                    <div class="step-card"><span class="num">05</span><h3>验证</h3><p>和参考模型逐项对比，像侦探一样找不同。</p></div>
+                    <div class="step-card"><span class="num">06</span><h3>制造</h3><p>综合、布局布线、流片、封装、测试，才真正变成芯片。</p></div>
+                  </div>
+                  <div class="lab-note"><strong>设计只是上半场。</strong>验证和制造，才是下半场。一颗芯片从想法到量产，常常要走 2–5 年。</div>
+                </div>
+                <div class="slide-footnote">小问题：如果只能保留一步，你会保留“写 RTL”还是“验证”？为什么？</div>
+              </div>
+              <div class="slide-note" hidden>六步不用让孩子全记住，先建立“先设计、再验证、最后制造”的顺序感。可以用盖房子打比方：想法是“要盖什么”，规格是图纸，RTL 是施工说明，仿真是模型，验证是验收，制造是真正开工。</div>
+            </section>
+
+            <!-- 07 · Idea & spec -->
+            <section class="slide" data-slide-title="第一步：先想清楚“它要会什么？”" aria-label="第 7 页：想法与规格">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>06 · 想法与规格</span><span class="slide-index">07 / 16</span></div>
+                <div class="slide-kicker">IDEA → SPEC</div>
+                <h2 class="slide-title">第一步：先想清楚“它要会什么？”</h2>
+                <p class="slide-lead">芯片不是“什么都想要”。规格书就是一张“愿望清单 + 边界”：既要写清楚能做什么，也要写清楚不做什么。</p>
+                <div class="slide-body">
+                  <div class="spec-grid">
+                    <div class="lab-card lab-card--red idea-card">
+                      <div>
+                        <div class="lab-label">THE IDEA</div>
+                        <p class="idea-quote" style="margin-top:12px">做一颗<strong>能玩 NES 游戏</strong>的芯片，让童年跑进一颗芯片。</p>
+                      </div>
+                      <p style="font-size:.78rem">这句话听起来很简单，但它会决定后面每一个选择：要多快？要多小？要花多少钱？</p>
+                    </div>
+                    <div>
+                      <div class="spec-table" role="table" aria-label="Open6502 规格表示例">
+                        <div class="spec-row" role="row"><dt role="cell">指令集</dt><dd role="cell">6502，8 位</dd></div>
+                        <div class="spec-row" role="row"><dt role="cell">画面</dt><dd role="cell">256 × 240，图块 + 精灵</dd></div>
+                        <div class="spec-row" role="row"><dt role="cell">声音</dt><dd role="cell">5 个声音通道</dd></div>
+                        <div class="spec-row" role="row"><dt role="cell">输入</dt><dd role="cell">2 个手柄</dd></div>
+                        <div class="spec-row" role="row"><dt role="cell">工艺目标</dt><dd role="cell">55nm（长期目标）</dd></div>
+                        <div class="spec-row" role="row"><dt role="cell">面积 / 成本</dt><dd role="cell">越小越好，越省越好</dd></div>
+                      </div>
+                      <p style="margin-top:10px;color:var(--muted);font-size:.72rem;line-height:1.6">注：55nm 是 Open6502 的长期流片目标，不是当前已经完成的工艺。</p>
+                    </div>
+                  </div>
+                  <div class="lab-note"><strong>做芯片不能“全都要”。</strong>想要更快，可能要更大；想要更省电，可能要慢一点。工程师的工作，就是在限制里做选择。</div>
+                </div>
+                <div class="slide-footnote">小问题：如果让你设计一颗“校园芯片”，它最必须会哪三件事？</div>
+              </div>
+              <div class="slide-note" hidden>这一页可以让孩子先写“愿望清单”，再删到只剩三条。规格书不是越厚越好，而是越清楚越好。顺便强调：55nm 是长期目标，不是已经完成的芯片。</div>
+            </section>
+
+            <!-- 08 · RTL -->
+            <section class="slide" data-slide-title="第三步：用“硬件语言”写下电路" aria-label="第 8 页：RTL 硬件语言">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>07 · 写 RTL</span><span class="slide-index">08 / 16</span></div>
+                <div class="slide-kicker">WRITE THE HARDWARE</div>
+                <h2 class="slide-title">第三步：用“硬件语言”写下电路</h2>
+                <p class="slide-lead">软件像写步骤，硬件像画电路。Verilog / SystemVerilog 就是芯片工程师的“画笔”。</p>
+                <div class="slide-body">
+                  <div class="rtl-grid">
+                    <div>
+                      <pre class="code-block" aria-label="一段简单的 SystemVerilog 代码"><code><span class="c-com">// 每个时钟上升沿，如果写使能为 1</span>
+<span class="c-kw">always</span> @(<span class="c-fn">posedge</span> clk) <span class="c-kw">begin</span>
+  <span class="c-kw">if</span> (we)
+    mem[addr] &lt;= din;
+<span class="c-kw">end</span></code></pre>
+                      <div class="waveform" aria-hidden="true">
+                        <svg viewBox="0 0 400 84">
+                          <text x="4" y="18" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#97a5b9">clk</text>
+                          <path d="M36 18h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22" fill="none" stroke="#8fb7ff" stroke-width="1.6"/>
+                          <text x="4" y="48" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#97a5b9">we</text>
+                          <path d="M36 48h66v-10h72v10h72v-10h72v10h72" fill="none" stroke="#6ee7a8" stroke-width="1.6"/>
+                          <text x="4" y="74" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#97a5b9">mem</text>
+                          <path d="M36 74h66v-8h72v8h72v-8h72v8h72" fill="none" stroke="#f4c66a" stroke-width="1.6"/>
+                          <line x1="36" y1="80" x2="388" y2="80" stroke="#2a3444" stroke-width=".8"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="rtl-points">
+                      <div class="rtl-point"><span class="k">01</span><p><strong>不是“指令表”，是“电路说明书”。</strong>它描述的是电线怎么连、寄存器什么时候更新。</p></div>
+                      <div class="rtl-point"><span class="k">02</span><p><strong>软件一步一步，硬件同时工作。</strong>很多电路会在同一个时钟节拍一起动。</p></div>
+                      <div class="rtl-point"><span class="k">03</span><p><strong>写错一行，可能整颗芯片都受影响。</strong>所以后面才需要仿真和验证。</p></div>
+                    </div>
+                  </div>
+                  <div class="lab-note"><strong>时钟就像节拍器。</strong>“时钟上升沿”就是大家一起迈出下一步的那一刻。芯片里的很多动作，都跟着这个节拍走。</div>
+                </div>
+                <div class="slide-footnote">小问题：如果软件是“按顺序做”，硬件为什么可以“同时做”？</div>
+              </div>
+              <div class="slide-note" hidden>不需要让孩子学会 Verilog，只要知道它和 Scratch 不一样：Scratch 是一步一步执行，硬件语言是在描述“电路长什么样、什么时候一起动”。时钟就是节拍器，上升沿就是大家一起迈步的那一刻。</div>
+            </section>
+
+            <!-- 09 · Simulation -->
+            <section class="slide" data-slide-title="第四步：先在电脑里“虚拟制造”" aria-label="第 9 页：仿真">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>08 · 仿真</span><span class="slide-index">09 / 16</span></div>
+                <div class="slide-kicker">SIMULATE FIRST</div>
+                <h2 class="slide-title">第四步：先在电脑里“虚拟制造”</h2>
+                <p class="slide-lead">在真正流片之前，工程师会先让设计在电脑里跑起来。改一行代码、再跑一遍，比重新做一颗芯片便宜太多了。</p>
+                <div class="slide-body">
+                  <div class="sim-grid">
+                    <div class="sim-flow" aria-label="仿真流程：测试激励进入设计，输出结果和波形">
+                      <div class="sim-box"><span class="n">01</span><div><h3>测试激励</h3><p>给芯片输入一组“题目”：复位、读内存、按手柄。</p></div></div>
+                      <div class="sim-arrow" aria-hidden="true"></div>
+                      <div class="sim-box"><span class="n">02</span><div><h3>DUT · 被测设计</h3><p>把 RTL 放进仿真器，让它按节拍一步一步跑。</p></div></div>
+                      <div class="sim-arrow" aria-hidden="true"></div>
+                      <div class="sim-box"><span class="n">03</span><div><h3>结果与波形</h3><p>看输出对不对，再看每一根信号什么时候变。</p></div></div>
+                    </div>
+                    <div class="sim-side">
+                      <div class="lab-card lab-card--blue">
+                        <div class="lab-label lab-label--blue">像飞机模拟器</div>
+                        <h3>先在地面练熟，再真正起飞。</h3>
+                        <p>不用真的做出一颗芯片，就能试几百万次。发现 bug 时，改代码、重跑，成本很低。</p>
+                      </div>
+                      <div class="lab-card lab-card--amber">
+                        <div class="lab-label lab-label--amber">但是……</div>
+                        <h3>仿真通过 ≠ 芯片一定正确。</h3>
+                        <p>测试写漏了，bug 就可能溜过去。所以还需要下一关：验证。</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lab-note"><strong>仿真不是“跑一次看看”。</strong>工程师会写很多测试，覆盖正常情况、边界情况和“故意捣乱”的情况。</div>
+                </div>
+                <div class="slide-footnote">小问题：为什么不在电脑里多跑几次，而是要做真芯片？因为真芯片还要考虑速度、功耗、发热和制造。</div>
+              </div>
+              <div class="slide-note" hidden>仿真就像飞机模拟器：先在地面练熟，不用真的起飞。给芯片输入测试激励，让 RTL 跑起来，再看输出和波形。强调“仿真通过不等于一定正确”，为下一页验证做铺垫。</div>
+            </section>
+
+            <!-- 10 · Verification -->
+            <section class="slide" data-slide-title="第五步：像侦探一样“找不同”" aria-label="第 10 页：验证">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>09 · 验证</span><span class="slide-index">10 / 16</span></div>
+                <div class="slide-kicker">VERIFY LIKE A DETECTIVE</div>
+                <h2 class="slide-title">第五步：像侦探一样“找不同”</h2>
+                <p class="slide-lead">一个人写答案，另一个人检查。Open6502 用两个“选手”跑同一款游戏：软件参考模型 NEMU，和硬件设计 RTL。</p>
+                <div class="slide-body">
+                  <div class="verify-panels">
+                    <div class="verify-panel lab-card lab-card--blue">
+                      <div class="lab-label lab-label--blue">REFERENCE</div>
+                      <h3>NEMU · 软件参考模型</h3>
+                      <div class="sub">先写一个能玩的模拟器</div>
+                      <p>它用 C 语言实现同一套 6502 / NES 行为，跑起来快、改起来方便，是“参考答案”。</p>
+                    </div>
+                    <div class="verify-eq" aria-hidden="true">=</div>
+                    <div class="verify-panel lab-card lab-card--red">
+                      <div class="lab-label">DUT</div>
+                      <h3>RTL · 硬件设计</h3>
+                      <div class="sub">再用 SystemVerilog 写一遍</div>
+                      <p>它描述真正要变成芯片的电路。每一帧画面、每一个状态，都要和参考模型对上。</p>
+                    </div>
+                  </div>
+                  <div class="verify-stats">
+                    <div class="verify-stat"><b>28 PASS</b><span>RTL 回归测试通过</span></div>
+                    <div class="verify-stat"><b>Klaus PASS</b><span>CPU 指令测试通过</span></div>
+                    <div class="verify-stat"><b>SHA 41e8…5a33</b><span>标题帧与 NEMU 逐字节一致</span></div>
+                  </div>
+                  <div class="lab-note"><strong>锁步 DiffTest：</strong>两个人同时走迷宫，每走一步就对照一次。谁走错了，立刻就能发现。</div>
+                </div>
+                <div class="slide-footnote">数据来自 Open6502 最近一次公开验证（2026-11-11）。这不是一颗已经完成的芯片，但每个“通过”都有可复现的证据。</div>
+              </div>
+              <div class="slide-note" hidden>验证是芯片研发里最花时间、也最容易被低估的部分。可以把它比作“两个选手跑同一款游戏，每一帧都比对”。NEMU 是软件参考模型，RTL 是硬件设计。28 项测试、Klaus 和帧哈希一致，都是“参考答案和正式答案对上了”的证据。</div>
+            </section>
+
+            <!-- 11 · Tapeout -->
+            <section class="slide" data-slide-title="第六步：把代码变成“真正的图纸”" aria-label="第 11 页：综合、布局与流片">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>10 · 走向工厂</span><span class="slide-index">11 / 16</span></div>
+                <div class="slide-kicker">SYNTHESIS → TAPEOUT</div>
+                <h2 class="slide-title">第六步：把代码变成“真正的图纸”</h2>
+                <p class="slide-lead">RTL 是“做什么”，综合是“用哪些门实现”，布局布线是“零件放在哪、线怎么走”，最后变成工厂能读的 GDS。</p>
+                <div class="slide-body">
+                  <div class="tapeout-flow" aria-label="从 RTL 到流片的四个步骤">
+                    <div class="tapeout-step"><span class="n">01</span><h3>RTL</h3><p>人写的电路说明书：功能、时序、接口。</p><span class="out">.sv / .v</span></div>
+                    <div class="tapeout-step"><span class="n">02</span><h3>综合</h3><p>翻译成门电路：与门、或门、触发器。</p><span class="out">netlist</span></div>
+                    <div class="tapeout-step"><span class="n">03</span><h3>布局布线</h3><p>给几百万个零件安排座位，再把线连好。</p><span class="out">layout</span></div>
+                    <div class="tapeout-step"><span class="n">04</span><h3>GDS / 流片</h3><p>工厂能读的“超精确打印文件”，送去制造。</p><span class="out">GDSII</span></div>
+                  </div>
+                  <div class="lab-grid-3" style="margin-top:13px">
+                    <div class="lab-card lab-card--red"><div class="lab-label">WHY 55NM?</div><h3>不是越先进越好。</h3><p>对 6502/NES 这样的芯片，55nm 已经足够，而且更便宜、更容易验证。先做对，再做大。</p></div>
+                    <div class="lab-card lab-card--amber"><div class="lab-label lab-label--amber">TAPEOUT</div><h3>流片 = 把设计送去工厂。</h3><p>一次流片很贵，所以能先在电脑里验证的，绝不留到工厂。</p></div>
+                    <div class="lab-card lab-card--green"><div class="lab-label lab-label--green">CHECK</div><h3>流片前还要过很多关。</h3><p>时序、功耗、DRC、LVS、DFT……每一关都在问：真的准备好了吗？</p></div>
+                  </div>
+                </div>
+                <div class="slide-footnote">小问题：为什么“布局布线”不能随便把零件放在一起？因为线太长，信号就会变慢。</div>
+              </div>
+              <div class="slide-note" hidden>这一页讲“从代码到工厂”的翻译过程。综合是把 RTL 翻译成门电路，布局布线是安排位置和连线，GDS 是工厂能读的版图文件。强调 55nm 是项目目标，不是“越先进越好”。</div>
+            </section>
+
+            <!-- 12 · Fab -->
+            <section class="slide" data-slide-title="在工厂里，用光“画”出芯片" aria-label="第 12 页：芯片制造">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>11 · 制造</span><span class="slide-index">12 / 16</span></div>
+                <div class="slide-kicker">LIGHT DRAWS THE CHIP</div>
+                <h2 class="slide-title">在工厂里，用光“画”出芯片</h2>
+                <p class="slide-lead">光刻像一台超级投影仪：光穿过光罩，把图案缩得很小很小，印在涂了光刻胶的晶圆上。一层一层，重复几十次。</p>
+                <div class="slide-body">
+                  <div class="fab-grid">
+                    <div class="fab-steps">
+                      <div class="fab-step"><span class="n">01</span><div><h3>涂胶</h3><p>在晶圆表面涂上一层对光敏感的光刻胶。</p></div></div>
+                      <div class="fab-step"><span class="n">02</span><div><h3>曝光</h3><p>光穿过光罩，把电路图案投影到晶圆上。</p></div></div>
+                      <div class="fab-step"><span class="n">03</span><div><h3>显影 / 刻蚀</h3><p>洗掉被光照过（或没照过）的部分，留下图案。</p></div></div>
+                      <div class="fab-step"><span class="n">04</span><div><h3>重复几十层</h3><p>再涂胶、再曝光、再刻蚀，把三维结构叠出来。</p></div></div>
+                    </div>
+                    <div class="fab-art" aria-hidden="true">
+                      <svg viewBox="0 0 340 300">
+                        <rect x="96" y="16" width="148" height="56" rx="5" fill="#101722" stroke="#8fb7ff" stroke-width="1.5"/>
+                        <g stroke="#8fb7ff" stroke-width="1" opacity=".55">
+                          <path d="M112 24v40M128 24v40M144 24v40M160 24v40M176 24v40M192 24v40M208 24v40M224 24v40"/>
+                        </g>
+                        <text x="170" y="88" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="10" fill="#8fb7ff">光罩</text>
+                        <g stroke="#f4c66a" stroke-width="1.5" stroke-dasharray="5 4" opacity=".8">
+                          <path d="M110 78l-38 74M140 78l-18 74M170 78v74M200 78l18 74M230 78l38 74"/>
+                        </g>
+                        <text x="170" y="166" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#f4c66a">光</text>
+                        <ellipse cx="170" cy="214" rx="112" ry="42" fill="#101722" stroke="#2a3444" stroke-width="1.5"/>
+                        <ellipse cx="170" cy="202" rx="112" ry="42" fill="#0a1018" stroke="#ff4d57" stroke-width="1.5"/>
+                        <g stroke="#2a3444" stroke-width=".8">
+                          <path d="M78 202h184M96 186h148M96 218h148"/>
+                        </g>
+                        <ellipse cx="170" cy="202" rx="112" ry="42" fill="none" stroke="#ff4d57" stroke-width="1.5"/>
+                        <text x="170" y="278" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#97a5b9" letter-spacing="1">WAFER · LAYER BY LAYER</text>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="fab-facts">
+                    <div class="fab-fact"><b>无尘室</b><span>一粒灰尘就可能毁掉一颗芯片</span></div>
+                    <div class="fab-fact"><b>几百道工序</b><span>光刻、刻蚀、沉积、清洗……</span></div>
+                    <div class="fab-fact"><b>2–3 个月</b><span>一颗芯片可能要走很久</span></div>
+                    <div class="fab-fact"><b>一层一层</b><span>不是打印一次，而是叠出来的</span></div>
+                  </div>
+                </div>
+                <div class="slide-footnote">小问题：为什么芯片工厂要建得那么贵？因为要控制灰尘、温度、震动和化学品的纯度。</div>
+              </div>
+              <div class="slide-note" hidden>光刻可以比作“用光画画”：光穿过光罩，把图案缩小印到晶圆上。芯片不是一次打印出来的，而是几十层图案一层层叠出来的。可以让孩子想想：为什么工厂里要穿成“太空人”一样？</div>
+            </section>
+
+            <!-- 13 · Open6502 -->
+            <section class="slide" data-slide-title="我们正在做一颗真的芯片：Open6502" aria-label="第 13 页：Open6502 案例">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>12 · 真实案例</span><span class="slide-index">13 / 16</span></div>
+                <div class="slide-kicker">A REAL OPEN-SOURCE CHIP</div>
+                <h2 class="slide-title">我们正在做一颗真的芯片：Open6502</h2>
+                <p class="slide-lead">它不是玩具，也不是已经完成的成品。它是一颗正在生长的开源 6502/NES SoC：有 CPU、PPU、APU、总线和验证。</p>
+                <div class="slide-body">
+                  <div class="open-grid">
+                    <div class="lab-card lab-card--red">
+                      <div class="lab-label">OPEN SILICON</div>
+                      <h3 style="font-size:1.25rem">一颗小芯片，五脏俱全。</h3>
+                      <p>从能玩的 NEMU 模拟器，到 SystemVerilog RTL，再到长期 55nm 流片目标。设计、代码、测试都公开，任何人都能检查、学习、帮忙。</p>
+                      <div class="open-facts">
+                        <span>6502 CPU · 1975</span><span>NES 兼容 SoC</span><span>SystemVerilog RTL</span><span>NEMU 参考模型</span><span>长期目标 55nm</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="status-list" aria-label="Open6502 当前进度">
+                        <div class="status-row"><span class="name">NEMU 参考模型</span><span class="bar"><i style="width:90%"></i></span><span class="pct">90%</span></div>
+                        <div class="status-row"><span class="name">RTL SoC</span><span class="bar"><i style="width:60%"></i></span><span class="pct">60%</span></div>
+                        <div class="status-row"><span class="name">FPGA 原型</span><span class="bar"><i style="width:10%"></i></span><span class="pct">10%</span></div>
+                        <div class="status-row"><span class="name">55nm ASIC</span><span class="bar"><i style="width:5%"></i></span><span class="pct">5%</span></div>
+                      </div>
+                      <div class="open-honest"><strong>诚实是工程的一部分。</strong>它还不是一颗成品芯片。我们把“还没做到”也写进官网，因为知道边界，才知道下一步往哪走。</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="slide-footnote">数据来自 Open6502 README / STATUS，最后验证 2026-11-11。进度百分比是工程进度，不是流片完成度。</div>
+              </div>
+              <div class="slide-note" hidden>这一页把前面讲的东西落到真实项目上。Open6502 有 NEMU 参考模型、RTL、测试和 55nm 目标，但它还不是成品。可以特别指出“诚实”：把没做到的部分也写出来，是工程师很重要的品质。</div>
+            </section>
+
+            <!-- 14 · What can you do -->
+            <section class="slide" data-slide-title="想成为芯片工程师？从今天开始" aria-label="第 14 页：你能做什么">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>13 · 你能做什么</span><span class="slide-index">14 / 16</span></div>
+                <div class="slide-kicker">START SMALL, START NOW</div>
+                <h2 class="slide-title">想成为芯片工程师？从今天开始</h2>
+                <p class="slide-lead">不需要现在就学 Verilog。先把数学、科学、英语和好奇心练好，再从小项目开始。</p>
+                <div class="slide-body">
+                  <div class="do-grid">
+                    <div class="do-card"><span class="n">01</span><h3>玩二进制</h3><p>用 0 和 1 写出自己的名字，看看电脑怎么“读”它。</p></div>
+                    <div class="do-card"><span class="n">02</span><h3>学 Scratch / Python</h3><p>先让电脑听你的话，再理解“程序”是什么。</p></div>
+                    <div class="do-card"><span class="n">03</span><h3>拆旧电器</h3><p>在大人陪同下看看里面有什么。别通电，先观察。</p></div>
+                    <div class="do-card"><span class="n">04</span><h3>玩逻辑门</h3><p>Minecraft 红石、逻辑积木，都能搭出“与、或、非”。</p></div>
+                    <div class="do-card"><span class="n">05</span><h3>试试 Arduino / FPGA</h3><p>让一盏灯亮起来，就是最小型的“硬件项目”。</p></div>
+                    <div class="do-card"><span class="n">06</span><h3>画芯片城市</h3><p>设计自己的 SoC：CPU 在哪？内存在哪？总线怎么走？</p></div>
+                  </div>
+                  <div class="superpowers" aria-label="芯片工程师的四种超能力">
+                    <span>好奇心</span><span>耐心</span><span>合作</span><span>诚实</span>
+                  </div>
+                  <div class="lab-note"><strong>最重要的一步：</strong>遇到不懂的，先问“为什么”，再动手试。芯片就是这样一层一层被想清楚的。</div>
+                </div>
+                <div class="slide-footnote">小问题：上面六件事里，你最想先试哪一件？为什么？</div>
+              </div>
+              <div class="slide-note" hidden>不要让孩子觉得“芯片工程师”遥不可及。二进制、Scratch、拆旧电器、红石、Arduino、画芯片城市，都是入口。最后落到四种超能力：好奇心、耐心、合作、诚实。</div>
+            </section>
+
+            <!-- 15 · Quiz -->
+            <section class="slide" data-slide-title="小测验：你记住多少？" aria-label="第 15 页：课堂小测验">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>14 · 课堂互动</span><span class="slide-index">15 / 16</span></div>
+                <div class="slide-kicker">QUICK QUIZ</div>
+                <h2 class="slide-title">小测验：你记住多少？</h2>
+                <p class="slide-lead">先自己选，再点“揭晓答案”。答错也没关系，重要的是说出“为什么”。</p>
+                <div class="slide-body">
+                  <div class="quiz-grid">
+                    <div class="quiz-card">
+                      <div class="q">1. 芯片里最小的“开关”叫什么？</div>
+                      <div class="quiz-options"><span>A. 晶体管</span><span>B. 电容</span><span>C. 电线</span></div>
+                      <button class="quiz-toggle" type="button" data-quiz-toggle aria-expanded="false" aria-controls="quiz-a1">揭晓答案</button>
+                      <p class="quiz-answer" id="quiz-a1" hidden>答案：A。晶体管像一个小开关，开是 1，关是 0。</p>
+                    </div>
+                    <div class="quiz-card">
+                      <div class="q">2. 把设计送去工厂生产，叫什么？</div>
+                      <div class="quiz-options"><span>A. 打包</span><span>B. 流片</span><span>C. 打印</span></div>
+                      <button class="quiz-toggle" type="button" data-quiz-toggle aria-expanded="false" aria-controls="quiz-a2">揭晓答案</button>
+                      <p class="quiz-answer" id="quiz-a2" hidden>答案：B。流片（tapeout）就是把设计交给工厂制造。</p>
+                    </div>
+                    <div class="quiz-card">
+                      <div class="q">3. 为什么验证这么重要？</div>
+                      <div class="quiz-options"><span>A. 因为流片很贵</span><span>B. 因为好看</span><span>C. 因为可以少写代码</span></div>
+                      <button class="quiz-toggle" type="button" data-quiz-toggle aria-expanded="false" aria-controls="quiz-a3">揭晓答案</button>
+                      <p class="quiz-answer" id="quiz-a3" hidden>答案：A。流片一次很贵，发现问题越早，代价越小。</p>
+                    </div>
+                    <div class="quiz-card">
+                      <div class="q">4. 一个开关能表示几种状态？</div>
+                      <div class="quiz-options"><span>A. 1 种</span><span>B. 2 种</span><span>C. 10 种</span></div>
+                      <button class="quiz-toggle" type="button" data-quiz-toggle aria-expanded="false" aria-controls="quiz-a4">揭晓答案</button>
+                      <p class="quiz-answer" id="quiz-a4" hidden>答案：B。开和关，也就是 1 和 0。很多开关组合起来，就能表示更多信息。</p>
+                    </div>
+                  </div>
+                  <div class="lab-note"><strong>加分题：</strong>如果一颗芯片有 1 亿个晶体管，每个晶体管都能“开”或“关”，那它能表示多少种组合？——这个问题没有简单答案，但足够让工程师忙上很多年。</div>
+                </div>
+                <div class="slide-footnote">老师提示：可以先让孩子举手选，再点开答案。重点不是答对，而是解释“为什么”。</div>
+              </div>
+              <div class="slide-note" hidden>答案：1-A 晶体管；2-B 流片；3-A 因为流片很贵；4-B 两种，开和关。加分题没有要求算出具体数字，重点是让孩子感受“组合爆炸”。</div>
+            </section>
+
+            <!-- 16 · Closing -->
+            <section class="slide slide--closing" data-slide-title="下一颗芯片，也许由你设计" aria-label="第 16 页：结尾">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>15 · 结尾</span><span class="slide-index">16 / 16</span></div>
+                <div class="slide-kicker">THE NEXT CHIP COULD BE YOURS</div>
+                <h2>下一颗芯片，<br>也许由你设计。</h2>
+                <p class="quote">芯片不是魔法。它是一层层想清楚、一次次检查、一点点做出来的。<br>今天你知道了它怎么长大；明天，也许就轮到你把它做出来。</p>
+                <div class="closing-links">
+                  <a href="index.zh.html">项目官网</a>
+                  <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub ↗</a>
+                  <a href="docs.zh.html">技术文档</a>
+                  <a href="learn.zh.html">学习路径</a>
+                  <a href="nesearch.zh.html">nesearch</a>
+                </div>
+                <div class="closing-sig">OPEN6502 · 把童年，跑进一颗芯片</div>
+              </div>
+              <div class="slide-note" hidden>最后回到那句话：芯片不是魔法，是一层层做出来的。可以让孩子说说今天最惊讶的一件事，或者最想继续了解的问题。然后鼓励他们：下一颗芯片，也许真的由你设计。</div>
+            </section>
+          </div>
+
+          <div class="deck-progress" aria-hidden="true"><span data-deck-progress></span></div>
+          <div class="deck-caption">
+            <span data-deck-caption>封面：一颗芯片是怎么长大的？</span>
+            <span class="hint">← → 翻页 · F 全屏 · O 目录 · N 讲稿</span>
+          </div>
+          <aside class="deck-notes" data-deck-notes hidden aria-live="polite">
+            <div class="notes-label">讲解提示</div>
+            <p data-deck-note>点“讲稿”查看每一页的教学提示。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="lab-section" aria-labelledby="teacher-title">
+      <div class="container">
+        <div class="lab-section-head">
+          <div>
+            <div class="lab-label">FOR TEACHERS &amp; PARENTS</div>
+            <h2 id="teacher-title">怎么把这堂课用起来？</h2>
+            <p>不需要提前学芯片知识。按“看 → 问 → 做”三步走，孩子就能从故事里抓住几个真正重要的概念。</p>
+          </div>
+        </div>
+        <div class="teacher-grid">
+          <div class="teacher-card">
+            <div class="n">STEP 01</div>
+            <h3>看：先完整放一遍</h3>
+            <p>用全屏模式播放，每页停留 1–2 分钟。遇到图多的地方，让孩子先猜，再解释。</p>
+            <ul><li>建议 30 分钟含互动</li><li>低年级可只看 1–5 页</li><li>高年级可加第 8–10 页</li></ul>
+          </div>
+          <div class="teacher-card">
+            <div class="n">STEP 02</div>
+            <h3>问：每页都有一个小问题</h3>
+            <p>不要急着给答案。先让孩子说，再把“讲稿”里的提示读出来。</p>
+            <ul><li>芯片藏在哪里？</li><li>为什么流片很贵？</li><li>验证为什么像“找不同”？</li></ul>
+          </div>
+          <div class="teacher-card">
+            <div class="n">STEP 03</div>
+            <h3>做：用 10 分钟动手</h3>
+            <p>选一个活动：用 0/1 写名字、画一张芯片城市图，或者把旧电器里的电路板画下来。</p>
+            <ul><li>纸笔即可，不需要设备</li><li>鼓励标注“CPU / 内存 / 总线”</li><li>最后让孩子讲 1 分钟</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lab-section" aria-labelledby="quiz-title">
+      <div class="container">
+        <div class="lab-section-head">
+          <div>
+            <div class="lab-label">QUIZ BANK</div>
+            <h2 id="quiz-title">课后小测验</h2>
+            <p>点开每一题看答案。可以打印出来，也可以课堂上口头抢答。</p>
+          </div>
+        </div>
+        <div class="quiz-bank">
+          <details><summary>芯片里最小的开关叫什么？</summary><p>晶体管。它可以“开”或“关”，分别表示 1 和 0。</p></details>
+          <details><summary>从沙子到晶圆，中间要经过哪些步骤？</summary><p>提纯硅 → 拉成硅锭 → 切片 → 晶圆。之后还要在晶圆上做几十层电路。</p></details>
+          <details><summary>RTL 和软件程序最大的不同是什么？</summary><p>软件通常一步一步执行；RTL 描述的是电路，很多部分可以在同一个时钟节拍同时工作。</p></details>
+          <details><summary>为什么流片之前要做仿真和验证？</summary><p>因为流片很贵，而且做错了很难改。仿真和验证能尽早发现 bug，降低风险。</p></details>
+          <details><summary>Open6502 现在是一颗完成的芯片吗？</summary><p>不是。它有可玩的模拟器、RTL 和测试，但 FPGA 原型和 55nm 流片还没完成。</p></details>
+          <details><summary>一个 8 位 CPU 一次能表示多少个数？</summary><p>0–255，一共 256 个数。8 个二进制位，每个位有 0 或 1 两种状态。</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="lab-section" aria-labelledby="glossary-title">
+      <div class="container">
+        <div class="lab-section-head">
+          <div>
+            <div class="lab-label">MINI GLOSSARY</div>
+            <h2 id="glossary-title">小词典：八个词就够了</h2>
+            <p>如果孩子只记住八个词，这堂课就没白上。</p>
+          </div>
+        </div>
+        <dl class="glossary-grid">
+          <div class="glossary-item"><dt>晶体管</dt><dd>芯片里最小的“电控开关”，开=1，关=0。</dd></div>
+          <div class="glossary-item"><dt>晶圆</dt><dd>用来做芯片的圆形硅片，像一张大披萨。</dd></div>
+          <div class="glossary-item"><dt>RTL</dt><dd>用硬件语言写成的电路设计，描述“电路怎么连”。</dd></div>
+          <div class="glossary-item"><dt>仿真</dt><dd>在电脑里先让设计跑起来，不用真的做芯片。</dd></div>
+          <div class="glossary-item"><dt>验证</dt><dd>用测试和参考模型检查设计有没有做错。</dd></div>
+          <div class="glossary-item"><dt>流片</dt><dd>把设计送去工厂制造，英文叫 tapeout。</dd></div>
+          <div class="glossary-item"><dt>光刻</dt><dd>用光把电路图案印到晶圆上，像超级投影仪。</dd></div>
+          <div class="glossary-item"><dt>SoC</dt><dd>System on Chip，把 CPU、内存、图形等装进一颗芯片。</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="lab-section" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="lab-cta">
+          <div>
+            <div class="lab-label">KEEP EXPLORING</div>
+            <h2 id="cta-title">想看一颗芯片真正的样子？</h2>
+            <p>去官网试玩 NES 模拟器，或者读一读 Open6502 的技术文档和学习路径。</p>
+          </div>
+          <div class="lab-actions">
+            <a class="btn btn--primary" href="index.zh.html#emulator">去试玩</a>
+            <a class="btn btn--ghost" href="learn.zh.html">看学习路径</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="deck-overview" data-deck-overview hidden role="dialog" aria-modal="true" aria-labelledby="overview-title">
+    <div class="deck-overview-panel">
+      <div class="deck-overview-head">
+        <h2 id="overview-title">幻灯片目录</h2>
+        <button class="deck-btn" type="button" data-deck-overview-close>关闭</button>
+      </div>
+      <div class="deck-overview-grid" data-deck-overview-grid></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="index.zh.html" aria-label="Open6502 首页">
+            <img class="brand-mark" src="assets/img/brand-mark.svg" alt="" width="34" height="34">
+            <span class="brand-text">
+              <span class="brand-name">OPEN6502</span>
+              <span class="brand-sub">Open silicon · from emulator to silicon</span>
+            </span>
+          </a>
+          <p>一个 6502/NES 兼容的开源 SoC 项目：先做一个能玩的软件参考模型，再把同一颗芯片写进 SystemVerilog，最后走向 55nm。</p>
+          <div class="footer-links">
+            <a href="https://github.com/OneDayOneApp/Open6502" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/README.zh-CN.md" target="_blank" rel="noopener">中文 README</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CHANGELOG.md" target="_blank" rel="noopener">更新日志</a>
+            <a href="https://github.com/OneDayOneApp/Open6502/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">贡献指南</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>课堂</h4>
+          <ul>
+            <li><a href="#deck">幻灯片</a></li>
+            <li><a href="#teacher-title">教师指南</a></li>
+            <li><a href="#quiz-title">课后测验</a></li>
+            <li><a href="#glossary-title">小词典</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>深入</h4>
+          <ul>
+            <li><a href="docs.zh.html#architecture">系统架构</a></li>
+            <li><a href="docs.zh.html#verification">验证体系</a></li>
+            <li><a href="docs.zh.html#difftest">DiffTest</a></li>
+            <li><a href="docs.zh.html#tapeout">55nm 路线</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>项目</h4>
+          <ul>
+            <li><a href="index.zh.html#roadmap">路线图</a></li>
+            <li><a href="index.zh.html#status">当前进度</a></li>
+            <li><a href="learn.zh.html">学习路径</a></li>
+            <li><a href="https://github.com/OneDayOneApp/Open6502/tree/main/roms" target="_blank" rel="noopener">ROM 与许可证 ↗</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-share" data-share>
+        <span class="share-label">分享此页</span>
+        <div class="share-actions">
+          <button class="share-btn" type="button" data-share-native hidden>更多分享</button>
+          <a class="share-btn" data-share-network="x" href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fonedayoneapp.github.io%2FOpen6502%2Fchip-lab.html&amp;text=%E4%B8%80%E9%A2%97%E8%8A%AF%E7%89%87%E6%98%AF%E6%80%8E%E4%B9%88%E9%95%BF%E5%A4%A7%E7%9A%84%EF%BC%9F%20%E2%80%94%20Open6502%20%E8%8A%AF%E7%89%87%E5%B0%8F%E8%AF%BE%E5%A0%82" target="_blank" rel="noopener" aria-label="分享到 X（Twitter）">X</a>
+          <a class="share-btn" data-share-network="facebook" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fonedayoneapp.github.io%2FOpen6502%2Fchip-lab.html" target="_blank" rel="noopener" aria-label="分享到 Facebook">Facebook</a>
+          <a class="share-btn" data-share-network="reddit" href="https://www.reddit.com/submit?url=https%3A%2F%2Fonedayoneapp.github.io%2FOpen6502%2Fchip-lab.html&amp;title=%E4%B8%80%E9%A2%97%E8%8A%AF%E7%89%87%E6%98%AF%E6%80%8E%E4%B9%88%E9%95%BF%E5%A4%A7%E7%9A%84%EF%BC%9F" target="_blank" rel="noopener" aria-label="分享到 Reddit">Reddit</a>
+          <a class="share-btn" data-share-network="telegram" href="https://t.me/share/url?url=https%3A%2F%2Fonedayoneapp.github.io%2FOpen6502%2Fchip-lab.html&amp;text=%E4%B8%80%E9%A2%97%E8%8A%AF%E7%89%87%E6%98%AF%E6%80%8E%E4%B9%88%E9%95%BF%E5%A4%A7%E7%9A%84%EF%BC%9F" target="_blank" rel="noopener" aria-label="分享到 Telegram">Telegram</a>
+          <a class="share-btn" data-share-network="hackernews" href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fonedayoneapp.github.io%2FOpen6502%2Fchip-lab.html&amp;t=%E4%B8%80%E9%A2%97%E8%8A%AF%E7%89%87%E6%98%AF%E6%80%8E%E4%B9%88%E9%95%BF%E5%A4%A7%E7%9A%84%EF%BC%9F" target="_blank" rel="noopener" aria-label="分享到 Hacker News">HN</a>
+          <button class="share-btn" type="button" data-share-copy aria-label="复制页面链接" hidden><span class="share-copy-label">复制链接</span></button>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> Open6502 · 开源 6502/NES SoC 项目</span>
+        <span>芯片小课堂 · 中文版</span>
+        <span class="right">站点源码在 <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · 纯 HTML/CSS/JS</span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</body>
+</html>
