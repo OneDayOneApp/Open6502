@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1014">
 <title>nesearch — play in the browser</title>
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <meta name="description" content="Play an open-source NES homebrew game in the browser, powered by the GEM6502 WebAssembly core.">
@@ -14,89 +15,488 @@
 <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/nesearch/play.html">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-  :root { color-scheme: dark; --bg:#0e1014; --panel:#151922; --line:#262c38; --text:#e8ecf4; --muted:#8b94a7; --accent:#ffb454; }
+  /*
+   * Mobile-first player page.
+   *
+   * Three layouts share one DOM:
+   *   - phone portrait: header, screen, toolbar, thumb pad at the bottom;
+   *   - phone landscape (max-height 560px): header/toolbar/pad float over the
+   *     side margins so the screen can use the full height;
+   *   - laptop: no thumb pad, keyboard hints instead.
+   * The canvas is sized in JS (play.js) so the screen always fits the space
+   * left over, with integer scaling when it does not waste much room.
+   */
+  :root {
+    color-scheme: dark;
+    --bg: #0e1014;
+    --panel: #151922;
+    --panel-2: #1b2029;
+    --line: #262c38;
+    --line-strong: #333b4b;
+    --text: #e8ecf4;
+    --muted: #8b94a7;
+    --dim: #6b7385;
+    --accent: #ffb454;
+    --green: #4ade9b;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --gutter: 14px;
+    --side: 160px; /* free margin beside the screen in landscape, set by JS */
+    --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+  }
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
-  header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
-  header h1 { font-size:17px; margin:0; font-weight:600; letter-spacing:.2px; }
-  header h1 span { color:var(--muted); font-weight:400; }
-  .links { display:flex; gap:12px; font-size:13px; }
-  .links a { color:var(--muted); text-decoration:none; }
-  .links a:hover { color:var(--text); }
-  .stage { position:relative; background:#000; border:1px solid var(--line); border-radius:12px; overflow:hidden; aspect-ratio:256/240; }
-  #screen { width:100%; height:100%; display:block; image-rendering: pixelated; background:#000; }
-  .overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; padding:24px; background:rgba(6,8,12,.72); backdrop-filter: blur(2px); }
-  .overlay[hidden] { display:none; }
-  .overlay b { font-size:18px; }
-  .overlay small { color:var(--muted); max-width:460px; word-break:break-word; }
-  .overlay .hint { margin-top:10px; font-size:12px; color:var(--muted); }
-  .bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:14px; }
-  .bar button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; }
-  .bar button:hover { border-color:#3a4356; }
-  .bar .spacer { flex:1; }
-  .bar .stat { color:var(--muted); font-size:12px; font-variant-numeric: tabular-nums; }
-  .bar .stat b { color:#c9d2e3; font-weight:500; }
-  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#20262f; border:1px solid var(--line); color:var(--text); border-radius:10px; padding:9px 16px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .18s ease; max-width:80vw; }
-  .toast.show { opacity:1; }
-  .note { margin-top:18px; color:var(--muted); font-size:12px; line-height:1.7; }
-  .share { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-  header .share { margin-left:auto; }
-  .share[hidden] { display:none; }
-  .share-label { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-right:2px; }
-  .share-btn { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:7px; padding:5px 9px; font-size:11.5px; cursor:pointer; }
-  .share-btn:hover { border-color:#3a4356; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+      "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body.touch {
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  [hidden] { display: none !important; }
+
+  .i {
+    display: block;
+    width: 20px; height: 20px;
+    fill: none; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: calc(var(--safe-t) + 10px) calc(var(--safe-r) + var(--gutter))
+      calc(var(--safe-b) + 10px) calc(var(--safe-l) + var(--gutter));
+  }
+
+  /* ------------------------------------------------------------- top bar */
+  .top { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+  .icon-btn {
+    display: grid; place-items: center;
+    width: 44px; height: 44px; flex: none;
+    padding: 0;
+    border: 1px solid var(--line); border-radius: 11px;
+    background: var(--panel); color: var(--text);
+    text-decoration: none; cursor: pointer;
+  }
+  .icon-btn:hover { border-color: var(--line-strong); background: var(--panel-2); }
+  .icon-btn:active { transform: translateY(1px); }
+  .icon-btn .i { width: 20px; height: 20px; }
+
+  .titles { min-width: 0; flex: 1; }
+  .kicker {
+    margin: 0; font: 600 9.5px/1.25 var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .titles h1 {
+    margin: 3px 0 0; font-size: 15px; line-height: 1.25; font-weight: 650;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .top-actions { display: flex; gap: 8px; margin-left: auto; }
+
+  .share { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .share-label { font: 600 9px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+  .share-btn {
+    height: 30px; padding: 0 9px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--panel); color: var(--muted);
+    font-size: 11px; cursor: pointer;
+  }
+  .share-btn:hover { color: var(--text); border-color: var(--line-strong); }
   .share-btn:active { transform: translateY(1px); }
-  kbd { background:#1b2029; border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-size:11px; }
+
+  /* ------------------------------------------------------------- screen */
+  .stage-area { flex: 1 1 auto; min-height: 0; display: grid; place-items: center; }
+  .stage {
+    position: relative;
+    width: 384px; height: 360px; /* replaced by fitStage() */
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--line-strong), 0 22px 60px rgba(0, 0, 0, 0.55);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  #screen {
+    display: block; width: 100%; height: 100%;
+    background: #000;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  .overlay {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    padding: 12px;
+    text-align: center;
+    background: rgba(4, 6, 10, 0.74);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    cursor: pointer;
+  }
+  .overlay-card { max-width: 100%; }
+  .overlay-kicker {
+    margin: 0; font: 600 9px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .overlay-title {
+    margin: 6px 0 0; font-size: clamp(17px, 4.6vmin, 24px); line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .overlay-text {
+    margin: 5px 0 0; color: var(--muted);
+    font-size: clamp(11.5px, 2.9vmin, 13.5px); line-height: 1.5;
+    word-break: break-word;
+  }
+  .overlay-actions { display: flex; justify-content: center; gap: 8px; margin-top: 13px; }
+  .overlay-hint { margin: 10px 0 0; color: var(--dim); font-size: clamp(10px, 2.5vmin, 12px); }
+  .overlay-back { margin: 10px 0 0; font-size: 11.5px; }
+  .overlay-back a { color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(139, 148, 167, 0.35); }
+  .overlay-back a:hover { color: var(--text); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    min-height: 42px; padding: 0 18px;
+    border: 1px solid var(--line-strong); border-radius: 11px;
+    background: var(--panel-2); color: var(--text);
+    font: 550 14px/1 inherit; cursor: pointer;
+    touch-action: manipulation;
+  }
+  .btn:hover { border-color: #46506a; }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { border-color: var(--accent); background: var(--accent); color: #1b1206; font-weight: 700; }
+  .btn.primary:hover { background: #ffc777; border-color: #ffc777; }
+
+  /* ------------------------------------------------------------ toolbar */
+  .toolbar { display: flex; align-items: center; gap: 8px; }
+  .tool {
+    display: grid; place-items: center;
+    width: 44px; height: 44px; flex: none;
+    padding: 0;
+    border: 1px solid var(--line); border-radius: 11px;
+    background: var(--panel); color: var(--text);
+    cursor: pointer; touch-action: manipulation;
+  }
+  .tool:hover { border-color: var(--line-strong); }
+  .tool:active { transform: translateY(1px); }
+  .tool[disabled] { opacity: .38; cursor: default; }
+  .tool .i { display: none; width: 20px; height: 20px; }
+  #reloadBtn .i,
+  #pauseBtn[data-mode="play"] .i-play,
+  #pauseBtn[data-mode="pause"] .i-pause,
+  #soundBtn[data-mode="on"] .i-sound-on,
+  #soundBtn[data-mode="off"] .i-sound-off,
+  #fullBtn[data-mode="enter"] .i-enter,
+  #fullBtn[data-mode="exit"] .i-exit { display: block; }
+  .stat {
+    margin-left: auto; min-width: 0;
+    font: 11px/1.4 var(--mono); color: var(--dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .note { margin: 0; color: var(--dim); font-size: 12px; line-height: 1.7; }
+  .note kbd {
+    display: inline-block; padding: 1px 5px;
+    border: 1px solid var(--line-strong); border-radius: 4px;
+    background: var(--panel); color: var(--muted);
+    font: 500 10.5px/1.5 var(--mono);
+  }
+  body.touch .note { display: none; }
+
+  /* ---------------------------------------------------------- thumb pad */
+  .pad { display: none; }
+  body.touch .pad {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  /* Portrait: the screen keeps a little air above the thumb pad instead of
+     hugging the header, which reads better on tall phones. */
+  body.touch .stage-area { align-items: center; }
+  .dpad {
+    position: relative; flex: none;
+    width: clamp(104px, 34vw, 164px);
+    height: clamp(104px, 34vw, 164px);
+    border: 1px solid var(--line); border-radius: 22px;
+    background: radial-gradient(120% 120% at 50% 38%, #1b212c, #11151d 72%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    touch-action: none;
+  }
+  .dir {
+    position: absolute; width: 33.33%; height: 33.33%;
+    display: grid; place-items: center;
+    padding: 0; border: 0; border-radius: 12px;
+    background: none; color: var(--dim);
+    cursor: pointer; touch-action: none;
+  }
+  .dir .i { width: 22px; height: 22px; }
+  .dir.on { color: var(--accent); background: rgba(255, 180, 84, 0.13); }
+  .dir.up { left: 33.33%; top: 0; }
+  .dir.left { left: 0; top: 33.33%; }
+  .dir.right { left: 66.66%; top: 33.33%; }
+  .dir.down { left: 33.33%; top: 66.66%; }
+  .dpad-hub {
+    position: absolute; left: 33.33%; top: 33.33%;
+    width: 33.33%; height: 33.33%;
+    display: grid; place-items: center; pointer-events: none;
+  }
+  .dpad-hub::after {
+    content: ""; width: 34%; height: 34%; border-radius: 50%;
+    background: #252c39;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .middle { display: flex; flex-direction: column; gap: 6px; }
+  .sys {
+    min-width: 64px; height: 36px; padding: 0 8px;
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    background: var(--panel); color: var(--muted);
+    font: 650 8.5px/1 var(--mono); letter-spacing: .08em;
+    cursor: pointer; touch-action: none;
+  }
+  .sys.on { color: var(--accent); border-color: var(--accent); background: rgba(255, 180, 84, 0.1); }
+
+  .actions { display: flex; align-items: center; gap: clamp(6px, 2vw, 12px); }
+  .action {
+    width: clamp(46px, 15vw, 66px); height: clamp(46px, 15vw, 66px);
+    padding: 0; border: 1px solid var(--line-strong); border-radius: 50%;
+    background: radial-gradient(120% 120% at 50% 30%, #242c3a, #161b24 72%);
+    color: var(--text);
+    font: 700 15px/1 var(--mono);
+    cursor: pointer; touch-action: none;
+  }
+  .action.a { transform: translateY(-10px); }
+  .action.b { transform: translateY(6px); }
+  .action.on { color: var(--accent); border-color: var(--accent); background: rgba(255, 180, 84, 0.2); }
+
+  /* -------------------------------------------------------------- toast */
+  .toast {
+    position: fixed; left: 50%; z-index: 40;
+    bottom: calc(var(--safe-b) + 18px);
+    transform: translate(-50%, 8px);
+    max-width: calc(100vw - 32px);
+    padding: 9px 15px;
+    border: 1px solid var(--line-strong); border-radius: 11px;
+    background: #1b2029; color: var(--text);
+    font-size: 13px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ------------------------------------------------------ focus states */
+  .icon-btn:focus-visible, .tool:focus-visible, .btn:focus-visible,
+  .sys:focus-visible, .action:focus-visible, .share-btn:focus-visible,
+  .dir:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ------------------------------------------- landscape phone / tablet */
+  @media (orientation: landscape) and (max-height: 560px) {
+    .app {
+      padding: 0; gap: 0; max-width: none;
+      height: 100vh; height: 100dvh;
+    }
+    .top, .note { display: none; }
+    .stage-area,
+    body.touch .stage-area {
+      position: fixed; inset: 0;
+      display: grid; place-items: center;
+      padding-top: 0;
+    }
+    .stage { border-radius: 0; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07); }
+    .overlay { border-radius: 0; }
+    .toolbar {
+      position: fixed; z-index: 6;
+      top: calc(var(--safe-t) + 8px); right: calc(var(--safe-r) + 8px);
+      flex-direction: column;
+    }
+    .toolbar .stat { display: none; }
+    body.touch .pad {
+      position: fixed; inset: 0; z-index: 5;
+      display: block; pointer-events: none;
+    }
+    body.touch .pad > * { position: absolute; pointer-events: auto; }
+    body.touch .dpad {
+      left: calc(var(--safe-l) + 10px);
+      bottom: calc(var(--safe-b) + 10px);
+      width: clamp(104px, calc(var(--side) - 20px), 176px);
+      height: clamp(104px, calc(var(--side) - 20px), 176px);
+    }
+    body.touch .middle {
+      left: calc(var(--safe-l) + 10px);
+      top: calc(var(--safe-t) + 8px);
+      flex-direction: column;
+      gap: 6px;
+    }
+    body.touch .sys {
+      min-width: 0; width: clamp(60px, calc(var(--side) - 20px), 84px);
+      height: 32px; font-size: 8.5px;
+    }
+    body.touch .actions {
+      right: calc(var(--safe-r) + 10px);
+      bottom: calc(var(--safe-b) + 10px);
+    }
+    body.touch .action {
+      width: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
+      height: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
+      font-size: 14px;
+    }
+    body.touch .action.a { transform: translateY(-8px); }
+    body.touch .action.b { transform: translateY(4px); }
+  }
+
+  /* Very narrow phones: the kicker only costs title space. */
+  @media (max-width: 360px) {
+    .kicker { display: none; }
+  }
+
+  /* Fullscreen fallback (iOS has no Element.requestFullscreen). */
+  body.immersive .top { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: .001ms !important; animation-duration: .001ms !important; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>nesearch <span>· play in the browser</span></h1>
+<div class="app" id="app">
+  <header class="top">
+    <a class="icon-btn back" href="index.html" aria-label="Back to catalog" title="Back to catalog">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </a>
+    <div class="titles">
+      <p class="kicker">nesearch · browser player</p>
+      <h1 id="gameName">ROM</h1>
+    </div>
     <div class="share" id="shareBar" hidden>
       <span class="share-label">Share</span>
-      <button class="share-btn" data-share="native" hidden>System</button>
-      <button class="share-btn" data-share="x">X</button>
-      <button class="share-btn" data-share="facebook">Facebook</button>
-      <button class="share-btn" data-share="reddit">Reddit</button>
-      <button class="share-btn" data-share="telegram">Telegram</button>
-      <button class="share-btn" data-share="hackernews">HN</button>
-      <button class="share-btn" data-share="copy">Copy link</button>
+      <button class="share-btn" data-share="native" type="button" hidden>System</button>
+      <button class="share-btn" data-share="x" type="button">X</button>
+      <button class="share-btn" data-share="facebook" type="button">Facebook</button>
+      <button class="share-btn" data-share="reddit" type="button">Reddit</button>
+      <button class="share-btn" data-share="telegram" type="button">Telegram</button>
+      <button class="share-btn" data-share="hackernews" type="button">HN</button>
+      <button class="share-btn" data-share="copy" type="button">Copy link</button>
     </div>
-    <div class="links">
-      <a href="index.html">← Back to catalog</a>
-      <a id="downloadLink" href="#" target="_blank" rel="noopener">Download ROM</a>
+    <div class="top-actions">
+      <button class="icon-btn" id="shareBtn" type="button" aria-label="Share this game" title="Share" hidden>
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 16V4"/><path d="M8 8l4-4 4 4"/>
+          <path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/>
+        </svg>
+      </button>
+      <a class="icon-btn" id="downloadLink" href="#" target="_blank" rel="noopener" aria-label="Download ROM" title="Download ROM" hidden>
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 4v10"/><path d="M8 10l4 4 4-4"/><path d="M5 19h14"/>
+        </svg>
+      </a>
     </div>
   </header>
 
-  <div class="stage">
-    <canvas id="screen" width="256" height="240"></canvas>
-    <div class="overlay" id="overlay">
-      <b id="overlayTitle">Loading</b>
-      <small id="overlayText">Instantiating the WebAssembly module</small>
-      <div class="hint" id="overlayHint">Click to start · audio needs one user gesture</div>
+  <div class="stage-area" id="stageArea">
+    <div class="stage" id="stage">
+      <canvas id="screen" width="256" height="240" aria-label="Game screen">Your browser does not support canvas.</canvas>
+      <div class="overlay" id="overlay">
+        <div class="overlay-card">
+          <p class="overlay-kicker" id="overlayKicker">nesearch</p>
+          <h2 class="overlay-title" id="overlayTitle">Loading</h2>
+          <p class="overlay-text" id="overlayText">Instantiating the WebAssembly module</p>
+          <div class="overlay-actions">
+            <button class="btn primary" id="startBtn" type="button" disabled>Start</button>
+          </div>
+          <p class="overlay-hint" id="overlayHint">Audio starts after your first tap.</p>
+          <p class="overlay-back"><a href="index.html">← Back to catalog</a></p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="bar">
-    <button id="startBtn" type="button">Start</button>
-    <button id="pauseBtn" type="button" disabled>Pause</button>
-    <button id="reloadBtn" type="button" disabled>Reload</button>
-    <button id="soundBtn" type="button" disabled>Sound: on</button>
-    <div class="spacer"></div>
-    <div class="stat" id="stats">—</div>
+  <div class="toolbar" aria-label="Player controls">
+    <button class="tool" id="pauseBtn" type="button" data-mode="play" aria-label="Pause" title="Pause (P)" disabled>
+      <svg class="i i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+      <svg class="i i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+    </button>
+    <button class="tool" id="reloadBtn" type="button" aria-label="Restart game" title="Restart (R)" disabled>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>
+      </svg>
+    </button>
+    <button class="tool" id="soundBtn" type="button" data-mode="on" aria-label="Sound on" aria-pressed="true" title="Sound (M)" disabled>
+      <svg class="i i-sound-on" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>
+      </svg>
+      <svg class="i i-sound-off" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9v6h4l5 4V5L8 9z"/><path d="m16 9 5 5M21 9l-5 5"/>
+      </svg>
+    </button>
+    <button class="tool" id="fullBtn" type="button" data-mode="enter" aria-label="Enter fullscreen" title="Fullscreen (F)">
+      <svg class="i i-enter" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/>
+      </svg>
+      <svg class="i i-exit" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 4v5H4"/><path d="M15 4v5h5"/><path d="M9 20v-5H4"/><path d="M15 20v-5h5"/>
+      </svg>
+    </button>
+    <span class="stat" id="stats">—</span>
   </div>
 
+  <div class="pad" id="pad" aria-label="Touch controls">
+    <div class="dpad" id="dpad" role="group" aria-label="Direction pad">
+      <button class="dir up" type="button" aria-label="Up">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+      </button>
+      <button class="dir left" type="button" aria-label="Left">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <button class="dir right" type="button" aria-label="Right">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <button class="dir down" type="button" aria-label="Down">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <span class="dpad-hub" aria-hidden="true"></span>
+    </div>
+    <div class="middle">
+      <button class="sys" type="button" data-bit="SELECT" aria-label="Select">SELECT</button>
+      <button class="sys" type="button" data-bit="START" aria-label="Start">START</button>
+    </div>
+    <div class="actions">
+      <button class="action b" type="button" data-bit="B" aria-label="B button">B</button>
+      <button class="action a" type="button" data-bit="A" aria-label="A button">A</button>
+    </div>
+  </div>
 
-  <p class="note" id="note">
+  <p class="note">
     Arrows or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to move, <kbd>Z</kbd> or <kbd>Space</kbd> for A,
     <kbd>X</kbd> for B, <kbd>Enter</kbd> for Start, <kbd>Shift</kbd> for Select, <kbd>P</kbd> to pause,
-    <kbd>R</kbd> to reload. Picture and sound come from the GEM6502 WebAssembly core in real time;
-    the ROM is loaded straight from the catalog's download URL.
+    <kbd>R</kbd> to restart, <kbd>M</kbd> for sound, <kbd>F</kbd> for fullscreen. Gamepads work too.
+    Picture and sound come from the GEM6502 WebAssembly core in real time; the ROM is loaded straight
+    from the catalog's download URL.
   </p>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript>
+  <p style="margin:0;padding:12px;color:#ffcf8a;font:14px/1.5 sans-serif">
+    This page is a WebAssembly player; enable JavaScript to play.
+  </p>
+</noscript>
 <script src="share.js"></script>
 <script src="play.js"></script>
 </body>

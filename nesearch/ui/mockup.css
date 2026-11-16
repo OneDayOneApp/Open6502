@@ -36,6 +36,8 @@ html, body { height: 100%; }
 body {
   margin: 0;
   overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   background: var(--bg);
   color: var(--text);
   font: 13px/1.5 var(--sans);
@@ -641,3 +643,294 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appe
 }
 .share-btn:hover { color: var(--text); border-color: var(--border-strong); }
 .share-btn:active { transform: translateY(1px); }
+
+/* ================================================================ mobile */
+/*
+ * Phones (≤860px) get the app-shell treatment instead of a scaled-down
+ * desktop: the sidebar becomes an off-canvas drawer, the detail panel a
+ * bottom sheet, the download tray a horizontal strip, and tables scroll
+ * sideways. Above 860px nothing here applies; touch laptops keep the desktop
+ * layout and only get larger hit targets from the coarse-pointer block.
+ */
+.menu-btn,
+.scrim,
+.sidebar-close { display: none; }
+
+@media (max-width: 860px), (orientation: landscape) and (max-height: 560px) {
+  .app,
+  .app.no-detail {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "top" "main" "tray" "status";
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* ---- top bar: brand row + full-width search row ---- */
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "menu brand actions" "search search search";
+    align-items: center;
+    gap: 8px;
+    height: auto;
+    padding: calc(8px + env(safe-area-inset-top, 0px))
+      calc(12px + env(safe-area-inset-right, 0px)) 10px
+      calc(12px + env(safe-area-inset-left, 0px));
+  }
+  .menu-btn {
+    display: grid;
+    grid-area: menu;
+    width: 42px; height: 42px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface); color: var(--text-2);
+  }
+  .app.nav-open .menu-btn { color: var(--text); border-color: var(--border-strong); }
+  .brand { grid-area: brand; width: auto; min-width: 0; }
+  .brand-ver { display: none; }
+  .top-actions { grid-area: actions; margin-left: 0; gap: 6px; }
+  .top-actions .icon-btn {
+    width: 42px; height: 42px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  .top-actions .btn.ghost { width: 42px; height: 42px; padding: 0; font-size: 0; gap: 0; border-radius: 10px; }
+  .searchbox { grid-area: search; width: 100%; height: 42px; }
+  .searchbox kbd { display: none; }
+  .source-select { display: none; }
+
+  /* 16px keeps iOS Safari from zooming the page when an input is focused. */
+  .searchbox input,
+  .input,
+  .input-text,
+  .form-select { font-size: 16px; }
+
+  /* ---- drawer ---- */
+  .sidebar {
+    position: fixed;
+    z-index: 90;
+    top: 0; bottom: 0; left: 0;
+    width: min(84vw, 312px);
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-right: 1px solid var(--border-strong);
+    background: #0b0e13;
+    box-shadow: 26px 0 70px rgba(0, 0, 0, 0.6);
+    transform: translateX(-104%);
+    visibility: hidden;
+    transition: transform 0.22s ease, visibility 0.22s ease;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .app.nav-open .sidebar { transform: none; visibility: visible; }
+  .sidebar-close {
+    display: grid; place-items: center;
+    position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: 12px;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border); border-radius: 9px;
+    background: var(--surface-2); color: var(--text-2);
+  }
+  .nav-item { height: 46px; font-size: 13.5px; border-radius: 10px; }
+  .nav-item .icon { width: 17px; height: 17px; }
+  .nav-count, .nav-badge { font-size: 11px; }
+  .nav-label { padding: 14px 12px 8px; font-size: 10px; }
+  .sidebar-spacer { min-height: 16px; }
+  .source-status-head { font-size: 12px; }
+  .source-status-row { font-size: 12px; }
+
+  .scrim {
+    display: block;
+    position: fixed; inset: 0; z-index: 85;
+    background: rgba(3, 5, 9, 0.64);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .app.nav-open .scrim { opacity: 1; pointer-events: auto; }
+
+  /* ---- main column ---- */
+  .main {
+    padding: 16px calc(14px + env(safe-area-inset-right, 0px))
+      calc(20px + env(safe-area-inset-bottom, 0px))
+      calc(14px + env(safe-area-inset-left, 0px));
+  }
+  .view-head,
+  .view-title-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .view-actions { flex-wrap: wrap; padding-top: 0; }
+  h1 { font-size: 26px; }
+  .view-title-row h1 { font-size: 24px; }
+  .view-sub { font-size: 12.5px; }
+  .eyebrow { font-size: 10px; }
+
+  /* filters scroll sideways instead of wrapping into five rows */
+  .filter-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    margin-inline: calc(-14px - env(safe-area-inset-left, 0px)) calc(-14px - env(safe-area-inset-right, 0px));
+    margin-block: 0 14px;
+    padding: 2px calc(14px + env(safe-area-inset-right, 0px)) 6px calc(14px + env(safe-area-inset-left, 0px));
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .chip { flex: none; height: 34px; font-size: 11.5px; }
+
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .grid.list { grid-template-columns: 1fr; }
+  .grid.list .card { grid-template-columns: 108px minmax(0, 1fr); }
+  .grid.list .card-progress { left: 108px; }
+  .card-body { padding: 10px; }
+  .card-title, .grid.list .card-title { font-size: 13px; }
+  .card-author { font-size: 11px; }
+  .card-meta { font-size: 9.5px; }
+  .source-pill, .license-pill, .card-kind { font-size: 9.5px; }
+  .card-dl { width: 32px; height: 32px; }
+  .grid-foot { flex-wrap: wrap; gap: 8px; }
+  .showing { font-size: 10.5px; }
+  .pager button { width: 34px; height: 34px; font-size: 11px; }
+  .empty-state { padding: 40px 16px; }
+  .empty-state h2 { font-size: 16px; }
+
+  /* tables scroll sideways instead of squashing */
+  .panel { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #view-downloads .table,
+  #view-library .table { min-width: 640px; }
+  .table th { font-size: 9.5px; }
+  .table td { font-size: 11.5px; }
+  .row-btn { width: 34px; height: 34px; }
+
+  .sources-grid { grid-template-columns: minmax(0, 1fr); }
+  .settings-grid { grid-template-columns: minmax(0, 1fr); }
+  .settings-panel h2 { font-size: 13px; }
+  .settings-panel .hint { font-size: 10.5px; }
+  .settings-note { font-size: 10.5px; }
+  .field { flex-wrap: wrap; }
+  .field label { font-size: 11.5px; }
+  .field .sub { font-size: 10px; }
+  .field .input { min-width: 0; width: 100%; max-width: none; height: 36px; }
+  .source-desc { min-height: 0; font-size: 11.5px; }
+  .source-type { font-size: 9.5px; }
+  .add-source { min-height: 120px; }
+
+  /* ---- detail: bottom sheet ---- */
+  .detail.open {
+    position: fixed;
+    z-index: 96;
+    top: auto; left: 0; right: 0; bottom: 0;
+    width: auto;
+    height: min(86dvh, 680px);
+    padding: 20px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    border-left: 0;
+    border-top: 1px solid var(--border-strong);
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, #121722, #0c0f15);
+    box-shadow: 0 -26px 80px rgba(0, 0, 0, 0.62);
+    animation: sheet-in 0.24s ease;
+    overscroll-behavior: contain;
+  }
+  .detail.open::before {
+    content: "";
+    position: absolute; top: 8px; left: 50%;
+    width: 40px; height: 4px; margin-left: -20px;
+    border-radius: 99px; background: #2f3949;
+  }
+  .detail.open .detail-close { display: grid; top: 12px; right: 12px; width: 36px; height: 36px; }
+  .detail-title { font-size: 20px; }
+  .detail-author { font-size: 12px; }
+  .detail-desc { font-size: 12.5px; }
+  .mini-chip { font-size: 9.5px; }
+  .meta-value { font-size: 11px; }
+  .detail-actions .btn.primary { height: 44px; font-size: 12.5px; }
+  .detail-actions .btn.icon-only { width: 44px; height: 44px; }
+  .share-btn { height: 34px; }
+  .detail-empty { padding: 36px 12px; }
+
+  /* ---- download tray: one horizontal strip ---- */
+  .tray {
+    padding: 6px calc(10px + env(safe-area-inset-right, 0px)) 6px
+      calc(10px + env(safe-area-inset-left, 0px));
+    gap: 8px;
+  }
+  .tray-head { display: none; }
+  .tray-items { overflow-x: auto; overflow-y: hidden; gap: 6px; scrollbar-width: none; }
+  .tray-items::-webkit-scrollbar { display: none; }
+  .dl-item { flex: none; min-width: 184px; max-width: 230px; }
+  .tray-expand { width: 34px; height: 34px; }
+
+  .statusbar {
+    padding: 0 calc(12px + env(safe-area-inset-right, 0px))
+      calc(env(safe-area-inset-bottom, 0px)) calc(12px + env(safe-area-inset-left, 0px));
+    gap: 8px; font-size: 8.5px; min-height: 24px;
+  }
+  .status-right { display: none; }
+
+  .modal { padding: 12px; }
+  .modal-card { width: 100%; max-height: 88dvh; padding: 16px; }
+  .modal-title { font-size: 16px; }
+  .modal-sub { font-size: 11.5px; }
+  .toast {
+    left: 12px; right: 12px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    justify-content: center;
+  }
+
+  @keyframes sheet-in {
+    from { transform: translateY(100%); }
+    to { transform: none; }
+  }
+}
+
+/* Portrait tablets: two columns waste the width. */
+@media (min-width: 600px) and (max-width: 860px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.list { grid-template-columns: 1fr; }
+}
+
+/* Landscape phones: a 390-560px tall canvas cannot afford a 100px top bar,
+   a download tray and a bottom sheet, so they compact or move. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .topbar {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "menu brand search actions";
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  .searchbox { height: 38px; }
+  .menu-btn, .top-actions .icon-btn { width: 38px; height: 38px; }
+  .top-actions .btn.ghost { width: 38px; height: 38px; }
+  .tray { display: none; }
+  .main { padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.list { grid-template-columns: 1fr; }
+  .view-head, .view-title-row { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .view-actions { flex-wrap: nowrap; }
+  .detail.open {
+    left: auto; right: 0; top: 0; bottom: 0;
+    width: min(440px, 62vw); height: auto;
+    padding-right: calc(16px + env(safe-area-inset-right, 0px));
+    border-radius: 16px 0 0 16px;
+    border-left: 1px solid var(--border-strong);
+    border-top: 0;
+    animation: sheet-side 0.24s ease;
+  }
+  .detail.open::before { display: none; }
+  .detail.open .detail-close { top: 12px; right: 12px; }
+  @keyframes sheet-side {
+    from { transform: translateX(100%); }
+    to { transform: none; }
+  }
+}
+
+/* Touch devices get finger-sized controls even when the layout stays wide. */
+@media (pointer: coarse) {
+  .nav-item { min-height: 46px; }
+  .btn { min-height: 40px; }
+  .btn.small { min-height: 36px; }
+  .chip { min-height: 34px; }
+  .icon-btn { width: 42px; height: 42px; }
+  .row-btn { width: 34px; height: 34px; }
+  .segmented button { width: 40px; height: 34px; }
+  .switch { width: 40px; height: 22px; }
+  .switch::after { width: 18px; height: 18px; }
+  .switch.on::after { transform: translateX(18px); }
+  .card-dl { width: 32px; height: 32px; }
+}

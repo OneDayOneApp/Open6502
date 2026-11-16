@@ -123,6 +123,36 @@ The wasm build is verified byte-for-byte against the native renderer with
 "Click to start", the frame counter advances at ~60 fps, `P` pauses only when
 the demo has focus, and the ROM selector can switch to the MMC3 titles.
 
+## Mobile and touch
+
+The nesearch demo (`site/nesearch/`, generated from `nesearch/ui/`) and its
+browser player are built for phones as well as laptops:
+
+| Screen | Layout |
+| --- | --- |
+| laptop / tablet landscape | unchanged desktop app shell; touch screens get ≥40 px hit targets |
+| phone portrait (≤860 px) | single column: the sidebar becomes a drawer, the detail panel a bottom sheet, the download tray a horizontal strip, tables scroll sideways |
+| phone landscape (≤560 px tall) | one-row top bar, three-column grid, tray hidden, detail slides in from the right |
+| player portrait | screen above a thumb pad: 8-way D-pad, A/B, Select/Start; toolbar (pause, restart, sound, fullscreen) and fps between them |
+| player landscape | screen uses the full height, the D-pad, A/B, Select/Start and toolbar move into the side margins so nothing covers the game |
+
+The player (`nesearch/ui/play.html` + `play.js`) adds:
+
+- pointer-based, multi-touch controls with a per-axis dead zone, so a single
+  thumb can hold diagonals and press A/B at the same time;
+- tap-anywhere start, one synthetic START press to skip title screens, and a
+  pause card with Resume/Restart;
+- auto-pause when the tab is hidden, screen wake lock while playing, and a
+  fullscreen button that falls back to a CSS `immersive` class on iOS;
+- `fitStage()` sizes the canvas to the space left over (integer scaling when
+  it wastes less than 6%), and updates it on rotation, `visualViewport`
+  resize and fullscreen changes;
+- safe-area insets (`env(safe-area-inset-*)`), `100dvh`, and 16 px inputs so
+  iOS does not zoom.
+
+Keyboard (arrows/WASD, Z/X, Enter/Shift, P/R/M/F) and gamepads still work
+everywhere; the thumb pad only appears for coarse pointers.
+
 ## Share buttons
 
 Every page footer carries a share row (`data-share`): the native share sheet

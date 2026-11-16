@@ -95,6 +95,11 @@ GitHub Pages 只能托管静态文件，跑不了 `nesearch ui` 的 C++ 服务�
 
 ![静态目录](ui/screenshots/static-demo.png)
 
+手机端：目录页把侧栏收为抽屉、详情改为底部 sheet（横屏为右侧面板），
+`play.html` 在竖屏使用底部虚拟手柄、横屏把按键放到画面两侧留白中：
+
+![手机播放页](ui/screenshots/mobile-play.png)
+
 ```sh
 cmake --build nesearch/build -j
 bash nesearch/scripts/build-static-site.sh          # 生成 site/nesearch/（--refresh 先联网更新）
@@ -122,6 +127,7 @@ node nesearch/scripts/test-static-site.mjs          # 校验查询引擎 / fetch
 - 搜索、过滤、排序、分页；详情懒加载 `.txt` 元数据（标题/作者/描述/许可证）。
 - 下载：断点续传、重试、原子落盘、iNES 头解析、SHA-256、库清单、`list`/`verify`。
 - 模拟器启动：下载后的游戏可在详情/Library 中直接选择 **GEM6502** 或 **NEMU** 打开；自动检测 `GEM6502/gem6502` 与 `NEMU/build/6502EMU`，可用 `NESEARCH_GEM6502` / `NESEARCH_NEMU` 覆盖。
+- 移动端：本地 UI 与静态目录共用响应式布局（侧栏抽屉、详情底部/右侧 sheet、下载托盘子横向滚动），`play.html` 支持竖屏虚拟手柄与横屏两侧按键布局，详见 [ui/README.md](ui/README.md#mobile)。
 - 本地 Web UI：搜索/详情/下载队列/库/源/设置；Library 支持 **Grid / List** 切换、模拟器启动；URL token 鉴权；SSE 未实现，当前轮询进度。
 - 自定义 JSON 源（v0.2 确认项）：Test connection、添加、持久化、参与搜索、来源计数。
 - 单元测试（SHA-256 / slug / 许可证识别等）。

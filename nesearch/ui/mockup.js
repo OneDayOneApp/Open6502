@@ -231,6 +231,8 @@ let libraryIds = ["falling", "lala", "tilt"];
 const timers = new Map();
 
 const $ = (sel, root = document) => root.querySelector(sel);
+/* Same query as the mobile CSS block: phones in portrait or landscape. */
+const isPhoneLayout = () => window.matchMedia("(max-width: 860px), (orientation: landscape) and (max-height: 560px)").matches;
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const gameById = (id) => GAMES.find((g) => g.id === id);
 const fmtBytes = (bytes) => {
@@ -426,6 +428,7 @@ function selectGame(id) {
   renderGrid();
   renderDetail();
   if (window.innerWidth <= 1220) $("#detail").classList.add("open");
+  if (isPhoneLayout()) $("#detail").scrollTop = 0;
   if (LIVE_MODE) {
     api(`/api/v1/games/${encodeURIComponent(id)}`)
       .then((data) => {
@@ -1473,7 +1476,55 @@ function bindEvents() {
   });
 }
 
+/* Mobile shell: the sidebar is a drawer, the detail panel a bottom sheet. */
+function bindMobileShell() {
+  const app = $("#app");
+  const menu = $("#menuBtn");
+  const scrim = $("#scrim");
+  const sidebar = $("#sidebar");
+  if (!app || !menu || !scrim || !sidebar) return;
+
+  const openNav = () => {
+    app.classList.add("nav-open");
+    menu.setAttribute("aria-expanded", "true");
+    menu.setAttribute("aria-label", "Close navigation");
+    const first = sidebar.querySelector(".nav-item");
+    if (first) requestAnimationFrame(() => first.focus({ preventScroll: true }));
+  };
+  const closeNav = (restoreFocus) => {
+    if (!app.classList.contains("nav-open")) return;
+    app.classList.remove("nav-open");
+    menu.setAttribute("aria-expanded", "false");
+    menu.setAttribute("aria-label", "Open navigation");
+    if (restoreFocus !== false) menu.focus({ preventScroll: true });
+  };
+
+  menu.addEventListener("click", () => {
+    if (app.classList.contains("nav-open")) closeNav();
+    else openNav();
+  });
+  scrim.addEventListener("click", () => closeNav(false));
+  const closeButton = $("#sidebarClose");
+  if (closeButton) closeButton.addEventListener("click", () => closeNav());
+  $$(".nav-item").forEach((button) => {
+    button.addEventListener("click", () => { if (isPhoneLayout()) closeNav(false); });
+  });
+
+  const query = window.matchMedia("(max-width: 860px), (orientation: landscape) and (max-height: 560px)");
+  const onBreakpoint = (event) => { if (!event.matches) closeNav(false); };
+  if (query.addEventListener) query.addEventListener("change", onBreakpoint);
+  else if (query.addListener) query.addListener(onBreakpoint);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (app.classList.contains("nav-open")) { closeNav(); return; }
+    const detail = $("#detail");
+    if (detail && detail.classList.contains("open")) detail.classList.remove("open");
+  });
+}
+
 bindEvents();
+bindMobileShell();
 renderGrid();
 renderDetail();
 renderTray();
