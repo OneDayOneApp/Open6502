@@ -23,9 +23,10 @@ Pages from the `site/` directory on `main`.
   chip-flow skill. Redirects Chinese locales to `learn.zh.html`.
 - `learn.zh.html` — Chinese learning path with the same structure.
 - `chip-lab.html` — **Chinese-only** classroom deck for primary school
-  students: 16 web slides from “what is a chip” to RTL, verification,
-  tapeout and the Open6502 case, plus speaker notes, a quiz bank, a mini
-  glossary. No build step and no external JS dependencies.
+  students: 18 web slides with a focused XiangShan development model
+  (three loops, S0–S6 gates, lockstep DiffTest, CI/checkpoints), the
+  Open6502 mapping, a quiz bank, a mini glossary and speaker notes. No
+  build step and no external JS dependencies.
 - `nesearch.html` — **English default** product page for the nesearch desktop
   app: feature tour, screenshots, data sources, quick start, requirements and
   the macOS Apple Silicon download. Redirects Chinese locales to

@@ -331,6 +331,8 @@
   slides.forEach((slide, i) => {
     slide.classList.toggle("is-active", i === fromHash());
     slide.setAttribute("aria-hidden", i === fromHash() ? "false" : "true");
+    const label = slide.querySelector(".slide-index");
+    if (label) label.textContent = `${pad(i + 1)} / ${pad(total)}`;
   });
   index = fromHash();
   updateUI();

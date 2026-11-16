@@ -2356,3 +2356,581 @@ html:not(.js) .slide {
     font-size: clamp(2.1rem, 11vw, 3rem);
   }
 }
+
+/* ---------- XiangShan intro ---------- */
+.xs-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.xs-quote {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.xs-big {
+  font-size: clamp(1.25rem, 2.35vw, 1.85rem);
+  line-height: 1.38;
+  letter-spacing: -0.02em;
+}
+
+.xs-big strong {
+  color: var(--red-bright);
+}
+
+.xs-quote > p:last-child {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.xs-facts {
+  display: grid;
+  gap: 8px;
+}
+
+.xs-fact {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.xs-fact b {
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.xs-fact h3 {
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+
+.xs-fact p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.xs-lineage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  color: var(--muted);
+}
+
+.xs-lineage span {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.xs-lineage .is-hot {
+  color: var(--red-bright);
+  border-color: var(--red-line);
+  background: var(--red-dim);
+}
+
+.xs-lineage i {
+  color: var(--dim);
+  font-style: normal;
+}
+
+/* ---------- Three loops ---------- */
+.loop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.loop-card {
+  --loop-accent: var(--red);
+  position: relative;
+  padding: 13px 13px 12px;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--loop-accent);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.018);
+  overflow: hidden;
+}
+
+.loop-card--middle { --loop-accent: var(--blue); }
+.loop-card--outer { --loop-accent: var(--green); }
+
+.loop-ring {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 10px;
+  border: 1px solid var(--loop-accent);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+  line-height: 1.05;
+}
+
+.loop-ring b {
+  display: block;
+  color: var(--loop-accent);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+
+.loop-ring span {
+  display: block;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.5rem;
+}
+
+.loop-card h3 {
+  font-size: 0.98rem;
+}
+
+.loop-card > p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.loop-goal {
+  margin-top: 8px;
+  padding: 7px 8px;
+  border-left: 2px solid var(--loop-accent);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-soft);
+  font-size: 0.69rem;
+  line-height: 1.45;
+}
+
+.loop-kid {
+  margin-top: 7px;
+  color: var(--dim);
+  font-size: 0.64rem;
+  line-height: 1.4;
+}
+
+/* ---------- Seven gates ---------- */
+.gate-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.gate-list {
+  display: grid;
+  gap: 6px;
+}
+
+.gate-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.gate-badge {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 24px;
+  border-radius: 5px;
+  background: var(--red-dim);
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.gate-row:nth-child(2) .gate-badge { background: var(--amber-dim); color: var(--amber); }
+.gate-row:nth-child(3) .gate-badge { background: var(--blue-dim); color: var(--blue); }
+.gate-row:nth-child(4) .gate-badge { background: var(--green-dim); color: var(--green); }
+.gate-row:nth-child(5) .gate-badge { background: rgba(196, 181, 253, 0.1); color: var(--lab-violet); }
+.gate-row:nth-child(6) .gate-badge { background: rgba(255, 158, 196, 0.1); color: var(--lab-pink); }
+.gate-row:nth-child(7) .gate-badge { background: rgba(255, 255, 255, 0.05); color: var(--text-soft); }
+
+.gate-row h3 {
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.gate-row p {
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  line-height: 1.4;
+}
+
+.gate-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.gate-rules {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.gate-rules li {
+  position: relative;
+  padding-left: 12px;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.gate-rules li::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.gate-rules b {
+  color: var(--text);
+}
+
+.gate-quote {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  line-height: 1.5;
+}
+
+/* ---------- Four magic tools ---------- */
+.magic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.magic-card {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+}
+
+.magic-num {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--red-dim);
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.magic-card:nth-child(2) .magic-num { background: var(--blue-dim); color: var(--blue); }
+.magic-card:nth-child(3) .magic-num { background: var(--green-dim); color: var(--green); }
+.magic-card:nth-child(4) .magic-num { background: var(--amber-dim); color: var(--amber); }
+
+.magic-card h3 {
+  font-size: 0.9rem;
+}
+
+.magic-card p {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.magic-quote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 11px 14px;
+  border: 1px solid var(--red-line);
+  border-radius: 10px;
+  background: var(--red-dim);
+}
+
+.magic-quote p {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.magic-quote b {
+  color: var(--red-bright);
+}
+
+.magic-quote span {
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  white-space: nowrap;
+}
+
+/* ---------- Open6502 × XiangShan mapping ---------- */
+.map-list {
+  display: grid;
+  gap: 8px;
+}
+
+.map-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.map-tag {
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.map-row:nth-child(2) .map-tag { color: var(--blue); }
+.map-row:nth-child(3) .map-tag { color: var(--green); }
+
+.map-row h3 {
+  font-size: 0.8rem;
+}
+
+.map-row p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.xs-score {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.score-big {
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score-big span {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.xs-bars {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.xs-bar-row {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) 34px;
+  gap: 8px;
+  align-items: center;
+}
+
+.xs-bar-row span {
+  color: var(--text-soft);
+  font-size: 0.64rem;
+}
+
+.xs-bar-row i {
+  display: block;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+.xs-bar-row:nth-child(2) i { background: var(--blue); }
+.xs-bar-row:nth-child(3) i { background: var(--amber); }
+.xs-bar-row:nth-child(4) i { background: var(--red); }
+
+.xs-bar-row em {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-style: normal;
+  text-align: right;
+}
+
+@media (max-width: 1020px) {
+  .xs-grid,
+  .gate-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gate-side {
+    min-height: 150px;
+  }
+}
+
+@media (max-width: 820px) {
+  .loop-grid,
+  .magic-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .xs-fact,
+  .gate-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .xs-big {
+    font-size: 1.2rem;
+  }
+
+  .gate-badge {
+    width: 26px;
+  }
+
+  .map-row {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .gate-row {
+    padding: 5px 8px;
+    gap: 7px;
+  }
+
+  .gate-badge {
+    height: 22px;
+  }
+
+  .gate-row h3 {
+    font-size: 0.74rem;
+  }
+
+  .gate-row p {
+    font-size: 0.62rem;
+    line-height: 1.35;
+  }
+
+  .gate-list {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 1020px) {
+  .deck-stage {
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+
+  .slide {
+    position: relative;
+    min-height: min(78vh, 680px);
+  }
+
+  .slide:not(.is-active) {
+    display: none;
+  }
+
+  .slide.is-active {
+    display: block;
+  }
+}
+
+@media (min-width: 1021px) and (max-width: 1100px) {
+  .deck-stage {
+    aspect-ratio: auto;
+    min-height: 640px;
+  }
+
+  .slide-inner {
+    padding: 28px 32px 20px;
+  }
+
+  .map-list {
+    gap: 6px;
+  }
+
+  .map-row {
+    padding: 7px 9px;
+  }
+
+  .open-honest {
+    margin-top: 8px;
+    padding: 7px 9px;
+  }
+
+  .slide[data-slide-title="用一颗小芯片，练一遍香山模式"] .slide-footnote {
+    display: none;
+  }
+
+  .slide-title {
+    font-size: clamp(1.7rem, 3.1vw, 2.4rem);
+  }
+
+  .slide-lead {
+    margin-top: 8px;
+  }
+
+  .slide-body {
+    padding-top: 10px;
+  }
+
+  .slide-footnote {
+    margin-top: 8px;
+    padding-top: 7px;
+  }
+}
+
+.slide[data-slide-title="一座“指甲盖上的城市”"] .slide-footnote,
+.slide[data-slide-title="在工厂里，用光“画”出芯片"] .slide-footnote {
+  display: none;
+}
+
+@media (min-width: 1101px) and (max-width: 1227px) {
+  .deck-stage {
+    aspect-ratio: auto;
+    min-height: 720px;
+  }
+}
