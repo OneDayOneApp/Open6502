@@ -1,0 +1,43 @@
+# <CHIP> CI — 复制到 .github/workflows/ci.yml
+# 目标：PR 不绿不能合；失败上传 trace/manifest；同种子双跑一致。
+
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-sim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential verilator iverilog python3
+      - name: Lint
+        run: make lint
+      - name: Unit/SoC simulation
+        run: make sim
+      - name: Build image twice (reproducibility)
+        run: make image determinism
+      - name: DiffTest (same image, REF vs RTL)
+        run: make difftest
+      - name: Determinism double-run
+        run: |
+          make test > run1.log
+          make test > run2.log
+          diff -u run1.log run2.log
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-artifacts
+          path: |
+            build/*.trace
+            build/*.log
+            build/*.json
+            build/synth/*.stat
+          if-no-files-found: ignore

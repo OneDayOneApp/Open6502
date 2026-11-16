@@ -32,6 +32,9 @@ reference model -> lockstep DiffTest -> CI gates -> performance evaluation -> op
   (Chinese) — core story, three loops, 12-week route, what transfers and what
   does not.
 - Index: [docs/README.md](docs/README.md).
+- Reusable skill: [skills/xiangshan-chip-flow/SKILL.md](skills/xiangshan-chip-flow/SKILL.md)
+  — the same three loops and gates packaged as a callable playbook for the next
+  chip, with templates for the spec, DiffTest protocol, CI and gate reviews.
 - Two of the three gaps that matter most now have a working skeleton in
   [labs/am6502](labs/am6502/README.md) (per-instruction DiffTest, CI gate); the
   remaining pillar is generation — one Chisel module.
@@ -387,6 +390,7 @@ sim/difftest/         NEMU/RTL DiffTest
 sim/game/             RTL game bring-up
 GEM6502/              fast C cycle model for 6502/NES SoC
 docs/                 Design, verification, area and cost documents
+skills/               Reusable chip-design playbooks (xiangshan-chip-flow)
 ```
 
 ---
@@ -409,6 +413,13 @@ docs/                 Design, verification, area and cost documents
 - [Checklist](docs/open6502-chip/checklist.md)
 - [Synthesis area](docs/open6502-chip/synthesis-area.md)
 - [START recovery plan](docs/open6502-chip/startup-recovery-plan.md)
+
+### Reusable skills
+
+- [xiangshan-chip-flow](skills/xiangshan-chip-flow/SKILL.md) — the XiangShan-style
+  flow as a callable skill: S0–S6 gates, one-image/multi-backend contract,
+  lockstep DiffTest, CI/checkpoint discipline and FPGA/ASIC checklists.
+- [Skill index](skills/README.md) — what is available and how to install it.
 
 ### Models and reference
 

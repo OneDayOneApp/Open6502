@@ -24,7 +24,8 @@ RTL 与模拟器互相验证：CPU 通过 Klaus，RTL 标题帧与 NEMU 标题�
 ```
 
 - 起点：[学习路径](docs/learning-path.zh-CN.md)——核心故事、三个环、12 周路线、能迁移什么
-- 网页版：[学习路径与香山对齐评分](site/learn.zh.html)——八维评分（当前 34/100）与 12 周路线
+- 网页版：[学习路径与香山对齐评分](site/learn.zh.html)——八维评分（当前 46.8/100）与 12 周路线
+- 可复用 skill：[xiangshan-chip-flow](skills/xiangshan-chip-flow/SKILL.md)——把三个环与门禁封装成可调用手册，附芯片规格、DiffTest、CI 与门禁模板
 - 索引：[文档索引](docs/README.md)
 - 现在最该补的三件事：锁步 DiffTest、跑测试的 CI、一个 Chisel 模块
 
@@ -333,6 +334,7 @@ sim/difftest/         NEMU/RTL DiffTest
 sim/game/             RTL 游戏 bring-up
 GEM6502/              6502/NES SoC 的快速 C 周期模型
 docs/                 设计、验证、面积与成本文档
+skills/               可复用的芯片设计手册（xiangshan-chip-flow）
 ```
 
 ---
@@ -355,6 +357,11 @@ docs/                 设计、验证、面积与成本文档
 - [检查清单](docs/open6502-chip/checklist.md)
 - [综合面积](docs/open6502-chip/synthesis-area.md)
 - [START 恢复计划](docs/open6502-chip/startup-recovery-plan.md)
+
+### 可复用 skill
+
+- [xiangshan-chip-flow](skills/xiangshan-chip-flow/SKILL.md)——把香山式流程封装成可调用手册：S0–S6 门禁、一镜像多后端契约、锁步 DiffTest、CI/检查点纪律与 FPGA/ASIC 检查单。
+- [skill 索引](skills/README.md)——有哪些、怎么安装。
 
 ### 模型与参考
 

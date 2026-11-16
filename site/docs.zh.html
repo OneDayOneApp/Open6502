@@ -351,7 +351,7 @@ cd ..
         </section>
 
         <!-- 02 REPO -->
-        <section class="doc-section" id="repo" data-group="开始" data-keywords="仓库 目录 地图 文档索引 路径 neseach tb sim docs rtl">
+        <section class="doc-section" id="repo" data-group="开始" data-keywords="仓库 目录 地图 文档索引 路径 neseach tb sim docs rtl 技能 skill 手册 xiangshan">
           <div class="doc-kicker"><span class="dot"></span>02 · Repository</div>
           <h2><span>仓库地图：东西都在哪</span></h2>
           <p>仓库同时包含软件参考模型、RTL SoC、验证脚本、C 模型、游戏下载器和文档。下面是最常用的入口。</p>
@@ -379,6 +379,7 @@ cd ..
 ├── nesearch/            C++20 NES 搜索 / 下载 CLI + 本地 Web UI
 ├── roms/                6 款开源 ROM + 许可证
 ├── docs/                芯片、验证、面积、路线图文档
+├── skills/              可复用芯片设计手册（xiangshan-chip-flow）
 └── site/                本网站（纯静态，GitHub Pages）</div>
 
           <div class="table-wrap">
@@ -391,6 +392,7 @@ cd ..
                 <tr><td><code>GEM6502/</code></td><td><code>README.md</code>、<code>docs/requirements.md</code></td><td><code>make && make test</code></td></tr>
                 <tr><td><code>nesearch/</code></td><td><code>README.md</code>、<code>PRD.md</code></td><td><code>./nesearch/run-ui.sh</code></td></tr>
                 <tr><td><code>docs/open6502-chip/</code></td><td>架构、验证、DiffTest、面积</td><td>—</td></tr>
+                <tr><td><code>skills/xiangshan-chip-flow/</code></td><td><code>SKILL.md</code></td><td>—</td></tr>
               </tbody>
             </table>
           </div>
@@ -426,6 +428,11 @@ cd ..
               <span class="t">综合与面积</span>
               <span class="d">Yosys 通用单元、PPU 拆分与注意事项</span>
               <span class="p">docs/open6502-chip/synthesis-area.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/skills/xiangshan-chip-flow/SKILL.md" target="_blank" rel="noopener">
+              <span class="t">可复用芯片流程 skill</span>
+              <span class="d">S0–S6 门禁、锁步 DiffTest、CI 与后端检查单</span>
+              <span class="p">skills/xiangshan-chip-flow/SKILL.md</span>
             </a>
           </div>
           <div class="callout callout--info">

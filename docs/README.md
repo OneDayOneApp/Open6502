@@ -1,8 +1,9 @@
 # Open6502 Documentation
 
-Two ways in:
+Three ways in:
 
 - **Practice the flow** → [learning-path.zh-CN.md](learning-path.zh-CN.md) (Chinese): the core story, the three loops, a 12-week route and what does / does not transfer from the XiangShan-style process.
+- **Reuse the flow** → [../skills/xiangshan-chip-flow/SKILL.md](../skills/xiangshan-chip-flow/SKILL.md): the same method as a callable skill, with chip-spec, DiffTest, CI and gate templates.
 - **Review the design** → [open6502-chip/README.md](open6502-chip/README.md), then follow the sections below.
 
 The docs are grouped by the loop they serve: inner (minutes), middle (every commit) and outer (every iteration).
@@ -59,6 +60,14 @@ The docs are grouped by the loop they serve: inner (minutes), middle (every comm
 | [../labs/am6502/README.md](../labs/am6502/README.md) | Abstract-Machine-style packaging for 6502/NES: one image contract and one command per program (M1–M3: images on NEMU/GEM6502/RTL plus a per-instruction DiffTest) |
 | [../labs/am6502/docs/design.md](../labs/am6502/docs/design.md) | Artifacts, ABI, host ports, ARCH matrix, milestones and risks for am6502 |
 | [../labs/jit6502/README.md](../labs/jit6502/README.md) | 6502 → AArch64 JIT lab: interpreter, block JIT, NES frame comparison |
+
+## Skills — reusable playbooks
+
+| Doc | What it answers |
+|---|---|
+| [../skills/xiangshan-chip-flow/SKILL.md](../skills/xiangshan-chip-flow/SKILL.md) | How to run the XiangShan-style loop on a new chip: S0–S6 gates, one-image/multi-backend contract, lockstep DiffTest, CI, checkpoints, FPGA/PDK backend |
+| [../skills/xiangshan-chip-flow/references/operating-model.md](../skills/xiangshan-chip-flow/references/operating-model.md) | The operating model behind the gates: three loops, eight-dimension scorecard, 12-week cadence |
+| [../skills/xiangshan-chip-flow/assets/templates/](../skills/xiangshan-chip-flow/assets/templates/) | Copy-ready templates: chip brief, gate checklist, DiffTest protocol, PR/ADR, mismatch report, manifest, Makefile/CI |
 
 ## Status
 

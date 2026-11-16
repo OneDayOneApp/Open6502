@@ -371,7 +371,7 @@ cd ..
         </section>
 
         <!-- 02 REPO -->
-        <section class="doc-section" id="repo" data-group="Start" data-keywords="repository directory map docs index paths nesearch tb sim docs rtl">
+        <section class="doc-section" id="repo" data-group="Start" data-keywords="repository directory map docs index paths nesearch tb sim docs rtl skills xiangshan skill playbook">
           <div class="doc-kicker"><span class="dot"></span>02 · Repository</div>
           <h2><span>Repository map: where everything lives</span></h2>
           <p>The repo holds the software reference, the RTL SoC, verification scripts, a C model, a game downloader and the docs. These are the most useful entry points.</p>
@@ -399,6 +399,7 @@ cd ..
 ├── nesearch/            C++20 NES search / download CLI + local Web UI
 ├── roms/                6 open-source ROMs + licences
 ├── docs/                chip, verification, area and roadmap documents
+├── skills/              reusable chip-design playbooks (xiangshan-chip-flow)
 └── site/                this website (plain static, GitHub Pages)</div>
 
           <div class="table-wrap">
@@ -411,6 +412,7 @@ cd ..
                 <tr><td><code>GEM6502/</code></td><td><code>README.md</code>, <code>docs/requirements.md</code></td><td><code>make && make test</code></td></tr>
                 <tr><td><code>nesearch/</code></td><td><code>README.en.md</code>, <code>PRD.md</code></td><td><code>./nesearch/run-ui.sh</code></td></tr>
                 <tr><td><code>docs/open6502-chip/</code></td><td>Architecture, verification, DiffTest, area</td><td>—</td></tr>
+                <tr><td><code>skills/xiangshan-chip-flow/</code></td><td><code>SKILL.md</code></td><td>—</td></tr>
               </tbody>
             </table>
           </div>
@@ -446,6 +448,11 @@ cd ..
               <span class="t">Synthesis &amp; area</span>
               <span class="d">Yosys generic cells, PPU breakdown and caveats</span>
               <span class="p">docs/open6502-chip/synthesis-area.md</span>
+            </a>
+            <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/skills/xiangshan-chip-flow/SKILL.md" target="_blank" rel="noopener">
+              <span class="t">Reusable chip-flow skill</span>
+              <span class="d">S0–S6 gates, lockstep DiffTest, CI and backend checklists for a new chip</span>
+              <span class="p">skills/xiangshan-chip-flow/SKILL.md</span>
             </a>
           </div>
           <div class="callout callout--info">

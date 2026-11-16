@@ -13,13 +13,14 @@ Pages from the `site/` directory on `main`.
 - `docs.html` — **English default** technical documentation: quickstart,
   architecture, CPU/PPU/APU, bus, cartridge/mapper, verification, DiffTest,
   golden hashes, GEM6502, synthesis, 55nm roadmap, troubleshooting,
-  contributing and further reading. It auto-detects Chinese locales and
+  contributing, further reading and the reusable
+  `skills/xiangshan-chip-flow` playbook. It auto-detects Chinese locales and
   redirects to `docs.zh.html`.
 - `docs.zh.html` — Chinese technical documentation with the same section IDs.
 - `learn.html` — **English default** learning path: the three loops, the
   eight-dimension XiangShan alignment scorecard (47/100), its score history,
-  a 12-week route and
-  the transfer boundaries. Redirects Chinese locales to `learn.zh.html`.
+  a 12-week route, the transfer boundaries and a link to the reusable
+  chip-flow skill. Redirects Chinese locales to `learn.zh.html`.
 - `learn.zh.html` — Chinese learning path with the same structure.
 - `nesearch.html` — **English default** product page for the nesearch desktop
   app: feature tour, screenshots, data sources, quick start, requirements and

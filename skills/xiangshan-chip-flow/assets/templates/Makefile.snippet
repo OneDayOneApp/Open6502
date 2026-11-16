@@ -1,0 +1,59 @@
+# <CHIP> Makefile skeleton — 复制后替换 <...>
+# 规则：一条命令一个程序；失败非零；超时非零；不添加永远成功的占位目标。
+
+CHIP       ?= <chip>
+TOP        := $(CHIP)_top
+RTL        := rtl/$(CHIP)_pkg.sv rtl/$(CHIP)_top.sv $(wildcard rtl/*/*.sv)
+TB         := $(wildcard tb/*_tb.sv)
+VERILATOR  ?= verilator
+IV         ?= iverilog
+VVP        ?= vvp
+IMAGE      ?= build/$(CHIP).bin
+TRACE      ?= build/rtl.trace
+MAX_INST   ?= 2000000
+SHA256     ?= $(shell command -v sha256sum 2>/dev/null || echo "shasum -a 256")
+
+.PHONY: all lint sim image difftest test determinism synth-% clean
+
+all: lint sim
+
+lint:
+	$(VERILATOR) --lint-only -Wall -Wno-fatal --top-module $(TOP) $(RTL)
+
+sim:
+	mkdir -p build
+	@set -e; for tb in $(TB); do \
+	  name=$$(basename $$tb .sv); \
+	  echo "== $$name"; \
+	  $(IV) -g2012 -o build/$$name.vvp $(RTL) $$tb; \
+	  $(VVP) build/$$name.vvp; \
+	done
+
+image:
+	mkdir -p build
+	<image-build-command> --out $(IMAGE)
+	$(SHA256) $(IMAGE) > $(IMAGE).sha256
+
+difftest: image
+	<runner> --image $(IMAGE) --dut rtl --ref <ref> \
+	  --trace $(TRACE) --max-inst $(MAX_INST)
+
+test: image
+	<runner> --image $(IMAGE) --dut nemu
+	<runner> --image $(IMAGE) --dut gem
+	<runner> --image $(IMAGE) --dut rtl
+
+determinism:
+	@h1=$$($(SHA256) $(IMAGE) | cut -d' ' -f1); \
+	$(MAKE) --no-print-directory image >/dev/null; \
+	h2=$$($(SHA256) $(IMAGE) | cut -d' ' -f1); \
+	test "$$h1" = "$$h2" || { echo "FAIL: image not reproducible"; exit 1; }; \
+	echo "PASS: image reproducible $$h1"
+
+synth-%:
+	mkdir -p build/synth
+	yosys -p "read_verilog -sv -DSYNTHESIS $(RTL); hierarchy -check -top $*; synth -top $* -flatten -noabc; stat" \
+	  | tee build/synth/$*.stat
+
+clean:
+	rm -rf build obj_dir

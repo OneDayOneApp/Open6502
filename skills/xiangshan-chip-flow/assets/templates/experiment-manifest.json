@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "date": "<YYYY-MM-DD>",
+  "build_id": "<git-sha or content digest>",
+  "config": {
+    "path": "<path>",
+    "sha256": "<sha256>"
+  },
+  "profile": "<profile-name>",
+  "precision": {
+    "cpu": "calibrated_timing",
+    "bus": "calibrated_timing",
+    "device_a": "approximate_timing",
+    "device_b": "functional"
+  },
+  "image": {
+    "path": "<path>",
+    "sha256": "<sha256>"
+  },
+  "input": {
+    "path": "<path>",
+    "sha256": "<sha256>"
+  },
+  "seed": 0,
+  "checkpoint": {
+    "version": 1,
+    "start": "cold | <path>"
+  },
+  "workload": "<app/rom/test>",
+  "max_inst": 0,
+  "result": "PASS",
+  "end_reason": "halt",
+  "metrics": {
+    "cycles": 0,
+    "instructions": 0,
+    "frames": 0,
+    "wall_seconds": 0,
+    "cycles_per_second": 0
+  },
+  "limits": [
+    "<未校准/未覆盖/近似项>"
+  ],
+  "artifacts": [
+    "<trace/waveform/log path>"
+  ]
+}
