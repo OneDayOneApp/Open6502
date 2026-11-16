@@ -1,8 +1,9 @@
 # am6502：给 6502/NES 的抽象机
 
-**状态：M1、M2 已实现。** 平坦镜像能跑 `NEMU/build/6502EMU`；卡带镜像在 NEMU、
-GEM6502 和 RTL bench 上用同一份镜像、同一套判定启动。本文其余部分仍是目标而不是
-现状，已完成/未完成的划分见 README。
+**状态：M1–M3 已实现。** 平坦镜像能跑 `NEMU/build/6502EMU`；卡带镜像在 NEMU、
+GEM6502 和 RTL bench 上用同一份镜像、同一套判定启动；`make difftest` 逐条比对
+NEMU 与 RTL 并指出首个分歧。本文其余部分仍是目标而不是现状，已完成/未完成的划分
+见 README。
 
 最后更新：2026-11-16。
 
@@ -336,7 +337,9 @@ labs/am6502/
 ├── tools/
 │   ├── ines.py               # .nes <-> prg/chr hex，头部校验（取代写死的 /tmp 路径）
 │   ├── mkimage.py            # 平坦镜像拼装、向量校验、可复现字节序
-│   └── run.py                # DUT 分派 + 失败格式化
+│   ├── run.py                # DUT 分派 + 失败格式化
+│   ├── difftest.py           # 跑 NEMU+RTL trace、比对、首个分歧报告
+│   └── difftrace.py          # trace 比对器（P 掩码、长度检查）
 ├── docs/
 │   ├── design.md             # 英文设计文档
 │   └── design.zh-CN.md       # 本文
@@ -351,20 +354,24 @@ bench 读到的镜像，和其他所有 app 走的是同一条代码路径。
 这才是这个 lab 存在的理由。与
 [docs/open6502-chip/difftest.md](../../../docs/open6502-chip/difftest.md) 的契约：
 
-- **一个镜像，两台机器**：`build/hello-mos6502-nemu.bin` 跑 `6502EMU -a 0 -r`；同样的
-  字节装进 `tb/open6502_klaus_tb.sv` 的内存跑 RTL。先比最终状态
-  （`PC/A/X/Y/SP/P`、退出码），M3 再逐指令 retire。
+- **一个镜像，两台机器**：`build/hello-mos6502-nemu.bin` 带 `NEMU_TRACE_STATE` 跑
+  `6502EMU -a 0 -r`；同样的字节**原样**装进 `tb/open6502_am6502_flat_tb.sv`，带
+  `+TRACE` 跑 RTL。两边都按“每条已退休指令一行”（`PC A X Y SP P`）输出，
+  `tools/difftrace.py` 比对（P 去掉 B/U 位）并打印首个分歧及上下文；
+  `make difftest` 把整条链串起来。
 - **一个镜像，帧哈希**：`hello-mos6502-nes.nes` 在 `6502EMU --hash` 与 RTL `tb`
   的帧哈希；不一致时打印第一个不同的帧，而不是一句 `FAIL`。
 - **一个种子**：v0 只有 `mainargs` 一个输入旋钮；没有墙钟，没有未初始化 WRAM
   （crt0 清运行时零页和 RAM 区，所以 `main` 之前 `.bss` 已经是 0）。
 
-CI（等 `labs/am6502` 接进 `.github/workflows/`）：
+CI 是 `.github/workflows/am6502.yml`（随 M3 加入）：
 
 ```text
 make -C labs/am6502 test ARCH=mos6502-nemu        # 不需要 RTL，不需要 iverilog
 make -C labs/am6502 test ARCH=mos6502-nes DUT=nemu
+make -C labs/am6502 test ARCH=mos6502-nes DUT=gem
 make -C labs/am6502 test ARCH=mos6502-nes DUT=rtl # 需要 iverilog
+make -C labs/am6502 difftest ARCH=mos6502-nemu    # NEMU 与 RTL 逐指令比对
 ```
 
 第一行才是关键：它能在没有 Verilog 工具链的笔记本上变绿，这才让这条门禁在只改 C
@@ -377,7 +384,7 @@ make -C labs/am6502 test ARCH=mos6502-nes DUT=rtl # 需要 iverilog
 | **M0** | 本文档 + 目录 + 索引条目 | 评审通过，不声称任何代码 | 随本次提交完成 |
 | **M1** | `mos6502-nemu` 打通：`hello`、`klaus` 包装、`tools/run.py` | `make test ARCH=mos6502-nemu` 在 `6502EMU` 上全绿；Klaus 在 `PC=$3469` 通过，且**用的是构建自己的 reset 向量**——**2026-11-16 已落地** | 1-2 周 |
 | **M2** | `mos6502-nes`：iNES 产出、`ines.py`、tb 观察 `$4018/$4019`、NEMU NES 模式解码 | 同一个 `hello.nes` 跑通 `6502EMU`、`gem6502`、RTL，画面非空，退出码 0——**2026-11-16 已落地**（3/3/4 帧，整屏白） | 2-3 周 |
-| **M3** | DiffTest + CI：逐指令比对、失败报告、workflow | `make difftest APP=hello` 打印首个不同的指令；CI 跑 §10 的三行 | 2 周 |
+| **M3** | DiffTest + CI：逐指令比对、失败报告、workflow | `make difftest APP=hello` 打印首个不同的指令；CI 跑 §10 的几行——**2026-11-16 已落地**（1,216 条指令一致；Klaus 局部 20 万条一致） | 2 周 |
 | 加分 | `mos65c02-nemu`、`nes-mmc3`（mapper 4）、`printf`/`malloc` 兼容层、把 `NEMU/nesgame` 迁到同一套 CRT | 各自独立有用，互不阻塞 | - |
 
 M1 故意只做 NEMU：不需要新 RTL、不需要新仿真器功能，也不需要“除了能汇编 6502 并

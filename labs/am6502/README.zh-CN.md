@@ -2,10 +2,11 @@
 
 # am6502：给 6502/NES 的一个小抽象机
 
-**状态：M1、M2 都可用。** 平坦镜像能跑黄金参考模型；同一张卡带镜像能跑 NEMU、
-GEM6502 和 RTL SoC 三个后端。`make run` 打出 `hello from am6502` 并以 0 退出，
-`RUN_KLAUS=1 make test` 跑通 Klaus 且**用的是构建自己写出的 reset 向量**，
-`hello.nes` 在三个卡带后端上渲染出同一帧白屏。
+**状态：M1–M3 都可用。** 平坦镜像能跑黄金参考模型；同一张卡带镜像能跑 NEMU、
+GEM6502 和 RTL SoC 三个后端；`make difftest` 逐指令比对 NEMU 与 RTL 并指出首个
+分歧。`make run` 打出 `hello from am6502` 并以 0 退出，`RUN_KLAUS=1 make test`
+跑通 Klaus 且**用的是构建自己写出的 reset 向量**，`hello.nes` 在三个卡带后端上
+渲染出同一帧白屏。
 
 这是 [nexus-am](https://github.com/OpenXiangShan/nexus-am) 思路的 6502 子集：一层
 可以链接的抽象、一个 `make ARCH=<isa>-<platform>` 矩阵、一套所有后端都吃的镜像
@@ -21,6 +22,8 @@ make ARCH=mos6502-nes              # iNES 卡带：hello-mos6502-nes.nes
 make ARCH=mos6502-nes run DUT=nemu # NEMU 的 NES 模式
 make ARCH=mos6502-nes run DUT=gem  # GEM6502
 make ARCH=mos6502-nes run DUT=rtl  # iverilog + tb/open6502_am6502_tb.sv
+
+make difftest                      # NEMU 与 RTL 逐条已退休指令比对
 ```
 
 依赖：`ca65`/`ld65`（cc65）、`python3`、已构建的 `NEMU/build/6502EMU`；卡带后端还要
@@ -78,14 +81,28 @@ make ARCH=mos6502-nes run DUT=rtl  # iverilog + tb/open6502_am6502_tb.sv
 | `mos6502-nemu` 与 `mos6502-nes` 平台、crt0 + TRM | C 工具链（llvm-mos）、`mainargs`、`_heap` |
 | 同一镜像跑 NEMU、GEM6502、RTL，且逐字节可复现 | 真实 IOE 驱动（输入、定时器、PPU、卡带） |
 | `hello` 与 Klaus 走通 `make run` / `make test` | `.elf`/`.sym` 产物 |
-| NEMU、GEM6502 解码 `$4018`/`$4019`；RTL bench 从总线观察 | 锁步 DiffTest（M3）、CI 门禁 |
+| NEMU、GEM6502 解码 `$4018`/`$4019`；RTL bench 从总线观察 | NEMU 与 RTL 的帧哈希一致性 |
 | `.hex`、`.map`、`.lst` 产物 | 把 `sim/game` 迁到 `tools/ines.py` |
+| `make difftest`：NEMU 与 RTL 逐指令锁步比对 | |
+| CI 门禁：`.github/workflows/am6502.yml` | |
 
 `_io_read`/`_io_write` 返回 0 而不是 trap——这是设计里“一个 app、多个平台”的规则；
 等 NES 平台接上真实设备再谈语义。
 
 今天实测（`make ARCH=mos6502-nes test DUT=...`）：`hello.nes` 在三个后端上 halt 0
 并画出整屏白画面——NEMU 3 帧、GEM6502 3 帧、RTL 4 帧（每帧 61,440 像素）。
+
+`make difftest` 让 `hello` 的 1,216 条指令在 NEMU 与 RTL 上逐条比对并完全一致
+（状态格式 `PC A X Y SP P`，P 去掉 B/U 位再比）。分歧长这样：
+
+```text
+FAIL: first divergence at instruction 100
+  NEMU: PC=0426 A=00 X=0b Y=00 SP=ff P=24
+  RTL : PC=04ff A=00 X=0b Y=00 SP=ff P=24
+>>>    100 NEMU[...] RTL[...]
+```
+
+Klaus 也能比：`make difftest APP=klaus`（约 9600 万条指令、约 1 GiB trace）。
 
 ## 接下来读
 

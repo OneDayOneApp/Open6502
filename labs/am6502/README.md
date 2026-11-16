@@ -2,11 +2,12 @@
 
 # am6502: a small Abstract Machine for 6502/NES
 
-**Status: M1 and M2 work.** Flat images run on the golden reference; the same
-cartridge image runs on NEMU, GEM6502 and the RTL SoC. `make run` prints
-`hello from am6502` and exits 0, `RUN_KLAUS=1 make test` passes Klaus **with
-the reset vector the build produced** (not one patched in by a bench), and
-`hello.nes` renders the same white frame on all three cartridge backends.
+**Status: M1–M3 work.** Flat images run on the golden reference; the same
+cartridge image runs on NEMU, GEM6502 and the RTL SoC; and `make difftest`
+compares NEMU and RTL instruction by instruction, naming the first divergence.
+`make run` prints `hello from am6502` and exits 0, `RUN_KLAUS=1 make test`
+passes Klaus **with the reset vector the build produced**, and `hello.nes`
+renders the same white frame on all three cartridge backends.
 
 This is the 6502 subset of [nexus-am](https://github.com/OpenXiangShan/nexus-am)'s
 idea: one abstraction to link against, one `make ARCH=<isa>-<platform>` matrix,
@@ -22,6 +23,8 @@ make ARCH=mos6502-nes              # iNES cartridge: hello-mos6502-nes.nes
 make ARCH=mos6502-nes run DUT=nemu # NEMU NES mode
 make ARCH=mos6502-nes run DUT=gem  # GEM6502
 make ARCH=mos6502-nes run DUT=rtl  # iverilog + tb/open6502_am6502_tb.sv
+
+make difftest                      # NEMU vs RTL, per retired instruction
 ```
 
 Needs `ca65`/`ld65` (cc65), `python3`, a built `NEMU/build/6502EMU`, and for
@@ -80,8 +83,10 @@ compiled program and for a prebuilt `.bin`:
 | `mos6502-nemu` and `mos6502-nes` platforms, crt0 + TRM | C toolchain (llvm-mos), `mainargs`, `_heap` |
 | One image on NEMU, GEM6502 and RTL (cartridge), byte-reproducible | real IOE drivers (input, timer, PPU, cart) |
 | `hello` and Klaus through `make run` / `make test` | `.elf`/`.sym` artifacts |
-| `$4018`/`$4019` decoded by NEMU and GEM6502; bench decodes them on the bus | lockstep DiffTest (M3), CI gate |
+| `$4018`/`$4019` decoded by NEMU and GEM6502; bench decodes them on the bus | frame-hash parity between NEMU and RTL |
 | `.hex`, `.map`, `.lst` artifacts | migrating `sim/game` to `tools/ines.py` |
+| `make difftest`: per-instruction lockstep NEMU vs RTL | |
+| CI gate: `.github/workflows/am6502.yml` | |
 
 `_io_read`/`_io_write` return 0 rather than trapping — the design's "one app,
 many platforms" rule — until the NES platform gives them devices to talk to.
@@ -89,6 +94,20 @@ many platforms" rule — until the NES platform gives them devices to talk to.
 Measured today (`make ARCH=mos6502-nes test DUT=...`): `hello.nes` halts with
 code 0 and renders a full white frame on all three backends — NEMU 3 frames,
 GEM6502 3 frames, RTL 4 frames (61,440 pixels each).
+
+`make difftest` retires 1,216 instructions of `hello` on both NEMU and RTL
+with an identical state trace (`PC A X Y SP P`, P masked to drop the B/U bits).
+A divergence is reported as:
+
+```text
+FAIL: first divergence at instruction 100
+  NEMU: PC=0426 A=00 X=0b Y=00 SP=ff P=24
+  RTL : PC=04ff A=00 X=0b Y=00 SP=ff P=24
+>>>    100 NEMU[...] RTL[...]
+```
+
+The same comparison works for Klaus with `make difftest APP=klaus` (~96M
+instructions, roughly 1 GiB of trace).
 
 ## Read next
 

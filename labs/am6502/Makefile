@@ -102,6 +102,13 @@ run: $(IMAGE)
 	    --nemu $(NEMU) --gem $(GEM6502) --root $(OPEN6502_ROOT) \
 	    --iverilog $(IVERILOG) --vvp $(VVP)
 
+# Per-instruction lockstep comparison of the same image on NEMU and RTL.
+difftest: $(IMAGE)
+	$(PYTHON) $(AM6502_HOME)/tools/difftest.py \
+	    --arch $(ARCH) --app $(APP) --image $(IMAGE) --check '$(APP_CHECK)' \
+	    --max-inst $(APP_MAX_INST) --nemu $(NEMU) --root $(OPEN6502_ROOT) \
+	    --iverilog $(IVERILOG) --vvp $(VVP)
+
 test:
 	@set -e; for app in $(APPS); do \
 	  if [ "$$app" = klaus ] && [ "$(RUN_KLAUS)" != 1 ]; then \
@@ -123,8 +130,8 @@ help:
 	@echo "  APP   hello klaus         program, from apps/<APP>/app.mk"
 	@echo "  DUT   nemu gem rtl        execution backend (gem/rtl for *.nes)"
 	@echo
-	@echo "targets: all (default), run, test, clean, help"
+	@echo "targets: all (default), run, test, difftest, clean, help"
 	@echo "vars:    RUN_KLAUS=1 enables the external Klaus test"
 	@echo "         KLAUS_BIN=<path> uses a local copy instead of downloading"
 
-.PHONY: all run test clean help
+.PHONY: all run test difftest clean help

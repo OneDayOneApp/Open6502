@@ -1,9 +1,10 @@
 # am6502: an Abstract Machine for 6502/NES
 
-**Status: M1 and M2 implemented.** Flat images run on `NEMU/build/6502EMU`;
+**Status: M1–M3 implemented.** Flat images run on `NEMU/build/6502EMU`;
 cartridges boot on NEMU, GEM6502 and the RTL bench with the same image and the
-same verdict. The rest of this document is still the target, not current
-behaviour; see README for the implemented/deferred split.
+same verdict; `make difftest` compares NEMU and RTL per retired instruction and
+names the first divergence. The rest of this document is still the target, not
+current behaviour; see README for the implemented/deferred split.
 
 Last updated: 2026-11-16.
 
@@ -365,7 +366,9 @@ labs/am6502/
 ├── tools/
 │   ├── ines.py               # .nes <-> prg/chr hex, header check (replaces hard-coded /tmp paths)
 │   ├── mkimage.py            # flat image assembly, vector check, reproducible byte order
-│   └── run.py                # DUT dispatch + failure formatting
+│   ├── run.py                # DUT dispatch + failure formatting
+│   ├── difftest.py           # NEMU + RTL trace run, compare, first-divergence report
+│   └── difftrace.py          # trace comparator (P masked, length checks)
 ├── docs/
 │   ├── design.md             # this file
 │   └── design.zh-CN.md
@@ -382,21 +385,25 @@ This is the reason the lab exists. The contract with
 [docs/open6502-chip/difftest.md](../../../docs/open6502-chip/difftest.md):
 
 - **one image, two machines**: `build/hello-mos6502-nemu.bin` runs on
-  `6502EMU -a 0 -r`; the same bytes, loaded into `tb/open6502_klaus_tb.sv`'s memory,
-  run on RTL. First compare final state (`PC/A/X/Y/SP/P`, exit code), then
-  per-instruction retire (M3).
+  `6502EMU -a 0 -r` with `NEMU_TRACE_STATE`; the same bytes, loaded unmodified
+  into `tb/open6502_am6502_flat_tb.sv`, run on RTL with `+TRACE`. Both emit one
+  line per retired instruction (`PC A X Y SP P`); `tools/difftrace.py` compares
+  them with P masked to drop the B/U bits and prints the first divergence with
+  context. `make difftest` wires the whole thing up.
 - **one image, frame hashes**: `hello-mos6502-nes.nes` on `6502EMU --hash` vs
   RTL `tb` frame hash; mismatch prints the first differing frame, not "FAIL".
 - **one seed**: `mainargs` is the only input knob in v0; no wall-clock, no
   uninitialised WRAM (crt0 zeros the runtime ZP and the RAM area, so `.bss` is
   zero before `main`).
 
-CI (when `labs/am6502` is wired into `.github/workflows/`):
+CI is `.github/workflows/am6502.yml` (added with M3):
 
 ```text
 make -C labs/am6502 test ARCH=mos6502-nemu        # no RTL, no iverilog needed
 make -C labs/am6502 test ARCH=mos6502-nes DUT=nemu
+make -C labs/am6502 test ARCH=mos6502-nes DUT=gem
 make -C labs/am6502 test ARCH=mos6502-nes DUT=rtl # needs iverilog
+make -C labs/am6502 difftest ARCH=mos6502-nemu    # per-instruction NEMU vs RTL
 ```
 
 The first line is the interesting one: it can go green on a laptop with no
@@ -410,7 +417,7 @@ touch C.
 | **M0** | this document + directory + index entries | reviewed, no code claimed | done with this commit |
 | **M1** | `mos6502-nemu` end to end: `hello`, `klaus` wrapper, `tools/run.py` | `make test ARCH=mos6502-nemu` green on `6502EMU`; Klaus passes at `PC=$3469` **with the build's own reset vector** — **landed 2026-11-16** | 1-2 weeks |
 | **M2** | `mos6502-nes`: iNES output, `ines.py`, `$4018/$4019` observation in tb, NEMU NES-mode decode | the same `hello.nes` runs on `6502EMU`, `gem6502` and RTL, frame non-blank, exit code 0 — **landed 2026-11-16** (3/3/4 frames, full white screen) | 2-3 weeks |
-| **M3** | DiffTest + CI: retire-level compare, failure report, workflow | `make difftest APP=hello` prints the first differing instruction; CI runs the three lines in §10 | 2 weeks |
+| **M3** | DiffTest + CI: retire-level compare, failure report, workflow | `make difftest APP=hello` prints the first differing instruction; CI runs the lines in §10 — **landed 2026-11-16** (1,216 instructions match; Klaus partial run matches 200k) | 2 weeks |
 | stretch | `mos65c02-nemu`, `nes-mmc3` (mapper 4), `printf`/`malloc` shims, move `NEMU/nesgame` onto the same CRT | each independently useful; none blocks another | - |
 
 M1 is deliberately NEMU-only: it needs no new RTL, no new emulator feature and

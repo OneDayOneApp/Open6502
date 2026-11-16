@@ -1,0 +1,59 @@
+name: am6502
+
+# Gate for labs/am6502: the same images must pass on the golden reference, the
+# cycle model and the RTL bench, and NEMU/RTL must agree instruction by
+# instruction.  Klaus is not here on purpose: it downloads an external binary,
+# so it stays opt-in (`RUN_KLAUS=1 make test`).
+
+on:
+  push:
+    paths:
+      - "labs/am6502/**"
+      - "tb/open6502_am6502_flat_tb.sv"
+      - "tb/open6502_am6502_tb.sv"
+      - "NEMU/**"
+      - "GEM6502/**"
+      - "rtl/**"
+      - ".github/workflows/am6502.yml"
+  pull_request:
+    paths:
+      - "labs/am6502/**"
+      - "tb/open6502_am6502_flat_tb.sv"
+      - "tb/open6502_am6502_tb.sv"
+      - "NEMU/**"
+      - "GEM6502/**"
+      - "rtl/**"
+      - ".github/workflows/am6502.yml"
+
+jobs:
+  am6502:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cc65 iverilog libsdl2-dev pkg-config
+
+      - name: Build NEMU (6502EMU)
+        run: make -C NEMU m6502_defconfig && make -C NEMU -j"$(nproc)"
+
+      - name: Build GEM6502
+        run: make -C GEM6502
+
+      - name: Flat images on NEMU
+        run: make -C labs/am6502 test ARCH=mos6502-nemu
+
+      - name: Cartridges on NEMU
+        run: make -C labs/am6502 test ARCH=mos6502-nes DUT=nemu
+
+      - name: Cartridges on GEM6502
+        run: make -C labs/am6502 test ARCH=mos6502-nes DUT=gem
+
+      - name: Cartridges on RTL
+        run: make -C labs/am6502 test ARCH=mos6502-nes DUT=rtl
+
+      - name: Lockstep DiffTest (NEMU vs RTL, per instruction)
+        run: make -C labs/am6502 difftest ARCH=mos6502-nemu
