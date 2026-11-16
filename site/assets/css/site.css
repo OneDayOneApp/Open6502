@@ -4399,6 +4399,117 @@ html[lang="en"] .section-head h2 em {
   background: linear-gradient(90deg, var(--red), var(--amber));
 }
 
+/* ---------- Learn page: score history (chart + log) ---------- */
+.score-history {
+  margin-top: 30px;
+}
+
+.score-history h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.score-history h3 em {
+  font-style: normal;
+  color: var(--amber);
+}
+
+.score-history__lead {
+  margin: 0 0 16px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.history-chart {
+  margin: 0 0 18px;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+}
+
+.history-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.history-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.history-axis {
+  fill: var(--dim);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.history-target {
+  stroke: var(--amber);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 5;
+  opacity: 0.7;
+}
+
+.history-target-label {
+  fill: var(--amber);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.history-line {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.history-dot {
+  fill: var(--bg);
+  stroke: var(--red);
+  stroke-width: 2;
+}
+
+.history-dot--last {
+  fill: var(--amber);
+  stroke: var(--amber);
+}
+
+.history-score {
+  fill: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.history-date {
+  fill: var(--dim);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.history-table td {
+  vertical-align: top;
+}
+
+.history-table .history-total {
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.history-changes {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
 .score-bars b {
   font-family: var(--mono);
   font-weight: 600;

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>学习路径 · 香山对齐评分 — Open6502</title>
-  <meta name="description" content="用 Open6502 练香山式芯片开发流程：三个环、八个维度的香山对齐评分（当前 34/100）、12 周路线，以及能迁移与不能迁移的能力边界。">
+  <meta name="description" content="用 Open6502 练香山式芯片开发流程：三个环、八个维度的香山对齐评分（当前 47/100）、12 周路线，以及能迁移与不能迁移的能力边界。">
   <meta name="theme-color" content="#06080c">
   <meta name="color-scheme" content="dark">
   <!-- Google Tag Manager -->
@@ -25,12 +25,13 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:locale:alternate" content="en_US">
   <meta property="og:title" content="学习路径 · 香山对齐评分 — Open6502">
-  <meta property="og:description" content="用一颗 6502 练香山式流程：三个环、八维评分（34/100）、12 周路线与能力迁移边界。">
+  <meta property="og:description" content="用一颗 6502 练香山式流程：三个环、八维评分（47/100）、12 周路线与能力迁移边界。">
   <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/learn.zh.html">
   <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="assets/css/site.css">
   <script src="assets/js/site.js" defer></script>
+  <script src="assets/js/scorecard-history.js" defer></script>
 </head>
 <body>
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WGT7D54Q"
@@ -121,7 +122,7 @@
               <span class="proof-k">香山式能力对照</span>
             </div>
             <div class="proof-item">
-              <span class="proof-v">34 / 100</span>
+              <span class="proof-v">47 / 100</span>
               <span class="proof-k">当前对齐分</span>
             </div>
           </div>
@@ -135,19 +136,19 @@
             </div>
             <div class="score-body">
               <div class="score-head">
-                <span class="score-num">34<span>/100</span></span>
-                <span class="score-tag">D+ · 原型期</span>
+                <span class="score-num">47<span>/100</span></span>
+                <span class="score-tag">C · 内环成型</span>
               </div>
-              <p class="score-note">有参考模型和文档，缺锁步验证、CI 与生成化这三根支柱。</p>
+              <p class="score-note">参考模型、逐指令 DiffTest 与 CI 骨架已就位；缺生成化、帧级比对与后端闭环。</p>
               <ul class="score-bars">
-                <li><span>参考模型</span><i style="--v:85%"></i><b>8.5</b></li>
-                <li><span>差分验证</span><i style="--v:40%"></i><b>4.0</b></li>
+                <li><span>参考模型</span><i style="--v:90%"></i><b>9.0</b></li>
+                <li><span>差分验证</span><i style="--v:65%"></i><b>6.5</b></li>
                 <li><span>生成化</span><i style="--v:2%"></i><b>0.0</b></li>
-                <li><span>CI 门禁</span><i style="--v:15%"></i><b>1.5</b></li>
+                <li><span>CI 门禁</span><i style="--v:45%"></i><b>4.5</b></li>
                 <li><span>检查点</span><i style="--v:40%"></i><b>4.0</b></li>
                 <li><span>性能评估</span><i style="--v:25%"></i><b>2.5</b></li>
                 <li><span>后端闭环</span><i style="--v:20%"></i><b>2.0</b></li>
-                <li><span>开源协作</span><i style="--v:50%"></i><b>5.0</b></li>
+                <li><span>开源协作</span><i style="--v:80%"></i><b>8.0</b></li>
               </ul>
             </div>
           </div>
@@ -198,7 +199,7 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="eyebrow"><span class="sec-index">02</span>Scorecard</span>
-          <h2 id="score-title">对齐香山：<em>34 / 100</em></h2>
+          <h2 id="score-title">对齐香山：<em>47 / 100</em></h2>
           <p>八个维度，权重按“香山式流程”里的实际重要性分配。只认可复现的证据：能跑、能查、能重复。计划、口号和百分比进度都不计分。</p>
         </div>
 
@@ -208,22 +209,28 @@
               <tr><th>维度</th><th>权重</th><th>得分</th><th>仓库里的证据</th><th>缺口</th></tr>
             </thead>
             <tbody>
-              <tr><td>参考模型</td><td>15%</td><td>8.5</td><td>NEMU 6502EMU、golden-reference 设计/清单、帧与音频哈希、快照与输入回放</td><td>DiffTest 只到 CPU 层，PPU/APU/mapper 未进协议</td></tr>
-              <tr><td>锁步差分验证</td><td>25%</td><td>4.0</td><td><code>sim/difftest</code> 有 final-state 和 PC trace 冒烟</td><td>无逐指令 retire、无总线/PPU 事务比对、无首个差异定位</td></tr>
+              <tr><td>参考模型</td><td>15%</td><td>9.0</td><td>NEMU 6502EMU、golden-reference 设计/清单、帧与音频哈希、快照与回放；<code>labs/am6502</code> 的镜像由构建产出且逐字节可复现</td><td>DiffTest 仍只到 CPU 层；PPU/APU/mapper 未进协议</td></tr>
+              <tr><td>锁步差分验证</td><td>25%</td><td>6.5</td><td><code>sim/difftest</code> 冒烟；<code>labs/am6502</code> 的 <code>make difftest</code>：同一 64 KiB 镜像在 NEMU 与 RTL 上逐条 retire 比对（PC/A/X/Y/SP/P），首个分歧带上下文；hello 1,216 条、Klaus 局部 20 万条一致</td><td>仅平坦镜像；总线/PPU/APU 事务、SoC 级与帧哈希未进协议；无检查点续跑</td></tr>
               <tr><td>生成化描述</td><td>15%</td><td>0.0</td><td>—</td><td>全仓 0 个 <code>.scala</code>，纯手写 SystemVerilog</td></tr>
-              <tr><td>CI 门禁</td><td>15%</td><td>1.5</td><td><code>pages.yml</code> 部署站点；CONTRIBUTING 有回归规则</td><td>没有跑测试的 workflow，没有覆盖率与确定性双跑</td></tr>
+              <tr><td>CI 门禁</td><td>15%</td><td>4.5</td><td><code>pages.yml</code> 部署站点；<code>am6502.yml</code> 跑平坦镜像、卡带三后端与逐指令 DiffTest</td><td>未设为 required check；无 lint/覆盖率/确定性双跑；Klaus 未入 CI</td></tr>
               <tr><td>检查点 / 回放</td><td>10%</td><td>4.0</td><td>REF 侧有 snapshot、状态哈希、输入回放</td><td>RTL 侧没有状态导出/恢复，无法从第 N 周期复现分歧</td></tr>
               <tr><td>性能评估</td><td>10%</td><td>2.5</td><td>GEM6502 事件内核、时序总线实验、面积报告</td><td>G0–G2 仍 partial，无计数器、无“改动→收益”报告</td></tr>
               <tr><td>后端闭环</td><td>7%</td><td>2.0</td><td>Yosys 逐模块面积、55nm 成本模型</td><td>无 bitstream、无 PDK、无 DFT/时序收敛</td></tr>
-              <tr><td>开源协作</td><td>3%</td><td>5.0</td><td>README、技术文档、贡献指南、golden 清单完整</td><td>根许可证未发布，贡献流程事实上被阻断</td></tr>
-              <tr class="score-total"><td>总分</td><td>100%</td><td>34.4</td><td colspan="2">D+ · 有参考模型和文档，缺三根支柱</td></tr>
+              <tr><td>开源协作</td><td>3%</td><td>8.0</td><td>README、技术文档、贡献指南、golden 清单；根 MIT 许可证与 <code>THIRD_PARTY_NOTICES</code> 已发布</td><td>缺行为准则与 issue 模板；贡献流程刚解封，尚无外部贡献记录</td></tr>
+              <tr class="score-total"><td>总分</td><td>100%</td><td>46.8</td><td colspan="2">C · 内环骨架已就位，缺生成化、帧级比对与后端闭环</td></tr>
             </tbody>
           </table>
         </div>
 
+        <div class="score-history reveal" data-score-history data-lang="zh">
+          <h3>分数记录：<em>一条只往上走的曲线</em></h3>
+          <p class="score-history__lead">每次复核留一个点，并写清分数为什么变；只认可复现的证据。数字与上面的八维表一致，绘制脚本是 <code>assets/js/scorecard-history.js</code>。</p>
+          <noscript>最新一次复核：2026-11-16 · 46.8 / 100（C）。完整记录见 docs/scorecard-history.md。</noscript>
+        </div>
+
         <div class="callout callout--info">
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v4M8 5.1h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <span><strong>口径：</strong>得分 = 维度分（0–10）× 权重；权重体现“对香山式流程的重要性”，不是对项目价值的评价。评分是工程判断，不是认证；证据会过期，复核时以 <code>git log</code>、<code>rtl/</code>、<code>sim/difftest/</code> 与 CI 实际输出为准。</span>
+          <span><strong>口径：</strong>得分 = 维度分（0–10）× 权重；权重体现“对香山式流程的重要性”，不是对项目价值的评价。评分是工程判断，不是认证；证据会过期，复核时以 <code>git log</code>、<code>rtl/</code>、<code>labs/am6502/</code> 与 CI 实际输出为准。最近复核：2026-11-16（am6502 M1–M3 落地）。</span>
         </div>
       </div>
     </section>
@@ -243,13 +250,13 @@
               <tr><th>周</th><th>做什么</th><th>验收产出</th><th>预估增益</th></tr>
             </thead>
             <tbody>
-              <tr><td>1–2</td><td>Difftest 升级为锁步：逐指令 retire + 总线事务比对</td><td><code>make difftest</code> 一条命令，失败打印首个差异</td><td>+10</td></tr>
-              <tr><td>3–4</td><td>CI 门禁：lint / sim / difftest / golden，同种子双跑验确定性</td><td>PR 不绿不能合，失败自动上传 trace</td><td>+9.8</td></tr>
+              <tr><td>1–2</td><td>Difftest 补全：逐指令 retire（am6502 已覆盖平坦镜像）+ 总线/PPU 事务比对</td><td><code>make difftest</code> 一条命令，失败打印首个差异</td><td>+2.5</td></tr>
+              <tr><td>3–4</td><td>CI 补全：<code>am6502.yml</code> 已跑平坦/卡带/DiffTest；再加 lint、覆盖率与同种子双跑</td><td>PR 不绿不能合，失败自动上传 trace</td><td>+3.0</td></tr>
               <tr><td>5–6</td><td>检查点：任意周期 snapshot → restore → 继续锁步</td><td>从第 N 周期复现同一分歧</td><td>+2</td></tr>
               <tr><td>7–9</td><td>用 Chisel 重写一个模块（建议 ALU 或 PPU 子模块），与 SV 版本 co-sim</td><td>两版等价 + 参数化 demo</td><td>+7.5</td></tr>
               <tr><td>10–11</td><td>给 GEM6502 加计数器，做一次“改总线延迟 → cycles/阻塞”的实验</td><td>一页可复现报告</td><td>+1.5</td></tr>
               <tr><td>12</td><td>Yosys → OpenROAD/SKY130 跑一个小模块的 PPA</td><td>一页面积/时序报告</td><td>+2.1</td></tr>
-              <tr class="score-total"><td>目标</td><td colspan="2">12 周后把对齐分从 34 拉到 60–65</td><td>≈ +33</td></tr>
+              <tr class="score-total"><td>目标</td><td colspan="2">12 周后把对齐分从 47 拉到 65–68</td><td>≈ +19</td></tr>
             </tbody>
           </table>
         </div>

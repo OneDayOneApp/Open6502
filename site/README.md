@@ -17,7 +17,8 @@ Pages from the `site/` directory on `main`.
   redirects to `docs.zh.html`.
 - `docs.zh.html` — Chinese technical documentation with the same section IDs.
 - `learn.html` — **English default** learning path: the three loops, the
-  eight-dimension XiangShan alignment scorecard (34/100), a 12-week route and
+  eight-dimension XiangShan alignment scorecard (47/100), its score history,
+  a 12-week route and
   the transfer boundaries. Redirects Chinese locales to `learn.zh.html`.
 - `learn.zh.html` — Chinese learning path with the same structure.
 - `nesearch.html` — **English default** product page for the nesearch desktop
@@ -44,6 +45,20 @@ The nav language switch (`data-lang-switch`) stores the choice and keeps the
 current `#section` anchor, so a reader can move between
 `docs.html#verification` and `docs.zh.html#verification` directly. Each page
 declares `hreflang` alternates and a matching canonical URL.
+
+### Scorecard history
+
+The XiangShan alignment scorecard on `learn.html` / `learn.zh.html` carries a
+score-history curve and a per-update log. The data and the SVG/table builders
+live in `assets/js/scorecard-history.js`; the human-readable log is
+`../docs/scorecard-history.md`. To add a review point, append to
+`HISTORY.points` there and update both pages' hero number and eight-dimension
+table. The script also exports its builders, so a quick check is:
+
+```sh
+node -e 'const m = require("./site/assets/js/scorecard-history.js");
+console.log(m.chartSvg(m.HISTORY.points, "zh").length)'
+```
 
 ## Interactive WebAssembly demo
 

@@ -12,6 +12,7 @@ The docs are grouped by the loop they serve: inner (minutes), middle (every comm
 | Doc | What it answers |
 |---|---|
 | [learning-path.zh-CN.md](learning-path.zh-CN.md) | How to rehearse the XiangShan-style flow on this repo; which gaps matter first |
+| [scorecard-history.md](scorecard-history.md) | Every alignment-score review: totals, per-dimension deltas and the evidence behind each move |
 | [../site/learn.zh.html](../site/learn.zh.html) | Web version: three loops, the eight-dimension XiangShan scorecard and the 12-week route |
 
 ## Inner loop — verification and debug (minutes)

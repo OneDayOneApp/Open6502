@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning path · XiangShan scorecard — Open6502</title>
-  <meta name="description" content="Rehearse the XiangShan-style chip flow on Open6502: three loops, an eight-dimension XiangShan alignment scorecard (currently 34/100), a 12-week route, and what does and does not transfer.">
+  <meta name="description" content="Rehearse the XiangShan-style chip flow on Open6502: three loops, an eight-dimension XiangShan alignment scorecard (currently 47/100), a 12-week route, and what does and does not transfer.">
   <meta name="theme-color" content="#06080c">
   <meta name="color-scheme" content="dark">
   <!-- Google Tag Manager -->
@@ -25,7 +25,7 @@
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="zh_CN">
   <meta property="og:title" content="Learning path · XiangShan scorecard — Open6502">
-  <meta property="og:description" content="Use a small 6502 to rehearse the XiangShan flow: three loops, eight dimensions (34/100), a 12-week route and transfer boundaries.">
+  <meta property="og:description" content="Use a small 6502 to rehearse the XiangShan flow: three loops, eight dimensions (47/100), a 12-week route and transfer boundaries.">
   <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/learn.html">
   <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -50,6 +50,7 @@
   </script>
   <link rel="stylesheet" href="assets/css/site.css">
   <script src="assets/js/site.js" defer></script>
+  <script src="assets/js/scorecard-history.js" defer></script>
 </head>
 <body>
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WGT7D54Q"
@@ -141,7 +142,7 @@
               <span class="proof-k">XiangShan-style checklist</span>
             </div>
             <div class="proof-item">
-              <span class="proof-v">34 / 100</span>
+              <span class="proof-v">47 / 100</span>
               <span class="proof-k">current alignment score</span>
             </div>
           </div>
@@ -155,19 +156,19 @@
             </div>
             <div class="score-body">
               <div class="score-head">
-                <span class="score-num">34<span>/100</span></span>
-                <span class="score-tag">D+ · prototype</span>
+                <span class="score-num">47<span>/100</span></span>
+                <span class="score-tag">C · inner loop</span>
               </div>
-              <p class="score-note">A solid reference model and docs, but the three pillars — lockstep verification, CI and generation — are missing.</p>
+              <p class="score-note">Reference model, per-instruction DiffTest and a CI skeleton are in place; generative flow, frame-level comparison and the backend loop are missing.</p>
               <ul class="score-bars">
-                <li><span>Reference</span><i style="--v:85%"></i><b>8.5</b></li>
-                <li><span>DiffTest</span><i style="--v:40%"></i><b>4.0</b></li>
+                <li><span>Reference</span><i style="--v:90%"></i><b>9.0</b></li>
+                <li><span>DiffTest</span><i style="--v:65%"></i><b>6.5</b></li>
                 <li><span>Generation</span><i style="--v:2%"></i><b>0.0</b></li>
-                <li><span>CI gates</span><i style="--v:15%"></i><b>1.5</b></li>
+                <li><span>CI gates</span><i style="--v:45%"></i><b>4.5</b></li>
                 <li><span>Checkpoints</span><i style="--v:40%"></i><b>4.0</b></li>
                 <li><span>Perf model</span><i style="--v:25%"></i><b>2.5</b></li>
                 <li><span>Backend</span><i style="--v:20%"></i><b>2.0</b></li>
-                <li><span>Collaboration</span><i style="--v:50%"></i><b>5.0</b></li>
+                <li><span>Collaboration</span><i style="--v:80%"></i><b>8.0</b></li>
               </ul>
             </div>
           </div>
@@ -218,7 +219,7 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="eyebrow"><span class="sec-index">02</span>Scorecard</span>
-          <h2 id="score-title">XiangShan alignment: <em>34 / 100</em></h2>
+          <h2 id="score-title">XiangShan alignment: <em>47 / 100</em></h2>
           <p>Eight dimensions, weighted by how much each matters in the XiangShan-style flow. Only reproducible evidence counts: it must run, be checkable, and repeat. Plans, slogans and percentage-complete bars earn nothing.</p>
         </div>
 
@@ -228,22 +229,28 @@
               <tr><th>Dimension</th><th>Weight</th><th>Score</th><th>Evidence in this repo</th><th>Gap</th></tr>
             </thead>
             <tbody>
-              <tr><td>Reference model</td><td>15%</td><td>8.5</td><td>NEMU 6502EMU; golden-reference design and checklist; frame/audio hashes; snapshots and input replay</td><td>DiffTest is CPU-only; PPU/APU/mapper are outside the protocol</td></tr>
-              <tr><td>Lockstep DiffTest</td><td>25%</td><td>4.0</td><td><code>sim/difftest</code> final-state and PC-trace smoke test</td><td>No per-instruction retire, no bus/PPU transaction compare, no first-divergence report</td></tr>
+              <tr><td>Reference model</td><td>15%</td><td>9.0</td><td>NEMU 6502EMU; golden-reference design and checklist; frame/audio hashes; snapshots and replay; <code>labs/am6502</code> builds its images reproducibly</td><td>DiffTest is still CPU-only; PPU/APU/mapper are outside the protocol</td></tr>
+              <tr><td>Lockstep DiffTest</td><td>25%</td><td>6.5</td><td><code>sim/difftest</code> smoke test; <code>labs/am6502</code> <code>make difftest</code> retires the same 64 KiB image on NEMU and RTL instruction by instruction (PC/A/X/Y/SP/P) with a first-divergence report; hello 1,216 and Klaus 200k instructions match</td><td>Flat images only; bus/PPU/APU transactions, SoC level and frame hashes are outside the protocol; no checkpoint resume</td></tr>
               <tr><td>Generation</td><td>15%</td><td>0.0</td><td>—</td><td>Zero <code>.scala</code> files; hand-written SystemVerilog only</td></tr>
-              <tr><td>CI gates</td><td>15%</td><td>1.5</td><td><code>pages.yml</code> deploys the site; CONTRIBUTING defines the rules</td><td>No test workflow, no coverage, no deterministic double runs</td></tr>
+              <tr><td>CI gates</td><td>15%</td><td>4.5</td><td><code>pages.yml</code> deploys the site; <code>am6502.yml</code> runs flat images, the cartridge on three backends and the per-instruction DiffTest</td><td>Not a required check yet; no lint, coverage or deterministic double runs; Klaus is not in CI</td></tr>
               <tr><td>Checkpoints</td><td>10%</td><td>4.0</td><td>REF side has snapshots, state hashes, input replay</td><td>RTL side has no export/restore; cannot replay from cycle N</td></tr>
               <tr><td>Performance evaluation</td><td>10%</td><td>2.5</td><td>GEM6502 event kernel, timing-bus experiment, area report</td><td>G0–G2 still partial; no counters, no change-to-benefit report</td></tr>
               <tr><td>Backend loop</td><td>7%</td><td>2.0</td><td>Yosys per-module area, 55nm cost model</td><td>No bitstream, no PDK, no DFT or timing closure</td></tr>
-              <tr><td>Open collaboration</td><td>3%</td><td>5.0</td><td>README, technical docs, contributing guide, golden checklist</td><td>Root licence unpublished; contribution is effectively blocked</td></tr>
-              <tr class="score-total"><td>Total</td><td>100%</td><td>34.4</td><td colspan="2">D+ · a good reference model and docs, missing three pillars</td></tr>
+              <tr><td>Open collaboration</td><td>3%</td><td>8.0</td><td>README, technical docs, contributing guide, golden checklist; root MIT licence and <code>THIRD_PARTY_NOTICES</code> published</td><td>No code of conduct or issue templates; contribution just unblocked, no outside contributions yet</td></tr>
+              <tr class="score-total"><td>Total</td><td>100%</td><td>46.8</td><td colspan="2">C · inner-loop skeleton in place, missing generation, frame-level compare and the backend loop</td></tr>
             </tbody>
           </table>
         </div>
 
+        <div class="score-history reveal" data-score-history data-lang="en">
+          <h3>Score history: <em>a line that only goes up</em></h3>
+          <p class="score-history__lead">Every review leaves a point with the reason it moved; only reproducible evidence counts. The numbers match the table above; the chart is drawn by <code>assets/js/scorecard-history.js</code>.</p>
+          <noscript>Latest review: 2026-11-16 · 46.8 / 100 (C). Full log in docs/scorecard-history.md.</noscript>
+        </div>
+
         <div class="callout callout--info">
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v4M8 5.1h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <span><strong>Method:</strong> dimension score (0–10) × weight. The weight reflects importance to the XiangShan-style flow, not the value of the project. This is an engineering judgement, not a certification; evidence expires, so re-check against <code>git log</code>, <code>rtl/</code>, <code>sim/difftest/</code> and the actual CI output.</span>
+          <span><strong>Method:</strong> dimension score (0–10) × weight. The weight reflects importance to the XiangShan-style flow, not the value of the project. This is an engineering judgement, not a certification; evidence expires, so re-check against <code>git log</code>, <code>rtl/</code>, <code>labs/am6502/</code> and the actual CI output. Last review: 2026-11-16 (am6502 M1–M3 landed).</span>
         </div>
       </div>
     </section>
@@ -263,13 +270,13 @@
               <tr><th>Week</th><th>What to do</th><th>Acceptance output</th><th>Projected gain</th></tr>
             </thead>
             <tbody>
-              <tr><td>1–2</td><td>Upgrade DiffTest to lockstep: per-instruction retire + bus transaction compare</td><td><code>make difftest</code>, one command, first divergence on failure</td><td>+10</td></tr>
-              <tr><td>3–4</td><td>CI gates: lint / sim / difftest / golden, same-seed double run for determinism</td><td>Red PR cannot merge; traces uploaded on failure</td><td>+9.8</td></tr>
+              <tr><td>1–2</td><td>Finish DiffTest: per-instruction retire (am6502 covers flat images) + bus/PPU transaction compare</td><td><code>make difftest</code>, one command, first divergence on failure</td><td>+2.5</td></tr>
+              <tr><td>3–4</td><td>Finish CI: <code>am6502.yml</code> already runs flat/cartridge/DiffTest; add lint, coverage and same-seed double runs</td><td>Red PR cannot merge; traces uploaded on failure</td><td>+3.0</td></tr>
               <tr><td>5–6</td><td>Checkpoints: snapshot at any cycle → restore → continue lockstep</td><td>Reproduce the same divergence from cycle N</td><td>+2</td></tr>
               <tr><td>7–9</td><td>Rewrite one module in Chisel (ALU or a PPU submodule) and co-sim against the SV version</td><td>Equivalent versions + a parameterised demo</td><td>+7.5</td></tr>
               <tr><td>10–11</td><td>Add counters to GEM6502 and run a "bus latency → cycles/stall" experiment</td><td>A one-page reproducible report</td><td>+1.5</td></tr>
               <tr><td>12</td><td>Yosys → OpenROAD/SKY130 PPA on a small module</td><td>A one-page area/timing report</td><td>+2.1</td></tr>
-              <tr class="score-total"><td>Target</td><td colspan="2">Move the alignment score from 34 to 60–65 in 12 weeks</td><td>≈ +33</td></tr>
+              <tr class="score-total"><td>Target</td><td colspan="2">Move the alignment score from 47 to 65–68 in 12 weeks</td><td>≈ +19</td></tr>
             </tbody>
           </table>
         </div>

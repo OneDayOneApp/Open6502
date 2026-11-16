@@ -32,14 +32,14 @@
 |---|---|---|---|
 | 1 | 生成化描述（Chisel/FIRRTL，参数化、可复用） | 用 Chisel 重写 CPU 或 PPU 的一个模块，与手写 SV 做等价对比 | ❌ 全仓 0 个 `.scala`，纯手写 SystemVerilog |
 | 2 | 参考模型（NEMU 作为 golden） | 已有的 6502EMU 就是 | ✅ 有，质量可用 |
-| 3 | 锁步 Difftest（逐指令/逐周期比对，首个差异定位） | 把 final-state 冒烟升级成 retire 级 + 总线事务级 | 🟡 只到最终状态，[sim/difftest/README.md](../sim/difftest/README.md) 自认 “not a cycle-level online DiffTest” |
+| 3 | 锁步 Difftest（逐指令/逐周期比对，首个差异定位） | 把 final-state 冒烟升级成 retire 级 + 总线事务级 | 🟡 平坦镜像已逐指令 retire（[labs/am6502](../labs/am6502/README.zh-CN.md) 的 `make difftest`）；总线/PPU/APU 事务与帧哈希未进协议 |
 | 4 | 检查点 / 确定性回放 | 任意周期 snapshot → restore → 继续比对 | 🟡 REF 侧有 snapshot/hash/replay，RTL 侧没有 |
-| 5 | CI 回归门禁 | 每个 PR 跑 lint + sim + difftest + golden，失败上传 trace | ❌ 只有 [.github/workflows/pages.yml](../.github/workflows/pages.yml)，只部署网站、不跑测试 |
+| 5 | CI 回归门禁 | 每个 PR 跑 lint + sim + difftest + golden，失败上传 trace | 🟡 [am6502.yml](../.github/workflows/am6502.yml) 已跑平坦镜像、卡带三后端与逐指令 DiffTest；未设 required check，无确定性双跑 |
 | 6 | 性能采样 / 改动评估 | GEM6502 加计数器，做“改一个参数 → cycles 变化多少”的实验报告 | 🟡 G0–G2 仍 partial，无计数器体系 |
 | 7 | 后端闭环（FPGA → 综合 → DFT → 流片） | Yosys → OpenROAD/SKY130 跑一个小模块的 PPA | ❌ 无 bitstream、无 PDK；55nm 是商业 PDK 路线 |
-| 8 | 开源协作与许可 | 根许可证 + 可复现的贡献流程 | 🟡 [CONTRIBUTING.md](../CONTRIBUTING.md) 很完整，但明写“发布许可证前请不要贡献” |
+| 8 | 开源协作与许可 | 根许可证 + 可复现的贡献流程 | ✅ [LICENSE](../LICENSE) 根 MIT 已发布，[CONTRIBUTING.md](../CONTRIBUTING.md) 已解封 |
 
-结论：**第 2 件做得最好；第 1、3、5 件是香山模式的三根支柱，也是这里最缺的三件。**
+结论：**第 2 件最扎实；第 3、5 件已从“没有”变成“有骨架”，剩总线/帧级比对与 required check；第 1 件（生成化）仍是最大缺口。**
 
 ---
 

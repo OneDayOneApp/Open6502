@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased v1.5 (in progress)
+- Refreshed the XiangShan alignment scorecard on the site (34 → 46.8/100) after am6502 M1–M3, and added a score-history curve plus a per-update log (`site/assets/js/scorecard-history.js`, `docs/scorecard-history.md`); corrected the stale "root licence unpublished" claim in `CONTRIBUTING.md` and the README gap summary.
 - Added `labs/am6502` design documents: an AM-style (nexus-am-inspired) image contract, `ARCH=mos6502-{nemu,nes}` matrix and TRM+IOE-only scope for 6502/NES, with M0–M3 milestones. Design stage only; no code yet.
 - Implemented `labs/am6502` M1: `mos6502-nemu` platform (crt0, TRM, ld65 flat layout), `hello` and a Klaus wrapper, `tools/mkimage.py` + `tools/run.py`, and `make test`. Images are byte-reproducible (same SHA-256 across builds) and Klaus passes at `PC=$3469` with the build's own reset vector; `_io_*` and `am_mainargs` are stubs.
 - Implemented `labs/am6502` M2: `mos6502-nes` platform (NROM iNES cartridge, `$4018` putc / `$4019` halt), `tools/ines.py`, and NEMU + GEM6502 host-console decode. The same `hello.nes` now halts with code 0 and renders a full white frame on NEMU, GEM6502 and the new `tb/open6502_am6502_tb.sv` RTL bench.

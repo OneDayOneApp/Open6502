@@ -25,9 +25,9 @@ See [docs/55nm-tapeout-roadmap.md](docs/55nm-tapeout-roadmap.md).
 
 ## Licensing and provenance
 
-The repository does not yet declare a root project license. **Do not contribute
-code until the maintainers publish the root license and contribution terms.**
-Bundled ROM licenses are listed in [roms/LICENSES](roms/LICENSES).
+The root project is MIT-licensed; see [LICENSE](LICENSE). By contributing you
+agree that your contribution is licensed under the same terms. Bundled ROM
+licenses are listed in [roms/LICENSES](roms/LICENSES).
 
 For ASIC contributions, do not upload foundry PDK files, SRAM compiler outputs
 or proprietary standard-cell libraries. Contribute scripts and interfaces that

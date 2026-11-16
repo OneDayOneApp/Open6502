@@ -32,8 +32,9 @@ reference model -> lockstep DiffTest -> CI gates -> performance evaluation -> op
   (Chinese) — core story, three loops, 12-week route, what transfers and what
   does not.
 - Index: [docs/README.md](docs/README.md).
-- The three gaps that matter most: lockstep DiffTest, a CI that runs tests, and
-  one Chisel module.
+- Two of the three gaps that matter most now have a working skeleton in
+  [labs/am6502](labs/am6502/README.md) (per-instruction DiffTest, CI gate); the
+  remaining pillar is generation — one Chisel module.
 
 ## Website
 
@@ -169,7 +170,8 @@ Main open blockers:
 
 - PPU is not cycle-exact: no full fetch/shift pipeline or exact sprite evaluation.
 - DMC bus arbitration and DMA alignment are incomplete.
-- NEMU/RTL comparison is not yet a multi-game lockstep DiffTest.
+- Lockstep DiffTest covers flat am6502 images and single test ROMs; not yet
+  multi-game, frame-level or checkpoint-resumable.
 - No FPGA bitstream and no silicon.
 
 See [55nm tapeout roadmap](docs/55nm-tapeout-roadmap.md) for the full gate list.
