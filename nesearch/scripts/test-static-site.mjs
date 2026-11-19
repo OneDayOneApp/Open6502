@@ -203,6 +203,30 @@ async function playerTest() {
   }
   check("renders a non-blank frame", lit > 500, `${lit} lit pixels`);
   check("reports frame count", Number(wasm.gem_web_frames()) >= 120);
+
+  /* Save states: the record must reproduce the exact same frames. */
+  const hashFramebuffer = () => {
+    const ptr = wasm.gem_web_framebuffer_rgba();
+    const data = new Uint8Array(wasm.memory.buffer, ptr, 256 * 240 * 4);
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < data.length; i += 1) {
+      h ^= data[i];
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h;
+  };
+  check("state API exported", typeof wasm.gem_web_save_state === "function");
+  const stateSize = typeof wasm.gem_web_save_state === "function" ? wasm.gem_web_save_state() : 0;
+  check("save state has a sane size", stateSize > 1000, `${stateSize} bytes`);
+  if (stateSize > 0) {
+    const saved = new Uint8Array(wasm.memory.buffer, wasm.gem_web_state_buffer(), stateSize).slice();
+    for (let i = 0; i < 60; i += 1) wasm.gem_web_run_frame();
+    const continued = hashFramebuffer();
+    new Uint8Array(wasm.memory.buffer, wasm.gem_web_state_buffer(), saved.length).set(saved);
+    const loadRc = wasm.gem_web_load_state(saved.length);
+    for (let i = 0; i < 60; i += 1) wasm.gem_web_run_frame();
+    check("save state round-trips exactly", loadRc === 0 && hashFramebuffer() === continued, `rc=${loadRc}`);
+  }
 }
 
 function findRom() {

@@ -21,6 +21,13 @@ const MAX_CATCHUP = 2;
 const BASE = "../assets/play/";
 const SAMPLE_RATE = 44100;
 
+/* Save states: one rolling slot per game.  The state itself lives in the
+   wasm core (gem_web_save_state); the browser keeps the latest copy in memory
+   and mirrors it to localStorage so a refresh does not lose it. */
+const AUTOSAVE_FRAMES = 600;   /* ~10 s at 60.0988 fps */
+const PERSIST_MS = 30000;      /* localStorage write cadence */
+const SAVE_PREFIX = "nesearch:save:v1:";
+
 const JOY = { A: 0x01, B: 0x02, SELECT: 0x04, START: 0x08, UP: 0x10, DOWN: 0x20, LEFT: 0x40, RIGHT: 0x80 };
 const KEYMAP = {
   ArrowUp: JOY.UP, KeyW: JOY.UP,
@@ -49,9 +56,15 @@ const dom = {
   overlayText: document.getElementById("overlayText"),
   overlayHint: document.getElementById("overlayHint"),
   startBtn: document.getElementById("startBtn"),
+  overlaySaveBtn: document.getElementById("overlaySaveBtn"),
+  overlayLoadBtn: document.getElementById("overlayLoadBtn"),
+  overlayState: document.getElementById("overlayState"),
   gameName: document.getElementById("gameName"),
   pauseBtn: document.getElementById("pauseBtn"),
+  saveBtn: document.getElementById("saveBtn"),
+  loadBtn: document.getElementById("loadBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
+  rotateBtn: document.getElementById("rotateBtn"),
   soundBtn: document.getElementById("soundBtn"),
   fullBtn: document.getElementById("fullBtn"),
   stats: document.getElementById("stats"),
@@ -85,6 +98,12 @@ const state = {
   lastTs: 0,
   frameAcc: 0,
   rafId: 0,
+  slot: null,      /* manual checkpoint, only written by Save */
+  autoSlot: null,  /* rolling checkpoint, written every 10 s and on pause */
+  lastAutoSave: 0,
+  lastPersist: 0,
+  landscapeLock: false,
+  landscapeFullscreen: false,
   audio: { ctx: null, gain: null, nextTime: 0, sources: new Set() },
 };
 
@@ -134,6 +153,12 @@ function showOverlay(options) {
   dom.startBtn.disabled = !overlayAction;
   dom.startBtn.textContent = overlayAction === "resume" ? "Resume" : overlayAction === "restart" ? "Restart" : "Start";
   dom.overlay.dataset.action = overlayAction || "none";
+  const canSave = Boolean(opts.save) && Boolean(state.wasm) && Boolean(state.romBytes) &&
+    Boolean(stateApi()) && !state.halted;
+  const canLoad = Boolean(opts.load) && hasAnySlot() && Boolean(stateApi());
+  dom.overlaySaveBtn.hidden = !canSave;
+  dom.overlayLoadBtn.hidden = !canLoad;
+  updateOverlayState();
   dom.overlay.style.userSelect = opts.selectable ? "text" : "";
   dom.overlay.style.webkitUserSelect = opts.selectable ? "text" : "";
   dom.overlay.hidden = false;
@@ -329,8 +354,9 @@ function stepFrame() {
     showOverlay({
       heading: "CPU halted",
       text: title,
-      hint: "The game stopped itself. Restart to play again.",
+      hint: "The game stopped itself. Restart, or return to the last saved state.",
       action: "restart",
+      load: true,
     });
     return false;
   }
@@ -368,6 +394,15 @@ function loop(timestamp) {
   }
   if (state.frameAcc > FRAME_MS * MAX_CATCHUP) state.frameAcc = 0;
   drawFrame();
+
+  /* Rolling checkpoint: cheap in memory, mirrored to localStorage at most
+     every PERSIST_MS so a refresh keeps the latest one. */
+  if (state.started && state.frames - state.lastAutoSave >= AUTOSAVE_FRAMES) {
+    const persist = Date.now() - state.lastPersist >= PERSIST_MS;
+    if (captureIntoSlot({ persist, auto: true })) {
+      if (persist) state.lastPersist = Date.now();
+    }
+  }
 
   state.fpsFrames += 1;
   if (timestamp - state.fpsAt >= 500) {
@@ -435,11 +470,16 @@ function pauseRunning(showCard) {
   dom.pauseBtn.setAttribute("aria-label", "Resume");
   releaseWakeLock();
   if (showCard !== false) {
+    /* Pausing is a natural checkpoint: keep the exact frame we stopped on
+       in the rolling slot (a deliberate Save stays untouched). */
+    captureIntoSlot({ persist: true, auto: true });
     showOverlay({
       heading: "Paused",
       text: title,
       hint: document.body.classList.contains("touch") ? "Tap Resume to keep playing." : "Press P or click Resume to keep playing.",
       action: "resume",
+      save: true,
+      load: true,
     });
   }
 }
@@ -461,6 +501,7 @@ function beginPlay(fresh) {
   }
   ensureAudio();
   state.started = true;
+  state.lastAutoSave = state.frames;
   hideOverlay();
   /* One synthetic START press gets past most title screens, so a thumb-only
      player is never stuck on "press start". */
@@ -502,11 +543,13 @@ function reloadRom() {
   }
   state.halted = false;
   state.started = true;
+  state.lastAutoSave = state.frames;
   dom.pauseBtn.disabled = false;
   hideOverlay();
   startRunning();
   state.pulseMask = JOY.START;
   state.pulseFrames = 8;
+  updateStateButtons();
   acquireWakeLock();
 }
 
@@ -561,8 +604,10 @@ async function loadRom() {
     text: "",
     hint: touchStartHint(),
     action: "start",
+    load: true,
   });
   updateStats();
+  updateStateButtons();
   return true;
 }
 
@@ -574,6 +619,10 @@ async function boot() {
     dom.downloadLink.href = romUrl;
     dom.downloadLink.hidden = false;
   }
+  state.slot = readSlot("manual");
+  state.autoSlot = readSlot("auto");
+  updateStateButtons();
+  updateRotateButton();
 
   try {
     const response = await fetch(`${BASE}gem6502.wasm`);
@@ -589,6 +638,7 @@ async function boot() {
     state.wasm.gem_web_set_buttons(0, 0);
     state.sound = true;
     dom.soundBtn.disabled = false;
+    updateStateButtons();
     await loadRom();
   } catch (error) {
     const message = String((error && error.message) || error);
@@ -632,6 +682,305 @@ function toggleFullscreen() {
     return;
   }
   Promise.resolve(request.call(target)).catch(() => toggleImmersive());
+}
+
+/* -------------------------------------------------------------- states */
+
+/* The core exposes gem_web_state_*; older builds simply lack them. */
+function stateApi() {
+  const wasm = state.wasm;
+  if (!wasm) return null;
+  return wasm.gem_web_state_buffer && wasm.gem_web_state_size &&
+    wasm.gem_web_save_state && wasm.gem_web_load_state ? wasm : null;
+}
+
+function hashText(text) {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i += 1) hash = ((hash << 5) + hash + text.charCodeAt(i)) >>> 0;
+  return hash.toString(36);
+}
+
+function slotKey(kind) {
+  const base = gameId ? SAVE_PREFIX + gameId : romUrl ? SAVE_PREFIX + "h" + hashText(romUrl) : "";
+  if (!base) return "";
+  return kind === "auto" ? `${base}:auto` : base;
+}
+
+function bytesToBase64(bytes) {
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function base64ToBytes(text) {
+  const binary = atob(text);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function readSlot(kind) {
+  const key = slotKey(kind);
+  if (!key) return null;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const record = JSON.parse(raw);
+    if (!record || record.v !== 1 || typeof record.data !== "string") return null;
+    const bytes = base64ToBytes(record.data);
+    if (!bytes.length) return null;
+    return { bytes, at: Number(record.at) || 0, frames: Number(record.frames) || 0 };
+  } catch (error) {
+    return null;
+  }
+}
+
+function persistSlot(slot, kind) {
+  const key = slotKey(kind);
+  if (!key || !slot) return false;
+  const record = JSON.stringify({
+    v: 1,
+    at: slot.at,
+    frames: slot.frames,
+    data: bytesToBase64(slot.bytes),
+  });
+  try {
+    localStorage.setItem(key, record);
+    return true;
+  } catch (error) {
+    /* Quota: drop the other games' slots and retry once. */
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+        const other = localStorage.key(i);
+        if (other && other.indexOf(SAVE_PREFIX) === 0 && other !== key) localStorage.removeItem(other);
+      }
+      localStorage.setItem(key, record);
+      return true;
+    } catch (fallbackError) {
+      return false;
+    }
+  }
+}
+
+function captureState() {
+  const wasm = stateApi();
+  if (!wasm) return null;
+  const size = wasm.gem_web_save_state();
+  if (!size || size < 0) return null;
+  const pointer = wasm.gem_web_state_buffer();
+  return new Uint8Array(wasm.memory.buffer, pointer, size).slice();
+}
+
+function restoreState(bytes) {
+  const wasm = stateApi();
+  if (!wasm || !bytes || !bytes.length) return false;
+  if (bytes.length > wasm.gem_web_state_size()) return false;
+  const pointer = wasm.gem_web_state_buffer();
+  new Uint8Array(wasm.memory.buffer, pointer, bytes.length).set(bytes);
+  if (wasm.gem_web_load_state(bytes.length) !== 0) return false;
+  stopAudio();
+  state.halted = false;
+  state.paused = false;
+  /* The pixel buffer is not part of the record: render one frame so the
+     restored screen is visible right away. */
+  wasm.gem_web_run_frame();
+  drawFrame();
+  return true;
+}
+
+function formatAge(at) {
+  if (!at) return "just now";
+  const seconds = Math.max(0, Math.round((Date.now() - at) / 1000));
+  if (seconds < 5) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  return `${Math.round(minutes / 60)}h ago`;
+}
+
+function preferredSlot() {
+  if (!state.started) {
+    return state.autoSlot ? { kind: "auto", slot: state.autoSlot } : { kind: "checkpoint", slot: state.slot };
+  }
+  return state.slot ? { kind: "checkpoint", slot: state.slot } : { kind: "auto", slot: state.autoSlot };
+}
+
+function hasAnySlot() {
+  return Boolean(state.slot || state.autoSlot);
+}
+
+function updateOverlayState() {
+  if (!dom.overlayState) return;
+  const available = Boolean(state.wasm) && Boolean(state.romBytes) && Boolean(stateApi());
+  dom.overlayState.hidden = !available;
+  if (!available) return;
+  const parts = [];
+  if (state.slot) parts.push(`checkpoint ${formatAge(state.slot.at)}`);
+  if (state.autoSlot) parts.push(`auto ${formatAge(state.autoSlot.at)}`);
+  dom.overlayState.textContent = parts.length
+    ? `${parts.join(" · ")} · auto-saves every 10 s`
+    : "No state yet · auto-saves every 10 s while playing";
+}
+
+function updateStateButtons() {
+  const loaded = Boolean(state.wasm) && Boolean(state.romBytes) && Boolean(stateApi());
+  if (dom.saveBtn) {
+    dom.saveBtn.disabled = !loaded || state.halted;
+    dom.saveBtn.title = state.halted ? "Cannot save after a crash" : "Save state (F2)";
+  }
+  if (dom.loadBtn) {
+    const target = preferredSlot();
+    dom.loadBtn.disabled = !loaded || !target.slot;
+    dom.loadBtn.title = target.slot
+      ? `Load ${target.kind === "auto" ? "last session" : "checkpoint"} (F3) · ${formatAge(target.slot.at)}`
+      : "No saved state yet";
+  }
+  if (dom.overlaySaveBtn) dom.overlaySaveBtn.disabled = !loaded || state.halted;
+  if (dom.overlayLoadBtn) dom.overlayLoadBtn.disabled = !hasAnySlot();
+  if (dom.rotateBtn) updateRotateButton();
+}
+
+function captureIntoSlot(options) {
+  const opts = options || {};
+  if (!state.wasm || !state.romBytes || state.halted || !stateApi()) return false;
+  const bytes = captureState();
+  if (!bytes) return false;
+  const slot = { bytes, at: Date.now(), frames: state.frames };
+  if (opts.auto) state.autoSlot = slot;
+  else state.slot = slot;
+  state.lastAutoSave = state.frames;
+  if (opts.persist) persistSlot(slot, opts.auto ? "auto" : "manual");
+  updateStateButtons();
+  updateOverlayState();
+  return true;
+}
+
+function saveNow(manual) {
+  if (!state.wasm || !state.romBytes) {
+    if (manual) toast("The game is not loaded yet");
+    return false;
+  }
+  if (state.halted) {
+    if (manual) toast("The CPU halted — restart or load the last state");
+    return false;
+  }
+  if (!captureIntoSlot({ persist: true })) {
+    if (manual) toast("Save states are not available in this build");
+    return false;
+  }
+  state.lastPersist = Date.now();
+  if (manual) toast("Checkpoint saved");
+  return true;
+}
+
+function loadNow(manual, prefer) {
+  if (!state.wasm || !state.romBytes) {
+    if (manual) toast("The game is not loaded yet");
+    return false;
+  }
+  if (!state.slot) state.slot = readSlot("manual");
+  if (!state.autoSlot) state.autoSlot = readSlot("auto");
+  const target = prefer === "auto"
+    ? (state.autoSlot ? { kind: "auto", slot: state.autoSlot } : { kind: "checkpoint", slot: state.slot })
+    : preferredSlot();
+  if (!target.slot) {
+    if (manual) toast("No saved state yet");
+    return false;
+  }
+  ensureAudio();
+  if (!restoreState(target.slot.bytes)) {
+    if (manual) toast("This state could not be restored");
+    return false;
+  }
+  state.started = true;
+  state.lastAutoSave = state.frames;
+  hideOverlay();
+  if (!state.running) startRunning();
+  else {
+    state.lastTs = 0;
+    state.frameAcc = 0;
+  }
+  updateStateButtons();
+  acquireWakeLock();
+  if (manual) toast(`Loaded ${target.kind === "auto" ? "last session" : "checkpoint"} · ${formatAge(target.slot.at)}`);
+  return true;
+}
+
+/* -------------------------------------------------------------- rotation */
+
+function updateRotateButton() {
+  if (!dom.rotateBtn) return;
+  dom.rotateBtn.setAttribute("aria-pressed", String(state.landscapeLock));
+  const label = state.landscapeLock ? "Unlock rotation" : "Rotate to landscape";
+  dom.rotateBtn.setAttribute("aria-label", label);
+  dom.rotateBtn.title = state.landscapeLock ? "Unlock rotation (L)" : "Rotate to landscape (L)";
+}
+
+function exitFullscreen() {
+  const exit = document.exitFullscreen || document.webkitExitFullscreen;
+  if (!exit) return;
+  try { exit.call(document); } catch (error) { /* already out */ }
+}
+
+function syncLandscapeState() {
+  if (!fullscreenElement() && state.landscapeLock) {
+    state.landscapeLock = false;
+    state.landscapeFullscreen = false;
+    updateRotateButton();
+  }
+}
+
+/*
+ * Android Chrome: fullscreen + screen.orientation.lock() really rotates the
+ * page.  iOS Safari and desktop cannot lock orientation, so the button
+ * explains what to do instead of silently doing nothing.
+ */
+function toggleLandscape() {
+  const orientation = window.screen && (screen.orientation || screen.mozOrientation || screen.msOrientation);
+  if (state.landscapeLock) {
+    state.landscapeLock = false;
+    try { if (orientation && orientation.unlock) orientation.unlock(); } catch (error) { /* unsupported */ }
+    if (state.landscapeFullscreen && fullscreenElement()) exitFullscreen();
+    state.landscapeFullscreen = false;
+    updateRotateButton();
+    scheduleFit();
+    toast("Rotation unlocked");
+    return;
+  }
+  const target = document.documentElement;
+  const request = target.requestFullscreen || target.webkitRequestFullscreen;
+  if (!request) {
+    toast("Rotate the phone to landscape — this browser cannot lock it.");
+    return;
+  }
+  const alreadyFullscreen = Boolean(fullscreenElement());
+  Promise.resolve(request.call(target))
+    .then(() => {
+      if (!orientation || typeof orientation.lock !== "function") {
+        throw new Error("orientation lock unsupported");
+      }
+      return orientation.lock("landscape");
+    })
+    .then(() => {
+      state.landscapeLock = true;
+      state.landscapeFullscreen = !alreadyFullscreen;
+      updateRotateButton();
+      scheduleFit();
+      toast("Landscape locked");
+    })
+    .catch(() => {
+      /* Do not leave the page in fullscreen when the rotation did not happen. */
+      if (!alreadyFullscreen && fullscreenElement()) exitFullscreen();
+      const landscape = window.matchMedia && window.matchMedia("(orientation: landscape)").matches;
+      const touch = document.body.classList.contains("touch");
+      toast(landscape ? "Already in landscape"
+        : touch ? "Rotate the phone to landscape — this browser cannot lock it."
+        : "Rotation lock is only available on phones.");
+      scheduleFit();
+    });
 }
 
 /* ----------------------------------------------------------------- input */
@@ -765,6 +1114,21 @@ function handleKey(event, down) {
     event.preventDefault();
     return;
   }
+  if (code === "F2" && down) {
+    saveNow(true);
+    event.preventDefault();
+    return;
+  }
+  if (code === "F3" && down) {
+    loadNow(true);
+    event.preventDefault();
+    return;
+  }
+  if (code === "KeyL" && down) {
+    toggleLandscape();
+    event.preventDefault();
+    return;
+  }
   if (!(code in KEYMAP)) return;
   event.preventDefault();
   if (!state.started && down) beginPlay(true);
@@ -841,7 +1205,18 @@ function bindUi() {
   });
 
   dom.pauseBtn.addEventListener("click", togglePause);
+  dom.saveBtn.addEventListener("click", () => saveNow(true));
+  dom.loadBtn.addEventListener("click", () => loadNow(true));
+  dom.rotateBtn.addEventListener("click", toggleLandscape);
   dom.reloadBtn.addEventListener("click", reloadRom);
+  dom.overlaySaveBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    saveNow(true);
+  });
+  dom.overlayLoadBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    loadNow(true);
+  });
   dom.soundBtn.addEventListener("click", () => {
     ensureAudio();
     setSound(!state.sound);
@@ -869,10 +1244,12 @@ function bindUi() {
 
   document.addEventListener("fullscreenchange", () => {
     updateFullButton();
+    syncLandscapeState();
     scheduleFit();
   });
   document.addEventListener("webkitfullscreenchange", () => {
     updateFullButton();
+    syncLandscapeState();
     scheduleFit();
   });
 

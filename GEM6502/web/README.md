@@ -2,7 +2,7 @@
 
 在浏览器里直接运行 GEM6502 的 6502/NES 功能核心。
 
-- 核心（CPU/PPU/APU/总线/卡带）编译为 **freestanding WebAssembly**，约 **30 KB**；
+- 核心（CPU/PPU/APU/总线/卡带）编译为 **freestanding WebAssembly**，约 **38 KB**；
 - 不依赖 Emscripten、WASI 或任何 JS 胶水运行时，模块不导入宿主函数；
 - 渲染、输入、音频调度和帧节奏由 `player.js` 负责；
 - 与原生 `./gem6502 game` 对同一 ROM 输出**逐字节一致**的帧。
@@ -50,6 +50,7 @@ web/
 │   └── shim/             # 极简 libc（malloc、string、stdio 桩）
 ├── test/
 │   ├── run-node.mjs      # 无浏览器冒烟测试
+│   ├── state.mjs         # 存档往返一致性测试（逐 ROM）
 │   └── compare.sh        # 与原生渲染逐字节对比
 └── roms/                 # 仓库内 MIT 授权 ROM，仅用于测试
 ```
@@ -68,6 +69,9 @@ web/
 | `gem_web_set_buttons(j1, j2)` | NES 手柄位掩码（A=1, B=2, Select=4, Start=8, 方向=0x10…0x80） |
 | `gem_web_error()` | 最近一次加载错误（C 字符串） |
 | `gem_web_frames()` / `gem_web_cycles()` / `gem_web_halted()` | 统计信息 |
+| `gem_web_state_size()` / `gem_web_state_buffer()` | 存档缓冲区容量与指针（固定 96 KiB 上限） |
+| `gem_web_save_state()` | 把 CPU/PPU/APU/总线/映射器状态写进缓冲区，返回字节数 |
+| `gem_web_load_state(size)` | 从缓冲区恢复状态，返回 0 成功；指针类字段由实例自身保留 |
 
 JS 侧只需要 `WebAssembly.instantiate(bytes, {})`，不传任何 import。
 
@@ -84,6 +88,16 @@ make -s web-test
 `compare.sh` 会用同一 ROM、同样帧数分别跑 wasm 和原生 `./gem6502 game`，
 然后 `cmp` 两份 PPM。当前 `falling`、`galaxypatrol`、`hanoi`、`table_tennis`
 四款 ROM 的第 60 帧全部逐字节一致。
+
+存档一致性：
+
+```sh
+node test/state.mjs                 # web/roms 下全部 ROM
+node test/state.mjs ../roms/falling.nes
+```
+
+先存档、再跑 90 帧、读档后再跑 90 帧，两次帧哈希必须相同；`nesearch`
+的静态站测试（`nesearch/scripts/test-static-site.mjs`）也包含同一检查。
 
 ## 实现要点
 
@@ -102,7 +116,7 @@ make -s web-test
 
 ## 已知限制
 
-- 单实例、单游戏；没有存档、回放、快进和逐帧调试。
+- 单实例、单游戏；存档为单槽位（浏览器端把记录存在 localStorage），暂不支持多槽位、回放、快进和逐帧调试。
 - mapper 支持与原生一致：0/1/2/3/4/7。
 - ROM 上限 1 MiB（`GEM_WEB_ROM_MAX`）。
 - 音频通过主线程 `AudioBufferSourceNode` 调度，延迟约 40–80 ms；后续可改 AudioWorklet。
@@ -119,8 +133,10 @@ make -s web-test
 
 ## English summary
 
-GEM6502's core is compiled to a ~30 KB freestanding WebAssembly module with no
+GEM6502's core is compiled to a ~38 KB freestanding WebAssembly module with no
 Emscripten/WASI imports. `player.js` provides Canvas rendering, WebAudio
 playback, keyboard/gamepad/touch input and 60.0988 Hz pacing. Frames are
 byte-identical to the native `gem6502 game` output; see `test/compare.sh`.
-Build with `./build.sh` and serve the directory over HTTP.
+`gem_web_save_state()` / `gem_web_load_state()` serialise a machine snapshot
+(CPU, PPU, APU, bus and mapper state) and `test/state.mjs` proves the restored
+machine renders identical frames. Build with `./build.sh` and serve over HTTP.

@@ -22,6 +22,7 @@ size_t fread(void *ptr, size_t size, size_t count, FILE *stream);
 size_t fwrite(const void *ptr, size_t size, size_t count, FILE *stream);
 int fclose(FILE *stream);
 int ferror(FILE *stream);
+int fflush(FILE *stream);
 int fseek(FILE *stream, long offset, int whence);
 long ftell(FILE *stream);
 int fprintf(FILE *stream, const char *format, ...);

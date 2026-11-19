@@ -149,6 +149,14 @@ The player (`nesearch/ui/play.html` + `play.js`) adds:
   pause card with Resume/Restart;
 - auto-pause when the tab is hidden, screen wake lock while playing, and a
   fullscreen button that falls back to a CSS `immersive` class on iOS;
+- save states: the wasm core serialises the machine (CPU, PPU, APU, bus,
+  mapper). Two slots live in `localStorage`: a rolling **auto** state
+  (every 10 s, on pause, on tab hide) and a **checkpoint** written by
+  `F2` / the floppy button. `F3` / the clock button or the overlay button
+  restores the checkpoint while playing and the latest auto state on a fresh
+  page — including after a crash; the overlay shows both ages;
+- a rotate button (`L`) that enters fullscreen and locks landscape on Android
+  Chrome; iOS Safari cannot lock orientation, so it shows a hint instead;
 - `fitStage()` sizes the canvas to the space left over (integer scaling when
   it wastes less than 6%), and updates it on rotation, `visualViewport`
   resize and fullscreen changes;

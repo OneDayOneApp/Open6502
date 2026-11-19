@@ -294,6 +294,11 @@ int ferror(FILE *stream) {
   return 1;
 }
 
+int fflush(FILE *stream) {
+  (void)stream;
+  return 0;
+}
+
 int fseek(FILE *stream, long offset, int whence) {
   (void)stream;
   (void)offset;

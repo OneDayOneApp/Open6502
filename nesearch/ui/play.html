@@ -166,7 +166,8 @@
     font-size: clamp(11.5px, 2.9vmin, 13.5px); line-height: 1.5;
     word-break: break-word;
   }
-  .overlay-actions { display: flex; justify-content: center; gap: 8px; margin-top: 13px; }
+  .overlay-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+  .overlay-state { margin: 9px 0 0; color: var(--dim); font-size: clamp(10px, 2.4vmin, 11.5px); }
   .overlay-hint { margin: 10px 0 0; color: var(--dim); font-size: clamp(10px, 2.5vmin, 12px); }
   .overlay-back { margin: 10px 0 0; font-size: 11.5px; }
   .overlay-back a { color: var(--muted); text-decoration: none; border-bottom: 1px solid rgba(139, 148, 167, 0.35); }
@@ -186,7 +187,7 @@
   .btn.primary:hover { background: #ffc777; border-color: #ffc777; }
 
   /* ------------------------------------------------------------ toolbar */
-  .toolbar { display: flex; align-items: center; gap: 8px; }
+  .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
   .tool {
     display: grid; place-items: center;
     width: 44px; height: 44px; flex: none;
@@ -200,6 +201,9 @@
   .tool[disabled] { opacity: .38; cursor: default; }
   .tool .i { display: none; width: 20px; height: 20px; }
   #reloadBtn .i,
+  #saveBtn .i,
+  #loadBtn .i,
+  #rotateBtn .i,
   #pauseBtn[data-mode="play"] .i-play,
   #pauseBtn[data-mode="pause"] .i-pause,
   #soundBtn[data-mode="on"] .i-sound-on,
@@ -325,8 +329,11 @@
     .toolbar {
       position: fixed; z-index: 6;
       top: calc(var(--safe-t) + 8px); right: calc(var(--safe-r) + 8px);
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(2, 40px);
+      gap: 6px;
     }
+    .toolbar .tool { width: 40px; height: 40px; }
     .toolbar .stat { display: none; }
     body.touch .pad {
       position: fixed; inset: 0; z-index: 5;
@@ -420,7 +427,10 @@
           <p class="overlay-text" id="overlayText">Instantiating the WebAssembly module</p>
           <div class="overlay-actions">
             <button class="btn primary" id="startBtn" type="button" disabled>Start</button>
+            <button class="btn" id="overlaySaveBtn" type="button" hidden>Save state</button>
+            <button class="btn" id="overlayLoadBtn" type="button" hidden>Load state</button>
           </div>
+          <p class="overlay-state" id="overlayState" hidden></p>
           <p class="overlay-hint" id="overlayHint">Audio starts after your first tap.</p>
           <p class="overlay-back"><a href="index.html">← Back to catalog</a></p>
         </div>
@@ -433,6 +443,16 @@
       <svg class="i i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
       <svg class="i i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
     </button>
+    <button class="tool" id="saveBtn" type="button" aria-label="Save state" title="Save state (F2)" disabled>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 4h11l3 3v13H5z"/><path d="M8 4v6h7V4"/><path d="M8 20v-6h8v6"/>
+      </svg>
+    </button>
+    <button class="tool" id="loadBtn" type="button" aria-label="Load saved state" title="No saved state yet" disabled>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>
+      </svg>
+    </button>
     <button class="tool" id="reloadBtn" type="button" aria-label="Restart game" title="Restart (R)" disabled>
       <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>
@@ -444,6 +464,12 @@
       </svg>
       <svg class="i i-sound-off" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 9v6h4l5 4V5L8 9z"/><path d="m16 9 5 5M21 9l-5 5"/>
+      </svg>
+    </button>
+    <button class="tool" id="rotateBtn" type="button" aria-label="Rotate to landscape" title="Rotate to landscape (L)" aria-pressed="false">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 8a9 9 0 0 0-16-2"/><path d="M21 3v5h-5"/>
+        <rect x="8" y="10" width="8" height="5" rx="1"/>
       </svg>
     </button>
     <button class="tool" id="fullBtn" type="button" data-mode="enter" aria-label="Enter fullscreen" title="Fullscreen (F)">
@@ -486,7 +512,8 @@
   <p class="note">
     Arrows or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to move, <kbd>Z</kbd> or <kbd>Space</kbd> for A,
     <kbd>X</kbd> for B, <kbd>Enter</kbd> for Start, <kbd>Shift</kbd> for Select, <kbd>P</kbd> to pause,
-    <kbd>R</kbd> to restart, <kbd>M</kbd> for sound, <kbd>F</kbd> for fullscreen. Gamepads work too.
+    <kbd>R</kbd> to restart, <kbd>M</kbd> for sound, <kbd>F</kbd> for fullscreen,
+    <kbd>F2</kbd> to save a state, <kbd>F3</kbd> to return to the last one, <kbd>L</kbd> to rotate. Gamepads work too.
     Picture and sound come from the GEM6502 WebAssembly core in real time; the ROM is loaded straight
     from the catalog's download URL.
   </p>

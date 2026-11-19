@@ -107,6 +107,10 @@ EXPORTS=(
   --export=gem_web_frames
   --export=gem_web_cycles
   --export=gem_web_halted
+  --export=gem_web_state_buffer
+  --export=gem_web_state_size
+  --export=gem_web_save_state
+  --export=gem_web_load_state
 )
 
 rm -rf "$BUILD"
