@@ -282,23 +282,23 @@
 
   .actions {
     display: flex; flex-direction: column; align-items: center;
-    gap: clamp(6px, 1.6vw, 10px);
+    gap: clamp(20px, 6vw, 30px);
   }
   .action-row { display: flex; align-items: center; gap: clamp(6px, 2vw, 12px); }
   .state-actions { display: flex; align-items: center; gap: clamp(6px, 1.6vw, 10px); }
   .state-action {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 3px;
-    width: clamp(46px, 15.5vw, 66px);
-    height: clamp(44px, 13vw, 58px);
+    gap: 2px;
+    width: clamp(42px, 11.5vw, 50px);
+    height: clamp(34px, 9.5vw, 40px);
     padding: 0;
-    border: 1px solid var(--line-strong); border-radius: 13px;
+    border: 1px solid var(--line-strong); border-radius: 10px;
     background: linear-gradient(180deg, #1e2530, #151a22);
     color: var(--muted);
-    font: 650 8.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    font: 650 7.5px/1 var(--mono); letter-spacing: .05em; text-transform: uppercase;
     cursor: pointer; touch-action: none;
   }
-  .state-action .i { width: clamp(14px, 4.6vw, 19px); height: clamp(14px, 4.6vw, 19px); }
+  .state-action .i { width: clamp(12px, 3.6vw, 15px); height: clamp(12px, 3.6vw, 15px); }
   .state-action.save { color: var(--text); }
   .state-action.save .i { color: var(--accent); }
   .state-action:active { transform: translateY(1px); }
@@ -391,12 +391,13 @@
       gap: 6px;
     }
     body.touch .state-action {
-      width: clamp(44px, calc(var(--side) / 2 - 12px), 60px);
-      height: clamp(38px, calc(var(--side) / 4 + 20px), 48px);
-      border-radius: 11px;
+      width: clamp(40px, calc(var(--side) / 2 - 22px), 46px);
+      height: 36px;
+      border-radius: 9px;
     }
-    body.touch .state-action .i { width: 15px; height: 15px; }
+    body.touch .state-action .i { width: 13px; height: 13px; }
     body.touch .state-actions { gap: 6px; }
+    body.touch .actions { gap: 14px; }
     body.touch .action {
       width: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
       height: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
