@@ -229,6 +229,9 @@
   body.touch .pad {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
   }
+  /* Keep the D-pad tucked against the left edge (the app gutter is 14px). */
+  body.touch .dpad { transform: translateX(calc(4px - var(--gutter))); }
+
   /* On touch screens Save/Load live above A/B instead of in the toolbar. */
   body.touch #saveBtn,
   body.touch #loadBtn { display: none; }
@@ -370,10 +373,11 @@
     }
     body.touch .pad > * { position: absolute; pointer-events: auto; }
     body.touch .dpad {
-      left: calc(var(--safe-l) + 10px);
+      left: calc(var(--safe-l) + 4px);
       bottom: calc(var(--safe-b) + 10px);
       width: clamp(104px, calc(var(--side) - 20px), 176px);
       height: clamp(104px, calc(var(--side) - 20px), 176px);
+      transform: none;
     }
     body.touch .middle {
       left: calc(var(--safe-l) + 10px);
