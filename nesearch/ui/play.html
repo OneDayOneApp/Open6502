@@ -229,6 +229,11 @@
   body.touch .pad {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
   }
+  /* On touch screens Save/Load live above A/B instead of in the toolbar. */
+  body.touch #saveBtn,
+  body.touch #loadBtn { display: none; }
+  body.touch .action.a,
+  body.touch .action.b { transform: none; }
   /* Portrait: the screen keeps a little air above the thumb pad instead of
      hugging the header, which reads better on tall phones. */
   body.touch .stage-area { align-items: center; }
@@ -275,7 +280,30 @@
   }
   .sys.on { color: var(--accent); border-color: var(--accent); background: rgba(255, 180, 84, 0.1); }
 
-  .actions { display: flex; align-items: center; gap: clamp(6px, 2vw, 12px); }
+  .actions {
+    display: flex; flex-direction: column; align-items: center;
+    gap: clamp(6px, 1.6vw, 10px);
+  }
+  .action-row { display: flex; align-items: center; gap: clamp(6px, 2vw, 12px); }
+  .state-actions { display: flex; align-items: center; gap: clamp(6px, 1.6vw, 10px); }
+  .state-action {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px;
+    width: clamp(46px, 15.5vw, 66px);
+    height: clamp(44px, 13vw, 58px);
+    padding: 0;
+    border: 1px solid var(--line-strong); border-radius: 13px;
+    background: linear-gradient(180deg, #1e2530, #151a22);
+    color: var(--muted);
+    font: 650 8.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    cursor: pointer; touch-action: none;
+  }
+  .state-action .i { width: clamp(14px, 4.6vw, 19px); height: clamp(14px, 4.6vw, 19px); }
+  .state-action.save { color: var(--text); }
+  .state-action.save .i { color: var(--accent); }
+  .state-action:active { transform: translateY(1px); }
+  .state-action[disabled] { opacity: .4; cursor: default; }
+  .state-action[disabled]:active { transform: none; }
   .action {
     width: clamp(46px, 15vw, 66px); height: clamp(46px, 15vw, 66px);
     padding: 0; border: 1px solid var(--line-strong); border-radius: 50%;
@@ -334,6 +362,7 @@
       gap: 6px;
     }
     .toolbar .tool { width: 40px; height: 40px; }
+    .toolbar #fullBtn { grid-column: 1 / -1; width: 100%; }
     .toolbar .stat { display: none; }
     body.touch .pad {
       position: fixed; inset: 0; z-index: 5;
@@ -359,14 +388,22 @@
     body.touch .actions {
       right: calc(var(--safe-r) + 10px);
       bottom: calc(var(--safe-b) + 10px);
+      gap: 6px;
     }
+    body.touch .state-action {
+      width: clamp(44px, calc(var(--side) / 2 - 12px), 60px);
+      height: clamp(38px, calc(var(--side) / 4 + 20px), 48px);
+      border-radius: 11px;
+    }
+    body.touch .state-action .i { width: 15px; height: 15px; }
+    body.touch .state-actions { gap: 6px; }
     body.touch .action {
       width: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
       height: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
       font-size: 14px;
     }
-    body.touch .action.a { transform: translateY(-8px); }
-    body.touch .action.b { transform: translateY(4px); }
+    body.touch .action.a,
+    body.touch .action.b { transform: none; }
   }
 
   /* Very narrow phones: the kicker only costs title space. */
@@ -516,8 +553,24 @@
       <button class="sys" type="button" data-bit="START" aria-label="Start">START</button>
     </div>
     <div class="actions">
-      <button class="action b" type="button" data-bit="B" aria-label="B button">B</button>
-      <button class="action a" type="button" data-bit="A" aria-label="A button">A</button>
+      <div class="state-actions">
+        <button class="state-action save" id="padSaveBtn" type="button" aria-label="Save checkpoint" title="Save checkpoint" disabled>
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 4h11l3 3v13H5z"/><path d="M8 4v6h7V4"/><path d="M8 20v-6h8v6"/>
+          </svg>
+          <span>Save</span>
+        </button>
+        <button class="state-action load" id="padLoadBtn" type="button" aria-label="Load saved state" title="No saved state yet" disabled>
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>
+          </svg>
+          <span>Load</span>
+        </button>
+      </div>
+      <div class="action-row">
+        <button class="action b" type="button" data-bit="B" aria-label="B button">B</button>
+        <button class="action a" type="button" data-bit="A" aria-label="A button">A</button>
+      </div>
     </div>
   </div>
 

@@ -63,6 +63,8 @@ const dom = {
   pauseBtn: document.getElementById("pauseBtn"),
   saveBtn: document.getElementById("saveBtn"),
   loadBtn: document.getElementById("loadBtn"),
+  padSaveBtn: document.getElementById("padSaveBtn"),
+  padLoadBtn: document.getElementById("padLoadBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   rotateBtn: document.getElementById("rotateBtn"),
   soundBtn: document.getElementById("soundBtn"),
@@ -352,6 +354,7 @@ function stepFrame() {
     stopAudio();
     dom.pauseBtn.disabled = true;
     dom.pauseBtn.dataset.mode = "play";
+    updateStateButtons();
     showOverlay({
       heading: "CPU halted",
       text: title,
@@ -454,6 +457,7 @@ function startRunning() {
   dom.pauseBtn.disabled = false;
   dom.pauseBtn.dataset.mode = "pause";
   dom.pauseBtn.setAttribute("aria-label", "Pause");
+  updateStateButtons();
   state.rafId = requestAnimationFrame(loop);
 }
 
@@ -836,7 +840,7 @@ function updateOverlayState() {
 function updateStateButtons() {
   const loaded = Boolean(state.wasm) && Boolean(state.romBytes) && Boolean(stateApi());
   if (dom.saveBtn) {
-    dom.saveBtn.disabled = !loaded || state.halted;
+    dom.saveBtn.disabled = !loaded || state.halted || !state.started;
     dom.saveBtn.title = state.halted ? "Cannot save after a crash" : "Save state (F2)";
   }
   if (dom.loadBtn) {
@@ -846,8 +850,16 @@ function updateStateButtons() {
       ? `Load ${target.kind === "auto" ? "last session" : "checkpoint"} (F3) · ${formatAge(target.slot.at)}`
       : "No saved state yet";
   }
-  if (dom.overlaySaveBtn) dom.overlaySaveBtn.disabled = !loaded || state.halted;
+  if (dom.overlaySaveBtn) dom.overlaySaveBtn.disabled = !loaded || state.halted || !state.started;
   if (dom.overlayLoadBtn) dom.overlayLoadBtn.disabled = !hasAnySlot();
+  if (dom.padSaveBtn) {
+    dom.padSaveBtn.disabled = !loaded || state.halted || !state.started;
+    dom.padSaveBtn.title = state.halted ? "Cannot save after a crash" : "Save checkpoint";
+  }
+  if (dom.padLoadBtn) {
+    dom.padLoadBtn.disabled = !loaded || !hasAnySlot();
+    dom.padLoadBtn.title = hasAnySlot() ? "Load saved state" : "No saved state yet";
+  }
   if (dom.rotateBtn) updateRotateButton();
 }
 
@@ -873,6 +885,10 @@ function saveNow(manual) {
   }
   if (state.halted) {
     if (manual) toast("The CPU halted — restart or load the last state");
+    return false;
+  }
+  if (!state.started) {
+    if (manual) toast("Start the game before saving");
     return false;
   }
   if (!captureIntoSlot({ persist: true })) {
@@ -1335,6 +1351,8 @@ function bindUi() {
   dom.pauseBtn.addEventListener("click", togglePause);
   dom.saveBtn.addEventListener("click", () => saveNow(true));
   dom.loadBtn.addEventListener("click", () => loadNow(true));
+  dom.padSaveBtn.addEventListener("click", () => saveNow(true));
+  dom.padLoadBtn.addEventListener("click", () => loadNow(true));
   dom.rotateBtn.addEventListener("click", toggleLandscape);
   dom.reloadBtn.addEventListener("click", reloadRom);
   dom.overlaySaveBtn.addEventListener("click", (event) => {
