@@ -155,7 +155,8 @@ The player (`nesearch/ui/play.html` + `play.js`) adds:
   `F2` / the floppy button. `F3` / the clock button or the overlay button
   restores the checkpoint while playing and the latest auto state on a fresh
   page — including after a crash; the overlay shows both ages. On phones the
-  Save/Load buttons move above A/B, clear of the thumb buttons;
+  Save/Load buttons sit above A/B in portrait and in the right margin between
+  the toolbar and A/B in landscape;
 - a rotate button (`L`) that enters fullscreen and locks landscape on Android
   Chrome; iOS Safari cannot lock orientation, so it shows a hint instead;
 - immersive fullscreen: while fullscreen is active the page blocks browser

@@ -396,8 +396,18 @@
       border-radius: 9px;
     }
     body.touch .state-action .i { width: 13px; height: 13px; }
-    body.touch .state-actions { gap: 6px; }
     body.touch .actions { gap: 14px; }
+    /* Landscape: keep Save/Load in the right margin, between the toolbar and
+       A/B, where the right thumb can reach them without covering the game. */
+    body.touch .state-actions {
+      position: fixed;
+      top: 50%;
+      right: calc(var(--safe-r) + 10px);
+      transform: translateY(-50%);
+      z-index: 6;
+      flex-direction: row;
+      gap: 6px;
+    }
     body.touch .action {
       width: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
       height: clamp(50px, calc(var(--side) / 2 - 10px), 70px);
@@ -405,6 +415,12 @@
     }
     body.touch .action.a,
     body.touch .action.b { transform: none; }
+  }
+
+  /* Very short landscape screens: the toolbar eats more of the height, so
+     nudge the Save/Load pair towards the middle of the remaining gap. */
+  @media (orientation: landscape) and (max-height: 360px) {
+    body.touch .state-actions { top: calc(50% + 24px); }
   }
 
   /* Very narrow phones: the kicker only costs title space. */

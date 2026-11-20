@@ -88,8 +88,9 @@ The wasm core serialises CPU/PPU/APU/bus/mapper state (`gem_web_save_state`,
 button, or the overlay button) restores the checkpoint while playing and the
 most recent auto state on a fresh page, including after the CPU halts. The
 overlay shows the age of both slots. On touch screens the Save and Load
-buttons sit above A/B as compact labelled buttons (the toolbar keeps them on
-desktop).
+buttons sit above A/B in portrait and in the right margin (between the toolbar
+and A/B) in landscape, as compact labelled buttons; the toolbar keeps them on
+desktop.
 
 The rotate button (`L`) asks for fullscreen and calls
 `screen.orientation.lock("landscape")`, which Android Chrome supports. iOS
