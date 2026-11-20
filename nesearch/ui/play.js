@@ -104,6 +104,7 @@ const state = {
   lastPersist: 0,
   landscapeLock: false,
   landscapeFullscreen: false,
+  inputLock: false,
   audio: { ctx: null, gain: null, nextTime: 0, sources: new Set() },
 };
 
@@ -662,8 +663,8 @@ function toggleImmersive() {
   const on = !document.body.classList.contains("immersive");
   document.body.classList.toggle("immersive", on);
   updateFullButton();
+  setInputLock(on);
   scheduleFit();
-  toast(on ? "Immersive mode: tap the fullscreen button to bring the header back." : "Header restored.");
 }
 
 function toggleFullscreen() {
@@ -681,7 +682,14 @@ function toggleFullscreen() {
     toggleImmersive();
     return;
   }
-  Promise.resolve(request.call(target)).catch(() => toggleImmersive());
+  Promise.resolve(request.call(target))
+    .then(() => {
+      /* Keep this inside the click's activation window: Chrome only grants
+         keyboard lock right after entering fullscreen. */
+      requestKeyboardLock();
+      setInputLock(true);
+    })
+    .catch(() => toggleImmersive());
 }
 
 /* -------------------------------------------------------------- states */
@@ -983,6 +991,125 @@ function toggleLandscape() {
     });
 }
 
+/* ---------------------------------------------------- immersive fullscreen */
+/*
+ * While the page is fullscreen (or in the iOS immersive fallback) the browser
+ * should only see game input.  We can stop page-level defaults and, where the
+ * Keyboard Lock API exists (Chrome/Edge, fullscreen only), hand browser keys
+ * to the page.  OS-level shortcuts (Alt+Tab, Cmd+Q, Ctrl+Alt+Del) and the
+ * browser's own fullscreen exit cannot be taken away from the user — pressing
+ * Esc still leaves, which is the intended way out.
+ */
+
+/* Alphanumerics are included so browser shortcuts such as Ctrl+W/R/T/N/P/S
+   are delivered to the page on engines that honour the lock; Escape stays
+   free because it is the documented way out of fullscreen. */
+const KEYBOARD_LOCK_CODES = [
+  "F1", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
+  "KeyA", "KeyB", "KeyC", "KeyD", "KeyE", "KeyF", "KeyG", "KeyH", "KeyI",
+  "KeyJ", "KeyK", "KeyL", "KeyM", "KeyN", "KeyO", "KeyP", "KeyQ", "KeyR",
+  "KeyS", "KeyT", "KeyU", "KeyV", "KeyW", "KeyX", "KeyY", "KeyZ",
+  "Digit0", "Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6",
+  "Digit7", "Digit8", "Digit9",
+  "BrowserBack", "BrowserForward", "BrowserRefresh", "BrowserStop",
+  "BrowserSearch", "BrowserFavorites", "BrowserHome",
+  "LaunchMail", "MediaPlayPause", "MediaStop", "MediaTrackNext", "MediaTrackPrevious",
+  "ContextMenu", "PrintScreen",
+];
+
+function requestKeyboardLock() {
+  if (!navigator.keyboard || typeof navigator.keyboard.lock !== "function") return;
+  try {
+    const request = navigator.keyboard.lock(KEYBOARD_LOCK_CODES);
+    if (request && typeof request.catch === "function") request.catch(() => {});
+  } catch (error) {
+    /* key codes unsupported in this browser; the keydown guard still applies */
+  }
+}
+
+function releaseKeyboardLock() {
+  if (!navigator.keyboard || typeof navigator.keyboard.unlock !== "function") return;
+  try { navigator.keyboard.unlock(); } catch (error) { /* no lock held */ }
+}
+
+function immersiveInputActive() {
+  return Boolean(fullscreenElement()) || document.body.classList.contains("immersive");
+}
+
+/* Keys the browser would otherwise act on; game keys (including F2/F3) pass. */
+function isBrowserKey(event) {
+  if (event.ctrlKey || event.metaKey || event.altKey) return true;
+  const code = event.code || "";
+  if (/^F\d{1,2}$/.test(code)) return code !== "F2" && code !== "F3";
+  if (code === "Backspace" || code === "PageUp" || code === "PageDown" ||
+      code === "Home" || code === "End") return true;
+  return code.indexOf("Browser") === 0 || code.indexOf("Launch") === 0 ||
+    code.indexOf("Media") === 0;
+}
+
+function setInputLock(on) {
+  if (on === state.inputLock) return;
+  state.inputLock = on;
+  document.body.classList.toggle("input-lock", on);
+  if (on) {
+    requestKeyboardLock();
+    const touch = document.body.classList.contains("touch");
+    toast(fullscreenElement()
+      ? "Immersive mode · shortcuts blocked · Esc exits"
+      : touch ? "Immersive mode · shortcuts blocked · fullscreen button exits"
+        : "Immersive mode · shortcuts blocked · Esc exits");
+  } else {
+    releaseKeyboardLock();
+    toast("Fullscreen exited · shortcuts restored");
+  }
+}
+
+function bindImmersiveGuards() {
+  document.addEventListener("keydown", (event) => {
+    if (!state.inputLock || !isBrowserKey(event)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
+
+  document.addEventListener("contextmenu", (event) => {
+    if (state.inputLock) event.preventDefault();
+  }, true);
+
+  document.addEventListener("selectstart", (event) => {
+    if (state.inputLock) event.preventDefault();
+  }, true);
+
+  document.addEventListener("dragstart", (event) => {
+    if (state.inputLock) event.preventDefault();
+  }, true);
+
+  document.addEventListener("auxclick", (event) => {
+    if (state.inputLock) event.preventDefault();
+  }, true);
+
+  document.addEventListener("mousedown", (event) => {
+    if (state.inputLock && event.button === 1) event.preventDefault();
+  }, true);
+
+  document.addEventListener("dblclick", (event) => {
+    if (state.inputLock) event.preventDefault();
+  }, true);
+
+  document.addEventListener("wheel", (event) => {
+    if (state.inputLock) event.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener("touchmove", (event) => {
+    if (state.inputLock) event.preventDefault();
+  }, { passive: false });
+
+  ["gesturestart", "gesturechange", "gestureend"].forEach((name) => {
+    document.addEventListener(name, (event) => {
+      if (state.inputLock) event.preventDefault();
+    }, { passive: false });
+  });
+}
+
 /* ----------------------------------------------------------------- input */
 
 function vibrate() {
@@ -1092,6 +1219,7 @@ function bindDpad(dpad) {
 function handleKey(event, down) {
   const tag = event.target && event.target.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
   const code = event.code;
   if (code === "KeyP" && down) {
     togglePause();
@@ -1245,11 +1373,13 @@ function bindUi() {
   document.addEventListener("fullscreenchange", () => {
     updateFullButton();
     syncLandscapeState();
+    setInputLock(immersiveInputActive());
     scheduleFit();
   });
   document.addEventListener("webkitfullscreenchange", () => {
     updateFullButton();
     syncLandscapeState();
+    setInputLock(immersiveInputActive());
     scheduleFit();
   });
 
@@ -1272,7 +1402,9 @@ function bindUi() {
 
 detectTouch();
 bindUi();
+bindImmersiveGuards();
 bindShare();
+setInputLock(immersiveInputActive());
 updateFullButton();
 fitStage();
 scheduleFit();

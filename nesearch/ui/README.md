@@ -94,3 +94,23 @@ The rotate button (`L`) asks for fullscreen and calls
 Safari cannot lock orientation, so the button explains that the phone has to
 be turned by hand — the layout already switches to the landscape arrangement
 on its own.
+
+### Immersive fullscreen
+
+Entering fullscreen (or the iOS `immersive` fallback) adds `input-lock` to the
+body and keeps it until fullscreen is left:
+
+- a capture-phase `keydown` guard blocks browser shortcuts (Ctrl/Cmd/Alt
+  combos, F1–F12 except `F2`/`F3`, Backspace, PageUp/Down, Home/End, media and
+  browser keys);
+- `navigator.keyboard.lock()` (Chrome/Edge, fullscreen only, requested inside
+  the click that enters fullscreen) hands those keys to the page;
+- the context menu, text selection, drag, double-click zoom, middle-click,
+  wheel scrolling and touch scrolling/pinch are cancelled, and
+  `touch-action: none` + `-webkit-touch-callout: none` cover iOS long-press;
+- `Esc` is deliberately left alone — it is the documented way out, and leaving
+  fullscreen immediately restores every browser default.
+
+OS-level shortcuts (`Alt+Tab`, `Cmd+Q`, `Ctrl+Alt+Del`, `Cmd+Tab`) cannot be
+taken away from the user by a web page, and the browser always keeps its own
+fullscreen exit.

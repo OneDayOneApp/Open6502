@@ -377,6 +377,18 @@
   /* Fullscreen fallback (iOS has no Element.requestFullscreen). */
   body.immersive .top { display: none; }
 
+  /* Immersive input lock: only while fullscreen/immersive is active. */
+  body.input-lock {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+  body.input-lock * {
+    -webkit-touch-callout: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition-duration: .001ms !important; animation-duration: .001ms !important; }
   }
@@ -513,7 +525,9 @@
     Arrows or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to move, <kbd>Z</kbd> or <kbd>Space</kbd> for A,
     <kbd>X</kbd> for B, <kbd>Enter</kbd> for Start, <kbd>Shift</kbd> for Select, <kbd>P</kbd> to pause,
     <kbd>R</kbd> to restart, <kbd>M</kbd> for sound, <kbd>F</kbd> for fullscreen,
-    <kbd>F2</kbd> to save a state, <kbd>F3</kbd> to return to the last one, <kbd>L</kbd> to rotate. Gamepads work too.
+    <kbd>F2</kbd> to save a state, <kbd>F3</kbd> to return to the last one, <kbd>L</kbd> to rotate.
+    Fullscreen blocks browser shortcuts, menus and page gestures until you leave it with <kbd>Esc</kbd>
+    or the fullscreen button. Gamepads work too.
     Picture and sound come from the GEM6502 WebAssembly core in real time; the ROM is loaded straight
     from the catalog's download URL.
   </p>

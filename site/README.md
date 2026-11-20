@@ -157,6 +157,10 @@ The player (`nesearch/ui/play.html` + `play.js`) adds:
   page — including after a crash; the overlay shows both ages;
 - a rotate button (`L`) that enters fullscreen and locks landscape on Android
   Chrome; iOS Safari cannot lock orientation, so it shows a hint instead;
+- immersive fullscreen: while fullscreen is active the page blocks browser
+  shortcuts, the context/long-press menu, selection/drag/zoom, wheel and touch
+  scrolling, and requests the Keyboard Lock API where available. `Esc` (or the
+  fullscreen button) leaves and restores every browser default;
 - `fitStage()` sizes the canvas to the space left over (integer scaling when
   it wastes less than 6%), and updates it on rotation, `visualViewport`
   resize and fullscreen changes;
