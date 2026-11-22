@@ -52,6 +52,27 @@
             "Collaboration 5.0 → 8.0: root MIT licence and THIRD_PARTY_NOTICES published"
           ]
         }
+      },
+      {
+        date: "2026-11-22",
+        total: 49.3,
+        grade: "C",
+        summary: {
+          zh: "Lean 4 形式化验证落地；八维核心 46.8 不变，形式化加分 +2.5",
+          en: "Lean 4 formal verification landed; eight-dimension core stays at 46.8, +2.5 formal bonus"
+        },
+        changes: {
+          zh: [
+            "形式化加分 0 → +2.5（上限 +5）：151 条指令译码与 RTL 分派一致，19 条指令逐周期精化（mrun n m = step m）",
+            "ADC/SBC（含 BCD）、CMP、移位、BIT 对全部 8 位操作数证明；15 个程序测试、4 个 Lean↔RTL 协同仿真进 CI",
+            "八维核心 46.8 不变：生成化 0、帧级/总线比对与后端闭环仍缺"
+          ],
+          en: [
+            "Formal bonus 0 → +2.5 (cap +5): the 151-opcode decode matches the RTL dispatch and 19 instructions have mrun n m = step m refinement proofs",
+            "ADC/SBC (including BCD), CMP, shifts and BIT proved for all 8-bit operands; 15 program tests and 4 Lean↔RTL co-simulations run in CI",
+            "Eight-dimension core unchanged at 46.8: generation 0, frame/bus compare and the backend loop are still missing"
+          ]
+        }
       }
     ]
   };

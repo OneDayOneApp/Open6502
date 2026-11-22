@@ -662,13 +662,13 @@ make -C NEMU -j8">
         <div class="section-head reveal">
           <span class="eyebrow"><span class="sec-index">03</span>Status</span>
           <h2 id="status-title">诚实地说，<em>它现在到哪一步了</em>。</h2>
-          <p>数字来自最近一次验证（2026-11-11）。这不是一颗已经完成的芯片——但每个“已通过”都有可复现的证据，每个“还没做”也都写在这里。</p>
+          <p>数字来自最近一次验证（2026-11-22）。这不是一颗已经完成的芯片——但每个“已通过”都有可复现的证据，每个“还没做”也都写在这里。</p>
         </div>
 
         <div class="status-panel reveal">
           <div class="status-top">
             <span class="dot" aria-hidden="true"></span>
-            <span>Verified · 2026-11-11</span>
+            <span>Verified · 2026-11-22</span>
             <span class="right">Evidence-based · 不含宣传口径</span>
           </div>
           <div class="stats">
@@ -725,6 +725,7 @@ make -C NEMU -j8">
                 <li>RTL 渲染 FALLING 标题帧，与 NEMU 的 SHA-256 完全一致</li>
                 <li>按 START 后进入游戏画面，<span class="m">$00=1</span> 稳定、调色板保留</li>
                 <li>NEMU/RTL 最终状态、PC trace 与 ALU/栈 DiffTest 通过</li>
+                <li>Lean 4 形式化模型：151 条指令译码与 RTL 分派一致，19 条指令精化证明，4 个程序 Lean↔RTL 协同仿真</li>
               </ul>
             </div>
             <div class="status-col">
@@ -737,7 +738,8 @@ make -C NEMU -j8">
                 <li>DMC 总线仲裁、CPU DMA 对齐仍不完整</li>
                 <li>没有 FPGA bitstream，也没有上板验证</li>
                 <li>没有多游戏 lockstep DiffTest，兼容性仍是部分覆盖</li>
-                <li>根许可证未发布；不能承诺商业 ROM 可玩</li>
+                <li>形式化精化覆盖 19/151 条指令；IRQ/NMI 入口与复位尚未证明</li>
+                <li>不能承诺商业 ROM 可玩</li>
               </ul>
             </div>
           </div>
@@ -1268,7 +1270,7 @@ input  [7:0] joy1, joy2;
 
       <div class="footer-bottom">
         <span>© <span data-year>2026</span> Open6502 · 开源 6502/NES SoC 项目</span>
-        <span>Last verified · 2026-11-11</span>
+        <span>Last verified · 2026-11-22</span>
         <span class="right">站点源码在 <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · 纯 HTML/CSS/JS · GitHub Pages</span>
       </div>
     </div>

@@ -418,7 +418,7 @@ cd ..
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/verification.md" target="_blank" rel="noopener">
               <span class="t">验证计划</span>
-              <span class="d">L0–L7 层级、测试 ROM 与发布门</span>
+              <span class="d">L0–L8 层级、测试 ROM 与发布门</span>
               <span class="p">docs/open6502-chip/verification.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/difftest.md" target="_blank" rel="noopener">
@@ -799,7 +799,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
         <section class="doc-section" id="verification" data-group="验证" data-keywords="验证 测试 klaus 28 pass 回归 测试台 testbench 发布门 覆盖">
           <div class="doc-kicker"><span class="dot"></span>10 · Verification</div>
           <h2><span>验证体系：证据，不是口号</span></h2>
-          <p>验证分七层：从包/译码单测，到 CPU+总线、PPU 帧、APU 采样、mapper、整机游戏，最后到 FPGA 板级。当前最强证据集中在 L0–L2 与 L3 的单帧。</p>
+          <p>验证分八层：从包/译码单测，到 CPU+总线、PPU 帧、APU 采样、mapper、整机游戏、FPGA 板级，最后到 L8 形式化验证。当前最强证据集中在 L0–L2、L3 的单帧，以及 L8 的 19 条指令精化。</p>
 
           <div class="table-wrap">
             <table class="doc-table">
@@ -813,6 +813,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
                 <tr><td>L5</td><td>Mapper</td><td>bank/IRQ 测试 ROM</td><td><span class="badge badge--part">基础</span></td></tr>
                 <tr><td>L6</td><td>系统</td><td>开源游戏、硬件</td><td><span class="badge badge--part">6 款可运行</span></td></tr>
                 <tr><td>L7</td><td>FPGA</td><td>板级视频/音频/输入</td><td><span class="badge badge--no">未开始</span></td></tr>
+                <tr><td>L8</td><td>CPU ISA ↔ RTL FSM</td><td>Lean 4 精化证明</td><td><span class="badge badge--pass">PASS · 19 条指令</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -828,6 +829,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
                 <tr><td>NEMU/RTL 最终状态</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
                 <tr><td>NEMU/RTL PC trace</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
                 <tr><td>NEMU/RTL ALU / 栈</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run_alu.sh</code></td></tr>
+                <tr><td>Lean 形式化模型</td><td><span class="badge badge--pass">PASS · 151 opcodes</span></td><td><code>cd formal &amp;&amp; lake build</code></td></tr>
                 <tr><td>FALLING 标题帧</td><td><span class="badge badge--pass">SHA 相同</span></td><td><code>sim/game/run.sh</code></td></tr>
                 <tr><td>FALLING START 后画面</td><td><span class="badge badge--pass">已渲染</span></td><td><a href="#quickstart">01 快速开始</a></td></tr>
               </tbody>
@@ -851,6 +853,10 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
               </tbody>
             </table>
           </div>
+
+          <h3>形式化验证（L8）</h3>
+          <p><code>formal/</code> 用 Lean 4 写下 CPU 的 ISA 规格与逐周期模型，并证明后者实现前者：151 条官方指令的译码与 RTL 分派一致；ADC/SBC（含 BCD）、CMP、移位、BIT 对全部 8 位操作数成立；19 条指令有 <code>mrun n m = step m</code> 精化定理；15 个可执行程序测试由内核直接运行；4 个程序与真实 RTL 协同仿真一致。方法对齐 CktFormalizer/CktLean：类型化硬件表示 → 内核证明 → SystemVerilog/JSON 抽取 → 与 RTL 的一致性门禁。</p>
+          <p class="muted">运行：<code>cd formal &amp;&amp; lake build</code>（约 15 秒，无 <code>sorry</code>）；<code>make check-rtl check-cosim</code> 跑 RTL 一致性与协同仿真。入口：<a href="https://github.com/OneDayOneApp/Open6502/tree/main/formal" target="_blank" rel="noopener">formal/README.md</a>。已知边界：周期数按当前 RTL（无页跨越惩罚），IRQ/NMI 入口与复位序列尚未精化。</p>
 
           <h3>发布门</h3>
           <p>v0 FPGA 原型至少需要：Klaus、PPU VBlank/NMI/sprite 0、APU 四声道、mapper 0/1/2/3/4/7、6 款开源 ROM 可玩，以及 CPU + 帧级 DiffTest 通过。ASIC 还要额外满足 DFT、时序收敛、功耗、封装与硬件对齐。</p>

@@ -24,7 +24,7 @@ RTL 与模拟器互相验证：CPU 通过 Klaus，RTL 标题帧与 NEMU 标题�
 ```
 
 - 起点：[学习路径](docs/learning-path.zh-CN.md)——核心故事、三个环、12 周路线、能迁移什么
-- 网页版：[学习路径与香山对齐评分](site/learn.zh.html)——八维评分（当前 46.8/100）与 12 周路线
+- 网页版：[学习路径与香山对齐评分](site/learn.zh.html)——八维评分（当前 49.3/100，含形式化加分 2.5）与 12 周路线
 - 可复用 skill：[xiangshan-chip-flow](skills/xiangshan-chip-flow/SKILL.md)——把三个环与门禁封装成可调用手册，附芯片规格、DiffTest、CI 与门禁模板
 - 索引：[文档索引](docs/README.md)
 - 现在最该补的三件事：锁步 DiffTest、跑测试的 CI、一个 Chisel 模块

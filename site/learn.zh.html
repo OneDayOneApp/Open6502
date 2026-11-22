@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>学习路径 · 香山对齐评分 — Open6502</title>
-  <meta name="description" content="用 Open6502 练香山式芯片开发流程：三个环、八个维度的香山对齐评分（当前 47/100）、12 周路线，以及能迁移与不能迁移的能力边界。">
+  <meta name="description" content="用 Open6502 练香山式芯片开发流程：三个环、八个维度的香山对齐评分（当前 49/100：八维 46.8 + 形式化加分 2.5）、12 周路线，以及能迁移与不能迁移的能力边界。">
   <meta name="theme-color" content="#06080c">
   <meta name="color-scheme" content="dark">
   <!-- Google Tag Manager -->
@@ -25,7 +25,7 @@
   <meta property="og:locale" content="zh_CN">
   <meta property="og:locale:alternate" content="en_US">
   <meta property="og:title" content="学习路径 · 香山对齐评分 — Open6502">
-  <meta property="og:description" content="用一颗 6502 练香山式流程：三个环、八维评分（47/100）、12 周路线与能力迁移边界。">
+  <meta property="og:description" content="用一颗 6502 练香山式流程：三个环、八维评分加形式化加分（49/100）、12 周路线与能力迁移边界。">
   <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/learn.zh.html">
   <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/img/og-cover.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -123,7 +123,7 @@
               <span class="proof-k">香山式能力对照</span>
             </div>
             <div class="proof-item">
-              <span class="proof-v">47 / 100</span>
+              <span class="proof-v">49 / 100</span>
               <span class="proof-k">当前对齐分</span>
             </div>
           </div>
@@ -137,10 +137,11 @@
             </div>
             <div class="score-body">
               <div class="score-head">
-                <span class="score-num">47<span>/100</span></span>
-                <span class="score-tag">C · 内环成型</span>
+                <span class="score-num">49<span>/100</span></span>
+                <span class="score-tag">C · 内环成型 + 形式化</span>
               </div>
-              <p class="score-note">参考模型、逐指令 DiffTest 与 CI 骨架已就位；缺生成化、帧级比对与后端闭环。</p>
+              <p class="score-note">参考模型、逐指令 DiffTest、CI 骨架与 Lean 4 形式化模型（精化证明）已就位；缺生成化、帧级比对与后端闭环。</p>
+              <p class="score-note score-note--bonus">49.3 = 46.8（八维加权）+ 2.5（形式化加分，上限 +5）。</p>
               <ul class="score-bars">
                 <li><span>参考模型</span><i style="--v:90%"></i><b>9.0</b></li>
                 <li><span>差分验证</span><i style="--v:65%"></i><b>6.5</b></li>
@@ -200,7 +201,7 @@
       <div class="container">
         <div class="section-head reveal">
           <span class="eyebrow"><span class="sec-index">02</span>Scorecard</span>
-          <h2 id="score-title">对齐香山：<em>47 / 100</em></h2>
+          <h2 id="score-title">对齐香山：<em>49 / 100</em></h2>
           <p>八个维度，权重按“香山式流程”里的实际重要性分配。只认可复现的证据：能跑、能查、能重复。计划、口号和百分比进度都不计分。</p>
         </div>
 
@@ -218,7 +219,8 @@
               <tr><td>性能评估</td><td>10%</td><td>2.5</td><td>GEM6502 事件内核、时序总线实验、面积报告</td><td>G0–G2 仍 partial，无计数器、无“改动→收益”报告</td></tr>
               <tr><td>后端闭环</td><td>7%</td><td>2.0</td><td>Yosys 逐模块面积、55nm 成本模型</td><td>无 bitstream、无 PDK、无 DFT/时序收敛</td></tr>
               <tr><td>开源协作</td><td>3%</td><td>8.0</td><td>README、技术文档、贡献指南、golden 清单；根 MIT 许可证与 <code>THIRD_PARTY_NOTICES</code> 已发布</td><td>缺行为准则与 issue 模板；贡献流程刚解封，尚无外部贡献记录</td></tr>
-              <tr class="score-total"><td>总分</td><td>100%</td><td>46.8</td><td colspan="2">C · 内环骨架已就位，缺生成化、帧级比对与后端闭环</td></tr>
+              <tr><td>形式化验证 <em>（加分项）</em></td><td>上限 +5</td><td>2.5</td><td><code>formal/</code> 的 Lean 4 模型：151 条官方指令译码与 RTL 分派一致；ADC/SBC（二进制与 BCD）、CMP、移位、BIT 对全部操作数证明；19 条指令的 <code>mrun n m = step m</code> 精化；15 个由内核执行的小程序测试；4 个程序的 Lean↔RTL 协同仿真；<code>lean.yml</code> 门禁</td><td>精化覆盖 19/151 条指令；IRQ/NMI 入口与复位精化尚未完成；周期数按当前 RTL，不是 datasheet 时序</td></tr>
+              <tr class="score-total"><td>总分</td><td>100%（+5）</td><td>49.3</td><td colspan="2">C · 八维核心 46.8 + 形式化加分 2.5；缺生成化、帧级比对与后端闭环</td></tr>
             </tbody>
           </table>
         </div>
@@ -227,8 +229,8 @@
         <div class="score-history">
           <h3>分数记录：<em>一条只往上走的曲线</em></h3>
           <p class="score-history__lead">每次复核留一个点，并写清分数为什么变；只认可复现的证据。数字与上面的八维表一致，由 <code>site/tools/render-scorecard.js</code> 生成。</p>
-          <div class="history-chart"><svg viewBox="0 0 720 260" role="img" aria-label="香山对齐评分历史曲线"><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="212" x2="666" y2="212"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="215" text-anchor="end">0</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="174" x2="666" y2="174"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="177" text-anchor="end">20</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="136" x2="666" y2="136"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="139" text-anchor="end">40</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="98" x2="666" y2="98"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="101" text-anchor="end">60</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="59.99999999999999" x2="666" y2="59.99999999999999"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="62.99999999999999" text-anchor="end">80</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="22" x2="666" y2="22"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="25" text-anchor="end">100</text><line class="history-target" stroke="#f4c66a" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.7" x1="54" y1="88.5" x2="666" y2="88.5"/><text class="history-target-label" fill="#f4c66a" font-size="9" font-family="Menlo,ui-monospace,monospace" x="666" y="81.5" text-anchor="end">12 周目标 65–68</text><polyline class="history-line" fill="none" stroke="#ff4d57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="54,146.64 666,123.08000000000001"/><circle class="history-dot" fill="#06080c" stroke="#ff4d57" stroke-width="2" cx="54" cy="146.64" r="4.8"/><text class="history-score" fill="#e9eff8" font-size="11" font-weight="600" font-family="Menlo,ui-monospace,monospace" x="64" y="133.64" text-anchor="start">34.4</text><text class="history-date" fill="#7e8da2" font-size="10" font-family="Menlo,ui-monospace,monospace" x="54" y="240" text-anchor="start">2026-11-15</text><circle class="history-dot history-dot--last" fill="#f4c66a" stroke="#f4c66a" stroke-width="2" cx="666" cy="123.08000000000001" r="6.5"/><text class="history-score" fill="#e9eff8" font-size="11" font-weight="600" font-family="Menlo,ui-monospace,monospace" x="656" y="110.08000000000001" text-anchor="end">46.8</text><text class="history-date" fill="#7e8da2" font-size="10" font-family="Menlo,ui-monospace,monospace" x="666" y="240" text-anchor="end">2026-11-16</text></svg></div>
-          <div class="table-wrap"><table class="doc-table history-table"><thead><tr><th>日期</th><th>总分</th><th>变化</th><th>等级</th><th>这次改了什么</th></tr></thead><tbody><tr><td class="history-date-cell">2026-11-15</td><td class="history-total">34.4</td><td>—</td><td>D+</td><td><strong>首版评分：网站上线时的八维基线</strong><ul class="history-changes"><li>参考模型 8.5、锁步差分 4.0、CI 门禁 1.5</li><li>生成化 0、检查点 4.0、性能 2.5、后端 2.0、协作 5.0</li></ul></td></tr><tr><td class="history-date-cell">2026-11-16</td><td class="history-total">46.8</td><td>+12.4</td><td>C</td><td><strong>am6502 M1–M3 落地；根 MIT 许可证发布</strong><ul class="history-changes"><li>锁步差分 4.0 → 6.5：同一镜像在 NEMU 与 RTL 上逐条 retire 比对</li><li>CI 门禁 1.5 → 4.5：am6502.yml 跑平坦镜像、卡带三后端与 DiffTest</li><li>参考模型 8.5 → 9.0：am6502 的镜像由构建产出且逐字节可复现</li><li>开源协作 5.0 → 8.0：根 MIT 许可证与 THIRD_PARTY_NOTICES 已发布</li></ul></td></tr></tbody></table></div>
+          <div class="history-chart"><svg viewBox="0 0 720 260" role="img" aria-label="香山对齐评分历史曲线"><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="212" x2="666" y2="212"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="215" text-anchor="end">0</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="174" x2="666" y2="174"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="177" text-anchor="end">20</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="136" x2="666" y2="136"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="139" text-anchor="end">40</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="98" x2="666" y2="98"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="101" text-anchor="end">60</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="59.99999999999999" x2="666" y2="59.99999999999999"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="62.99999999999999" text-anchor="end">80</text><line class="history-grid" stroke="#26303f" stroke-width="1" x1="54" y1="22" x2="666" y2="22"/><text class="history-axis" fill="#7e8da2" font-size="9" font-family="Menlo,ui-monospace,monospace" x="44" y="25" text-anchor="end">100</text><line class="history-target" stroke="#f4c66a" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.7" x1="54" y1="88.5" x2="666" y2="88.5"/><text class="history-target-label" fill="#f4c66a" font-size="9" font-family="Menlo,ui-monospace,monospace" x="666" y="81.5" text-anchor="end">12 周目标 65–68</text><polyline class="history-line" fill="none" stroke="#ff4d57" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="54,146.64 360,123.08000000000001 666,118.33"/><circle class="history-dot" fill="#06080c" stroke="#ff4d57" stroke-width="2" cx="54" cy="146.64" r="4.8"/><text class="history-score" fill="#e9eff8" font-size="11" font-weight="600" font-family="Menlo,ui-monospace,monospace" x="64" y="133.64" text-anchor="start">34.4</text><text class="history-date" fill="#7e8da2" font-size="10" font-family="Menlo,ui-monospace,monospace" x="54" y="240" text-anchor="start">2026-11-15</text><circle class="history-dot" fill="#06080c" stroke="#ff4d57" stroke-width="2" cx="360" cy="123.08000000000001" r="4.8"/><text class="history-score" fill="#e9eff8" font-size="11" font-weight="600" font-family="Menlo,ui-monospace,monospace" x="360" y="110.08000000000001" text-anchor="middle">46.8</text><text class="history-date" fill="#7e8da2" font-size="10" font-family="Menlo,ui-monospace,monospace" x="360" y="240" text-anchor="middle">2026-11-16</text><circle class="history-dot history-dot--last" fill="#f4c66a" stroke="#f4c66a" stroke-width="2" cx="666" cy="118.33" r="6.5"/><text class="history-score" fill="#e9eff8" font-size="11" font-weight="600" font-family="Menlo,ui-monospace,monospace" x="656" y="105.33" text-anchor="end">49.3</text><text class="history-date" fill="#7e8da2" font-size="10" font-family="Menlo,ui-monospace,monospace" x="666" y="240" text-anchor="end">2026-11-22</text></svg></div>
+          <div class="table-wrap"><table class="doc-table history-table"><thead><tr><th>日期</th><th>总分</th><th>变化</th><th>等级</th><th>这次改了什么</th></tr></thead><tbody><tr><td class="history-date-cell">2026-11-15</td><td class="history-total">34.4</td><td>—</td><td>D+</td><td><strong>首版评分：网站上线时的八维基线</strong><ul class="history-changes"><li>参考模型 8.5、锁步差分 4.0、CI 门禁 1.5</li><li>生成化 0、检查点 4.0、性能 2.5、后端 2.0、协作 5.0</li></ul></td></tr><tr><td class="history-date-cell">2026-11-16</td><td class="history-total">46.8</td><td>+12.4</td><td>C</td><td><strong>am6502 M1–M3 落地；根 MIT 许可证发布</strong><ul class="history-changes"><li>锁步差分 4.0 → 6.5：同一镜像在 NEMU 与 RTL 上逐条 retire 比对</li><li>CI 门禁 1.5 → 4.5：am6502.yml 跑平坦镜像、卡带三后端与 DiffTest</li><li>参考模型 8.5 → 9.0：am6502 的镜像由构建产出且逐字节可复现</li><li>开源协作 5.0 → 8.0：根 MIT 许可证与 THIRD_PARTY_NOTICES 已发布</li></ul></td></tr><tr><td class="history-date-cell">2026-11-22</td><td class="history-total">49.3</td><td>+2.5</td><td>C</td><td><strong>Lean 4 形式化验证落地；八维核心 46.8 不变，形式化加分 +2.5</strong><ul class="history-changes"><li>形式化加分 0 → +2.5（上限 +5）：151 条指令译码与 RTL 分派一致，19 条指令逐周期精化（mrun n m = step m）</li><li>ADC/SBC（含 BCD）、CMP、移位、BIT 对全部 8 位操作数证明；15 个程序测试、4 个 Lean↔RTL 协同仿真进 CI</li><li>八维核心 46.8 不变：生成化 0、帧级/总线比对与后端闭环仍缺</li></ul></td></tr></tbody></table></div>
         </div>
         <!-- score-history:end -->
 

@@ -436,7 +436,7 @@ cd ..
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/verification.md" target="_blank" rel="noopener">
               <span class="t">Verification plan</span>
-              <span class="d">L0–L7 levels, test ROMs and release gates</span>
+              <span class="d">L0–L8 levels, test ROMs and release gates</span>
               <span class="p">docs/open6502-chip/verification.md</span>
             </a>
             <a class="doc-index-card" href="https://github.com/OneDayOneApp/Open6502/blob/main/docs/open6502-chip/difftest.md" target="_blank" rel="noopener">
@@ -817,7 +817,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
         <section class="doc-section" id="verification" data-group="Verification" data-keywords="verification tests klaus 28 pass regression testbench release gate coverage">
           <div class="doc-kicker"><span class="dot"></span>10 · Verification</div>
           <h2><span>Verification: evidence, not slogans</span></h2>
-          <p>Verification has seven levels: package/decode unit tests, CPU + bus, PPU frames, APU samples, mapper, full games, and FPGA board validation. The strongest evidence today is L0–L2 plus a single L3 frame.</p>
+          <p>Verification has eight levels: package/decode unit tests, CPU + bus, PPU frames, APU samples, mapper, full games, FPGA board validation, and L8 formal verification. The strongest evidence today is L0–L2, a single L3 frame, and the 19 instruction refinement proofs at L8.</p>
 
           <div class="table-wrap">
             <table class="doc-table">
@@ -831,6 +831,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
                 <tr><td>L5</td><td>Mapper</td><td>Bank/IRQ test ROMs</td><td><span class="badge badge--part">Basic</span></td></tr>
                 <tr><td>L6</td><td>System</td><td>Open-source games, hardware</td><td><span class="badge badge--part">6 ROMs run</span></td></tr>
                 <tr><td>L7</td><td>FPGA</td><td>Board video/audio/input</td><td><span class="badge badge--no">Not started</span></td></tr>
+                <tr><td>L8</td><td>CPU ISA ↔ RTL FSM</td><td>Lean 4 refinement proofs</td><td><span class="badge badge--pass">PASS · 19 instructions</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -846,6 +847,7 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
                 <tr><td>NEMU/RTL final state</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
                 <tr><td>NEMU/RTL PC trace</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run.sh</code></td></tr>
                 <tr><td>NEMU/RTL ALU / stack</td><td><span class="badge badge--pass">PASS</span></td><td><code>sim/difftest/run_alu.sh</code></td></tr>
+                <tr><td>Lean formal model</td><td><span class="badge badge--pass">PASS · 151 opcodes</span></td><td><code>cd formal &amp;&amp; lake build</code></td></tr>
                 <tr><td>FALLING title frame</td><td><span class="badge badge--pass">SHA match</span></td><td><code>sim/game/run.sh</code></td></tr>
                 <tr><td>FALLING post-START frame</td><td><span class="badge badge--pass">Rendered</span></td><td><a href="#quickstart">01 Quickstart</a></td></tr>
               </tbody>
@@ -869,6 +871,10 @@ KLAUS_BIN=/path/to/klaus.bin ./sim/klaus/run.sh"><svg viewBox="0 0 16 16" fill="
               </tbody>
             </table>
           </div>
+
+          <h3>Formal verification (L8)</h3>
+          <p><code>formal/</code> writes the CPU's ISA specification and a cycle-level model in Lean 4, then proves the model implements the specification: the 151-opcode decode matches the RTL dispatch; ADC/SBC (including BCD), CMP, shifts and BIT hold for all 8-bit operands; 19 instructions have <code>mrun n m = step m</code> refinement theorems; 15 executable program tests are run by the kernel itself; and 4 programs agree with the real RTL in co-simulation. The method follows CktFormalizer/CktLean: typed hardware representation → kernel proofs → SystemVerilog/JSON extraction → an RTL consistency gate.</p>
+          <p class="muted">Run: <code>cd formal &amp;&amp; lake build</code> (about 15 s, no <code>sorry</code>); <code>make check-rtl check-cosim</code> runs the RTL cross-check and co-simulation. Entry point: <a href="https://github.com/OneDayOneApp/Open6502/tree/main/formal" target="_blank" rel="noopener">formal/README.md</a>. Known limits: cycle counts follow the current RTL (no page-cross penalty) and IRQ/NMI entry/reset are not refined yet.</p>
 
           <h3>Release gates</h3>
           <p>A v0 FPGA prototype needs at least: Klaus, PPU VBlank/NMI/sprite 0, four APU channels, mapper 0/1/2/3/4/7, six playable open-source ROMs, and a passing CPU + frame-level DiffTest. ASIC adds DFT, timing closure, power, package and hardware alignment.</p>

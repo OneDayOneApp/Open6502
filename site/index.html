@@ -680,13 +680,13 @@ make -C NEMU -j8">
         <div class="section-head reveal">
           <span class="eyebrow"><span class="sec-index">03</span>Status</span>
           <h2 id="status-title">Honestly, <em>here's where it stands</em>.</h2>
-          <p>Numbers from the last verification (2026-11-11). This is not a finished chip — but every “passed” has reproducible evidence, and every “not yet” is listed too.</p>
+          <p>Numbers from the last verification (2026-11-22). This is not a finished chip — but every “passed” has reproducible evidence, and every “not yet” is listed too.</p>
         </div>
 
         <div class="status-panel reveal">
           <div class="status-top">
             <span class="dot" aria-hidden="true"></span>
-            <span>Verified · 2026-11-11</span>
+            <span>Verified · 2026-11-22</span>
             <span class="right">Evidence-based · no marketing math</span>
           </div>
           <div class="stats">
@@ -743,6 +743,7 @@ make -C NEMU -j8">
                 <li>RTL renders the FALLING title frame with the same SHA-256 as NEMU</li>
                 <li>START enters gameplay; <span class="m">$00=1</span> is stable and the palette is retained</li>
                 <li>NEMU/RTL final-state, PC trace and ALU/stack DiffTest pass</li>
+                <li>Lean 4 formal model: 151-opcode decode ≡ RTL dispatch, 19 instruction refinement proofs, 4-program Lean↔RTL co-simulation</li>
               </ul>
             </div>
             <div class="status-col">
@@ -755,7 +756,8 @@ make -C NEMU -j8">
                 <li>DMC bus arbitration and CPU DMA alignment are incomplete</li>
                 <li>No FPGA bitstream and no board validation</li>
                 <li>No multi-game lockstep DiffTest; compatibility is partial</li>
-                <li>Root licence not published; no commercial-ROM compatibility guarantee</li>
+                <li>Formal refinement covers 19 of 151 instructions; IRQ/NMI entry and reset are not yet proven</li>
+                <li>No commercial-ROM compatibility guarantee</li>
               </ul>
             </div>
           </div>
@@ -1286,7 +1288,7 @@ input  [7:0] joy1, joy2;
 
       <div class="footer-bottom">
         <span>© <span data-year>2026</span> Open6502 · open-source 6502/NES SoC project</span>
-        <span>Last verified · 2026-11-11</span>
+        <span>Last verified · 2026-11-22</span>
         <span class="right">Source in <a href="https://github.com/OneDayOneApp/Open6502/tree/main/site" target="_blank" rel="noopener">site/</a> · plain HTML/CSS/JS · GitHub Pages</span>
       </div>
     </div>

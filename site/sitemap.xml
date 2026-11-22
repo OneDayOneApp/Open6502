@@ -3,7 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://onedayoneapp.github.io/Open6502/</loc>
-    <lastmod>2026-11-12</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/"/>
@@ -12,7 +12,7 @@
   </url>
   <url>
     <loc>https://onedayoneapp.github.io/Open6502/index.zh.html</loc>
-    <lastmod>2026-11-12</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/"/>
@@ -21,7 +21,7 @@
   </url>
   <url>
     <loc>https://onedayoneapp.github.io/Open6502/chip-lab.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
     <xhtml:link rel="alternate" hreflang="zh-CN" href="https://onedayoneapp.github.io/Open6502/chip-lab.html"/>
@@ -29,7 +29,7 @@
   </url>
   <url>
     <loc>https://onedayoneapp.github.io/Open6502/learn.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/learn.html"/>
@@ -38,7 +38,7 @@
   </url>
   <url>
     <loc>https://onedayoneapp.github.io/Open6502/learn.zh.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/learn.html"/>
@@ -47,7 +47,7 @@
   </url>
   <url>
     <loc>https://onedayoneapp.github.io/Open6502/docs.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/docs.html"/>
@@ -56,7 +56,7 @@
   </url>
   <url>
     <loc>https://onedayoneapp.github.io/Open6502/docs.zh.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://onedayoneapp.github.io/Open6502/docs.html"/>

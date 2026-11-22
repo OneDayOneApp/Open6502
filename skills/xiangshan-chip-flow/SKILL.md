@@ -353,6 +353,8 @@ SRAM 宏替换 → DFT/scan + 覆盖率 → clock/reset/power intent → 标准�
 
 评分是工程判断，不是认证；每次复核留日期、理由、证据链接。不要用“游戏能跑”“综合能过”“计划完成百分比”抬分。
 
+> Open6502 另设**形式化验证加分（上限 +5）**：Lean 4 精化证明不计入八维权重，避免与差分验证重复计分；做法与边界见 `formal/README.md`，评分记录见 `docs/scorecard-history.md`。
+
 ---
 
 ## 11. Top 反模式（看到就停）
