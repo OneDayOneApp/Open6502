@@ -162,6 +162,10 @@ the differences are deliberate and documented:
 
 ## Roadmap
 
+The integration decision (oracle/third difftest model rather than replacing the
+RTL with exported SystemVerilog) is recorded in
+[`docs/open6502-chip/formal-integration.md`](../docs/open6502-chip/formal-integration.md).
+
 1. Refinement for the remaining official opcodes (the pattern is one `simp`
    line per instruction) and for IRQ/NMI entry and reset.
 2. Page-cross and dummy-read timing in the RTL, then tighten the refinement

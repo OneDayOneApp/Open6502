@@ -60,8 +60,10 @@ lake build
 make check-rtl
 ```
 
-The model mirrors the current RTL, so its cycle counts are the RTL's FSM
-cycles.  Known deviations (no page-cross penalty, shortened stack sequences,
+How the formal model should feed back into RTL work (oracle / difftest vs.
+SystemVerilog export) is decided in
+[formal-integration.md](formal-integration.md). The model mirrors the current
+RTL, so its cycle counts are the RTL's FSM cycles.  Known deviations (no page-cross penalty, shortened stack sequences,
 decimal N/Z flag behaviour) are listed in `formal/README.md` together with the
 roadmap (IRQ/NMI entry refinement, timing tightening).
 
