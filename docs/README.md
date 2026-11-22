@@ -21,6 +21,7 @@ The docs are grouped by the loop they serve: inner (minutes), middle (every comm
 | Doc | What it answers |
 |---|---|
 | [open6502-chip/verification.md](open6502-chip/verification.md) | Verification levels, test harnesses and what each level proves |
+| [../formal/README.md](../formal/README.md) | Lean 4 formal model: ISA specification, RTL refinement proofs, extraction and RTL sync check |
 | [open6502-chip/difftest.md](open6502-chip/difftest.md) | The REF/DUT comparison protocol; where to extend it to lockstep |
 | [nes-golden-reference/test-plan.md](nes-golden-reference/test-plan.md) | Test plan for the NEMU-based golden reference |
 | [nes-golden-reference/design.md](nes-golden-reference/design.md) | How REF builds, clocks, snapshots and hashes work |

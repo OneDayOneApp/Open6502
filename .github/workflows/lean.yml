@@ -1,0 +1,54 @@
+name: lean-formal
+
+# Type-checks the Lean formal model, kernel-checks every proof, and verifies
+# that the emitted decode table still agrees with the RTL dispatch lists.
+
+on:
+  push:
+    paths:
+      - "formal/**"
+      - "rtl/cpu/open6502_cpu.sv"
+      - ".github/workflows/lean.yml"
+  pull_request:
+    paths:
+      - "formal/**"
+      - "rtl/cpu/open6502_cpu.sv"
+      - ".github/workflows/lean.yml"
+
+jobs:
+  lean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache elan toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.elan
+          key: elan-${{ runner.os }}-${{ hashFiles('formal/lean-toolchain') }}
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Build and prove
+        working-directory: formal
+        run: lake build
+
+      - name: Extract decode table
+        working-directory: formal
+        run: lake exe open6502-extract build
+
+      - name: Check Lean decoder against the RTL
+        working-directory: formal
+        run: |
+          python3 scripts/check_rtl_sync.py \
+            --rtl ../rtl/cpu/open6502_cpu.sv --json build/decode.json
+
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends iverilog
+
+      - name: Co-simulate the Lean model against the RTL
+        run: python3 formal/scripts/cosim.py
