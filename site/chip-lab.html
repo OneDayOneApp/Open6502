@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>一颗芯片是怎么长大的？| Open6502 芯片小课堂</title>
-  <meta name="description" content="给小学生的一堂芯片研发科普课：从沙子到晶圆，从 RTL 到流片，用 18 页网页幻灯片讲清楚芯片是怎么设计、验证和制造出来的。重点介绍香山处理器的开发模式。">
+  <meta name="description" content="给小学生的一堂芯片研发科普课：从沙子到晶圆，从 RTL 到流片，用 19 页网页幻灯片讲清楚芯片是怎么设计、验证和制造出来的。重点介绍香山处理器的开发模式。">
   <meta name="theme-color" content="#faf7f2">
   <meta name="color-scheme" content="light">
   <!-- Google Tag Manager -->
@@ -24,7 +24,7 @@
   <meta property="og:site_name" content="Open6502">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:title" content="一颗芯片是怎么长大的？| Open6502 芯片小课堂">
-  <meta property="og:description" content="用 18 页网页幻灯片，给小学生讲清楚芯片是什么、怎么设计、怎么验证，以及香山处理器的开发模式。">
+  <meta property="og:description" content="用 19 页网页幻灯片，给小学生讲清楚芯片是什么、怎么设计、怎么验证，以及香山处理器的开发模式。">
   <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/chip-lab.html">
   <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/chip-lab/og-cover.png">
   <meta property="og:image:width" content="1280">
@@ -129,7 +129,7 @@
             看它怎么从一粒沙、一张图纸，长成会玩游戏、会画画、会发声的“小脑瓜”。
           </p>
           <div class="lab-meta" aria-label="课程信息">
-            <span class="lab-pill lab-pill--red"><i class="dot"></i>18 页网页幻灯片</span>
+            <span class="lab-pill lab-pill--red"><i class="dot"></i>19 页网页幻灯片</span>
             <span class="lab-pill">约 35 分钟</span>
             <span class="lab-pill">建议 4–6 年级</span>
             <span class="lab-pill">可全屏演示</span>
@@ -151,6 +151,7 @@
             <div class="lab-goal"><b>02</b><span><strong>三个环：</strong>分钟级内环、每次提交的中环、每次迭代的外环。</span></div>
             <div class="lab-goal"><b>03</b><span><strong>七道门：</strong>S0–S6，每一步都要交出可复现的证据。</span></div>
             <div class="lab-goal"><b>04</b><span><strong>Open6502：</strong>用一颗 6502 小芯片，把香山模式练一遍。</span></div>
+            <div class="lab-goal"><b>05</b><span><strong>形式化验证：</strong>给 CPU 写一张“数学保证”，比抽考更彻底。</span></div>
           </div>
           <div class="lab-hero-note">老师 / 家长：每页都带“讲稿”，点工具栏的“讲稿”即可展开。</div>
         </aside>
@@ -164,7 +165,7 @@
             <div class="deck-brand"><i></i><span>OPEN6502 · 芯片小课堂</span></div>
             <div class="deck-tools">
               <button class="deck-btn" type="button" data-deck-prev aria-label="上一页">←</button>
-              <span class="deck-counter" data-deck-counter aria-live="polite">01 / 18</span>
+              <span class="deck-counter" data-deck-counter aria-live="polite">01 / 19</span>
               <button class="deck-btn" type="button" data-deck-next aria-label="下一页">→</button>
               <button class="deck-btn" type="button" data-deck-overview-open aria-haspopup="dialog">目录</button>
               <button class="deck-btn" type="button" data-deck-notes-toggle aria-pressed="false">讲稿</button>
@@ -177,13 +178,13 @@
             <section class="slide slide--cover is-active" data-slide-title="封面：一颗芯片是怎么长大的？" aria-label="第 1 页：封面">
               <div class="slide-inner">
                 <div class="cover-copy">
-                  <div class="slide-topline"><span>OPEN6502 · 芯片小课堂</span><span class="slide-index">01 / 18</span></div>
+                  <div class="slide-topline"><span>OPEN6502 · 芯片小课堂</span><span class="slide-index">01 / 19</span></div>
                   <div class="slide-kicker">CHIP LAB · 给小小工程师</div>
                   <h1>一颗芯片，<br>是怎么<span class="hl">长大</span>的？</h1>
                   <p class="cover-sub">给小学生的一堂芯片研发课</p>
                   <p class="cover-desc">重点：香山处理器的开发模式——三个环、七道门。</p>
                   <div class="cover-meta">
-                    <span>18 页</span><span>约 35 分钟</span><span>4–6 年级</span><span>香山模式</span>
+                    <span>19 页</span><span>约 35 分钟</span><span>4–6 年级</span><span>香山模式</span>
                   </div>
                 </div>
 
@@ -252,7 +253,7 @@ EOF
             <!-- 02 · Where are chips -->
             <section class="slide" data-slide-title="芯片藏在哪里？" aria-label="第 2 页：芯片藏在哪里">
               <div class="slide-inner">
-                <div class="slide-topline"><span>01 · 先找一找</span><span class="slide-index">02 / 18</span></div>
+                <div class="slide-topline"><span>01 · 先找一找</span><span class="slide-index">02 / 19</span></div>
                 <div class="slide-kicker">EVERYWHERE</div>
                 <h2 class="slide-title">芯片，藏在哪里？</h2>
                 <p class="slide-lead">如果没有芯片，世界会怎样？先别急着回答。找一找：你身边哪些东西会“思考”、会“控制”、会“记住”？</p>
@@ -293,7 +294,7 @@ EOF
             <!-- 03 · Chip anatomy -->
             <section class="slide" data-slide-title="一座“指甲盖上的城市”" aria-label="第 3 页：芯片解剖">
               <div class="slide-inner">
-                <div class="slide-topline"><span>02 · 芯片是什么</span><span class="slide-index">03 / 18</span></div>
+                <div class="slide-topline"><span>02 · 芯片是什么</span><span class="slide-index">03 / 19</span></div>
                 <div class="slide-kicker">INSIDE THE CHIP</div>
                 <h2 class="slide-title">一座“指甲盖上的城市”</h2>
                 <p class="slide-lead">把芯片放大，你会看到一座规划得整整齐齐的城市：有指挥中心、仓库、画家、音乐家，还有无数条道路。</p>
@@ -355,7 +356,7 @@ EOF
             <!-- 04 · Sand to wafer -->
             <section class="slide" data-slide-title="从一粒沙，到一片“硅圆饼”" aria-label="第 4 页：从沙到晶圆">
               <div class="slide-inner">
-                <div class="slide-topline"><span>03 · 从沙到硅</span><span class="slide-index">04 / 18</span></div>
+                <div class="slide-topline"><span>03 · 从沙到硅</span><span class="slide-index">04 / 19</span></div>
                 <div class="slide-kicker">FROM SAND TO SILICON</div>
                 <h2 class="slide-title">从一粒沙，到一片“硅圆饼”</h2>
                 <p class="slide-lead">芯片的“地基”是硅。硅藏在沙子里，但要先提纯、拉成硅锭、切成薄片，才能变成晶圆。</p>
@@ -401,7 +402,7 @@ EOF
             <!-- 05 · SoC city -->
             <section class="slide" data-slide-title="一颗芯片里，住着一支“乐队”" aria-label="第 5 页：芯片里的模块">
               <div class="slide-inner">
-                <div class="slide-topline"><span>04 · 芯片里的乐队</span><span class="slide-index">05 / 18</span></div>
+                <div class="slide-topline"><span>04 · 芯片里的乐队</span><span class="slide-index">05 / 19</span></div>
                 <div class="slide-kicker">INSIDE THE SOC</div>
                 <h2 class="slide-title">一颗芯片里，住着一支“乐队”</h2>
                 <p class="slide-lead">每个模块都有自己的工作。它们通过“总线”交换消息，就像乐队看着同一个节拍。</p>
@@ -428,7 +429,7 @@ EOF
             <!-- 06 · XiangShan intro -->
             <section class="slide" data-slide-title="香山，不是一座山" aria-label="第 6 页：香山处理器">
               <div class="slide-inner">
-                <div class="slide-topline"><span>05 · 香山是谁</span><span class="slide-index">06 / 18</span></div>
+                <div class="slide-topline"><span>05 · 香山是谁</span><span class="slide-index">06 / 19</span></div>
                 <div class="slide-kicker">XIANGSHAN · OPEN RISC-V</div>
                 <h2 class="slide-title">香山，不是一座山</h2>
                 <p class="slide-lead">它是一颗开源 RISC-V 处理器的名字。一群工程师、学生和公司把设计、验证和工具公开，让全世界一起参与。</p>
@@ -458,7 +459,7 @@ EOF
             <!-- 07 · Three loops -->
             <section class="slide" data-slide-title="三个环，越转越快" aria-label="第 7 页：香山模式的三个环">
               <div class="slide-inner">
-                <div class="slide-topline"><span>06 · 香山模式</span><span class="slide-index">07 / 18</span></div>
+                <div class="slide-topline"><span>06 · 香山模式</span><span class="slide-index">07 / 19</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 01</div>
                 <h2 class="slide-title">三个环，越转越快</h2>
                 <p class="slide-lead">香山把芯片开发拆成三个时间尺度的环：内环要快，中环要稳，外环要真。先跑短，再跑大。</p>
@@ -499,7 +500,7 @@ EOF
             <!-- 08 · Seven gates -->
             <section class="slide" data-slide-title="七道门：每一步都要交证据" aria-label="第 8 页：香山模式的七道门">
               <div class="slide-inner">
-                <div class="slide-topline"><span>07 · 香山模式</span><span class="slide-index">08 / 18</span></div>
+                <div class="slide-topline"><span>07 · 香山模式</span><span class="slide-index">08 / 19</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 02</div>
                 <h2 class="slide-title">七道门：每一步都要交证据</h2>
                 <p class="slide-lead">香山式流程（Open6502 提炼版）用 S0–S6 七道门检查：上一道没过，不许进下一道。</p>
@@ -536,7 +537,7 @@ EOF
             <!-- 09 · Four tools -->
             <section class="slide" data-slide-title="香山为什么能“快”？四件法宝" aria-label="第 9 页：香山模式的四件法宝">
               <div class="slide-inner">
-                <div class="slide-topline"><span>08 · 香山模式</span><span class="slide-index">09 / 18</span></div>
+                <div class="slide-topline"><span>08 · 香山模式</span><span class="slide-index">09 / 19</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 03</div>
                 <h2 class="slide-title">香山为什么能“快”？四件法宝</h2>
                 <p class="slide-lead">不是加班，而是把重复的事情交给机器，把判断留给工程师。</p>
@@ -569,7 +570,7 @@ EOF
             <!-- 10 · Open6502 mapping -->
             <section class="slide" data-slide-title="用一颗小芯片，练一遍香山模式" aria-label="第 10 页：Open6502 练香山模式">
               <div class="slide-inner">
-                <div class="slide-topline"><span>09 · 真实案例</span><span class="slide-index">10 / 18</span></div>
+                <div class="slide-topline"><span>09 · 真实案例</span><span class="slide-index">10 / 19</span></div>
                 <div class="slide-kicker">OPEN6502 · 练一遍香山模式</div>
                 <h2 class="slide-title">用一颗小芯片，练一遍香山模式</h2>
                 <p class="slide-lead">Open6502 不是香山，但它把香山模式压缩到一个人也能跑完的规模：NEMU 参考模型、RTL、DiffTest、CI、55nm 目标。</p>
@@ -608,7 +609,7 @@ EOF
             <!-- 11 · RTL -->
             <section class="slide" data-slide-title="写 RTL：用“硬件语言”写下电路" aria-label="第 11 页：写 RTL">
               <div class="slide-inner">
-                <div class="slide-topline"><span>10 · 写 RTL</span><span class="slide-index">11 / 18</span></div>
+                <div class="slide-topline"><span>10 · 写 RTL</span><span class="slide-index">11 / 19</span></div>
                 <div class="slide-kicker">WRITE THE HARDWARE · S2</div>
                 <h2 class="slide-title">写 RTL：用“硬件语言”写下电路</h2>
                 <p class="slide-lead">软件像写步骤，硬件像画电路。香山用 Chisel 生成 Verilog，Open6502 手写 SystemVerilog——工具不同，门禁相同。</p>
@@ -648,7 +649,7 @@ EOF
             <!-- 12 · Simulation -->
             <section class="slide" data-slide-title="仿真：先在电脑里“虚拟制造”" aria-label="第 12 页：仿真">
               <div class="slide-inner">
-                <div class="slide-topline"><span>11 · 仿真</span><span class="slide-index">12 / 18</span></div>
+                <div class="slide-topline"><span>11 · 仿真</span><span class="slide-index">12 / 19</span></div>
                 <div class="slide-kicker">SIMULATE FIRST · 内环</div>
                 <h2 class="slide-title">仿真：先在电脑里“虚拟制造”</h2>
                 <p class="slide-lead">这是香山模式的内环日常：先在电脑里跑起来，改一行、再跑一遍，分钟级看到结果。仿真不是“跑一次看看”，而是每天都要做的练习题。</p>
@@ -684,7 +685,7 @@ EOF
             <!-- 13 · DiffTest -->
             <section class="slide" data-slide-title="锁步 DiffTest：像侦探一样“找不同”" aria-label="第 13 页：锁步 DiffTest">
               <div class="slide-inner">
-                <div class="slide-topline"><span>12 · 验证</span><span class="slide-index">13 / 18</span></div>
+                <div class="slide-topline"><span>12 · 验证</span><span class="slide-index">13 / 19</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 内环核心</div>
                 <h2 class="slide-title">锁步 DiffTest：像侦探一样“找不同”</h2>
                 <p class="slide-lead">香山模式最值钱的一块：同一镜像，参考模型和 RTL 每一步都对答案。Open6502 用 NEMU 和 RTL 跑同一款游戏。</p>
@@ -716,10 +717,46 @@ EOF
               <div class="slide-note" hidden>验证是芯片研发里最花时间、也最容易被低估的部分。香山模式把它做成内环：同一镜像，参考模型和 RTL 每一步对答案。NEMU 是软件参考模型，RTL 是硬件设计。28 项测试、Klaus 和帧哈希一致，都是“参考答案和正式答案对上了”的证据。</div>
             </section>
 
-            <!-- 14 · Backend -->
-            <section class="slide" data-slide-title="外环：从 FPGA 到流片" aria-label="第 14 页：外环，从 FPGA 到流片">
+            <!-- 14 · Formal verification -->
+            <section class="slide" data-slide-title="形式化验证：给芯片写一张“数学保证”" aria-label="第 14 页：形式化验证">
               <div class="slide-inner">
-                <div class="slide-topline"><span>13 · 走向工厂</span><span class="slide-index">14 / 18</span></div>
+                <div class="slide-topline"><span>13 · 验证</span><span class="slide-index">14 / 19</span></div>
+                <div class="slide-kicker">FORMAL VERIFICATION · 数学保证</div>
+                <h2 class="slide-title">形式化验证：给芯片写一张“数学保证”</h2>
+                <p class="slide-lead">仿真像“抽考”：只检查做过的题；形式化验证像“证明”：对所有输入都保证答案正确。Open6502 用 Lean 4 给 CPU 写了一部分这样的保证。</p>
+                <div class="slide-body">
+                  <div class="verify-panels">
+                    <div class="verify-panel lab-card lab-card--blue">
+                      <div class="lab-label lab-label--blue">SPEC · 说明书</div>
+                      <h3>它“应该”怎么工作</h3>
+                      <div class="sub">把加减法、进位、地址规则写成数学</div>
+                      <p>比如：A 加 M 再加进位，结果是多少、进位和溢出怎么置位。这是“标准答案”。</p>
+                    </div>
+                    <div class="verify-eq" aria-hidden="true">=</div>
+                    <div class="verify-panel lab-card lab-card--red">
+                      <div class="lab-label">IMPL · 电路</div>
+                      <h3>它“实际”怎么工作</h3>
+                      <div class="sub">把 RTL 的每个周期、每个寄存器写进模型</div>
+                      <p>同一个 CPU，用 Lean 一行行写出来；再证明：跑完一条指令，两边状态永远一样。</p>
+                    </div>
+                  </div>
+                  <div class="verify-stats">
+                    <div class="verify-stat"><b>151</b><span>条官方指令的译码与 RTL 对得上</span></div>
+                    <div class="verify-stat"><b>19</b><span>条指令证明“跑 n 周期 = 说明书”</span></div>
+                    <div class="verify-stat"><b>2¹⁶</b><span>组操作数，加减与十进制全证明</span></div>
+                  </div>
+                  <div class="lab-note"><strong>和 DiffTest 的区别：</strong>DiffTest 是“跑起来找不同”，只能覆盖跑过的程序；形式化是“对所有情况做证明”，但只覆盖建模到的那部分。两者一起用，才既广又深。</div>
+                  <div class="lab-note"><strong>诚实边界：</strong>目前只证了 19 / 151 条指令；中断、复位和精确周期还没证。数学保证也要一步一步来。</div>
+                </div>
+                <div class="slide-footnote">小知识：证明用 Lean 4 写；<b>lake build</b> 跑一遍约 15 秒，没有一句 “sorry”（先跳过、以后补）= 没有偷偷留坑。</div>
+              </div>
+              <div class="slide-note" hidden>形式化验证是芯片研发里的“数学保证”。仿真和 DiffTest 像抽考：跑很多程序，发现不同就报错，但没跑到的角落可能漏掉。形式化验证先写“说明书”（规格），再写“实现”（RTL 的逐周期模型），然后用证明器证明两者对所有输入都一致。Open6502 目前的成果：151 条指令的译码与 RTL 完全对得上；加减法和十进制（BCD）对所有 8 位操作数都证明；19 条指令证明“跑 n 个周期后状态正好等于说明书”；15 个小程序由证明器直接执行；4 个程序和真实 RTL 协同仿真一致。边界也要讲清楚：只覆盖 19 条指令，中断/复位/周期时序还没证。可以问孩子：抽考和“保证所有题都会做”，哪个更难？</div>
+            </section>
+
+            <!-- 15 · Backend -->
+            <section class="slide" data-slide-title="外环：从 FPGA 到流片" aria-label="第 15 页：外环，从 FPGA 到流片">
+              <div class="slide-inner">
+                <div class="slide-topline"><span>14 · 走向工厂</span><span class="slide-index">15 / 19</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 外环</div>
                 <h2 class="slide-title">外环：从 FPGA 到流片</h2>
                 <p class="slide-lead">内环保证“做对”，外环保证“做得出来”。综合、布局布线、FPGA、PDK、签核，一步都不能少。</p>
@@ -741,10 +778,10 @@ EOF
               <div class="slide-note" hidden>这一页讲香山模式的外环：内环保证正确，外环才把设计推到 FPGA 和流片。综合是把 RTL 翻译成门电路，布局布线是安排位置和连线，FPGA 要真上板，ASIC 要过签核。强调“能综合”不等于“能上板”，55nm 是项目目标。</div>
             </section>
 
-            <!-- 15 · Fab -->
-            <section class="slide" data-slide-title="在工厂里，用光“画”出芯片" aria-label="第 15 页：芯片制造">
+            <!-- 16 · Fab -->
+            <section class="slide" data-slide-title="在工厂里，用光“画”出芯片" aria-label="第 16 页：芯片制造">
               <div class="slide-inner">
-                <div class="slide-topline"><span>14 · 制造</span><span class="slide-index">15 / 18</span></div>
+                <div class="slide-topline"><span>15 · 制造</span><span class="slide-index">16 / 19</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 外环终点</div>
                 <h2 class="slide-title">在工厂里，用光“画”出芯片</h2>
                 <p class="slide-lead">设计过了七道门，才会来到工厂。光刻像一台超级投影仪：光穿过光罩，把图案缩得很小很小，印在涂了光刻胶的晶圆上。一层一层，重复几十次。</p>
@@ -789,10 +826,10 @@ EOF
               <div class="slide-note" hidden>光刻可以比作“用光画画”：光穿过光罩，把图案缩小印到晶圆上。芯片不是一次打印出来的，而是几十层图案一层层叠出来的。这是香山模式外环的最后一站：设计、验证、签核都过了，才轮到工厂。可以让孩子想想：为什么工厂里要穿成“太空人”一样？</div>
             </section>
 
-            <!-- 16 · What can you do -->
-            <section class="slide" data-slide-title="想成为芯片工程师？从今天开始" aria-label="第 16 页：你能做什么">
+            <!-- 17 · What can you do -->
+            <section class="slide" data-slide-title="想成为芯片工程师？从今天开始" aria-label="第 17 页：你能做什么">
               <div class="slide-inner">
-                <div class="slide-topline"><span>15 · 你能做什么</span><span class="slide-index">16 / 18</span></div>
+                <div class="slide-topline"><span>16 · 你能做什么</span><span class="slide-index">17 / 19</span></div>
                 <div class="slide-kicker">START SMALL, START NOW</div>
                 <h2 class="slide-title">想成为芯片工程师？从今天开始</h2>
                 <p class="slide-lead">不需要现在就学 Verilog。先把数学、科学、英语和好奇心练好，再从小项目开始。</p>
@@ -815,10 +852,10 @@ EOF
               <div class="slide-note" hidden>不要让孩子觉得“芯片工程师”遥不可及。二进制、Scratch、拆旧电器、红石、Arduino、画芯片城市，都是入口。可以提一句：香山的前身是果壳（NutShell），“一生一芯”让更多学生从零设计 RISC-V 芯片。最后落到四种超能力：好奇心、耐心、合作、诚实。</div>
             </section>
 
-            <!-- 17 · Quiz -->
-            <section class="slide" data-slide-title="小测验：你记住多少？" aria-label="第 17 页：课堂小测验">
+            <!-- 18 · Quiz -->
+            <section class="slide" data-slide-title="小测验：你记住多少？" aria-label="第 18 页：课堂小测验">
               <div class="slide-inner">
-                <div class="slide-topline"><span>16 · 课堂互动</span><span class="slide-index">17 / 18</span></div>
+                <div class="slide-topline"><span>17 · 课堂互动</span><span class="slide-index">18 / 19</span></div>
                 <div class="slide-kicker">QUICK QUIZ</div>
                 <h2 class="slide-title">小测验：你记住多少？</h2>
                 <p class="slide-lead">先自己选，再点“揭晓答案”。答错也没关系，重要的是说出“为什么”。</p>
@@ -848,18 +885,24 @@ EOF
                       <button class="quiz-toggle" type="button" data-quiz-toggle aria-expanded="false" aria-controls="quiz-a4">揭晓答案</button>
                       <p class="quiz-answer" id="quiz-a4" hidden>答案：A。上一道没过，不许进下一道；每道门都要有命令、产物和已知限制。</p>
                     </div>
+                    <div class="quiz-card">
+                      <div class="q">5. 形式化验证和“抽考”最大的区别是什么？</div>
+                      <div class="quiz-options"><span>A. 形式化验证更好看</span><span>B. 对所有输入做证明，而不是只检查跑过的题</span><span>C. 形式化验证不需要写代码</span></div>
+                      <button class="quiz-toggle" type="button" data-quiz-toggle aria-expanded="false" aria-controls="quiz-a5">揭晓答案</button>
+                      <p class="quiz-answer" id="quiz-a5" hidden>答案：B。仿真和 DiffTest 像抽考，只能覆盖跑过的程序；形式化验证用数学证明覆盖所有情况，但只覆盖建模到的那部分。</p>
+                    </div>
                   </div>
                   <div class="lab-note"><strong>加分题：</strong>香山八件套里，你能说出哪四件？——参考模型、锁步 DiffTest、CI/检查点、生成化/开源协作。</div>
                 </div>
                 <div class="slide-footnote">老师提示：可以先让孩子举手选，再点开答案。重点不是答对，而是解释“为什么”。</div>
               </div>
-              <div class="slide-note" hidden>答案：1-B 香山是一颗开源 RISC-V 处理器；2-A 内环最快，按分钟反馈；3-B 锁步 DiffTest 让参考模型和 RTL 每一步对答案；4-A 不能跳步，每道门都要有证据。加分题：参考模型、锁步 DiffTest、CI/检查点、生成化/开源协作。</div>
+              <div class="slide-note" hidden>答案：1-B 香山是一颗开源 RISC-V 处理器；2-A 内环最快，按分钟反馈；3-B 锁步 DiffTest 让参考模型和 RTL 每一步对答案；4-A 不能跳步，每道门都要有证据；5-B 形式化验证对所有输入做证明，抽考只覆盖跑过的题。加分题：参考模型、锁步 DiffTest、CI/检查点、生成化/开源协作。</div>
             </section>
 
-            <!-- 18 · Closing -->
-            <section class="slide slide--closing" data-slide-title="下一颗芯片，也许由你设计" aria-label="第 18 页：结尾">
+            <!-- 19 · Closing -->
+            <section class="slide slide--closing" data-slide-title="下一颗芯片，也许由你设计" aria-label="第 19 页：结尾">
               <div class="slide-inner">
-                <div class="slide-topline"><span>17 · 结尾</span><span class="slide-index">18 / 18</span></div>
+                <div class="slide-topline"><span>18 · 结尾</span><span class="slide-index">19 / 19</span></div>
                 <div class="slide-kicker">THE NEXT CHIP COULD BE YOURS</div>
                 <h2>下一颗芯片，<br>也许由你设计。</h2>
                 <p class="quote">芯片不是魔法。它是一层层想清楚、一次次检查、一点点做出来的。<br>香山把它变成了三个环、七道门；Open6502 把它缩成一颗你也能看懂的小芯片。</p>
@@ -903,7 +946,7 @@ EOF
             <div class="n">STEP 01</div>
             <h3>看：先完整放一遍</h3>
             <p>用全屏模式播放，每页停留 1–2 分钟。遇到图多的地方，让孩子先猜，再解释。</p>
-            <ul><li>建议 35 分钟含互动</li><li>低年级可只看 1–9 页</li><li>高年级完整 18 页</li></ul>
+            <ul><li>建议 35 分钟含互动</li><li>低年级可只看 1–9 页</li><li>高年级完整 19 页</li></ul>
           </div>
           <div class="teacher-card">
             <div class="n">STEP 02</div>
