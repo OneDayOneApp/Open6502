@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>一颗芯片是怎么长大的？| 香山模式 · Open6502 芯片小课堂</title>
-  <meta name="description" content="给小学生的一堂芯片研发科普课，重点讲香山处理器的开发模式：三个环、S0–S6 七道门、锁步 DiffTest、CI 门禁，以及 Open6502 怎么练。18 页网页幻灯片。">
-  <meta name="theme-color" content="#06080c">
-  <meta name="color-scheme" content="dark">
+  <title>一颗芯片是怎么长大的？| Open6502 芯片小课堂</title>
+  <meta name="description" content="给小学生的一堂芯片研发科普课：从沙子到晶圆，从 RTL 到流片，用 18 页网页幻灯片讲清楚芯片是怎么设计、验证和制造出来的。重点介绍香山处理器的开发模式。">
+  <meta name="theme-color" content="#faf7f2">
+  <meta name="color-scheme" content="light">
   <!-- Google Tag Manager -->
   <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-WGT7D54Q"></script>
   <script>
@@ -23,32 +23,31 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Open6502">
   <meta property="og:locale" content="zh_CN">
-  <meta property="og:title" content="一颗芯片是怎么长大的？| 香山模式 · Open6502 芯片小课堂">
-  <meta property="og:description" content="用 18 页网页幻灯片，重点讲香山处理器的开发模式：三个环、七道门、锁步 DiffTest，以及 Open6502 怎么练。">
+  <meta property="og:title" content="一颗芯片是怎么长大的？| Open6502 芯片小课堂">
+  <meta property="og:description" content="用 18 页网页幻灯片，给小学生讲清楚芯片是什么、怎么设计、怎么验证，以及香山处理器的开发模式。">
   <meta property="og:url" content="https://onedayoneapp.github.io/Open6502/chip-lab.html">
   <meta property="og:image" content="https://onedayoneapp.github.io/Open6502/assets/chip-lab/og-cover.png">
   <meta property="og:image:width" content="1280">
   <meta property="og:image:height" content="720">
-  <meta property="og:image:alt" content="芯片小课堂封面：一颗芯片，是怎么长大的？重点：香山处理器开发模式。">
+  <meta property="og:image:alt" content="芯片小课堂封面：一颗芯片，是怎么长大的？">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="一颗芯片是怎么长大的？| 香山模式 · Open6502 芯片小课堂">
-  <meta name="twitter:description" content="给小学生的一堂芯片研发科普课：重点讲香山处理器的三个环、七道门和锁步 DiffTest。">
+  <meta name="twitter:title" content="一颗芯片是怎么长大的？| Open6502 芯片小课堂">
+  <meta name="twitter:description" content="给小学生的一堂芯片研发科普课：从沙子到晶圆，从 RTL 到流片，重点讲香山模式。">
   <meta name="twitter:image" content="https://onedayoneapp.github.io/Open6502/assets/chip-lab/og-cover.png">
-  <meta name="twitter:image:alt" content="芯片小课堂封面：一颗芯片，是怎么长大的？重点：香山处理器开发模式。">
+  <meta name="twitter:image:alt" content="芯片小课堂封面：一颗芯片，是怎么长大的？">
   <link rel="stylesheet" href="assets/css/site.css">
   <link rel="stylesheet" href="assets/css/chip-lab.css">
-  <script src="assets/js/site.js" defer></script>
   <script src="assets/js/chip-lab.js" defer></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "LearningResource",
-    "name": "一颗芯片是怎么长大的？——香山模式",
-    "description": "给小学生的一堂芯片研发科普课，重点讲香山处理器的开发模式：三个环、S0–S6 七道门、锁步 DiffTest、CI 门禁，以及 Open6502 怎么练。18 页网页幻灯片。",
+    "name": "一颗芯片是怎么长大的？",
+    "description": "给小学生的一堂芯片研发科普课，重点介绍香山处理器的开发模式。",
     "inLanguage": "zh-CN",
     "educationalLevel": "小学 4–6 年级",
     "learningResourceType": "Presentation",
-    "teaches": ["芯片是什么", "香山处理器开发模式", "三个环与 S0–S6 七道门", "锁步 DiffTest 与 CI 门禁", "Open6502 开源芯片案例"],
+    "teaches": ["芯片是什么", "香山处理器开发模式", "三个环与七道门", "锁步 DiffTest", "Open6502 案例"],
     "url": "https://onedayoneapp.github.io/Open6502/chip-lab.html",
     "isPartOf": {
       "@type": "WebSite",
@@ -123,17 +122,17 @@
     <section class="lab-hero" aria-labelledby="lab-title">
       <div class="container lab-hero-grid">
         <div>
-          <span class="eyebrow">Open6502 · 芯片小课堂 · 香山模式</span>
+          <span class="eyebrow">Open6502 · 芯片小课堂</span>
           <h1 id="lab-title">一颗芯片，<br>是怎么<span class="hl">长大</span>的？</h1>
           <p class="lab-lede">
-            给小学生的一堂芯片研发科普课，重点看<strong>香山处理器</strong>怎么被造出来：
-            从一粒沙、一张图纸，到三个环、七道门，再到会玩游戏、会画画、会发声的“小脑瓜”。
+            给小学生的一堂芯片研发科普课。我们不背名词，而是把芯片想成一座小城市：
+            看它怎么从一粒沙、一张图纸，长成会玩游戏、会画画、会发声的“小脑瓜”。
           </p>
           <div class="lab-meta" aria-label="课程信息">
             <span class="lab-pill lab-pill--red"><i class="dot"></i>18 页网页幻灯片</span>
             <span class="lab-pill">约 35 分钟</span>
             <span class="lab-pill">建议 4–6 年级</span>
-            <span class="lab-pill">重点：香山模式</span>
+            <span class="lab-pill">可全屏演示</span>
           </div>
           <div class="lab-actions">
             <a class="btn btn--primary" href="#deck" data-start-deck>
@@ -145,7 +144,7 @@
 
         <aside class="lab-hero-aside" aria-label="课堂速览">
           <div class="mini-label"><span class="dot"></span>CLASS OVERVIEW</div>
-          <h2>这堂课，重点看香山造芯片。</h2>
+          <h2>这堂课，重点看香山怎么造芯片。</h2>
           <p>不是背名词，而是看一群工程师怎么用参考模型、验证和自动化，把一颗处理器一步步做出来。</p>
           <div class="lab-goals">
             <div class="lab-goal"><b>01</b><span><strong>香山是谁？</strong> 一颗开源 RISC-V 处理器，不是一座山。</span></div>
@@ -179,7 +178,7 @@
               <div class="slide-inner">
                 <div class="cover-copy">
                   <div class="slide-topline"><span>OPEN6502 · 芯片小课堂</span><span class="slide-index">01 / 18</span></div>
-                  <div class="slide-kicker">XIANGSHAN WAY · 给小小工程师</div>
+                  <div class="slide-kicker">CHIP LAB · 给小小工程师</div>
                   <h1>一颗芯片，<br>是怎么<span class="hl">长大</span>的？</h1>
                   <p class="cover-sub">给小学生的一堂芯片研发课</p>
                   <p class="cover-desc">重点：香山处理器的开发模式——三个环、七道门。</p>
@@ -188,50 +187,70 @@
                   </div>
                 </div>
 
-                <div class="chip-art" aria-hidden="true">
-                  <span class="float-tag tag-a">CPU · PPU · APU · RAM</span>
-                  <span class="float-tag tag-b">OPEN SILICON / 6502</span>
-                  <svg viewBox="0 0 440 440" role="img" aria-label="一颗芯片的示意图：中间是芯片裸片，四周是引脚">
+                <div class="cover-art" aria-hidden="true">
+                  <svg viewBox="0 0 460 400" role="img" aria-label="一颗芯片的插画：中央是彩色芯片，周围是引脚和装饰线条">
                     <defs>
-                      <filter id="chipGlow" x="-40%" y="-40%" width="180%" height="180%">
-                        <feGaussianBlur stdDeviation="7" result="blur"/>
-                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                      </filter>
-                      <linearGradient id="chipDieGradient" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="#0b1018"/>
-                        <stop offset="1" stop-color="#06080c"/>
+                      <linearGradient id="coverGrad1" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#c94f32"/>
+                        <stop offset="1" stop-color="#e07856"/>
                       </linearGradient>
+                      <linearGradient id="coverGrad2" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#5a7fa6"/>
+                        <stop offset="1" stop-color="#7a9cb8"/>
+                      </linearGradient>
+                      <linearGradient id="coverGrad3" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#2a8c7a"/>
+                        <stop offset="1" stop-color="#4aaca0"/>
+                      </linearGradient>
+                      <linearGradient id="coverGrad4" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#d4a04c"/>
+                        <stop offset="1" stop-color="#e4c07c"/>
+                      </linearGradient>
+                      <filter id="coverShadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#c94f32" flood-opacity="0.15"/>
+                      </filter>
                     </defs>
-                    <g transform="rotate(-7 220 220)">
-                      <g fill="#f4c66a" opacity=".62">
-                        <rect x="80" y="42" width="12" height="26" rx="2"/><rect x="116" y="42" width="12" height="26" rx="2"/><rect x="152" y="42" width="12" height="26" rx="2"/><rect x="188" y="42" width="12" height="26" rx="2"/><rect x="224" y="42" width="12" height="26" rx="2"/><rect x="260" y="42" width="12" height="26" rx="2"/><rect x="296" y="42" width="12" height="26" rx="2"/><rect x="332" y="42" width="12" height="26" rx="2"/>
-                        <rect x="80" y="372" width="12" height="26" rx="2"/><rect x="116" y="372" width="12" height="26" rx="2"/><rect x="152" y="372" width="12" height="26" rx="2"/><rect x="188" y="372" width="12" height="26" rx="2"/><rect x="224" y="372" width="12" height="26" rx="2"/><rect x="260" y="372" width="12" height="26" rx="2"/><rect x="296" y="372" width="12" height="26" rx="2"/><rect x="332" y="372" width="12" height="26" rx="2"/>
-                        <rect x="42" y="80" width="26" height="12" rx="2"/><rect x="42" y="116" width="26" height="12" rx="2"/><rect x="42" y="152" width="26" height="12" rx="2"/><rect x="42" y="188" width="26" height="12" rx="2"/><rect x="42" y="224" width="26" height="12" rx="2"/><rect x="42" y="260" width="26" height="12" rx="2"/><rect x="42" y="296" width="26" height="12" rx="2"/><rect x="42" y="332" width="26" height="12" rx="2"/>
-                        <rect x="372" y="80" width="26" height="12" rx="2"/><rect x="372" y="116" width="26" height="12" rx="2"/><rect x="372" y="152" width="26" height="12" rx="2"/><rect x="372" y="188" width="26" height="12" rx="2"/><rect x="372" y="224" width="26" height="12" rx="2"/><rect x="372" y="260" width="26" height="12" rx="2"/><rect x="372" y="296" width="26" height="12" rx="2"/><rect x="372" y="332" width="26" height="12" rx="2"/>
-                      </g>
-                      <rect x="70" y="70" width="300" height="300" rx="30" fill="#101722" stroke="#2a3444" stroke-width="2"/>
-                      <rect x="102" y="102" width="236" height="236" rx="14" fill="url(#chipDieGradient)" stroke="#ff4d57" stroke-width="2" filter="url(#chipGlow)"/>
-                      <g stroke="#2a3444" stroke-width=".8" opacity=".85">
-                        <path d="M102 140h236M102 180h236M102 220h236M102 260h236M102 300h236M140 102v236M180 102v236M220 102v236M260 102v236M300 102v236"/>
-                      </g>
-                      <rect x="120" y="120" width="86" height="72" rx="6" fill="#ff4d57"/>
-                      <rect x="234" y="120" width="86" height="72" rx="6" fill="#8fb7ff"/>
-                      <rect x="120" y="248" width="86" height="72" rx="6" fill="#6ee7a8"/>
-                      <rect x="234" y="248" width="86" height="72" rx="6" fill="#f4c66a"/>
-                      <path d="M206 156h28M206 284h28M220 192v56" stroke="#e9eff8" stroke-width="2" opacity=".5"/>
-                      <text x="163" y="162" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#160407">CPU</text>
-                      <text x="277" y="162" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#06080c">PPU</text>
-                      <text x="163" y="290" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#06080c">APU</text>
-                      <text x="277" y="290" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#160407">RAM</text>
-                      <text x="220" y="226" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="700" fill="#e9eff8" letter-spacing="2">OPEN6502</text>
+                    <!-- decorative circles -->
+                    <circle cx="230" cy="200" r="185" fill="none" stroke="#e8e0d4" stroke-width="1" stroke-dasharray="4 6" opacity="0.6"/>
+                    <circle cx="230" cy="200" r="165" fill="none" stroke="#e8e0d4" stroke-width="1" opacity="0.4"/>
+                    <circle cx="230" cy="200" r="145" fill="none" stroke="#e8e0d4" stroke-width="1" opacity="0.3"/>
+                    <!-- pins -->
+                    <g fill="#d9cfc0">
+                      <rect x="70" y="120" width="18" height="8" rx="2"/><rect x="70" y="160" width="18" height="8" rx="2"/><rect x="70" y="200" width="18" height="8" rx="2"/><rect x="70" y="240" width="18" height="8" rx="2"/><rect x="70" y="280" width="18" height="8" rx="2"/>
+                      <rect x="372" y="120" width="18" height="8" rx="2"/><rect x="372" y="160" width="18" height="8" rx="2"/><rect x="372" y="200" width="18" height="8" rx="2"/><rect x="372" y="240" width="18" height="8" rx="2"/><rect x="372" y="280" width="18" height="8" rx="2"/>
+                      <rect x="120" y="70" width="8" height="18" rx="2"/><rect x="160" y="70" width="8" height="18" rx="2"/><rect x="200" y="70" width="8" height="18" rx="2"/><rect x="240" y="70" width="8" height="18" rx="2"/><rect x="280" y="70" width="8" height="18" rx="2"/><rect x="320" y="70" width="8" height="18" rx="2"/>
+                      <rect x="120" y="312" width="8" height="18" rx="2"/><rect x="160" y="312" width="8" height="18" rx="2"/><rect x="200" y="312" width="8" height="18" rx="2"/><rect x="240" y="312" width="8" height="18" rx="2"/><rect x="280" y="312" width="8" height="18" rx="2"/><rect x="320" y="312" width="8" height="18" rx="2"/>
                     </g>
+                    <!-- chip body -->
+                    <rect x="88" y="88" width="284" height="284" rx="24" fill="#f9f6f0" stroke="#d9cfc0" stroke-width="2"/>
+                    <rect x="108" y="108" width="244" height="244" rx="12" fill="#fff" stroke="#e8e0d4" stroke-width="1.5"/>
+                    <!-- die -->
+                    <rect x="128" y="128" width="204" height="204" rx="6" fill="#fff" stroke="#d9cfc0" stroke-width="1"/>
+                    <g stroke="#e8e0d4" stroke-width="0.6">
+                      <path d="M128 160h204M128 192h204M128 224h204M128 256h204M128 288h204M160 128v204M192 128v204M224 128v204M256 128v204M288 128v204"/>
+                    </g>
+                    <!-- modules -->
+                    <rect x="144" y="144" width="72" height="56" rx="4" fill="url(#coverGrad1)" filter="url(#coverShadow)"/>
+                    <rect x="244" y="144" width="72" height="56" rx="4" fill="url(#coverGrad2)" filter="url(#coverShadow)"/>
+                    <rect x="144" y="228" width="72" height="56" rx="4" fill="url(#coverGrad3)" filter="url(#coverShadow)"/>
+                    <rect x="244" y="228" width="72" height="56" rx="4" fill="url(#coverGrad4)" filter="url(#coverShadow)"/>
+                    <!-- bus lines -->
+                    <path d="M216 172h28M216 256h28M180 200v28M280 200v28" stroke="#c9c0b2" stroke-width="2"/>
+                    <!-- labels -->
+                    <text x="180" y="172" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">CPU</text>
+                    <text x="280" y="172" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">PPU</text>
+                    <text x="180" y="256" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">APU</text>
+                    <text x="280" y="256" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">RAM</text>
+                    <text x="230" y="214" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="11" font-weight="600" fill="#8a8178" letter-spacing="1">BUS · 0 / 1</text>
+                    <text x="230" y="368" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="10" font-weight="600" fill="#c9c0b2" letter-spacing="2">OPEN6502</text>
                   </svg>
                 </div>
               </div>
               <div class="slide-note" hidden>先别急着讲定义。可以问孩子：你见过的“会动、会亮、会响”的东西里，哪些可能藏着芯片？这页只负责抛出一个大问题：一颗芯片到底是怎么被做出来的？</div>
             </section>
-
-<section class="slide" data-slide-title="芯片藏在哪里？" aria-label="第 2 页：芯片藏在哪里">
+EOF
+            <!-- 02 · Where are chips -->
+            <section class="slide" data-slide-title="芯片藏在哪里？" aria-label="第 2 页：芯片藏在哪里">
               <div class="slide-inner">
                 <div class="slide-topline"><span>01 · 先找一找</span><span class="slide-index">02 / 18</span></div>
                 <div class="slide-kicker">EVERYWHERE</div>
@@ -239,27 +258,27 @@
                 <p class="slide-lead">如果没有芯片，世界会怎样？先别急着回答。找一找：你身边哪些东西会“思考”、会“控制”、会“记住”？</p>
                 <div class="slide-body">
                   <div class="where-grid">
-                    <div class="where-card lab-card lab-card--blue">
+                    <div class="where-card">
                       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10.5 18.5h3"/></svg></div>
                       <div><h3>手机</h3><p>拍照、上网、导航</p></div>
                     </div>
-                    <div class="where-card lab-card lab-card--green">
+                    <div class="where-card">
                       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="7" width="8" height="10" rx="2"/><path d="M9 7V4h6v3M9 17v3h6v-3"/></svg></div>
                       <div><h3>手表</h3><p>看时间、测心跳</p></div>
                     </div>
-                    <div class="where-card lab-card lab-card--red">
+                    <div class="where-card">
                       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15h16M5 15l1.4-4.5A2 2 0 0 1 8.3 9h7.4a2 2 0 0 1 1.9 1.5L19 15v3H5v-3Z"/><circle cx="7.5" cy="18" r="1.3"/><circle cx="16.5" cy="18" r="1.3"/></svg></div>
                       <div><h3>汽车</h3><p>控制发动机、刹车</p></div>
                     </div>
-                    <div class="where-card lab-card lab-card--amber">
+                    <div class="where-card">
                       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M5 10h14M8 6h2M8 14h2"/></svg></div>
                       <div><h3>冰箱</h3><p>调温度、省电</p></div>
                     </div>
-                    <div class="where-card lab-card lab-card--red">
+                    <div class="where-card">
                       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.9 4.9l-1 4.2a2.2 2.2 0 0 1-3.8 1L14 16h-4l-2.1 2.1a2.2 2.2 0 0 1-3.8-1l-1-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="16" cy="11.5" r=".7"/><circle cx="18" cy="13.5" r=".7"/></svg></div>
                       <div><h3>游戏机</h3><p>画面、声音、手柄</p></div>
                     </div>
-                    <div class="where-card lab-card lab-card--green">
+                    <div class="where-card">
                       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M4 12h16M8 8V6a4 4 0 0 1 8 0v2M10 15h4"/></svg></div>
                       <div><h3>电饭煲</h3><p>控制火候</p></div>
                     </div>
@@ -271,66 +290,70 @@
               <div class="slide-note" hidden>让孩子先列举，不要急着纠正。手机、手表、汽车、冰箱、游戏机、电饭煲只是引子。重点是把“芯片”从神秘的黑盒子，拉回到日常物品里。</div>
             </section>
 
-<section class="slide" data-slide-title="一座“指甲盖上的城市”" aria-label="第 3 页：芯片是什么">
+            <!-- 03 · Chip anatomy -->
+            <section class="slide" data-slide-title="一座“指甲盖上的城市”" aria-label="第 3 页：芯片解剖">
               <div class="slide-inner">
                 <div class="slide-topline"><span>02 · 芯片是什么</span><span class="slide-index">03 / 18</span></div>
-                <div class="slide-kicker">A CITY ON A FINGERNAIL</div>
+                <div class="slide-kicker">INSIDE THE CHIP</div>
                 <h2 class="slide-title">一座“指甲盖上的城市”</h2>
                 <p class="slide-lead">把芯片放大，你会看到一座规划得整整齐齐的城市：有指挥中心、仓库、画家、音乐家，还有无数条道路。</p>
                 <div class="slide-body">
-                  <div class="chip-city">
-                    <div class="chip-city-art">
-                      <svg viewBox="0 0 420 340" role="img" aria-label="芯片内部示意图：CPU、PPU、APU、RAM 四个模块由总线连接">
+                  <div class="chip-anatomy">
+                    <div class="chip-anatomy-art" aria-hidden="true">
+                      <svg viewBox="0 0 440 340">
                         <defs>
-                          <filter id="cityGlow" x="-30%" y="-30%" width="160%" height="160%">
-                            <feGaussianBlur stdDeviation="6" result="b"/>
-                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                          <linearGradient id="dieGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#f5f2ec"/><stop offset="1" stop-color="#e8e0d4"/>
+                          </linearGradient>
+                          <filter id="dieGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#c94f32" flood-opacity="0.12"/>
                           </filter>
                         </defs>
-                        <rect x="54" y="34" width="312" height="272" rx="22" fill="#101722" stroke="#2a3444" stroke-width="2"/>
-                        <rect x="84" y="64" width="252" height="212" rx="10" fill="#06080c" stroke="#ff4d57" stroke-width="2" filter="url(#cityGlow)"/>
-                        <g stroke="#2a3444" stroke-width=".8" opacity=".8">
-                          <path d="M84 104h252M84 144h252M84 184h252M84 224h252M124 64v212M164 64v212M204 64v212M244 64v212M284 64v212"/>
+                        <rect x="60" y="40" width="320" height="260" rx="18" fill="url(#dieGrad)" stroke="#d9cfc0" stroke-width="2"/>
+                        <rect x="84" y="64" width="272" height="212" rx="8" fill="#fff" stroke="#e8e0d4" stroke-width="1.5"/>
+                        <g stroke="#e8e0d4" stroke-width="0.6">
+                          <path d="M84 104h272M84 144h272M84 184h272M84 224h272M124 64v212M164 64v212M204 64v212M244 64v212M284 64v212M324 64v212"/>
                         </g>
-                        <rect x="100" y="82" width="86" height="58" rx="5" fill="#ff4d57"/>
-                        <rect x="234" y="82" width="86" height="58" rx="5" fill="#8fb7ff"/>
-                        <rect x="100" y="190" width="86" height="58" rx="5" fill="#6ee7a8"/>
-                        <rect x="234" y="190" width="86" height="58" rx="5" fill="#f4c66a"/>
-                        <path d="M186 111h48M186 219h48M210 140v50M210 170v20" stroke="#e9eff8" stroke-width="2" opacity=".45"/>
-                        <text x="143" y="116" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#160407">CPU</text>
-                        <text x="143" y="132" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#160407">指挥中心</text>
-                        <text x="277" y="116" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#06080c">PPU</text>
-                        <text x="277" y="132" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#06080c">画家</text>
-                        <text x="143" y="224" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#06080c">RAM</text>
-                        <text x="143" y="240" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#06080c">仓库</text>
-                        <text x="277" y="224" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#160407">APU</text>
-                        <text x="277" y="240" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#160407">音乐家</text>
-                        <text x="210" y="286" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="8" fill="#7e8da2" letter-spacing="1">BUS · 0 / 1</text>
+                        <rect x="108" y="92" width="96" height="70" rx="5" fill="#c94f32" filter="url(#dieGlow)"/>
+                        <rect x="236" y="92" width="96" height="70" rx="5" fill="#5a7fa6" filter="url(#dieGlow)"/>
+                        <rect x="108" y="190" width="96" height="70" rx="5" fill="#2a8c7a" filter="url(#dieGlow)"/>
+                        <rect x="236" y="190" width="96" height="70" rx="5" fill="#d4a04c" filter="url(#dieGlow)"/>
+                        <path d="M204 127h32M204 225h32M156 162v28M284 162v28" stroke="#c9c0b2" stroke-width="2"/>
+                        <text x="156" y="127" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">CPU</text>
+                        <text x="156" y="142" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="8" fill="#fff">指挥中心</text>
+                        <text x="284" y="127" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">PPU</text>
+                        <text x="284" y="142" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="8" fill="#fff">画家</text>
+                        <text x="156" y="225" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">RAM</text>
+                        <text x="156" y="240" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="8" fill="#fff">仓库</text>
+                        <text x="284" y="225" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#fff">APU</text>
+                        <text x="284" y="240" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="8" fill="#fff">音乐家</text>
+                        <text x="220" y="292" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8a8178" letter-spacing="1">BUS · 0 / 1</text>
                       </svg>
                     </div>
-                    <div class="chip-city-cards">
-                      <div class="chip-feature">
-                        <span class="n">01</span>
+                    <div class="chip-anatomy-cards">
+                      <div class="anatomy-item">
+                        <div class="swatch" style="background:#c94f32">01</div>
                         <div><h3>晶体管 = 小开关</h3><p>现代芯片里有几十亿个开关；每个只有“开”和“关”两种状态。开就是 1，关就是 0。</p></div>
                       </div>
-                      <div class="chip-feature">
-                        <span class="n">02</span>
+                      <div class="anatomy-item">
+                        <div class="swatch" style="background:#5a7fa6">02</div>
                         <div><h3>导线 = 道路</h3><p>把 0 和 1 的信号，送到需要它的地方。路修得越好，信号跑得越快。</p></div>
                       </div>
-                      <div class="chip-feature">
-                        <span class="n">03</span>
+                      <div class="anatomy-item">
+                        <div class="swatch" style="background:#2a8c7a">03</div>
                         <div><h3>模块 = 街区</h3><p>CPU、内存、图形、声音，各有各的工作，又通过总线互相说话。</p></div>
                       </div>
                     </div>
                   </div>
-                  <div class="binary-strip"><span>开 = 1，关 = 0：</span><b>1</b><b>0</b><b>1</b><b>0</b><span>两个数字，就能写出游戏、音乐和整座城市。</span></div>
+                  <div class="lab-note"><strong>开 = 1，关 = 0。</strong>两个数字，就能写出游戏、音乐和整座城市。</div>
                 </div>
                 <div class="slide-footnote">芯片不是“画”出来的，而是用一层层材料“做”出来的。下一站：从沙子开始。</div>
               </div>
               <div class="slide-note" hidden>晶体管不用讲得太深，先把它当成“电控小开关”。可以让孩子用手指比划：开是 1，关是 0。很多开关排在一起，就能表示数字、文字、图片和声音。补充一个对比：现代处理器有几十亿个晶体管，而 6502 只有几千个，但已经足够跑游戏。</div>
             </section>
 
-<section class="slide" data-slide-title="从一粒沙，到一片“硅圆饼”" aria-label="第 4 页：从沙到晶圆">
+            <!-- 04 · Sand to wafer -->
+            <section class="slide" data-slide-title="从一粒沙，到一片“硅圆饼”" aria-label="第 4 页：从沙到晶圆">
               <div class="slide-inner">
                 <div class="slide-topline"><span>03 · 从沙到硅</span><span class="slide-index">04 / 18</span></div>
                 <div class="slide-kicker">FROM SAND TO SILICON</div>
@@ -348,19 +371,19 @@
                     <div class="wafer-art" aria-hidden="true">
                       <svg viewBox="0 0 260 260">
                         <defs><clipPath id="waferClip"><circle cx="130" cy="130" r="96"/></clipPath></defs>
-                        <circle cx="130" cy="130" r="108" fill="#101722" stroke="#2a3444" stroke-width="2"/>
+                        <circle cx="130" cy="130" r="108" fill="#f5f2ec" stroke="#d9cfc0" stroke-width="2"/>
                         <g clip-path="url(#waferClip)">
-                          <rect x="20" y="20" width="220" height="220" fill="#0a1018"/>
-                          <g stroke="#2a3444" stroke-width="1">
+                          <rect x="20" y="20" width="220" height="220" fill="#fff"/>
+                          <g stroke="#e8e0d4" stroke-width="1">
                             <path d="M34 34h192v192H34zM58 34v192M82 34v192M106 34v192M130 34v192M154 34v192M178 34v192M202 34v192M34 58h192M34 82h192M34 106h192M34 130h192M34 154h192M34 178h192M34 202h192"/>
                           </g>
-                          <g fill="#ff4d57" opacity=".22">
+                          <g fill="#c94f32" opacity="0.08">
                             <rect x="58" y="58" width="24" height="24"/><rect x="106" y="82" width="24" height="24"/><rect x="154" y="58" width="24" height="24"/><rect x="82" y="130" width="24" height="24"/><rect x="178" y="154" width="24" height="24"/>
                           </g>
                         </g>
-                        <circle cx="130" cy="130" r="96" fill="none" stroke="#ff4d57" stroke-width="2"/>
-                        <circle cx="196" cy="196" r="5" fill="#06080c" stroke="#f4c66a" stroke-width="2"/>
-                        <text x="130" y="246" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#97a5b9" letter-spacing="1">300 mm WAFER</text>
+                        <circle cx="130" cy="130" r="96" fill="none" stroke="#c94f32" stroke-width="2"/>
+                        <circle cx="196" cy="196" r="5" fill="#fff" stroke="#d9cfc0" stroke-width="2"/>
+                        <text x="130" y="246" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8a8178" letter-spacing="1">300 mm WAFER</text>
                       </svg>
                     </div>
                     <div class="fact-list">
@@ -375,18 +398,19 @@
               <div class="slide-note" hidden>沙子的主要成分是二氧化硅，硅是地壳中第二多的元素。电子级硅的纯度可以做到 99.9999999%（9 个 9）。晶圆像一张大披萨，每一小块就是一颗芯片。可以让孩子猜猜：为什么要穿无尘服？</div>
             </section>
 
-<section class="slide" data-slide-title="一颗芯片里，住着一支“乐队”" aria-label="第 5 页：芯片里的模块">
+            <!-- 05 · SoC city -->
+            <section class="slide" data-slide-title="一颗芯片里，住着一支“乐队”" aria-label="第 5 页：芯片里的模块">
               <div class="slide-inner">
                 <div class="slide-topline"><span>04 · 芯片里的乐队</span><span class="slide-index">05 / 18</span></div>
                 <div class="slide-kicker">INSIDE THE SOC</div>
                 <h2 class="slide-title">一颗芯片里，住着一支“乐队”</h2>
                 <p class="slide-lead">每个模块都有自己的工作。它们通过“总线”交换消息，就像乐队看着同一个节拍。</p>
                 <div class="slide-body">
-                  <div class="soc-map" aria-label="Open6502 SoC 模块示意图">
+                  <div class="soc-city" aria-label="Open6502 SoC 模块示意图">
                     <div class="soc-node soc-node--cpu"><h3>CPU</h3><p>读指令、做计算、发号施令</p><span class="tag">指挥</span></div>
                     <div class="soc-node"><h3>卡带</h3><p>装着游戏程序和数据</p><span class="tag">故事书</span></div>
                     <div class="soc-node"><h3>手柄</h3><p>把“上、下、A、B”告诉芯片</p><span class="tag">感官</span></div>
-                    <div class="soc-bus">总线 BUS · 大家一起走同一条路</div>
+                    <div class="soc-bus-strip">总线 BUS · 大家一起走同一条路</div>
                     <div class="soc-node soc-node--ram"><h3>RAM</h3><p>临时记住正在用的数据</p><span class="tag">仓库</span></div>
                     <div class="soc-node soc-node--ppu"><h3>PPU</h3><p>把图块拼成 256×240 的画面</p><span class="tag">画家</span></div>
                     <div class="soc-node soc-node--apu"><h3>APU</h3><p>发出方波、三角波和噪声</p><span class="tag">音乐家</span></div>
@@ -509,7 +533,7 @@
               <div class="slide-note" hidden>S0–S6 是 Open6502 对香山式流程的提炼表述，不是香山官方唯一编号；重点是“每一步都要有证据”。可以把它想成游戏关卡：上一关没过，不能进下一关。每道门都必须能回答：用什么命令跑？产出什么？还有什么已知限制？</div>
             </section>
 
-            <!-- 09 · Four magic tools -->
+            <!-- 09 · Four tools -->
             <section class="slide" data-slide-title="香山为什么能“快”？四件法宝" aria-label="第 9 页：香山模式的四件法宝">
               <div class="slide-inner">
                 <div class="slide-topline"><span>08 · 香山模式</span><span class="slide-index">09 / 18</span></div>
@@ -563,8 +587,8 @@
                     <div class="lab-card lab-card--amber xs-score">
                       <div>
                         <div class="lab-label lab-label--amber">XIANGSHAN ALIGNMENT</div>
-                        <div class="score-big">46.8<span> / 100</span></div>
-                        <p style="margin-top:6px;color:var(--muted);font-size:.72rem;line-height:1.5">八维香山对齐评分；最近复核 2026-11-16。</p>
+                        <div class="score-big">45.9<span> / 100</span></div>
+                        <p style="margin-top:6px;color:var(--lab-muted);font-size:.72rem;line-height:1.5">九维香山对齐评分；最近复核 2026-11-22。</p>
                         <div class="xs-bars" aria-label="Open6502 香山对齐评分中的四项">
                           <div class="xs-bar-row"><span>参考模型</span><i style="width:90%"></i><em>9.0</em></div>
                           <div class="xs-bar-row"><span>锁步 DiffTest</span><i style="width:65%"></i><em>6.5</em></div>
@@ -576,12 +600,13 @@
                     </div>
                   </div>
                 </div>
-                <div class="slide-footnote">评分来自 site/learn.zh.html 的八维对照；6502 是教练机，不是战斗机。</div>
+                <div class="slide-footnote">评分来自 site/learn.zh.html 的九维对照；6502 是教练机，不是战斗机。</div>
               </div>
-              <div class="slide-note" hidden>这一页把香山模式落到 Open6502。不要吹成“小香山”：它只是用 6502 练同样的环和门禁。评分 46.8/100，参考模型最强，生成化还是 0；帧级/总线比对和后端闭环也还没完成。可以特别指出“诚实”：把没做到的部分也写出来，是工程师很重要的品质。</div>
+              <div class="slide-note" hidden>这一页把香山模式落到 Open6502。不要吹成“小香山”：它只是用 6502 练同样的环和门禁。评分 45.9/100（九维，形式化验证为第九维），参考模型与 Lean 形式化最强，生成化还是 0；帧级/总线比对和后端闭环也还没完成。可以特别指出“诚实”：把没做到的部分也写出来，是工程师很重要的品质。</div>
             </section>
 
-<section class="slide" data-slide-title="写 RTL：用“硬件语言”写下电路" aria-label="第 11 页：RTL 硬件语言">
+            <!-- 11 · RTL -->
+            <section class="slide" data-slide-title="写 RTL：用“硬件语言”写下电路" aria-label="第 11 页：写 RTL">
               <div class="slide-inner">
                 <div class="slide-topline"><span>10 · 写 RTL</span><span class="slide-index">11 / 18</span></div>
                 <div class="slide-kicker">WRITE THE HARDWARE · S2</div>
@@ -597,13 +622,13 @@
 <span class="c-kw">end</span></code></pre>
                       <div class="waveform" aria-hidden="true">
                         <svg viewBox="0 0 400 84">
-                          <text x="4" y="18" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#97a5b9">clk</text>
-                          <path d="M36 18h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22" fill="none" stroke="#8fb7ff" stroke-width="1.6"/>
-                          <text x="4" y="48" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#97a5b9">we</text>
-                          <path d="M36 48h66v-10h72v10h72v-10h72v10h72" fill="none" stroke="#6ee7a8" stroke-width="1.6"/>
-                          <text x="4" y="74" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#97a5b9">mem</text>
-                          <path d="M36 74h66v-8h72v8h72v-8h72v8h72" fill="none" stroke="#f4c66a" stroke-width="1.6"/>
-                          <line x1="36" y1="80" x2="388" y2="80" stroke="#2a3444" stroke-width=".8"/>
+                          <text x="4" y="18" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#8a8178">clk</text>
+                          <path d="M36 18h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22v-8h22v8h22" fill="none" stroke="#5a7fa6" stroke-width="1.6"/>
+                          <text x="4" y="48" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#8a8178">we</text>
+                          <path d="M36 48h66v-10h72v10h72v-10h72v10h72" fill="none" stroke="#2a8c7a" stroke-width="1.6"/>
+                          <text x="4" y="74" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#8a8178">mem</text>
+                          <path d="M36 74h66v-8h72v8h72v-8h72v8h72" fill="none" stroke="#d4a04c" stroke-width="1.6"/>
+                          <line x1="36" y1="80" x2="388" y2="80" stroke="#d9cfc0" stroke-width="0.8"/>
                         </svg>
                       </div>
                     </div>
@@ -620,7 +645,8 @@
               <div class="slide-note" hidden>不需要让孩子学会 Verilog，只要知道它和 Scratch 不一样：Scratch 是一步一步执行，硬件语言是在描述“电路长什么样、什么时候一起动”。时钟就是节拍器，上升沿就是大家一起迈步的那一刻。</div>
             </section>
 
-<section class="slide" data-slide-title="仿真：先在电脑里“虚拟制造”" aria-label="第 12 页：仿真">
+            <!-- 12 · Simulation -->
+            <section class="slide" data-slide-title="仿真：先在电脑里“虚拟制造”" aria-label="第 12 页：仿真">
               <div class="slide-inner">
                 <div class="slide-topline"><span>11 · 仿真</span><span class="slide-index">12 / 18</span></div>
                 <div class="slide-kicker">SIMULATE FIRST · 内环</div>
@@ -655,7 +681,8 @@
               <div class="slide-note" hidden>仿真就像飞机模拟器：先在地面练熟，不用真的起飞。给芯片输入测试激励，让 RTL 跑起来，再看输出和波形。强调“仿真通过不等于一定正确”，为下一页锁步 DiffTest 做铺垫。</div>
             </section>
 
-<section class="slide" data-slide-title="锁步 DiffTest：像侦探一样“找不同”" aria-label="第 13 页：锁步 DiffTest">
+            <!-- 13 · DiffTest -->
+            <section class="slide" data-slide-title="锁步 DiffTest：像侦探一样“找不同”" aria-label="第 13 页：锁步 DiffTest">
               <div class="slide-inner">
                 <div class="slide-topline"><span>12 · 验证</span><span class="slide-index">13 / 18</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 内环核心</div>
@@ -689,7 +716,8 @@
               <div class="slide-note" hidden>验证是芯片研发里最花时间、也最容易被低估的部分。香山模式把它做成内环：同一镜像，参考模型和 RTL 每一步对答案。NEMU 是软件参考模型，RTL 是硬件设计。28 项测试、Klaus 和帧哈希一致，都是“参考答案和正式答案对上了”的证据。</div>
             </section>
 
-<section class="slide" data-slide-title="外环：从 FPGA 到流片" aria-label="第 14 页：外环，从 FPGA 到流片">
+            <!-- 14 · Backend -->
+            <section class="slide" data-slide-title="外环：从 FPGA 到流片" aria-label="第 14 页：外环，从 FPGA 到流片">
               <div class="slide-inner">
                 <div class="slide-topline"><span>13 · 走向工厂</span><span class="slide-index">14 / 18</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 外环</div>
@@ -713,7 +741,8 @@
               <div class="slide-note" hidden>这一页讲香山模式的外环：内环保证正确，外环才把设计推到 FPGA 和流片。综合是把 RTL 翻译成门电路，布局布线是安排位置和连线，FPGA 要真上板，ASIC 要过签核。强调“能综合”不等于“能上板”，55nm 是项目目标。</div>
             </section>
 
-<section class="slide" data-slide-title="在工厂里，用光“画”出芯片" aria-label="第 15 页：芯片制造">
+            <!-- 15 · Fab -->
+            <section class="slide" data-slide-title="在工厂里，用光“画”出芯片" aria-label="第 15 页：芯片制造">
               <div class="slide-inner">
                 <div class="slide-topline"><span>14 · 制造</span><span class="slide-index">15 / 18</span></div>
                 <div class="slide-kicker">THE XIANGSHAN WAY · 外环终点</div>
@@ -729,22 +758,22 @@
                     </div>
                     <div class="fab-art" aria-hidden="true">
                       <svg viewBox="0 0 340 300">
-                        <rect x="96" y="16" width="148" height="56" rx="5" fill="#101722" stroke="#8fb7ff" stroke-width="1.5"/>
-                        <g stroke="#8fb7ff" stroke-width="1" opacity=".55">
+                        <rect x="96" y="16" width="148" height="56" rx="5" fill="#f5f2ec" stroke="#d9cfc0" stroke-width="1.5"/>
+                        <g stroke="#5a7fa6" stroke-width="1" opacity=".55">
                           <path d="M112 24v40M128 24v40M144 24v40M160 24v40M176 24v40M192 24v40M208 24v40M224 24v40"/>
                         </g>
-                        <text x="170" y="88" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="10" fill="#8fb7ff">光罩</text>
-                        <g stroke="#f4c66a" stroke-width="1.5" stroke-dasharray="5 4" opacity=".8">
+                        <text x="170" y="88" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="10" fill="#5a7fa6">光罩</text>
+                        <g stroke="#d4a04c" stroke-width="1.5" stroke-dasharray="5 4" opacity=".8">
                           <path d="M110 78l-38 74M140 78l-18 74M170 78v74M200 78l18 74M230 78l38 74"/>
                         </g>
-                        <text x="170" y="166" text-anchor="middle" font-family="PingFang SC, Hiragino Sans GB, sans-serif" font-size="9" fill="#f4c66a">光</text>
-                        <ellipse cx="170" cy="214" rx="112" ry="42" fill="#101722" stroke="#2a3444" stroke-width="1.5"/>
-                        <ellipse cx="170" cy="202" rx="112" ry="42" fill="#0a1018" stroke="#ff4d57" stroke-width="1.5"/>
-                        <g stroke="#2a3444" stroke-width=".8">
+                        <text x="170" y="166" text-anchor="middle" font-family="PingFang SC, sans-serif" font-size="9" fill="#d4a04c">光</text>
+                        <ellipse cx="170" cy="214" rx="112" ry="42" fill="#f5f2ec" stroke="#d9cfc0" stroke-width="1.5"/>
+                        <ellipse cx="170" cy="202" rx="112" ry="42" fill="#fff" stroke="#c94f32" stroke-width="1.5"/>
+                        <g stroke="#d9cfc0" stroke-width="0.8">
                           <path d="M78 202h184M96 186h148M96 218h148"/>
                         </g>
-                        <ellipse cx="170" cy="202" rx="112" ry="42" fill="none" stroke="#ff4d57" stroke-width="1.5"/>
-                        <text x="170" y="278" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#97a5b9" letter-spacing="1">WAFER · LAYER BY LAYER</text>
+                        <ellipse cx="170" cy="202" rx="112" ry="42" fill="none" stroke="#c94f32" stroke-width="1.5"/>
+                        <text x="170" y="278" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8a8178" letter-spacing="1">WAFER · LAYER BY LAYER</text>
                       </svg>
                     </div>
                   </div>
@@ -760,7 +789,8 @@
               <div class="slide-note" hidden>光刻可以比作“用光画画”：光穿过光罩，把图案缩小印到晶圆上。芯片不是一次打印出来的，而是几十层图案一层层叠出来的。这是香山模式外环的最后一站：设计、验证、签核都过了，才轮到工厂。可以让孩子想想：为什么工厂里要穿成“太空人”一样？</div>
             </section>
 
-<section class="slide" data-slide-title="想成为芯片工程师？从今天开始" aria-label="第 16 页：你能做什么">
+            <!-- 16 · What can you do -->
+            <section class="slide" data-slide-title="想成为芯片工程师？从今天开始" aria-label="第 16 页：你能做什么">
               <div class="slide-inner">
                 <div class="slide-topline"><span>15 · 你能做什么</span><span class="slide-index">16 / 18</span></div>
                 <div class="slide-kicker">START SMALL, START NOW</div>
