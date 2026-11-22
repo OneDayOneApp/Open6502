@@ -57,7 +57,7 @@ description: 用香山式流程设计、联调或评审数字 SoC/ASIC：先冻�
 | **中环** | 每次提交 | CI 回归、golden 哈希、失败 trace、required check | PR 不绿不能合；同种子两次结果一致；golden 变更需评审 |
 | **外环** | 每次迭代 | 综合、FPGA、开放 PDK 后端、PPA 报告 | 小模块能到面积/时序报告；上板稳定；流片门禁逐项有证据 |
 
-> `[事实]` Open6502 把这三环写成学习路径，并用八维评分跟踪；核心不是环的尺寸，而是**环与环之间的门禁纪律**。
+> `[事实]` Open6502 把这三环写成学习路径，并用九维评分跟踪；核心不是环的尺寸，而是**环与环之间的门禁纪律**。
 >
 > `[迁移]` 大芯片把内环从“分钟”放宽到“十分钟”可以，但不能取消；外环可以从“流片”降级为“开放 PDK PPA 演练”，但不能用“能综合”代替“正确”。
 
@@ -338,22 +338,23 @@ SRAM 宏替换 → DFT/scan + 覆盖率 → clock/reset/power intent → 标准�
 
 ---
 
-## 10. 八维自评（只认可复现证据）
+## 10. 九维自评（只认可复现证据）
 
 | 维度 | 权重 | 0 分 | 5 分 | 10 分 |
 |---|---:|---|---|---|
-| 参考模型 | 15% | 没有独立 REF | REF 能跑功能测试 | REF 可校准、可快照、可回放 |
-| 锁步差分 | 25% | 只比最终状态 | 逐指令 retire + 首差异 | 总线/设备/帧/音频全进协议 |
-| 生成化 | 15% | 纯手写 | 一个模块生成化并等价 | 参数化生成 + 等价回归 |
-| CI 门禁 | 15% | 无 CI | lint+sim+difftest | required check + 双跑 + 失败产物 |
-| 检查点/回放 | 10% | 无 | REF 侧有 | RTL/SoC 可 snapshot→restore→续跑 |
-| 性能评估 | 10% | 只有墙钟 FPS | 有计数器 | 改动→cycles/阻塞归因报告 |
-| 后端闭环 | 7% | 无综合 | 逐模块面积 | bitstream 或 PDK PPA + 时序 |
-| 开源协作 | 3% | 无许可证/流程 | README+CONTRIBUTING | 可复现贡献 + 第三方声明 |
+| 参考模型 | 14% | 没有独立 REF | REF 能跑功能测试 | REF 可校准、可快照、可回放 |
+| 锁步差分 | 22% | 只比最终状态 | 逐指令 retire + 首差异 | 总线/设备/帧/音频全进协议 |
+| 形式化验证 | 10% | 无模型/无证明 | 关键模块或指令子集有精化证明 | 全 ISA + 中断/复位/时序等价，证明进 CI |
+| 生成化 | 14% | 纯手写 | 一个模块生成化并等价 | 参数化生成 + 等价回归 |
+| CI 门禁 | 14% | 无 CI | lint+sim+difftest | required check + 双跑 + 失败产物 |
+| 检查点/回放 | 9% | 无 | REF 侧有 | RTL/SoC 可 snapshot→restore→续跑 |
+| 性能评估 | 9% | 只有墙钟 FPS | 有计数器 | 改动→cycles/阻塞归因报告 |
+| 后端闭环 | 6% | 无综合 | 逐模块面积 | bitstream 或 PDK PPA + 时序 |
+| 开源协作 | 2% | 无许可证/流程 | README+CONTRIBUTING | 可复现贡献 + 第三方声明 |
 
 评分是工程判断，不是认证；每次复核留日期、理由、证据链接。不要用“游戏能跑”“综合能过”“计划完成百分比”抬分。
 
-> Open6502 另设**形式化验证加分（上限 +5）**：Lean 4 精化证明不计入八维权重，避免与差分验证重复计分；做法与边界见 `formal/README.md`，评分记录见 `docs/scorecard-history.md`。
+> v2 起 Open6502 把**形式化验证**列为第九维（10%）；其余八维按比例归一化，历史分按新权重重算（见 `docs/scorecard-history.md`）。做法与边界见 `formal/README.md`。
 
 ---
 
@@ -388,7 +389,7 @@ docs/spec/difftest.md              REF/DUT/事件/同步点/报告格式
 docs/spec/verification.md          L0–L7 测试层级与必需套件
 docs/spec/checklist.md             S0–S6 门禁清单
 docs/adr/ADR-00x-*.md              每个不可逆决策
-docs/scorecard.md                  八维评分与证据
+docs/scorecard.md                  九维评分与证据
 CONTRIBUTING.md                    PR 规则/证据要求
 .github/workflows/ci.yml           lint/sim/difftest/determinism
 ```
@@ -438,14 +439,14 @@ make difftest
 
 ## 14. 事实来源（Open6502）
 
-- `docs/learning-path.zh-CN.md`：三个环、八维、12 周路线、迁移边界。
+- `docs/learning-path.zh-CN.md`：三个环、九维、12 周路线、迁移边界。
 - `docs/open6502-chip/architecture.md`：时钟/地址图/top ports/阶段 P0–P6。
 - `docs/open6502-chip/difftest.md`：事件结构、同步点、报告字段、预算。
 - `docs/open6502-chip/verification.md`：L0–L7、必需测试、发布门禁。
 - `docs/open6502-chip/checklist.md`：P0–P6 芯片级检查单。
 - `docs/open6502-chip/synthesis-area.md`：Yosys 逐模块面积与口径警告。
 - `docs/55nm-tapeout-roadmap.md`：NEMU→RTL→FPGA→ASIC 阶段门禁。
-- `docs/scorecard-history.md` 与 `site/learn.zh.html`：八维权重与评分口径。
+- `docs/scorecard-history.md` 与 `site/learn.zh.html`：九维权重与评分口径。
 - `labs/am6502/docs/design.md`：一镜像多后端、镜像契约、成功判据。
 - `labs/am6502/README.zh-CN.md`：M1–M3 实际命令与首个差异输出。
 - `rtl/`、`tb/`、`sim/difftest/`：RTL 规范、testbench plusargs、冒烟比对。

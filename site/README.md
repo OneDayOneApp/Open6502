@@ -18,7 +18,7 @@ Pages from the `site/` directory on `main`.
   redirects to `docs.zh.html`.
 - `docs.zh.html` — Chinese technical documentation with the same section IDs.
 - `learn.html` — **English default** learning path: the three loops, the
-  eight-dimension XiangShan alignment scorecard plus a formal-verification bonus (49/100), its score history,
+  nine-dimension XiangShan alignment scorecard (formal verification is the ninth dimension since rubric v2; 46/100), its score history,
   a 12-week route, the transfer boundaries and a link to the reusable
   chip-flow skill. Redirects Chinese locales to `learn.zh.html`.
 - `learn.zh.html` — Chinese learning path with the same structure.
@@ -66,7 +66,7 @@ To add a review point: append to `HISTORY.points`, then
 node site/tools/render-scorecard.js
 ```
 
-and update both pages' hero number, eight-dimension table and
+and update both pages' hero number, nine-dimension table and
 `../docs/scorecard-history.md`.
 
 ## Interactive WebAssembly demo

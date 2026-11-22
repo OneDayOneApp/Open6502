@@ -172,7 +172,7 @@ clean:
 - `verification`：L0–L7、必需套件、发布门禁。
 - `checklist`：S0–S6/P0–P6 逐项状态。
 - `ADR`：每个不可逆决策（profile、端口、legacy/新模型、检查点、后端）。
-- `scorecard`：八维评分与证据。
+- `scorecard`：九维评分与证据。
 - `CONTRIBUTING`：PR 规则、测试要求、许可证/来源。
 
 规则：

@@ -20,7 +20,7 @@
 SKILL.md                        主文件：触发、七道门、内/中/外环、硬规则、迁移矩阵
 install.sh                      安装到 ~/.dsh/skills 或 ./.dsh/skills
 references/
-  operating-model.md            三个环、S0–S6、八维评分、12 周节奏、证据台账
+  operating-model.md            三个环、S0–S6、九维评分、12 周节奏、证据台账
   contracts.md                  镜像/REF-DUT/事件/同步点/检查点/manifest/精度标签
   verification.md               L0–L7、必需套件、DiffTest 阶梯、CI、发布门禁
   rtl-norms.md                  时钟复位/总线/CPU/存储/综合保护/可观测/TB/Make/PR

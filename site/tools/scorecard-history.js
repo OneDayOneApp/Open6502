@@ -13,11 +13,11 @@
     points: [
       {
         date: "2026-11-15",
-        total: 34.4,
+        total: 30.9,
         grade: "D+",
         summary: {
-          zh: "首版评分：网站上线时的八维基线",
-          en: "First scorecard: the eight-dimension baseline published with the site"
+          zh: "首版评分（原八维基线，按九维 v2 权重重算）",
+          en: "First scorecard (original eight-dimension baseline, restated under the nine-dimension v2 weights)"
         },
         changes: {
           zh: [
@@ -32,11 +32,11 @@
       },
       {
         date: "2026-11-16",
-        total: 46.8,
+        total: 41.9,
         grade: "C",
         summary: {
-          zh: "am6502 M1–M3 落地；根 MIT 许可证发布",
-          en: "am6502 M1–M3 landed; root MIT licence published"
+          zh: "am6502 M1–M3 落地；根 MIT 许可证发布（按九维权重重算）",
+          en: "am6502 M1–M3 landed; root MIT licence published (restated under the nine-dimension weights)"
         },
         changes: {
           zh: [
@@ -55,22 +55,22 @@
       },
       {
         date: "2026-11-22",
-        total: 49.3,
+        total: 45.9,
         grade: "C",
         summary: {
-          zh: "Lean 4 形式化验证落地；八维核心 46.8 不变，形式化加分 +2.5",
-          en: "Lean 4 formal verification landed; eight-dimension core stays at 46.8, +2.5 formal bonus"
+          zh: "评分升为九维：形式化验证成为第九维（10%）；历史点按新权重重算",
+          en: "Rubric v2: formal verification becomes the ninth dimension (10%); earlier points restated"
         },
         changes: {
           zh: [
-            "形式化加分 0 → +2.5（上限 +5）：151 条指令译码与 RTL 分派一致，19 条指令逐周期精化（mrun n m = step m）",
-            "ADC/SBC（含 BCD）、CMP、移位、BIT 对全部 8 位操作数证明；15 个程序测试、4 个 Lean↔RTL 协同仿真进 CI",
-            "八维核心 46.8 不变：生成化 0、帧级/总线比对与后端闭环仍缺"
+            "新增形式化验证维度 0 → 4.0/10：151 条译码与 RTL 分派一致，BCD/ALU 全输入证明，19 条指令精化",
+            "九维权重：参考 14、差分 22、生成化 14、形式化 10、CI 14、检查点 9、性能 9、后端 6、协作 2",
+            "历史点重算：2026-11-15 34.4 → 30.9、2026-11-16 46.8 → 41.9；v1 与 v2 分数不可直接比较"
           ],
           en: [
-            "Formal bonus 0 → +2.5 (cap +5): the 151-opcode decode matches the RTL dispatch and 19 instructions have mrun n m = step m refinement proofs",
-            "ADC/SBC (including BCD), CMP, shifts and BIT proved for all 8-bit operands; 15 program tests and 4 Lean↔RTL co-simulations run in CI",
-            "Eight-dimension core unchanged at 46.8: generation 0, frame/bus compare and the backend loop are still missing"
+            "New formal-verification dimension 0 → 4.0/10: the 151-opcode decode matches the RTL dispatch, BCD/ALU proofs cover all operands, and 19 instructions are refined",
+            "Nine-dimension weights: reference 14, DiffTest 22, generation 14, formal 10, CI 14, checkpoints 9, performance 9, backend 6, collaboration 2",
+            "Earlier points restated: 2026-11-15 34.4 → 30.9, 2026-11-16 46.8 → 41.9; v1 and v2 totals are not directly comparable"
           ]
         }
       }

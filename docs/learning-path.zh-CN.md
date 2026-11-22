@@ -4,7 +4,7 @@
 >
 > 最后更新：2026-11-15。状态数字会变，以 `git log`、`rtl/`、`sim/difftest/` 和 CI 实际输出为准。
 >
-> 配套网页：[site/learn.zh.html](../site/learn.zh.html)（三个环、八维评分、12 周路线）。
+> 配套网页：[site/learn.zh.html](../site/learn.zh.html)（三个环、九维评分、12 周路线）。
 >
 > 配套 skill：[skills/xiangshan-chip-flow/SKILL.md](../skills/xiangshan-chip-flow/SKILL.md)（S0–S6 门禁、锁步 DiffTest、CI/检查点和后端模板，可直接用于下一颗芯片）。
 

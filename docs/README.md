@@ -14,7 +14,7 @@ The docs are grouped by the loop they serve: inner (minutes), middle (every comm
 |---|---|
 | [learning-path.zh-CN.md](learning-path.zh-CN.md) | How to rehearse the XiangShan-style flow on this repo; which gaps matter first |
 | [scorecard-history.md](scorecard-history.md) | Every alignment-score review: totals, per-dimension deltas and the evidence behind each move |
-| [../site/learn.zh.html](../site/learn.zh.html) | Web version: three loops, the eight-dimension XiangShan scorecard and the 12-week route |
+| [../site/learn.zh.html](../site/learn.zh.html) | Web version: three loops, the nine-dimension XiangShan scorecard and the 12-week route |
 
 ## Inner loop — verification and debug (minutes)
 
@@ -67,7 +67,7 @@ The docs are grouped by the loop they serve: inner (minutes), middle (every comm
 | Doc | What it answers |
 |---|---|
 | [../skills/xiangshan-chip-flow/SKILL.md](../skills/xiangshan-chip-flow/SKILL.md) | How to run the XiangShan-style loop on a new chip: S0–S6 gates, one-image/multi-backend contract, lockstep DiffTest, CI, checkpoints, FPGA/PDK backend |
-| [../skills/xiangshan-chip-flow/references/operating-model.md](../skills/xiangshan-chip-flow/references/operating-model.md) | The operating model behind the gates: three loops, eight-dimension scorecard, 12-week cadence |
+| [../skills/xiangshan-chip-flow/references/operating-model.md](../skills/xiangshan-chip-flow/references/operating-model.md) | The operating model behind the gates: three loops, nine-dimension scorecard, 12-week cadence |
 | [../skills/xiangshan-chip-flow/assets/templates/](../skills/xiangshan-chip-flow/assets/templates/) | Copy-ready templates: chip brief, gate checklist, DiffTest protocol, PR/ADR, mismatch report, manifest, Makefile/CI |
 
 ## Status
